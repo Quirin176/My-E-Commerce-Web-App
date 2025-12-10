@@ -50,8 +50,12 @@ export default function AdminProducts() {
     const loadCategories = async () => {
       try {
         const data = await categoryApi.getAll();
+        console.log("Categories loaded:", data);
+        
         const catList = Array.isArray(data) ? data : [];
         setCategories(catList);
+        
+        // Set active tab to first category ID
         if (catList.length > 0) {
           setActiveTab(catList[0].id);
         }
@@ -69,11 +73,14 @@ export default function AdminProducts() {
       setLoading(true);
       try {
         const data = await adminApi.getProducts();
+        console.log("Products loaded:", data);
+        
         const productList = Array.isArray(data) ? data : [];
         setProducts(productList);
       } catch (error) {
         console.error("Error loading products:", error);
         toast.error("Failed to load products");
+        setProducts([]);
       } finally {
         setLoading(false);
       }
@@ -83,8 +90,13 @@ export default function AdminProducts() {
 
   // Filter products by active category
   const filteredProducts = useMemo(() => {
-    if (!activeTab) return products;
-    return products.filter((p) => p.categoryId === activeTab);
+    if (!activeTab || products.length === 0) return products;
+    
+    console.log(`Filtering products for category ID: ${activeTab}`);
+    const filtered = products.filter((p) => p.categoryId === activeTab);
+    console.log(`Filtered: ${filtered.length} products`);
+    
+    return filtered;
   }, [products, activeTab]);
 
   // Sort filtered products
@@ -146,30 +158,36 @@ export default function AdminProducts() {
 
       {/* Category Buttons */}
       <div style={{ display: "flex", justifyContent: "center", gap: 10, marginBottom: 20, flexWrap: "wrap" }}>
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={() => setActiveTab(cat.id)}
-            style={{
-              padding: "10px 20px",
-              borderRadius: 10,
-              border: "1px solid #ccc",
-              cursor: "pointer",
-              background: activeTab === cat.id ? "#4169E1" : "white",
-              color: activeTab === cat.id ? "white" : "black",
-              fontSize: 16,
-              fontWeight: "bold",
-              transition: "all 0.2s",
-            }}
-          >
-            {cat.name}
-          </button>
-        ))}
+        {categories.length > 0 ? (
+          categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setActiveTab(cat.id)}
+              style={{
+                padding: "10px 20px",
+                borderRadius: 10,
+                border: "1px solid #ccc",
+                cursor: "pointer",
+                background: activeTab === cat.id ? "#4169E1" : "white",
+                color: activeTab === cat.id ? "white" : "black",
+                fontSize: 16,
+                fontWeight: "bold",
+                transition: "all 0.2s",
+              }}
+            >
+              {cat.name}
+            </button>
+          ))
+        ) : (
+          <p className="text-gray-500">No categories found</p>
+        )}
       </div>
 
       {/* TABLE */}
       {loading ? (
         <p className="text-center text-gray-500 py-8">Loading products...</p>
+      ) : categories.length === 0 ? (
+        <p className="text-center text-gray-500 py-8">No categories available.</p>
       ) : sortedProducts.length === 0 ? (
         <p className="text-center text-gray-500 py-8">No products in {activeCategoryName} category.</p>
       ) : (
