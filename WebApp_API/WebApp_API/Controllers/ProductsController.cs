@@ -14,7 +14,7 @@ namespace WebApp_API.Controllers
         private readonly AppDbContext _db;
         public ProductsController(AppDbContext db) => _db = db;
 
-        [HttpGet]
+[HttpGet]
         public async Task<IActionResult> GetAll(
             [FromQuery] string category = null,
             [FromQuery] decimal minPrice = 0,
@@ -48,7 +48,6 @@ namespace WebApp_API.Controllers
 
                 if (selectedOptionIds.Count > 0)
                 {
-                    // OR filtering: match ANY selected option value
                     var productIds = await _db.ProductFilters
                         .Where(pf => selectedOptionIds.Contains(pf.OptionValueId))
                         .Select(pf => pf.ProductId)
@@ -73,6 +72,8 @@ namespace WebApp_API.Controllers
                 p.Price,
                 p.ImageUrl,
                 p.ShortDescription,
+                p.CategoryId,
+                p.Slug,
                 Options = _db.ProductFilters
                         .Where(f => f.ProductId == p.Id)
                         .Select(f => new
@@ -85,7 +86,7 @@ namespace WebApp_API.Controllers
 
             return Ok(products);
         }
-
+        
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {

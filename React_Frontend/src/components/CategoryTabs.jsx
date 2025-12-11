@@ -46,7 +46,7 @@ const CategoryTabs = ({ products }) => {
   const canPrev = pageIndex > 0;
 
   return (
-    <div style={{ borderRadius: 10, width: "100%", maxWidth: 1500, margin: "0 auto", textAlign: "center", background: "royalblue" }}>
+    <div style={{ borderRadius: 10, width: "100%", maxWidth: 1200, margin: "0 auto", textAlign: "center", background: "royalblue" }}>
       {/* CATEGORY TABS */}
       <div style={{ display: "flex", justifyContent: "left", borderTopLeftRadius: 10, borderTopRightRadius: 10, marginBottom: 10, background: "white" }}>
         {products.map((cat) => (

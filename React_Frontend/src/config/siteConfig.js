@@ -1,5 +1,5 @@
 export const siteConfig = {
-  webName: "MyWebApp",
+  webName: "E-Commerce",
 
   API_URL: "http://localhost:5159/api",
 

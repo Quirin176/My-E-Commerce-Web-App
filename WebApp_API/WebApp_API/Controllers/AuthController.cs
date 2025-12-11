@@ -46,7 +46,6 @@ namespace WebApp_API.Controllers
 
                 var user = new User
                 {
-
                     Username = req.Username,
                     Email = req.Email,
                     PasswordHash = hash,
@@ -104,31 +103,43 @@ namespace WebApp_API.Controllers
                 var key = Encoding.UTF8.GetBytes(jwtSection.GetValue<string>("Key"));
                 var issuer = jwtSection.GetValue<string>("Issuer");
                 var audience = jwtSection.GetValue<string>("Audience");
-                var expiresIn = jwtSection.GetValue<int>("ExpiresInMinutes");
+                var expiresInMinutes = jwtSection.GetValue<int>("ExpireMinutes");
+
+                Console.WriteLine($"[JWT] Generating token for user: {user.Username}");
+                Console.WriteLine($"[JWT] ExpiresInMinutes from config: {expiresInMinutes}");
 
                 var claims = new List<Claim>
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim("id", user.Id.ToString()),
-                new Claim("username", user.Username),
-                new Claim("email", user.Email),
-                new Claim(ClaimTypes.Role, user.Role)
-            };
+                {
+                    new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                    new Claim("id", user.Id.ToString()),
+                    new Claim("username", user.Username),
+                    new Claim("email", user.Email),
+                    new Claim(ClaimTypes.Role, user.Role)
+                };
 
                 var creds = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
+                
+                var expiration = DateTime.UtcNow.AddMinutes(expiresInMinutes);
+                Console.WriteLine($"[JWT] Token created: {DateTime.UtcNow:O}");
+                Console.WriteLine($"[JWT] Token expires: {expiration:O}");
+                Console.WriteLine($"[JWT] Duration: {expiresInMinutes} minutes");
+
                 var token = new JwtSecurityToken(
                     issuer: issuer,
                     audience: audience,
                     claims: claims,
-                    expires: DateTime.UtcNow.AddMinutes(expiresIn),
+                    expires: expiration,
                     signingCredentials: creds
                 );
 
-                return new JwtSecurityTokenHandler().WriteToken(token);
+                var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+                Console.WriteLine($"[JWT] Token generated successfully");
+                return tokenString;
             }
-            catch
+            catch (Exception ex)
             {
-                throw; // propagate to controller catch block
+                Console.WriteLine($"[JWT] Error generating token: {ex.Message}");
+                throw;
             }
         }
     }
