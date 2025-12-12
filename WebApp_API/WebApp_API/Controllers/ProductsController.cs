@@ -290,7 +290,7 @@ namespace WebApp_API.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([FromBody] CreateProductRequest request)
+        public async Task<IActionResult> Create([FromBody] ProductDTOs.CreateProductRequest request)
         {
             // Validate required fields
             if (string.IsNullOrWhiteSpace(request.Name))
@@ -401,7 +401,7 @@ namespace WebApp_API.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateProductRequest request)
+        public async Task<IActionResult> Update(int id, [FromBody] ProductDTOs.UpdateProductRequest request)
         {
             var product = await _db.Products.FindAsync(id);
             if (product == null)
@@ -444,6 +444,36 @@ namespace WebApp_API.Controllers
             _db.Products.Remove(product);
             await _db.SaveChangesAsync();
             return NoContent();
+        }
+
+        // Get all options for a category with their values
+        [HttpGet("category/{categoryId}")]
+        public async Task<IActionResult> GetOptionsByCategory(int categoryId)
+        {
+            try
+            {
+                var options = await _db.ProductOptions
+                    .Where(o => o.CategoryId == categoryId)
+                    .Include(o => o.ProductOptionValues)
+                    .Select(o => new
+                    {
+                        optionId = o.Id,
+                        name = o.Name,
+                        categoryId = o.CategoryId,
+                        optionValues = o.ProductOptionValues.Select(ov => new
+                        {
+                            optionValueId = ov.Id,
+                            value = ov.Value
+                        }).ToList()
+                    })
+                    .ToListAsync();
+
+                return Ok(options);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error loading options", error = ex.Message });
+            }
         }
     }
 }

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { filterApi } from "../../api/filterApi";
-import { X } from "lucide-react";
+import { productoptionApi } from "../../api/productoptionApi";
+import { X, Plus } from "lucide-react";
 
 export default function AdminProductForm({ initialData = {}, onSubmit }) {
   const [form, setForm] = useState({
@@ -21,6 +22,12 @@ export default function AdminProductForm({ initialData = {}, onSubmit }) {
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [selectedOptionValues, setSelectedOptionValues] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  // Modal states for adding new option values
+  const [showAddValueModal, setShowAddValueModal] = useState(false);
+  const [selectedOptionId, setSelectedOptionId] = useState(null);
+  const [newOptionValue, setNewOptionValue] = useState("");
+  const [addingValue, setAddingValue] = useState(false);
 
   // Load categories from backend
   useEffect(() => {
@@ -49,8 +56,7 @@ export default function AdminProductForm({ initialData = {}, onSubmit }) {
       try {
         const options = await filterApi.getFiltersByCategoryId(parseInt(form.categoryId));
         setCategoryOptions(Array.isArray(options) ? options : []);
-        setSelectedOptionValues([]); // Reset selected options
-        console.log(`Loaded options for category ${form.categoryId}:`, options);
+        setSelectedOptionValues([]);
       } catch (error) {
         console.error("Error loading category options:", error);
         toast.error("Failed to load category options");
@@ -93,7 +99,7 @@ export default function AdminProductForm({ initialData = {}, onSubmit }) {
       toast.error("Please enter an image URL");
       return;
     }
-    
+
     if (imageUrls.includes(newImageUrl)) {
       toast.error("This image URL already exists");
       return;
@@ -107,6 +113,39 @@ export default function AdminProductForm({ initialData = {}, onSubmit }) {
   // Remove image from list
   const removeImage = (index) => {
     setImageUrls(imageUrls.filter((_, i) => i !== index));
+  };
+
+  // Add new option value
+  const handleAddOptionValue = async () => {
+    if (!selectedOptionId) {
+      toast.error("Please select an option");
+      return;
+    }
+
+    if (!newOptionValue.trim()) {
+      toast.error("Please enter a value");
+      return;
+    }
+
+    setAddingValue(true);
+    try {
+      await productoptionApi.createOptionValue(selectedOptionId, newOptionValue);
+      toast.success("Option value added successfully!");
+
+      // Reload options
+      const updatedOptions = await filterApi.getFiltersByCategoryId(parseInt(form.categoryId));
+      setCategoryOptions(Array.isArray(updatedOptions) ? updatedOptions : []);
+
+      setShowAddValueModal(false);
+      setNewOptionValue("");
+      setSelectedOptionId(null);
+    } catch (error) {
+      console.error("Error adding option value:", error);
+      const errorMsg = error.response?.data?.message || "Failed to add option value";
+      toast.error(errorMsg);
+    } finally {
+      setAddingValue(false);
+    }
   };
 
   // Handle option value selection (checkbox)
@@ -142,21 +181,23 @@ export default function AdminProductForm({ initialData = {}, onSubmit }) {
       return;
     }
 
-    // Build payload with option values
+    if (imageUrls.length === 0) {
+      toast.error("Please add at least one product image");
+      return;
+    }
+
+    // Build payload with multiple images
     const payload = {
       name: form.name.trim(),
       slug: form.slug.trim(),
       categoryId: parseInt(form.categoryId, 10),
       price: parseFloat(form.price),
-      imageUrl: imageUrls[0], // Keep first image as main image for backward compatibility
-      imageUrls: imageUrls, // Send all images
+      imageUrl: imageUrls[0],
+      imageUrls: imageUrls,
       shortDescription: form.shortDescription?.trim() || null,
       description: form.description?.trim() || null,
       selectedOptionValueIds: selectedOptionValues,
     };
-
-    // console.log("Submitting product payload:", payload);
-    // console.log("Selected attributes:", selectedOptionValues.length, "attributes");
 
     setLoading(true);
     try {
@@ -237,7 +278,7 @@ export default function AdminProductForm({ initialData = {}, onSubmit }) {
           {/* Multiple Product Images */}
           <div className="border-2 border-dashed border-blue-300 p-4 rounded-lg bg-blue-50">
             <label className="block mb-2 font-semibold text-blue-700">Product Images *</label>
-            
+
             {/* Add new image */}
             <div className="flex gap-2 mb-3">
               <input
@@ -337,7 +378,18 @@ export default function AdminProductForm({ initialData = {}, onSubmit }) {
       {/* DYNAMIC PRODUCT OPTIONS (Category-specific) */}
       {categoryOptions.length > 0 && (
         <div className="border-t pt-6 mt-6">
-          <h3 className="text-lg font-bold mb-4">Product Attributes (Select all that apply)</h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-bold">Product Attributes (Select all that apply)</h3>
+            <button
+              type="button"
+              onClick={() => setShowAddValueModal(true)}
+              className="flex items-center gap-2 px-3 py-1.5 bg-green-600 text-white rounded hover:bg-green-700 transition text-sm font-semibold"
+            >
+              <Plus size={16} />
+              Add New Value
+            </button>
+          </div>
+
           <div className="space-y-4">
             {categoryOptions.map((option) => (
               <div key={option.optionId} className="border rounded-lg p-4 bg-gray-50">
@@ -393,6 +445,71 @@ export default function AdminProductForm({ initialData = {}, onSubmit }) {
           {loading ? "Saving..." : "Save Product"}
         </button>
       </div>
+
+      {/* Modal for adding new option value */}
+      {showAddValueModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold mb-4">Add New Option Value</h3>
+
+            {/* Select Option */}
+            <div className="mb-4">
+              <label className="block mb-2 font-semibold text-gray-700">
+                Select Option *
+              </label>
+              <select
+                value={selectedOptionId || ""}
+                onChange={(e) => setSelectedOptionId(e.target.value ? parseInt(e.target.value) : null)}
+                className="w-full border border-gray-300 p-2 rounded-lg focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+              >
+                <option value="">-- Select an Option --</option>
+                {categoryOptions.map((option) => (
+                  <option key={option.optionId} value={option.optionId}>
+                    {option.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Enter Value */}
+            <div className="mb-6">
+              <label className="block mb-2 font-semibold text-gray-700">
+                Option Value *
+              </label>
+              <input
+                type="text"
+                placeholder="e.g., Intel Core i7"
+                value={newOptionValue}
+                onChange={(e) => setNewOptionValue(e.target.value)}
+                className="w-full border border-gray-300 p-2 rounded-lg focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+
+            {/* Buttons */}
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAddValueModal(false);
+                  setNewOptionValue("");
+                  setSelectedOptionId(null);
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleAddOptionValue}
+                disabled={addingValue}
+                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 transition font-semibold"
+              >
+                {addingValue ? "Adding..." : "Add Value"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </form>
   );
 }
