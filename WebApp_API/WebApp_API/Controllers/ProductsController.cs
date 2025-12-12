@@ -92,9 +92,12 @@ namespace WebApp_API.Controllers
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var product = await _db.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == id);
-
-            if (product == null) return NotFound();
+            var product = await _db.Products
+                .Include(p => p.Category)
+                .FirstOrDefaultAsync(p => p.Id == id);
+            
+            if (product == null) 
+                return NotFound();
 
             // Get all images for this product
             var images = await _db.ProductImages
@@ -103,7 +106,17 @@ namespace WebApp_API.Controllers
                 .Select(pi => pi.ImageUrl)
                 .ToListAsync();
 
-            // Return product with images array
+            // Get all product options (attributes) for this product
+            var options = await _db.ProductFilters
+                .Where(pf => pf.ProductId == id)
+                .Select(pf => new
+                {
+                    optionName = pf.OptionValue.ProductOption.Name,
+                    value = pf.OptionValue.Value
+                })
+                .ToListAsync();
+
+            // Return product with images and options
             var response = new
             {
                 product.Id,
@@ -120,19 +133,23 @@ namespace WebApp_API.Controllers
                     product.Category.Name,
                     product.Category.Slug
                 },
-                Images = images
+                Images = images,
+                Options = options
             };
 
             return Ok(response);
-        }
+            }
 
         // GET: /api/products/{slug} - Get product by Slug with all images
         [HttpGet("{slug}")]
         public async Task<IActionResult> GetBySlug(string slug)
         {
-            var product = await _db.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Slug == slug);
-
-            if (product == null) return NotFound();
+            var product = await _db.Products
+                .Include(p => p.Category)
+                .FirstOrDefaultAsync(p => p.Slug == slug);
+            
+            if (product == null) 
+                return NotFound();
 
             // Get all images for this product
             var images = await _db.ProductImages
@@ -141,7 +158,17 @@ namespace WebApp_API.Controllers
                 .Select(pi => pi.ImageUrl)
                 .ToListAsync();
 
-            // Return product with images array
+            // Get all product options (attributes) for this product
+            var options = await _db.ProductFilters
+                .Where(pf => pf.ProductId == product.Id)
+                .Select(pf => new
+                {
+                    optionName = pf.OptionValue.ProductOption.Name,
+                    value = pf.OptionValue.Value
+                })
+                .ToListAsync();
+
+            // Return product with images and options
             var response = new
             {
                 product.Id,
@@ -158,7 +185,8 @@ namespace WebApp_API.Controllers
                     product.Category.Name,
                     product.Category.Slug
                 },
-                Images = images
+                Images = images,
+                Options = options
             };
 
             return Ok(response);
