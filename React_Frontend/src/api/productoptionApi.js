@@ -19,4 +19,11 @@ export const productoptionApi = {
     return res.data;
   },
   
+    createOptionValue: async (optionId, value) => {
+    const res = await apiClient.post(`/filters/option-values`, { 
+      optionId,  // The ID of the ProductOption (e.g., Brand option ID)
+      value      // The new value (e.g., "ASUS", "Dell")
+    });
+    return res.data;
+  },
 };

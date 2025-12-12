@@ -10,6 +10,7 @@ namespace WebApp_API.DTOs
 
     public class CreateOptionValueRequest
     {
+        public int OptionId { get; set; }
         public string Value { get; set; }
     }
     }

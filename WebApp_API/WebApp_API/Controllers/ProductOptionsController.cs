@@ -15,14 +15,16 @@ namespace WebApp_API.Controllers
 
         public ProductOptionsController(AppDbContext db) => _db = db;
 
-        // POST: /api/product-options
-        // Create a new ProductOption
+        // POST: /api/product-options - Create a new ProductOption
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateProductOption([FromBody] ProductOptionDTOs.CreateProductOptionRequest req)
         {
             try
             {
+                Console.WriteLine($"[ProductOptions] CreateProductOption called");
+                Console.WriteLine($"[ProductOptions] Name: {req.Name}, CategoryId: {req.CategoryId}");
+
                 if (string.IsNullOrWhiteSpace(req.Name))
                     return BadRequest(new { message = "Option name is required" });
 
@@ -50,6 +52,8 @@ namespace WebApp_API.Controllers
                 _db.ProductOptions.Add(newOption);
                 await _db.SaveChangesAsync();
 
+                Console.WriteLine($"[ProductOptions] Created new option: {newOption.Name} (ID: {newOption.Id})");
+
                 return CreatedAtAction(nameof(GetProductOption), new { id = newOption.Id }, new
                 {
                     newOption.Id,
@@ -60,23 +64,30 @@ namespace WebApp_API.Controllers
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"[ProductOptions] Error in CreateProductOption: {ex.Message}");
                 return StatusCode(500, new { message = "Error creating product option", error = ex.Message });
             }
         }
 
-        // GET: /api/product-options/{id}
-        // Get a specific ProductOption with its values
-        [HttpGet("{id}")]
+        // GET: /api/product-options/{id} - Get a specific ProductOption with its values
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetProductOption(int id)
         {
             try
             {
+                Console.WriteLine($"[ProductOptions] GetProductOption called with id: {id}");
+
                 var option = await _db.ProductOptions
                     .Include(po => po.ProductOptionValues)
                     .FirstOrDefaultAsync(po => po.Id == id);
 
                 if (option == null)
+                {
+                    Console.WriteLine($"[ProductOptions] Option not found: {id}");
                     return NotFound(new { message = "Product option not found" });
+                }
+
+                Console.WriteLine($"[ProductOptions] Found option: {option.Name}");
 
                 return Ok(new
                 {
@@ -92,32 +103,43 @@ namespace WebApp_API.Controllers
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"[ProductOptions] Error in GetProductOption: {ex.Message}");
                 return StatusCode(500, new { message = "Error retrieving product option", error = ex.Message });
             }
         }
 
-        // POST: /api/product-options/{optionId}/values
-        // Add a new value to an existing ProductOption
-        [HttpPost("{optionId}/values")]
+        // POST: /api/product-options/{optionId}/values - Add a new value to an existing ProductOption
+        [HttpPost("{optionId:int}/values")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateOptionValue(int optionId, [FromBody] ProductOptionDTOs.CreateOptionValueRequest req)
         {
             try
             {
+                Console.WriteLine($"[ProductOptions] CreateOptionValue called");
+                Console.WriteLine($"[ProductOptions] OptionId: {optionId}, Value: {req.Value}");
+
                 if (string.IsNullOrWhiteSpace(req.Value))
                     return BadRequest(new { message = "Option value is required" });
 
                 // Check if option exists
                 var option = await _db.ProductOptions.FirstOrDefaultAsync(po => po.Id == optionId);
                 if (option == null)
+                {
+                    Console.WriteLine($"[ProductOptions] Option not found: {optionId}");
                     return NotFound(new { message = "Product option not found" });
+                }
+
+                Console.WriteLine($"[ProductOptions] Found option: {option.Name}");
 
                 // Check if value already exists for this option
                 var existingValue = await _db.ProductOptionValues
                     .FirstOrDefaultAsync(pov => pov.ProductOptionId == optionId && pov.Value == req.Value);
                 
                 if (existingValue != null)
+                {
+                    Console.WriteLine($"[ProductOptions] Value already exists: {req.Value}");
                     return BadRequest(new { message = $"Value '{req.Value}' already exists for this option" });
+                }
 
                 var newValue = new ProductOptionValue
                 {
@@ -128,6 +150,8 @@ namespace WebApp_API.Controllers
                 _db.ProductOptionValues.Add(newValue);
                 await _db.SaveChangesAsync();
 
+                Console.WriteLine($"[ProductOptions] Created new value: {newValue.Value} (ID: {newValue.Id}) for option {optionId}");
+
                 return CreatedAtAction(nameof(GetProductOption), new { id = optionId }, new
                 {
                     newValue.Id,
@@ -137,6 +161,8 @@ namespace WebApp_API.Controllers
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"[ProductOptions] Error in CreateOptionValue: {ex.Message}");
+                Console.WriteLine($"[ProductOptions] Stack Trace: {ex.StackTrace}");
                 return StatusCode(500, new { message = "Error creating option value", error = ex.Message });
             }
         }
