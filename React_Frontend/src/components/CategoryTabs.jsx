@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { siteConfig } from "../config/siteConfig";
 import { productApi } from "../api/productApi";
 import ProductCard from "./ProductCard";
@@ -93,16 +94,17 @@ const CategoryTabs = ({ products }) => {
           disabled={!canPrev}
           style={{
             padding: "8px 15px",
-            borderRadius: 8,
-            background: canPrev ? "#444" : "#aaa",
+            borderRadius: "50%",
+            // background: canPrev ? "#444" : "#aaa",
             color: "white",
-            cursor: canPrev ? "pointer" : "not-allowed",
+            cursor: "pointer",
+            // cursor: canPrev ? "pointer" : "not-allowed",
           }}
         >
-          ←
+          <ChevronLeft size={24} />
         </button>
 
-        <span style={{ color: "white", fontWeight: "bold" }}>
+        <span style={{ color: "white", fontWeight: "bold", position: "relative", top: 4 }}>
           {paginatedItems.length > 0 ? `Page ${pageIndex + 1}` : "No products"}
         </span>
 
@@ -111,13 +113,14 @@ const CategoryTabs = ({ products }) => {
           disabled={!canNext}
           style={{
             padding: "8px 15px",
-            borderRadius: 8,
-            background: canNext ? "#444" : "#aaa",
+            borderRadius: "50%",
+            // background: canNext ? "#444" : "#aaa",
             color: "white",
-            cursor: canNext ? "pointer" : "not-allowed",
+            cursor: "pointer",
+            // cursor: canNext ? "pointer" : "not-allowed",
           }}
         >
-          →
+          <ChevronRight size={24} />
         </button>
       </div>
     </div>

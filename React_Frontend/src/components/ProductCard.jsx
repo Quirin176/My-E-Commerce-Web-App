@@ -20,6 +20,7 @@ export default function ProductCard({ product }) {
     const item = {
       id: product.id,
       name: product.name,
+      slug: product.slug,
       price: product.price,
       image: product.imageUrl || product.image,
       options: product.options || [],
@@ -36,7 +37,7 @@ export default function ProductCard({ product }) {
 
   return (
     <div className="border rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 bg-white flex flex-col">
-      <Link to={`/product/${product.id}`} className="block">
+      <Link to={`/product/${product.slug}`} className="block">
         <div className="flex justify-center pt-2">
           <img
             src={

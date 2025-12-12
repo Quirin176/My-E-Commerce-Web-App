@@ -14,7 +14,8 @@ namespace WebApp_API.Controllers
         private readonly AppDbContext _db;
         public ProductsController(AppDbContext db) => _db = db;
 
-[HttpGet]
+        // GET: /api/products - Get all products with optional filters
+        [HttpGet]
         public async Task<IActionResult> GetAll(
             [FromQuery] string category = null,
             [FromQuery] decimal minPrice = 0,
@@ -86,16 +87,84 @@ namespace WebApp_API.Controllers
 
             return Ok(products);
         }
-        
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+
+        // GET: /api/products/{id} - Get product by ID with all images
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetById(int id)
         {
             var product = await _db.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == id);
+
             if (product == null) return NotFound();
-            return Ok(product);
+
+            // Get all images for this product
+            var images = await _db.ProductImages
+                .Where(pi => pi.ProductId == id)
+                .OrderBy(pi => pi.DisplayOrder)
+                .Select(pi => pi.ImageUrl)
+                .ToListAsync();
+
+            // Return product with images array
+            var response = new
+            {
+                product.Id,
+                product.Name,
+                product.Price,
+                product.ImageUrl,
+                product.ShortDescription,
+                product.Description,
+                product.Slug,
+                product.CategoryId,
+                Category = new
+                {
+                    product.Category.Id,
+                    product.Category.Name,
+                    product.Category.Slug
+                },
+                Images = images
+            };
+
+            return Ok(response);
         }
 
-        // GET: /api/products/categories/{categorySlug}/brands - MUST BE BEFORE /filter
+        // GET: /api/products/{slug} - Get product by Slug with all images
+        [HttpGet("{slug}")]
+        public async Task<IActionResult> GetBySlug(string slug)
+        {
+            var product = await _db.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Slug == slug);
+
+            if (product == null) return NotFound();
+
+            // Get all images for this product
+            var images = await _db.ProductImages
+                .Where(pi => pi.ProductId == product.Id)
+                .OrderBy(pi => pi.DisplayOrder)
+                .Select(pi => pi.ImageUrl)
+                .ToListAsync();
+
+            // Return product with images array
+            var response = new
+            {
+                product.Id,
+                product.Name,
+                product.Price,
+                product.ImageUrl,
+                product.ShortDescription,
+                product.Description,
+                product.Slug,
+                product.CategoryId,
+                Category = new
+                {
+                    product.Category.Id,
+                    product.Category.Name,
+                    product.Category.Slug
+                },
+                Images = images
+            };
+
+            return Ok(response);
+        }
+
+        // GET: /api/products/categories/{categorySlug}/brands
         [HttpGet("categories/{categorySlug}/brands")]
         public async Task<IActionResult> GetBrandsByCategory(string categorySlug)
         {
@@ -254,6 +323,31 @@ namespace WebApp_API.Controllers
                 _db.Products.Add(product);
                 await _db.SaveChangesAsync();
 
+                // Add product images
+                var imageUrls = new List<string>();
+
+                // Add ImageUrl (legacy - first image) if provided
+                if (!string.IsNullOrWhiteSpace(request.ImageUrl))
+                    imageUrls.Add(request.ImageUrl);
+
+                // Add new ImageUrls list
+                if (request.ImageUrls != null && request.ImageUrls.Count > 0)
+                    imageUrls.AddRange(request.ImageUrls.Where(url => !string.IsNullOrWhiteSpace(url)));
+
+                // Create ProductImage records
+                int displayOrder = 0;
+                foreach (var imageUrl in imageUrls.Distinct())
+                {
+                    var productImage = new ProductImage
+                    {
+                        ProductId = product.Id,
+                        ImageUrl = imageUrl,
+                        DisplayOrder = displayOrder++
+                    };
+                    _db.ProductImages.Add(productImage);
+                }
+                await _db.SaveChangesAsync();
+
                 // Link to selected option values
                 if (request.SelectedOptionValueIds != null && request.SelectedOptionValueIds.Count > 0)
                 {
@@ -269,7 +363,7 @@ namespace WebApp_API.Controllers
                     await _db.SaveChangesAsync();
                 }
 
-                return CreatedAtAction(nameof(Get), new { id = product.Id }, product);
+                return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
             }
             catch (Exception ex)
             {

@@ -11,14 +11,14 @@ apiClient.interceptors.request.use(
   (config) => {
     if (typeof window !== "undefined") {
       const token = localStorage.getItem("token");
-      console.log("[API Client] Request to:", config.url);
-      console.log("[API Client] Token exists:", !!token);
+      // console.log("[API Client] Request to:", config.url);
+      // console.log("[API Client] Token exists:", !!token);
       
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
-        console.log("[API Client] Authorization header set");
+        // console.log("[API Client] Authorization header set");
       } else {
-        console.warn("[API Client] No token found in localStorage");
+        // console.warn("[API Client] No token found in localStorage");
       }
     }
     return config;
@@ -32,7 +32,7 @@ apiClient.interceptors.request.use(
 // Response error handler
 apiClient.interceptors.response.use(
   (response) => {
-    console.log("[API Client] Response success:", response.status);
+    // console.log("[API Client] Response success:", response.status);
     return response;
   },
   (error) => {

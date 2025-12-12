@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { filterApi } from "../../api/filterApi";
+import { X } from "lucide-react";
 
 export default function AdminProductForm({ initialData = {}, onSubmit }) {
   const [form, setForm] = useState({
@@ -12,6 +13,9 @@ export default function AdminProductForm({ initialData = {}, onSubmit }) {
     shortDescription: initialData.shortDescription || "",
     description: initialData.description || "",
   });
+
+  const [imageUrls, setImageUrls] = useState(initialData.Images || []);
+  const [newImageUrl, setNewImageUrl] = useState("");
 
   const [categories, setCategories] = useState([]);
   const [categoryOptions, setCategoryOptions] = useState([]);
@@ -83,6 +87,28 @@ export default function AdminProductForm({ initialData = {}, onSubmit }) {
     }));
   };
 
+  // Add image to list
+  const addImage = () => {
+    if (!newImageUrl.trim()) {
+      toast.error("Please enter an image URL");
+      return;
+    }
+    
+    if (imageUrls.includes(newImageUrl)) {
+      toast.error("This image URL already exists");
+      return;
+    }
+
+    setImageUrls([...imageUrls, newImageUrl]);
+    setNewImageUrl("");
+    toast.success("Image added");
+  };
+
+  // Remove image from list
+  const removeImage = (index) => {
+    setImageUrls(imageUrls.filter((_, i) => i !== index));
+  };
+
   // Handle option value selection (checkbox)
   const toggleOptionValue = (optionValueId) => {
     setSelectedOptionValues((prev) =>
@@ -122,7 +148,8 @@ export default function AdminProductForm({ initialData = {}, onSubmit }) {
       slug: form.slug.trim(),
       categoryId: parseInt(form.categoryId, 10),
       price: parseFloat(form.price),
-      imageUrl: form.imageUrl?.trim() || null,
+      imageUrl: imageUrls[0], // Keep first image as main image for backward compatibility
+      imageUrls: imageUrls, // Send all images
       shortDescription: form.shortDescription?.trim() || null,
       description: form.description?.trim() || null,
       selectedOptionValueIds: selectedOptionValues,
@@ -207,17 +234,74 @@ export default function AdminProductForm({ initialData = {}, onSubmit }) {
             />
           </div>
 
-          {/* Image URL */}
-          <div>
-            <label className="block mb-1 font-semibold">Image URL</label>
-            <input
-              type="text"
-              name="imageUrl"
-              placeholder="https://example.com/image.jpg"
-              className="w-full border border-gray-300 p-2 rounded-lg focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
-              value={form.imageUrl}
-              onChange={handleChange}
-            />
+          {/* Multiple Product Images */}
+          <div className="border-2 border-dashed border-blue-300 p-4 rounded-lg bg-blue-50">
+            <label className="block mb-2 font-semibold text-blue-700">Product Images *</label>
+            
+            {/* Add new image */}
+            <div className="flex gap-2 mb-3">
+              <input
+                type="text"
+                placeholder="https://example.com/image.jpg"
+                className="flex-1 border border-gray-300 p-2 rounded-lg focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+                value={newImageUrl}
+                onChange={(e) => setNewImageUrl(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && addImage()}
+              />
+              <button
+                type="button"
+                onClick={addImage}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
+              >
+                Add Image
+              </button>
+            </div>
+
+            {/* Display images list */}
+            {imageUrls.length > 0 ? (
+              <div className="space-y-2">
+                {imageUrls.map((url, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-white rounded border border-gray-200 hover:border-gray-300 transition"
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <img
+                        src={url}
+                        alt={`Product ${index + 1}`}
+                        className="w-12 h-12 object-cover rounded"
+                        onError={(e) => {
+                          e.target.src =
+                            "https://via.placeholder.com/48?text=Invalid";
+                        }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-gray-600 truncate">
+                          {index === 0 && (
+                            <span className="bg-green-200 text-green-800 px-2 py-0.5 rounded text-xs font-semibold mr-1">
+                              Main
+                            </span>
+                          )}
+                          Image {index + 1}
+                        </p>
+                        <p className="text-xs text-gray-400 truncate">{url}</p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="p-1 text-red-600 hover:bg-red-100 rounded transition"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500 italic">
+                No images added yet. Add at least one image.
+              </p>
+            )}
           </div>
         </div>
 

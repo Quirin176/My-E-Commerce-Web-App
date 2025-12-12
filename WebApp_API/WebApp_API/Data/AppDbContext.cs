@@ -13,6 +13,7 @@ namespace WebApp_API.Data
         public DbSet<ProductOption> ProductOptions { get; set; }
         public DbSet<ProductOptionValue> ProductOptionValues { get; set; }
         public DbSet<ProductFilter> ProductFilters { get; set; }
+        public DbSet<ProductImage> ProductImages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -22,6 +23,7 @@ namespace WebApp_API.Data
             builder.Entity<ProductFilter>().HasOne(pf => pf.Product).WithMany().HasForeignKey(pf => pf.ProductId).OnDelete(DeleteBehavior.Cascade);
             builder.Entity<ProductFilter>().HasOne(pf => pf.OptionValue).WithMany().HasForeignKey(pf => pf.OptionValueId).OnDelete(DeleteBehavior.Cascade);
             builder.Entity<ProductOptionValue>().HasOne(v => v.ProductOption).WithMany().HasForeignKey(v => v.ProductOptionId).OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<ProductImage>().HasOne(pi => pi.Product).WithMany().HasForeignKey(pi => pi.ProductId).OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
