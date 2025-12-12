@@ -50,7 +50,7 @@ export default function AdminProducts() {
     const loadCategories = async () => {
       try {
         const data = await categoryApi.getAll();
-        console.log("Categories loaded:", data);
+        // console.log("Categories loaded:", data);
         
         const catList = Array.isArray(data) ? data : [];
         setCategories(catList);
@@ -73,7 +73,7 @@ export default function AdminProducts() {
       setLoading(true);
       try {
         const data = await adminApi.getProducts();
-        console.log("Products loaded:", data);
+        // console.log("Products loaded:", data);
         
         const productList = Array.isArray(data) ? data : [];
         setProducts(productList);
@@ -92,9 +92,9 @@ export default function AdminProducts() {
   const filteredProducts = useMemo(() => {
     if (!activeTab || products.length === 0) return products;
     
-    console.log(`Filtering products for category ID: ${activeTab}`);
+    // console.log(`Filtering products for category ID: ${activeTab}`);
     const filtered = products.filter((p) => p.categoryId === activeTab);
-    console.log(`Filtered: ${filtered.length} products`);
+    // console.log(`Filtered: ${filtered.length} products`);
     
     return filtered;
   }, [products, activeTab]);

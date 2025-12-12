@@ -88,7 +88,7 @@ const CategoryTabs = ({ products }) => {
       </div>
 
       {/* PAGINATION BUTTONS */}
-      <div style={{ marginTop: 20, display: "flex", justifyContent: "center", gap: 20, paddingBottom: 20 }}>
+      <div style={{ marginTop: 5, display: "flex", justifyContent: "center", gap: 5, paddingBottom: 5 }}>
         <button
           onClick={() => setPageIndex((p) => p - 1)}
           disabled={!canPrev}
@@ -104,7 +104,7 @@ const CategoryTabs = ({ products }) => {
           <ChevronLeft size={24} />
         </button>
 
-        <span style={{ color: "white", fontWeight: "bold", position: "relative", top: 4 }}>
+        <span style={{ color: "white", fontWeight: "bold", position: "relative", top: 6 }}>
           {paginatedItems.length > 0 ? `Page ${pageIndex + 1}` : "No products"}
         </span>
 

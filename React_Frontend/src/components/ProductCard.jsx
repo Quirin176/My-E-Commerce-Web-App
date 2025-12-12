@@ -63,7 +63,7 @@ export default function ProductCard({ product }) {
           <div className="h-40 mt-2 overflow-y-auto bg-gray-100 rounded-xl p-2 text-sm text-left">
             {product.options && product.options.length > 0 ? (
               product.options.map((opt, index) => (
-                console.log("Product option:", opt) ||
+                // console.log("Product option:", opt) ||
                 <p key={index} className="text-gray-700">
                   <strong>{opt.optionName}:</strong> {opt.value}
                 </p>

@@ -117,6 +117,10 @@ export default function AdminProductForm({ initialData = {}, onSubmit }) {
 
   // Add new option value
   const handleAddOptionValue = async () => {
+    
+    console.log("selectedOptionId:", selectedOptionId, "type:", typeof selectedOptionId);
+    console.log("newOptionValue:", newOptionValue);
+
     if (!selectedOptionId) {
       toast.error("Please select an option");
       return;
@@ -129,6 +133,9 @@ export default function AdminProductForm({ initialData = {}, onSubmit }) {
 
     setAddingValue(true);
     try {
+      
+      console.log("Calling createOptionValue with:", selectedOptionId, newOptionValue);
+
       await productoptionApi.createOptionValue(selectedOptionId, newOptionValue);
       toast.success("Option value added successfully!");
 
@@ -140,7 +147,8 @@ export default function AdminProductForm({ initialData = {}, onSubmit }) {
       setNewOptionValue("");
       setSelectedOptionId(null);
     } catch (error) {
-      console.error("Error adding option value:", error);
+      console.error("Full error object:", error);
+      console.error("Error response:", error.response?.data);      
       const errorMsg = error.response?.data?.message || "Failed to add option value";
       toast.error(errorMsg);
     } finally {

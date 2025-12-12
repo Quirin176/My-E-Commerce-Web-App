@@ -11,6 +11,6 @@ namespace WebApp_API.Models
         [ForeignKey("CategoryId")] public Category Category { get; set; }
 
         // Add this navigation property
-        public ICollection<ProductOptionValue> ProductOptionValues { get; set; } = new List<ProductOptionValue>();
+        // public ICollection<ProductOptionValue> ProductOptionValues { get; set; } = new List<ProductOptionValue>();
     }
 }

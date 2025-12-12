@@ -95,8 +95,8 @@ namespace WebApp_API.Controllers
             var product = await _db.Products
                 .Include(p => p.Category)
                 .FirstOrDefaultAsync(p => p.Id == id);
-            
-            if (product == null) 
+
+            if (product == null)
                 return NotFound();
 
             // Get all images for this product
@@ -138,7 +138,7 @@ namespace WebApp_API.Controllers
             };
 
             return Ok(response);
-            }
+        }
 
         // GET: /api/products/{slug} - Get product by Slug with all images
         [HttpGet("{slug}")]
@@ -147,8 +147,8 @@ namespace WebApp_API.Controllers
             var product = await _db.Products
                 .Include(p => p.Category)
                 .FirstOrDefaultAsync(p => p.Slug == slug);
-            
-            if (product == null) 
+
+            if (product == null)
                 return NotFound();
 
             // Get all images for this product
@@ -454,17 +454,20 @@ namespace WebApp_API.Controllers
             {
                 var options = await _db.ProductOptions
                     .Where(o => o.CategoryId == categoryId)
-                    .Include(o => o.ProductOptionValues)
                     .Select(o => new
                     {
                         optionId = o.Id,
                         name = o.Name,
                         categoryId = o.CategoryId,
-                        optionValues = o.ProductOptionValues.Select(ov => new
-                        {
-                            optionValueId = ov.Id,
-                            value = ov.Value
-                        }).ToList()
+                        optionValues = _db.ProductOptionValues
+                            .Where(ov => ov.ProductOptionId == o.Id)
+                            .OrderBy(ov => ov.Value)
+                            .Select(ov => new
+                            {
+                                optionValueId = ov.Id,
+                                value = ov.Value
+                            })
+                            .ToList()
                     })
                     .ToListAsync();
 

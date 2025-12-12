@@ -39,7 +39,7 @@ namespace WebApp_API.Controllers
                 // Check if option with same name already exists for this category
                 var existingOption = await _db.ProductOptions
                     .FirstOrDefaultAsync(po => po.CategoryId == req.CategoryId.Value && po.Name == req.Name);
-                
+
                 if (existingOption != null)
                     return BadRequest(new { message = $"Option '{req.Name}' already exists for this category" });
 
@@ -78,7 +78,6 @@ namespace WebApp_API.Controllers
                 Console.WriteLine($"[ProductOptions] GetProductOption called with id: {id}");
 
                 var option = await _db.ProductOptions
-                    .Include(po => po.ProductOptionValues)
                     .FirstOrDefaultAsync(po => po.Id == id);
 
                 if (option == null)
@@ -89,16 +88,22 @@ namespace WebApp_API.Controllers
 
                 Console.WriteLine($"[ProductOptions] Found option: {option.Name}");
 
+                // Query option values directly
+                var optionValues = await _db.ProductOptionValues
+                    .Where(ov => ov.ProductOptionId == id)
+                    .Select(ov => new
+                    {
+                        ov.Id,
+                        ov.Value
+                    })
+                    .ToListAsync();
+
                 return Ok(new
                 {
                     option.Id,
                     option.Name,
                     option.CategoryId,
-                    OptionValues = option.ProductOptionValues.Select(ov => new
-                    {
-                        ov.Id,
-                        ov.Value
-                    }).ToList()
+                    OptionValues = optionValues
                 });
             }
             catch (Exception ex)
@@ -134,7 +139,7 @@ namespace WebApp_API.Controllers
                 // Check if value already exists for this option
                 var existingValue = await _db.ProductOptionValues
                     .FirstOrDefaultAsync(pov => pov.ProductOptionId == optionId && pov.Value == req.Value);
-                
+
                 if (existingValue != null)
                 {
                     Console.WriteLine($"[ProductOptions] Value already exists: {req.Value}");

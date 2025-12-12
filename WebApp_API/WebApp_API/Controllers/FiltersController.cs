@@ -50,6 +50,7 @@ namespace WebApp_API.Controllers
 
                     var optionValues = await _db.ProductOptionValues
                         .Where(ov => ov.ProductOptionId == option.Id)
+                        .OrderBy(ov => ov.Value)
                         .Select(ov => new
                         {
                             optionValueId = ov.Id,
@@ -110,6 +111,7 @@ namespace WebApp_API.Controllers
                 {
                     var optionValues = await _db.ProductOptionValues
                         .Where(ov => ov.ProductOptionId == option.Id)
+                        .OrderBy(ov => ov.Value)
                         .Select(ov => new
                         {
                             optionValueId = ov.Id,
@@ -138,10 +140,7 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // ============================================================================
-        // NEW: POST /api/filters/option-values
-        // Add a new value to an existing ProductOption
-        // ============================================================================
+        // POST /api/filters/option-values - Add a new value to an existing ProductOption
         [HttpPost("option-values")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateOptionValue([FromBody] ProductOptionDTOs.CreateOptionValueRequest req)
