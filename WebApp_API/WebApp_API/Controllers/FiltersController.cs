@@ -27,7 +27,7 @@ namespace WebApp_API.Controllers
 
                 var category = await _db.Categories.FirstOrDefaultAsync(c => c.Slug == categorySlug);
                 Console.WriteLine($"[DEBUG] Category found: {(category != null ? category.Name : "NULL")}");
-                
+
                 if (category == null)
                 {
                     Console.WriteLine($"[DEBUG] Category with slug '{categorySlug}' not found. Returning empty list.");
@@ -77,7 +77,7 @@ namespace WebApp_API.Controllers
                 Console.WriteLine($"[ERROR] Stack Trace: {ex.StackTrace}");
                 if (ex.InnerException != null)
                     Console.WriteLine($"[ERROR] Inner Exception: {ex.InnerException.Message}");
-                
+
                 return StatusCode(500, new { message = "Error loading filters", error = ex.Message });
             }
         }
@@ -95,7 +95,7 @@ namespace WebApp_API.Controllers
 
                 var category = await _db.Categories.FirstOrDefaultAsync(c => c.Id == categoryId);
                 Console.WriteLine($"[DEBUG] Category found: {(category != null ? category.Name : "NULL")}");
-                
+
                 if (category == null)
                     return Ok(new List<object>());
 
@@ -135,7 +135,7 @@ namespace WebApp_API.Controllers
                 Console.WriteLine($"[ERROR] Stack Trace: {ex.StackTrace}");
                 if (ex.InnerException != null)
                     Console.WriteLine($"[ERROR] Inner Exception: {ex.InnerException.Message}");
-                
+
                 return StatusCode(500, new { message = "Error loading filters", error = ex.Message });
             }
         }
@@ -169,7 +169,7 @@ namespace WebApp_API.Controllers
                 // Check if value already exists for this option
                 var existingValue = await _db.ProductOptionValues
                     .FirstOrDefaultAsync(pov => pov.ProductOptionId == req.OptionId && pov.Value == req.Value);
-                
+
                 if (existingValue != null)
                 {
                     Console.WriteLine($"[OPTION] Value already exists: {req.Value}");
@@ -199,6 +199,51 @@ namespace WebApp_API.Controllers
                 Console.WriteLine($"[OPTION] Error: {ex.Message}");
                 Console.WriteLine($"[OPTION] Stack Trace: {ex.StackTrace}");
                 return StatusCode(500, new { message = "Error creating option value", error = ex.Message });
+            }
+        }
+
+        [HttpDelete("option-values/{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteOptionValue(int id)
+        {
+            try
+            {
+                Console.WriteLine($"[OPTION] DeleteOptionValue called with id: {id}");
+
+                // Find the option value
+                var optionValue = await _db.ProductOptionValues.FirstOrDefaultAsync(pov => pov.Id == id);
+
+                if (optionValue == null)
+                {
+                    Console.WriteLine($"[OPTION] Option value not found: {id}");
+                    return NotFound(new { message = "Option value not found" });
+                }
+
+                Console.WriteLine($"[OPTION] Found option value: {optionValue.Value}");
+
+                // Check if this option value is used by any products
+                var productCount = await _db.ProductFilters
+                    .CountAsync(pf => pf.OptionValueId == id);
+
+                if (productCount > 0)
+                {
+                    Console.WriteLine($"[OPTION] Cannot delete - used by {productCount} product(s)");
+                    return BadRequest(new { message = $"Cannot delete this option value - it is used by {productCount} product(s)" });
+                }
+
+                // Delete the option value
+                _db.ProductOptionValues.Remove(optionValue);
+                await _db.SaveChangesAsync();
+
+                Console.WriteLine($"[OPTION] Successfully deleted option value: {optionValue.Value}");
+
+                return Ok(new { message = $"Option value '{optionValue.Value}' deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[OPTION] Error deleting option value: {ex.Message}");
+                Console.WriteLine($"[OPTION] Stack Trace: {ex.StackTrace}");
+                return StatusCode(500, new { message = "Error deleting option value", error = ex.Message });
             }
         }
     }

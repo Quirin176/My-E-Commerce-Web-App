@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { filterApi } from "../../api/filterApi";
 import { productoptionApi } from "../../api/productoptionApi";
-import { X, Plus } from "lucide-react";
+import { X, Plus, Trash2 } from "lucide-react";
 
 export default function AdminProductForm({ initialData = {}, onSubmit }) {
   const [form, setForm] = useState({
@@ -28,6 +28,12 @@ export default function AdminProductForm({ initialData = {}, onSubmit }) {
   const [selectedOptionId, setSelectedOptionId] = useState(null);
   const [newOptionValue, setNewOptionValue] = useState("");
   const [addingValue, setAddingValue] = useState(false);
+
+  // Modal states for deleting option values
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingOptionId, setDeletingOptionId] = useState(null);
+  const [deletingOptionValueId, setDeletingOptionValueId] = useState(null);
+  const [deletingValue, setDeletingValue] = useState(false);
 
   // Load categories from backend
   useEffect(() => {
@@ -56,7 +62,32 @@ export default function AdminProductForm({ initialData = {}, onSubmit }) {
       try {
         const options = await filterApi.getFiltersByCategoryId(parseInt(form.categoryId));
         setCategoryOptions(Array.isArray(options) ? options : []);
-        setSelectedOptionValues([]);
+
+        // If editing product, extract selected option value IDs from initialData
+        if (initialData.options && initialData.options.length > 0) {
+          // console.log("Loading initial options:", initialData.options);
+          
+          // Build a map of option values for lookup
+          const optionValueMap = {};
+          options.forEach(opt => {
+            opt.optionValues.forEach(val => {
+              optionValueMap[`${opt.name}:${val.value}`] = val.optionValueId;
+            });
+          });
+
+          // Extract option value IDs from product options
+          const selectedIds = initialData.options
+            .map(opt => {
+              const key = `${opt.optionName}:${opt.value}`;
+              return optionValueMap[key];
+            })
+            .filter(id => id !== undefined);
+
+          console.log("Selected option value IDs:", selectedIds);
+          setSelectedOptionValues(selectedIds);
+        } else {
+          setSelectedOptionValues([]);
+        }
       } catch (error) {
         console.error("Error loading category options:", error);
         toast.error("Failed to load category options");
@@ -64,7 +95,7 @@ export default function AdminProductForm({ initialData = {}, onSubmit }) {
     };
 
     loadCategoryOptions();
-  }, [form.categoryId]);
+  }, [form.categoryId, initialData.options]);
 
   const generateSlug = (text) => {
     if (!text) return "";
@@ -118,8 +149,8 @@ export default function AdminProductForm({ initialData = {}, onSubmit }) {
   // Add new option value
   const handleAddOptionValue = async () => {
     
-    console.log("selectedOptionId:", selectedOptionId, "type:", typeof selectedOptionId);
-    console.log("newOptionValue:", newOptionValue);
+    // console.log("selectedOptionId:", selectedOptionId, "type:", typeof selectedOptionId);
+    // console.log("newOptionValue:", newOptionValue);
 
     if (!selectedOptionId) {
       toast.error("Please select an option");
@@ -134,7 +165,7 @@ export default function AdminProductForm({ initialData = {}, onSubmit }) {
     setAddingValue(true);
     try {
       
-      console.log("Calling createOptionValue with:", selectedOptionId, newOptionValue);
+      // console.log("Calling createOptionValue with:", selectedOptionId, newOptionValue);
 
       await productoptionApi.createOptionValue(selectedOptionId, newOptionValue);
       toast.success("Option value added successfully!");
@@ -153,6 +184,32 @@ export default function AdminProductForm({ initialData = {}, onSubmit }) {
       toast.error(errorMsg);
     } finally {
       setAddingValue(false);
+    }
+  };
+
+  const handleDeleteOptionValue = async () => {
+    if (!deletingOptionValueId) {
+      toast.error("Option value not selected");
+      return;
+    }
+
+    setDeletingValue(true);
+    try {
+      await filterApi.deleteOptionValue(deletingOptionValueId);
+      toast.success("Option value deleted successfully!");
+
+      const updatedOptions = await filterApi.getFiltersByCategoryId(parseInt(form.categoryId));
+      setCategoryOptions(Array.isArray(updatedOptions) ? updatedOptions : []);
+
+      setShowDeleteModal(false);
+      setDeletingOptionValueId(null);
+      setDeletingOptionId(null);
+    } catch (error) {
+      console.error("Error deleting option value:", error);
+      const errorMsg = error.response?.data?.message || "Failed to delete option value";
+      toast.error(errorMsg);
+    } finally {
+      setDeletingValue(false);
     }
   };
 
@@ -409,6 +466,10 @@ export default function AdminProductForm({ initialData = {}, onSubmit }) {
                 </h4>
                 <div className="flex flex-wrap gap-3">
                   {option.optionValues.map((optValue) => (
+                                        <div
+                      key={optValue.optionValueId}
+                      className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded transition group"
+                    >
                     <label
                       key={optValue.optionValueId}
                       className="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-100 rounded transition"
@@ -422,6 +483,21 @@ export default function AdminProductForm({ initialData = {}, onSubmit }) {
                       />
                       <span className="text-gray-700 text-sm">{optValue.value}</span>
                     </label>
+                                          
+                      {/* Delete button */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowDeleteModal(true);
+                          setDeletingOptionId(option.optionId);
+                          setDeletingOptionValueId(optValue.optionValueId);
+                        }}
+                        className="ml-2 p-1 text-red-500 hover:bg-red-100 rounded opacity-0 group-hover:opacity-100 transition"
+                        title="Delete this option value"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -513,6 +589,42 @@ export default function AdminProductForm({ initialData = {}, onSubmit }) {
                 className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 transition font-semibold"
               >
                 {addingValue ? "Adding..." : "Add Value"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal for deleting option value */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-bold mb-4 text-red-600">Delete Option Value?</h3>
+            
+            <p className="text-gray-700 mb-6">
+              Are you sure you want to delete this option value? This action cannot be undone.
+            </p>
+
+            {/* Buttons */}
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeletingOptionValueId(null);
+                  setDeletingOptionId(null);
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteOptionValue}
+                disabled={deletingValue}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 transition font-semibold"
+              >
+                {deletingValue ? "Deleting..." : "Delete"}
               </button>
             </div>
           </div>

@@ -430,6 +430,52 @@ namespace WebApp_API.Controllers
 
             _db.Products.Update(product);
             await _db.SaveChangesAsync();
+            
+            if (request.ImageUrls != null && request.ImageUrls.Count > 0)
+            {
+                // Delete existing product images
+                var existingImages = await _db.ProductImages
+                    .Where(pi => pi.ProductId == id)
+                    .ToListAsync();
+                _db.ProductImages.RemoveRange(existingImages);
+
+                // Add new product images
+                int displayOrder = 0;
+                foreach (var imageUrl in request.ImageUrls.Distinct())
+                {
+                    var productImage = new ProductImage
+                    {
+                        ProductId = id,
+                        ImageUrl = imageUrl,
+                        DisplayOrder = displayOrder++
+                    };
+                    _db.ProductImages.Add(productImage);
+                }
+                await _db.SaveChangesAsync();
+            }
+
+            // NEW: Handle selected option values
+            if (request.SelectedOptionValueIds != null)
+            {
+                // Delete existing product filters (option associations)
+                var existingFilters = await _db.ProductFilters
+                    .Where(pf => pf.ProductId == id)
+                    .ToListAsync();
+                _db.ProductFilters.RemoveRange(existingFilters);
+
+                // Add new product filters
+                foreach (var optionValueId in request.SelectedOptionValueIds)
+                {
+                    var filter = new ProductFilter
+                    {
+                        ProductId = id,
+                        OptionValueId = optionValueId
+                    };
+                    _db.ProductFilters.Add(filter);
+                }
+                await _db.SaveChangesAsync();
+            }
+            
             return Ok(product);
         }
 
