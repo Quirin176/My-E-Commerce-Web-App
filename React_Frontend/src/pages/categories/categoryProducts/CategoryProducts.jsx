@@ -1,13 +1,15 @@
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import ProductCard from "../../../components/ProductCard";
 import DynamicFilters from "../../../components/DynamicFilters";
 import { productApi } from "../../../api/productApi";
 import { filterApi } from "../../../api/filterApi";
 import toast from "react-hot-toast";
+import { siteConfig } from "../../../config/siteConfig";
 
 export default function CategoryProducts() {
   const { slug } = useParams();
+  const [searchParams] = useSearchParams();
 
   const [minPrice, setMinPrice] = useState("0");
   const [maxPrice, setMaxPrice] = useState("100000000");
@@ -73,6 +75,24 @@ export default function CategoryProducts() {
     }
     loadFilters();
   }, [slug]);
+
+  // Check for filter in URL query params (from dropdown click)
+  useEffect(() => {
+    const filterParam = searchParams.get("filter");
+    
+    if (filterParam) {
+      const optionValueId = parseInt(filterParam);
+      
+      // Check if this option value exists in the filters
+      const exists = dynamicFilters.some(option =>
+        option.optionValues.some(val => val.optionValueId === optionValueId)
+      );
+
+      if (exists && !selectedOptions.includes(optionValueId)) {
+        setSelectedOptions([optionValueId]);
+      }
+    }
+  }, [searchParams, dynamicFilters]);
 
   return (
     <div className="container mx-auto p-4">
