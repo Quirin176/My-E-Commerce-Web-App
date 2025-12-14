@@ -200,8 +200,16 @@ export default function Header() {
                   href="/admin/products"
                   className="text-lg text-white font-semibold"
                 >
-                  Admin Panel
+                  Products Management
                 </a>
+
+                <a
+                  href="/admin/orders"
+                  className="text-lg text-white font-semibold"
+                >
+                  Orders Management
+                </a>
+
               </div>
             )}
 

@@ -107,7 +107,7 @@ namespace WebApp_API.Controllers
                 // Check if user is authorized to view this order
                 var userId = User.FindFirst("id")?.Value;
                 var userRole = User.FindFirst("role")?.Value;
-                
+
                 if (userRole != "Admin" && order.UserId != int.Parse(userId))
                     return Forbid();
 
@@ -207,7 +207,7 @@ namespace WebApp_API.Controllers
 
                 order.Status = request.Status;
                 order.UpdatedAt = DateTime.UtcNow;
-                
+
                 _db.Orders.Update(order);
                 await _db.SaveChangesAsync();
 
@@ -225,18 +225,52 @@ namespace WebApp_API.Controllers
         // Get all orders (Admin only)
         [HttpGet("admin/all-orders")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAllOrders([FromQuery] string status = null)
+        public async Task<IActionResult> GetAllOrders(
+            [FromQuery] string status = null,
+            [FromQuery] string minDate = null,
+            [FromQuery] string maxDate = null,
+            [FromQuery] string sortBy = "orderDate",
+            [FromQuery] string sortOrder = "desc")
         {
             try
             {
+                Console.WriteLine("[ORDER] GetAllOrders called with filters");
+                Console.WriteLine($"[ORDER] Status: {status}, MinDate: {minDate}, MaxDate: {maxDate}");
+
                 IQueryable<Order> query = _db.Orders
                     .Include(o => o.OrderItems)
-                    .OrderByDescending(o => o.OrderDate);
+                    .AsQueryable();
 
-                if (!string.IsNullOrEmpty(status))
-                {
+                // Filter by status
+                if (!string.IsNullOrWhiteSpace(status))
                     query = query.Where(o => o.Status == status);
+
+                // Filter by date range
+                if (!string.IsNullOrWhiteSpace(minDate) && DateTime.TryParse(minDate, out var min))
+                    query = query.Where(o => o.OrderDate >= min);
+
+                if (!string.IsNullOrWhiteSpace(maxDate) && DateTime.TryParse(maxDate, out var max))
+                {
+                    var maxWithTime = max.AddDays(1).AddSeconds(-1);
+                    query = query.Where(o => o.OrderDate <= maxWithTime);
                 }
+
+                // Apply sorting
+                query = sortBy switch
+                {
+                    "customerName" => sortOrder == "asc"
+                        ? query.OrderBy(o => o.CustomerName)
+                        : query.OrderByDescending(o => o.CustomerName),
+                    "totalAmount" => sortOrder == "asc"
+                        ? query.OrderBy(o => o.TotalAmount)
+                        : query.OrderByDescending(o => o.TotalAmount),
+                    "status" => sortOrder == "asc"
+                        ? query.OrderBy(o => o.Status)
+                        : query.OrderByDescending(o => o.Status),
+                    _ => sortOrder == "asc"
+                        ? query.OrderBy(o => o.OrderDate)
+                        : query.OrderByDescending(o => o.OrderDate)
+                };
 
                 var orders = await query.ToListAsync();
 
@@ -245,24 +279,31 @@ namespace WebApp_API.Controllers
                     o.Id,
                     o.CustomerName,
                     o.CustomerEmail,
+                    o.CustomerPhone,
+                    o.ShippingAddress,
+                    o.City,
                     o.TotalAmount,
-                    o.Status,
                     o.PaymentMethod,
+                    o.Status,
                     o.OrderDate,
+                    o.Notes,
                     ItemCount = o.OrderItems.Count,
                     Items = o.OrderItems.Select(oi => new
                     {
+                        oi.ProductId,
                         oi.ProductName,
                         oi.Quantity,
+                        oi.UnitPrice,
                         oi.TotalPrice
                     }).ToList()
                 }).ToList();
 
+                Console.WriteLine($"[ORDER] Returning {orders.Count} orders");
                 return Ok(response);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ORDER] Error fetching all orders: {ex.Message}");
+                Console.WriteLine($"[ORDER] Error: {ex.Message}");
                 return StatusCode(500, new { message = "Error fetching orders", error = ex.Message });
             }
         }

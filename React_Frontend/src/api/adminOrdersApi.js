@@ -4,15 +4,16 @@ export const adminOrdersApi = {
   // GET all orders with filters
   async getAllOrders(filters = {}) {
     try {
-      const params = {
-        status: filters.status || null,
-        minDate: filters.minDate || null,
-        maxDate: filters.maxDate || null,
-        sortBy: filters.sortBy || "orderDate",
-        sortOrder: filters.sortOrder || "desc",
-      };
+      // Use the existing /orders endpoint with filters
+      const params = new URLSearchParams();
+      
+      if (filters.status) params.append('status', filters.status);
+      if (filters.minDate) params.append('minDate', filters.minDate);
+      if (filters.maxDate) params.append('maxDate', filters.maxDate);
+      if (filters.sortBy) params.append('sortBy', filters.sortBy);
+      if (filters.sortOrder) params.append('sortOrder', filters.sortOrder);
 
-      const res = await apiClient.get("/admin-orders", { params });
+      const res = await apiClient.get(`/orders/admin/all-orders?${params.toString()}`);
       return res.data;
     } catch (error) {
       console.error("Error fetching orders:", error);

@@ -68,16 +68,27 @@ export default function AdminOrders() {
   const loadOrders = async () => {
     setLoading(true);
     try {
-      const data = await adminOrdersApi.getAllOrders({
-        status: statusFilter === "all" ? null : statusFilter,
-        minDate: minDate || null,
-        maxDate: maxDate || null,
-        sortBy: sortConfig.key,
-        sortOrder: sortConfig.direction,
-      });
+      // Use the correct endpoint
+      const params = new URLSearchParams();
+      if (statusFilter !== "all") params.append("status", statusFilter);
+      if (minDate) params.append("minDate", minDate);
+      if (maxDate) params.append("maxDate", maxDate);
+      params.append("sortBy", sortConfig.key || "orderDate");
+      params.append("sortOrder", sortConfig.direction);
 
+      const response = await fetch(
+        `http://localhost:5159/api/orders/admin/all-orders?${params.toString()}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to load orders");
+
+      const data = await response.json();
       setOrders(Array.isArray(data) ? data : []);
-      console.log("Orders loaded:", data);
     } catch (error) {
       console.error("Error loading orders:", error);
       toast.error("Failed to load orders");
@@ -348,7 +359,9 @@ export default function AdminOrders() {
                     className="px-6 py-3 text-left font-semibold text-gray-700 cursor-pointer hover:bg-gray-100"
                     onClick={() => handleSort("id")}
                   >
-                    Order ID {sortConfig.key === "id" && (sortConfig.direction === "asc" ? "↑" : "↓")}
+                    Order ID{" "}
+                    {sortConfig.key === "id" &&
+                      (sortConfig.direction === "asc" ? "↑" : "↓")}
                   </th>
                   <th className="px-6 py-3 text-left font-semibold text-gray-700">
                     Customer
@@ -363,13 +376,17 @@ export default function AdminOrders() {
                     className="px-6 py-3 text-right font-semibold text-gray-700 cursor-pointer hover:bg-gray-100"
                     onClick={() => handleSort("totalAmount")}
                   >
-                    Total {sortConfig.key === "totalAmount" && (sortConfig.direction === "asc" ? "↑" : "↓")}
+                    Total{" "}
+                    {sortConfig.key === "totalAmount" &&
+                      (sortConfig.direction === "asc" ? "↑" : "↓")}
                   </th>
                   <th
                     className="px-6 py-3 text-center font-semibold text-gray-700 cursor-pointer hover:bg-gray-100"
                     onClick={() => handleSort("orderDate")}
                   >
-                    Date {sortConfig.key === "orderDate" && (sortConfig.direction === "asc" ? "↑" : "↓")}
+                    Date{" "}
+                    {sortConfig.key === "orderDate" &&
+                      (sortConfig.direction === "asc" ? "↑" : "↓")}
                   </th>
                   <th className="px-6 py-3 text-center font-semibold text-gray-700">
                     Actions
@@ -481,7 +498,10 @@ export default function AdminOrders() {
 
       {/* STATS MODAL */}
       {showStatsModal && stats && (
-        <OrderStatsModal stats={stats} onClose={() => setShowStatsModal(false)} />
+        <OrderStatsModal
+          stats={stats}
+          onClose={() => setShowStatsModal(false)}
+        />
       )}
     </div>
   );
