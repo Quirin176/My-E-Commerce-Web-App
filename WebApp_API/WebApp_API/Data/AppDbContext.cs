@@ -14,16 +14,55 @@ namespace WebApp_API.Data
         public DbSet<ProductOptionValue> ProductOptionValues { get; set; }
         public DbSet<ProductFilter> ProductFilters { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
-
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            builder.Entity<Category>().HasIndex(c => c.Slug).IsUnique();
-            builder.Entity<Product>().HasIndex(p => p.Slug).IsUnique();
-            builder.Entity<ProductFilter>().HasOne(pf => pf.Product).WithMany().HasForeignKey(pf => pf.ProductId).OnDelete(DeleteBehavior.Cascade);
-            builder.Entity<ProductFilter>().HasOne(pf => pf.OptionValue).WithMany().HasForeignKey(pf => pf.OptionValueId).OnDelete(DeleteBehavior.Cascade);
-            builder.Entity<ProductOptionValue>().HasOne(v => v.ProductOption).WithMany().HasForeignKey(v => v.ProductOptionId).OnDelete(DeleteBehavior.Cascade);
-            builder.Entity<ProductImage>().HasOne(pi => pi.Product).WithMany().HasForeignKey(pi => pi.ProductId).OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Category>()
+                .HasIndex(c => c.Slug)
+                .IsUnique();
+                builder.Entity<Product>()
+                .HasIndex(p => p.Slug)
+                .IsUnique();
+            builder.Entity<ProductFilter>()
+                .HasOne(pf => pf.Product)
+                .WithMany()
+                .HasForeignKey(pf => pf.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<ProductFilter>()
+                .HasOne(pf => pf.OptionValue)
+                .WithMany()
+                .HasForeignKey(pf => pf.OptionValueId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<ProductOptionValue>()
+                .HasOne(v => v.ProductOption)
+                .WithMany()
+                .HasForeignKey(v => v.ProductOptionId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<ProductImage>()
+                .HasOne(pi => pi.Product)
+                .WithMany()
+                .HasForeignKey(pi => pi.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Order>()
+                .HasOne(o => o.User)
+                .WithMany()
+                .HasForeignKey(o => o.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            builder.Entity<OrderItem>()
+                .HasOne(oi => oi.Order)
+                .WithMany(o => o.OrderItems)
+                .HasForeignKey(oi => oi.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            // Create index for faster queries
+            builder.Entity<Order>().HasIndex(o => o.UserId);
+            builder.Entity<Order>().HasIndex(o => o.OrderDate);
+            builder.Entity<Order>().HasIndex(o => o.Status);
         }
     }
 }

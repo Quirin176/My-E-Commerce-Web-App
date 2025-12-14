@@ -430,7 +430,7 @@ namespace WebApp_API.Controllers
 
             _db.Products.Update(product);
             await _db.SaveChangesAsync();
-            
+
             if (request.ImageUrls != null && request.ImageUrls.Count > 0)
             {
                 // Delete existing product images
@@ -475,7 +475,7 @@ namespace WebApp_API.Controllers
                 }
                 await _db.SaveChangesAsync();
             }
-            
+
             return Ok(product);
         }
 
@@ -522,6 +522,139 @@ namespace WebApp_API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Error loading options", error = ex.Message });
+            }
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchProducts(
+            [FromQuery] string q,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] decimal minPrice = 0,
+            [FromQuery] decimal maxPrice = decimal.MaxValue,
+            [FromQuery] string sortBy = "relevance")
+        {
+            try
+            {
+                // Validate input
+                if (string.IsNullOrWhiteSpace(q))
+                    return BadRequest(new { message = "Search query is required" });
+
+                if (q.Length > 200)
+                    q = q.Substring(0, 200);
+
+                var query = q.ToLower().Trim();
+
+                // Start with all products
+                IQueryable<Product> searchQuery = _db.Products
+                    .Include(p => p.Category)
+                    .Where(p =>
+                        p.Name.ToLower().Contains(query) ||
+                        p.ShortDescription.ToLower().Contains(query) ||
+                        p.Description.ToLower().Contains(query) ||
+                        p.Category.Name.ToLower().Contains(query)
+                    );
+
+                // Apply price filter
+                if (minPrice > 0)
+                    searchQuery = searchQuery.Where(p => p.Price >= minPrice);
+
+                if (maxPrice < decimal.MaxValue)
+                    searchQuery = searchQuery.Where(p => p.Price <= maxPrice);
+
+                // Apply sorting
+                searchQuery = sortBy switch
+                {
+                    "price_asc" => searchQuery.OrderBy(p => p.Price),
+                    "price_desc" => searchQuery.OrderByDescending(p => p.Price),
+                    "newest" => searchQuery.OrderByDescending(p => p.Id),
+                    "name" => searchQuery.OrderBy(p => p.Name),
+                    _ => searchQuery.OrderByDescending(p => p.Id) // relevance (default)
+                };
+
+                // Get total count before pagination
+                var totalCount = await searchQuery.CountAsync();
+
+                // Apply pagination
+                var pageNumber = Math.Max(1, page);
+                var size = Math.Clamp(pageSize, 1, 100); // Max 100 per page
+                var skip = (pageNumber - 1) * size;
+
+                var products = await searchQuery
+                    .Skip(skip)
+                    .Take(size)
+                    .Select(p => new
+                    {
+                        p.Id,
+                        p.Name,
+                        p.Price,
+                        p.ImageUrl,
+                        p.ShortDescription,
+                        p.Slug,
+                        p.CategoryId,
+                        Category = new
+                        {
+                            p.Category.Id,
+                            p.Category.Name,
+                            p.Category.Slug
+                        },
+                        Options = _db.ProductFilters
+                            .Where(f => f.ProductId == p.Id)
+                            .Select(f => new
+                            {
+                                optionName = f.OptionValue.ProductOption.Name,
+                                value = f.OptionValue.Value
+                            }).ToList()
+                    })
+                    .ToListAsync();
+
+                // Return paginated response
+                var response = new
+                {
+                    success = true,
+                    query = q,
+                    totalCount = totalCount,
+                    pageNumber = pageNumber,
+                    pageSize = size,
+                    totalPages = (int)Math.Ceiling((decimal)totalCount / size),
+                    hasNextPage = skip + size < totalCount,
+                    hasPreviousPage = pageNumber > 1,
+                    products = products
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SEARCH] Error: {ex.Message}");
+                return StatusCode(500, new { message = "Search error", error = ex.Message });
+            }
+        }
+
+        // Optional: Add search suggestions endpoint
+        [HttpGet("search/suggestions")]
+        public async Task<IActionResult> GetSearchSuggestions([FromQuery] string q, [FromQuery] int limit = 10)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(q) || q.Length < 2)
+                    return Ok(new List<string>());
+
+                var query = q.ToLower().Trim();
+
+                var suggestions = await _db.Products
+                    .Where(p => p.Name.ToLower().Contains(query))
+                    .Select(p => p.Name)
+                    .Distinct()
+                    .Take(limit)
+                    .ToListAsync();
+
+                return Ok(suggestions);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SUGGESTIONS] Error: {ex.Message}");
+                return StatusCode(500, new { message = "Error fetching suggestions", error = ex.Message });
             }
         }
     }
