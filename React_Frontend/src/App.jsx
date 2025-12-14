@@ -1,5 +1,3 @@
-// Final: src/App.jsx
-
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import AppLayout from "./layouts/AppLayout";
 import AuthLayout from "./layouts/AuthLayout";
@@ -22,12 +20,13 @@ import ProductDetails from "./pages/productdetails/ProductDetails";
 // User Pages
 import Profile from "./pages/user/Profile";
 import Orders from "./pages/user/Orders";
-import OrderDetail from "./pages/user/OrderDetail"; // NEW
+import OrderDetail from "./pages/user/OrderDetail";
 
 // Admin Pages
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminProductNew from "./pages/admin/AdminProductNew";
 import AdminProductEdit from "./pages/admin/AdminProductEdit";
+import AdminOrders from "./pages/admin/AdminOrders";
 
 // Context
 import { useAuth } from "./context/AuthContext";
@@ -66,6 +65,7 @@ export default function App(){
         <Route path="/admin/products" element={<AdminProducts />} />
         <Route path="/admin/products/new" element={<AdminProductNew />} />
         <Route path="/admin/products/:id" element={<AdminProductEdit />} />
+        <Route path="/admin/orders" element={<AdminOrders />} />
       </Route>
       
       {/* Auth pages use AuthLayout (no nav/footer) */}
