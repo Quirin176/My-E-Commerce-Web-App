@@ -202,6 +202,67 @@ namespace WebApp_API.Controllers
             }
         }
 
+        // PUT /api/filters/option-values/{id} - Update an existing option value
+        [HttpPut("option-values/{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateOptionValue(int id, [FromBody] ProductOptionDTOs.UpdateOptionValueRequest req)
+        {
+            try
+            {
+                Console.WriteLine($"[OPTION] UpdateOptionValue called with id: {id}");
+                Console.WriteLine($"[OPTION] New value: {req.Value}");
+
+                if (string.IsNullOrWhiteSpace(req.Value))
+                    return BadRequest(new { message = "Option value is required" });
+
+                // Find the option value
+                var optionValue = await _db.ProductOptionValues.FirstOrDefaultAsync(pov => pov.Id == id);
+
+                if (optionValue == null)
+                {
+                    Console.WriteLine($"[OPTION] Option value not found: {id}");
+                    return NotFound(new { message = "Option value not found" });
+                }
+
+                Console.WriteLine($"[OPTION] Found option value: {optionValue.Value}");
+
+                // Check if another value with the same name already exists for this option
+                var existingValue = await _db.ProductOptionValues
+                    .FirstOrDefaultAsync(pov => pov.ProductOptionId == optionValue.ProductOptionId 
+                        && pov.Value == req.Value 
+                        && pov.Id != id);
+
+                if (existingValue != null)
+                {
+                    Console.WriteLine($"[OPTION] Value already exists: {req.Value}");
+                    return BadRequest(new { message = $"Value '{req.Value}' already exists for this option" });
+                }
+
+                // Update the value
+                optionValue.Value = req.Value;
+
+                _db.ProductOptionValues.Update(optionValue);
+                await _db.SaveChangesAsync();
+
+                Console.WriteLine($"[OPTION] Successfully updated option value to: {optionValue.Value}");
+
+                return Ok(new 
+                { 
+                    message = "Option value updated successfully",
+                    id = optionValue.Id,
+                    value = optionValue.Value,
+                    optionId = optionValue.ProductOptionId
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[OPTION] Error updating option value: {ex.Message}");
+                Console.WriteLine($"[OPTION] Stack Trace: {ex.StackTrace}");
+                return StatusCode(500, new { message = "Error updating option value", error = ex.Message });
+            }
+        }
+
+        // DELETE /api/filters/option-values/{id} - Delete a ProductOptionValue
         [HttpDelete("option-values/{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteOptionValue(int id)

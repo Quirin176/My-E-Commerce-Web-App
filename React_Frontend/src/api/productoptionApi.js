@@ -7,7 +7,7 @@ export const productoptionApi = {
     return res.data;
   },
   
-    createOptionValue: async (optionId, value) => {
+  createOptionValue: async (optionId, value) => {
     const res = await apiClient.post(`/filters/option-values`, { 
       optionId,
       value
@@ -17,7 +17,7 @@ export const productoptionApi = {
 
   // Create a new product option for a category
   createProductOption: async (categoryId, name) => {
-    const res = await apiClient.post(`/product-options`, { categoryId, name });
+    const res = await apiClient.post(`/productoptions`, { categoryId, name });
     return res.data;
   },
 };

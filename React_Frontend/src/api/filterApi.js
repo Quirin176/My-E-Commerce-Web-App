@@ -21,7 +21,7 @@ export const filterApi = {
       return [];
     }
   },
-  
+  // Create an option value
   createOptionValue: async (optionId, value) => {
     const res = await apiClient.post(`/filters/option-values`, { 
       optionId,
@@ -30,7 +30,14 @@ export const filterApi = {
     return res.data;
   },
 
-  // NEW: Delete an option value
+  updateOptionValue: async (optionValueId, value) => {
+    const res = await apiClient.put(`/filters/option-values/${optionValueId}`, { 
+      value
+    });
+    return res.data;
+  },
+
+  // Delete an option value
   deleteOptionValue: async (optionValueId) => {
     const res = await apiClient.delete(`/filters/option-values/${optionValueId}`);
     return res.data;
