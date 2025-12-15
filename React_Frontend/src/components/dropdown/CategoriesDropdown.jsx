@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, TextAlignJustify, X } from "lucide-react";
+import { ChevronDown, LayoutGrid, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { filterApi } from "../../api/filterApi";
 
@@ -55,7 +55,7 @@ export default function CategoriesDropdown({ categories = [], textColor = "", li
         style={{ color: textColor }} 
         onMouseUp={() => setOpen(true)}
       >
-        <TextAlignJustify size={18} />
+        <LayoutGrid size={18} />
         <span className="text-base">Categories</span>
         <ChevronDown size={18} className={`${open ? "rotate-180" : ""} transition`} />
       </button>

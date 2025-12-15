@@ -21,10 +21,10 @@ export const siteConfig = {
     { label: "Mouse", link: "mouse", image: "https://cdn.tgdd.vn/Products/Images/86/252625/chuot-khong-day-rapoo-m216-den-1-1-750x500.jpg" }
   ],
 
-  usermenuItems: [
-    { "label": "Customer Service", "link": "/customer-service" },
-    { "label": "Cart", "link": "/cart" }
-  ],
+  // usermenuItems: [
+  //   { "label": "Customer Service", "link": "/customer-service" },
+  //   { "label": "Cart", "link": "/cart" }
+  // ],
 
   adminmenuItems: [
     { "label": "Manage Products", "link": "/admin/products" },
