@@ -246,7 +246,7 @@ return (
 
           {/* LOGGED IN */}
           {user && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center">
               <UserRound className="h-6 w-6 text-white" />
               <UserDropdown
                 textColor={colors.categoryTextColor}

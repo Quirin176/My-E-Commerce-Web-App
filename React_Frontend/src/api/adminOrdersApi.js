@@ -1,7 +1,7 @@
 import { apiClient } from "./apiClient";
 
 export const adminOrdersApi = {
-  // GET all orders with filters
+  // GET: /api/admin-orders - Get all orders with filters
   async getAllOrders(filters = {}) {
     try {
       // Use the existing /orders endpoint with filters

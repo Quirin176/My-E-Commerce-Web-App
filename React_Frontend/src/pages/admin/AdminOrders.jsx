@@ -150,7 +150,7 @@ export default function AdminOrders() {
       );
       toast.success(`Order status updated to ${newStatus}`);
     } catch (error) {
-      console.error("Error updating order:", error);
+      console.error("Error updating order status:", error);
       toast.error("Failed to update order status");
     }
   };
@@ -534,6 +534,15 @@ function OrderDetailModal({ order, onClose }) {
               </p>
               <p>
                 <strong>Phone:</strong> {order.customerPhone}
+              </p>
+              <p>
+                <strong>Shipping Address:</strong> {order.shippingAddress}
+              </p>
+              <p>
+                <strong>City:</strong> {order.city}
+              </p>
+              <p>
+                <strong>Note:</strong> {order.note || "N/A"}
               </p>
             </div>
           </div>
