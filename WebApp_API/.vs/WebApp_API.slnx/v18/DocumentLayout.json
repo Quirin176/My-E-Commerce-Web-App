@@ -3,16 +3,44 @@
   "WorkspaceRootPath": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\WebApp_API\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{B08292FE-0FA6-5158-D2DB-B37CFFCFD927}|WebApp_API\\WebApp_API.csproj|c:\\users\\voqua\\my-e-commerce-web-app\\webapp_api\\webapp_api\\controllers\\orderscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B08292FE-0FA6-5158-D2DB-B37CFFCFD927}|WebApp_API\\WebApp_API.csproj|solutionrelative:webapp_api\\controllers\\orderscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B08292FE-0FA6-5158-D2DB-B37CFFCFD927}|WebApp_API\\WebApp_API.csproj|c:\\users\\voqua\\my-e-commerce-web-app\\webapp_api\\webapp_api\\models\\order.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B08292FE-0FA6-5158-D2DB-B37CFFCFD927}|WebApp_API\\WebApp_API.csproj|solutionrelative:webapp_api\\models\\order.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B08292FE-0FA6-5158-D2DB-B37CFFCFD927}|WebApp_API\\WebApp_API.csproj|c:\\users\\voqua\\my-e-commerce-web-app\\webapp_api\\webapp_api\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B08292FE-0FA6-5158-D2DB-B37CFFCFD927}|WebApp_API\\WebApp_API.csproj|solutionrelative:webapp_api\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B08292FE-0FA6-5158-D2DB-B37CFFCFD927}|WebApp_API\\WebApp_API.csproj|c:\\users\\voqua\\my-e-commerce-web-app\\webapp_api\\webapp_api\\controllers\\productscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B08292FE-0FA6-5158-D2DB-B37CFFCFD927}|WebApp_API\\WebApp_API.csproj|solutionrelative:webapp_api\\controllers\\productscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{B08292FE-0FA6-5158-D2DB-B37CFFCFD927}|WebApp_API\\WebApp_API.csproj|c:\\users\\voqua\\my-e-commerce-web-app\\webapp_api\\webapp_api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B08292FE-0FA6-5158-D2DB-B37CFFCFD927}|WebApp_API\\WebApp_API.csproj|solutionrelative:webapp_api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B08292FE-0FA6-5158-D2DB-B37CFFCFD927}|WebApp_API\\WebApp_API.csproj|c:\\users\\voqua\\my-e-commerce-web-app\\webapp_api\\webapp_api\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B08292FE-0FA6-5158-D2DB-B37CFFCFD927}|WebApp_API\\WebApp_API.csproj|solutionrelative:webapp_api\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B08292FE-0FA6-5158-D2DB-B37CFFCFD927}|WebApp_API\\WebApp_API.csproj|c:\\users\\voqua\\my-e-commerce-web-app\\webapp_api\\webapp_api\\dtos\\profilerequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B08292FE-0FA6-5158-D2DB-B37CFFCFD927}|WebApp_API\\WebApp_API.csproj|solutionrelative:webapp_api\\dtos\\profilerequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B08292FE-0FA6-5158-D2DB-B37CFFCFD927}|WebApp_API\\WebApp_API.csproj|c:\\users\\voqua\\my-e-commerce-web-app\\webapp_api\\webapp_api\\dtos\\authdtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B08292FE-0FA6-5158-D2DB-B37CFFCFD927}|WebApp_API\\WebApp_API.csproj|solutionrelative:webapp_api\\dtos\\authdtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B08292FE-0FA6-5158-D2DB-B37CFFCFD927}|WebApp_API\\WebApp_API.csproj|c:\\users\\voqua\\my-e-commerce-web-app\\webapp_api\\webapp_api\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B08292FE-0FA6-5158-D2DB-B37CFFCFD927}|WebApp_API\\WebApp_API.csproj|solutionrelative:webapp_api\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{B08292FE-0FA6-5158-D2DB-B37CFFCFD927}|WebApp_API\\WebApp_API.csproj|c:\\users\\voqua\\my-e-commerce-web-app\\webapp_api\\webapp_api\\dtos\\productdtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B08292FE-0FA6-5158-D2DB-B37CFFCFD927}|WebApp_API\\WebApp_API.csproj|solutionrelative:webapp_api\\dtos\\productdtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B08292FE-0FA6-5158-D2DB-B37CFFCFD927}|WebApp_API\\WebApp_API.csproj|c:\\users\\voqua\\my-e-commerce-web-app\\webapp_api\\webapp_api\\models\\product.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B08292FE-0FA6-5158-D2DB-B37CFFCFD927}|WebApp_API\\WebApp_API.csproj|solutionrelative:webapp_api\\models\\product.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B08292FE-0FA6-5158-D2DB-B37CFFCFD927}|WebApp_API\\WebApp_API.csproj|c:\\users\\voqua\\my-e-commerce-web-app\\webapp_api\\webapp_api\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -26,11 +54,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 9,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 10,
               "Title": "AppDbContext.cs",
               "DocumentMoniker": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\WebApp_API\\WebApp_API\\Data\\AppDbContext.cs",
               "RelativeDocumentMoniker": "WebApp_API\\Data\\AppDbContext.cs",
@@ -39,34 +67,7 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-12-15T01:48:48.551Z",
-              "IsPinned": true,
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "AuthController.cs",
-              "DocumentMoniker": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\WebApp_API\\WebApp_API\\Controllers\\AuthController.cs",
-              "RelativeDocumentMoniker": "WebApp_API\\Controllers\\AuthController.cs",
-              "ToolTip": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\WebApp_API\\WebApp_API\\Controllers\\AuthController.cs",
-              "RelativeToolTip": "WebApp_API\\Controllers\\AuthController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-15T01:49:40.005Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "AuthDTOs.cs",
-              "DocumentMoniker": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\WebApp_API\\WebApp_API\\DTOs\\AuthDTOs.cs",
-              "RelativeDocumentMoniker": "WebApp_API\\DTOs\\AuthDTOs.cs",
-              "ToolTip": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\WebApp_API\\WebApp_API\\DTOs\\AuthDTOs.cs",
-              "RelativeToolTip": "WebApp_API\\DTOs\\AuthDTOs.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-15T01:49:38.274Z",
-              "EditorCaption": ""
+              "IsPinned": true
             },
             {
               "$type": "Document",
@@ -76,9 +77,115 @@
               "RelativeDocumentMoniker": "WebApp_API\\Models\\User.cs",
               "ToolTip": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\WebApp_API\\WebApp_API\\Models\\User.cs",
               "RelativeToolTip": "WebApp_API\\Models\\User.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-15T01:49:31.801Z",
+              "WhenOpened": "2025-12-16T09:11:07.303Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "AuthDTOs.cs",
+              "DocumentMoniker": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\WebApp_API\\WebApp_API\\DTOs\\AuthDTOs.cs",
+              "RelativeDocumentMoniker": "WebApp_API\\DTOs\\AuthDTOs.cs",
+              "ToolTip": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\WebApp_API\\WebApp_API\\DTOs\\AuthDTOs.cs",
+              "RelativeToolTip": "WebApp_API\\DTOs\\AuthDTOs.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAA5wBYAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-16T09:11:11.57Z",
+              "IsPinned": true
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\WebApp_API\\WebApp_API\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "WebApp_API\\Controllers\\AuthController.cs",
+              "ToolTip": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\WebApp_API\\WebApp_API\\Controllers\\AuthController.cs",
+              "RelativeToolTip": "WebApp_API\\Controllers\\AuthController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-16T09:11:09.673Z",
+              "IsPinned": true
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Product.cs",
+              "DocumentMoniker": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\WebApp_API\\WebApp_API\\Models\\Product.cs",
+              "RelativeDocumentMoniker": "WebApp_API\\Models\\Product.cs",
+              "ToolTip": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\WebApp_API\\WebApp_API\\Models\\Product.cs",
+              "RelativeToolTip": "WebApp_API\\Models\\Product.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAABMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-16T10:43:19.177Z",
+              "IsPinned": true
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "ProductDTOs.cs",
+              "DocumentMoniker": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\WebApp_API\\WebApp_API\\DTOs\\ProductDTOs.cs",
+              "RelativeDocumentMoniker": "WebApp_API\\DTOs\\ProductDTOs.cs",
+              "ToolTip": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\WebApp_API\\WebApp_API\\DTOs\\ProductDTOs.cs",
+              "RelativeToolTip": "WebApp_API\\DTOs\\ProductDTOs.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-16T10:43:22.599Z",
+              "IsPinned": true
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ProductsController.cs",
+              "DocumentMoniker": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\WebApp_API\\WebApp_API\\Controllers\\ProductsController.cs",
+              "RelativeDocumentMoniker": "WebApp_API\\Controllers\\ProductsController.cs",
+              "ToolTip": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\WebApp_API\\WebApp_API\\Controllers\\ProductsController.cs",
+              "RelativeToolTip": "WebApp_API\\Controllers\\ProductsController.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAgwDcAAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-16T10:43:26.02Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ProfileRequest.cs",
+              "DocumentMoniker": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\WebApp_API\\WebApp_API\\DTOs\\ProfileRequest.cs",
+              "RelativeDocumentMoniker": "WebApp_API\\DTOs\\ProfileRequest.cs",
+              "ToolTip": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\WebApp_API\\WebApp_API\\DTOs\\ProfileRequest.cs",
+              "RelativeToolTip": "WebApp_API\\DTOs\\ProfileRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-16T15:41:32.657Z",
+              "IsPinned": true
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Order.cs",
+              "DocumentMoniker": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\WebApp_API\\WebApp_API\\Models\\Order.cs",
+              "RelativeDocumentMoniker": "WebApp_API\\Models\\Order.cs",
+              "ToolTip": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\WebApp_API\\WebApp_API\\Models\\Order.cs",
+              "RelativeToolTip": "WebApp_API\\Models\\Order.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-16T16:04:11.786Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "OrdersController.cs",
+              "DocumentMoniker": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\WebApp_API\\WebApp_API\\Controllers\\OrdersController.cs",
+              "RelativeDocumentMoniker": "WebApp_API\\Controllers\\OrdersController.cs",
+              "ToolTip": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\WebApp_API\\WebApp_API\\Controllers\\OrdersController.cs",
+              "RelativeToolTip": "WebApp_API\\Controllers\\OrdersController.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAgwCcAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-16T16:02:53.648Z",
               "EditorCaption": ""
             },
             {
@@ -88,6 +195,18 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "UserController.cs",
+              "DocumentMoniker": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\WebApp_API\\WebApp_API\\Controllers\\UserController.cs",
+              "RelativeDocumentMoniker": "WebApp_API\\Controllers\\UserController.cs",
+              "ToolTip": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\WebApp_API\\WebApp_API\\Controllers\\UserController.cs",
+              "RelativeToolTip": "WebApp_API\\Controllers\\UserController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-16T15:42:09.954Z"
             }
           ]
         }

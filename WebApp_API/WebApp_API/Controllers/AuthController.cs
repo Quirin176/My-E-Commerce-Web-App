@@ -7,10 +7,10 @@ using System.Text;
 using WebApp_API.Data;
 using WebApp_API.DTOs;
 using WebApp_API.Models;
-using static WebApp_API.DTOs.AuthDTOs;
 
 namespace WebApp_API.Controllers
 {
+    // Route : api/auth
     [ApiController]
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
@@ -24,9 +24,9 @@ namespace WebApp_API.Controllers
             _config = config;
         }
 
-        // ----------------- SIGNUP -----------------
+        // -------------------- SIGNUP --------------------
         [HttpPost("signup")]
-        public async Task<IActionResult> Signup([FromBody] SignupRequest req)
+        public async Task<IActionResult> Signup([FromBody] AuthDTOs.SignupRequest req)
         {
             try
             {
@@ -59,7 +59,7 @@ namespace WebApp_API.Controllers
 
                 var token = GenerateJwt(user);
 
-                var resp = new AuthResponse(token, user.Id, user.Username, user.Email, user.Phone, user.Role, user.CreatedAt);
+                var resp = new AuthDTOs.AuthResponse(token, user.Id, user.Username, user.Email, user.Phone, user.Role, user.CreatedAt);
                 return Created("", resp);
             }
             catch (Exception ex)
@@ -68,9 +68,9 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // ----------------- LOGIN ------------------
+        // -------------------- LOGIN --------------------
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest req)
+        public async Task<IActionResult> Login([FromBody] AuthDTOs.LoginRequest req)
         {
             try
             {
@@ -85,7 +85,7 @@ namespace WebApp_API.Controllers
 
                 var token = GenerateJwt(user);
 
-                var resp = new AuthResponse(token, user.Id, user.Username, user.Email, user.Phone, user.Role, user.CreatedAt);
+                var resp = new AuthDTOs.AuthResponse(token, user.Id, user.Username, user.Email, user.Phone, user.Role, user.CreatedAt);
                 return Ok(resp);
             }
             catch (Exception ex)
@@ -94,7 +94,7 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // ----------------- JWT GENERATOR ----------
+        // -------------------- JWT GENERATOR --------------------
         private string GenerateJwt(User user)
         {
             try

@@ -5,6 +5,7 @@ using WebApp_API.Models;
 
 namespace WebApp_API.Controllers
 {
+    // Route : api/user
     [ApiController]
     [Route("api/user")]
     public class UserController : ControllerBase
