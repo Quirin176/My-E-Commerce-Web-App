@@ -1,10 +1,10 @@
-import { useParams, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import ProductCard from "../../../components/ProductCard";
+import { useParams, useSearchParams } from "react-router-dom";
+import toast from "react-hot-toast";
 import DynamicFilters from "../../../components/DynamicFilters";
+import ProductCard from "../../../components/ProductCard";
 import { productApi } from "../../../api/productApi";
 import { filterApi } from "../../../api/filterApi";
-import toast from "react-hot-toast";
 import { siteConfig } from "../../../config/siteConfig";
 
 export default function CategoryProducts() {

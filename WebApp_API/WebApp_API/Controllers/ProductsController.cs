@@ -40,6 +40,7 @@ namespace WebApp_API.Controllers
             if (maxPrice < decimal.MaxValue)
                 query = query.Where(p => p.Price <= maxPrice);
 
+            // NEW: Improved filter logic with OR within option and AND between options
             if (!string.IsNullOrWhiteSpace(options))
             {
                 var selectedOptionIds = options.Split(',')
@@ -50,11 +51,36 @@ namespace WebApp_API.Controllers
 
                 if (selectedOptionIds.Count > 0)
                 {
-                    var productIds = await _db.ProductFilters
-                        .Where(pf => selectedOptionIds.Contains(pf.OptionValueId))
-                        .Select(pf => pf.ProductId)
-                        .Distinct()
+                    // Group selected option IDs by their ProductOption to understand which belong to same option
+                    var optionGroups = await _db.ProductOptionValues
+                        .Where(pov => selectedOptionIds.Contains(pov.Id))
+                        .GroupBy(pov => pov.ProductOptionId)
+                        .Select(g => new
+                        {
+                            OptionId = g.Key,
+                            SelectedValueIds = g.Select(pov => pov.Id).ToList()
+                        })
                         .ToListAsync();
+
+                    // For each option group, get products that match ANY value in that group (OR)
+                    // Then apply AND between groups
+                    var productIds = await _db.Products
+                        .Where(p => p.CategoryId == query.Select(x => x.CategoryId).FirstOrDefault() || true)
+                        .Select(p => p.Id)
+                        .ToListAsync();
+
+                    foreach (var group in optionGroups)
+                    {
+                        // Get products matching ANY value in this option (OR logic)
+                        var productsInGroup = await _db.ProductFilters
+                            .Where(pf => group.SelectedValueIds.Contains(pf.OptionValueId))
+                            .Select(pf => pf.ProductId)
+                            .Distinct()
+                            .ToListAsync();
+
+                        // AND: Only keep products that match this group
+                        productIds = productIds.Intersect(productsInGroup).ToList();
+                    }
 
                     query = query.Where(p => productIds.Contains(p.Id));
                 }
@@ -239,7 +265,7 @@ namespace WebApp_API.Controllers
             if (maxPrice < decimal.MaxValue)
                 query = query.Where(p => p.Price <= maxPrice);
 
-            // Filter by selected option values
+            // NEW: Improved filter logic with OR within option and AND between options
             if (!string.IsNullOrWhiteSpace(options))
             {
                 var selectedOptionIds = options.Split(',')
@@ -250,12 +276,35 @@ namespace WebApp_API.Controllers
 
                 if (selectedOptionIds.Count > 0)
                 {
-                    // OR filtering: match ANY selected option value
-                    var productIds = await _db.ProductFilters
-                        .Where(pf => selectedOptionIds.Contains(pf.OptionValueId))
-                        .Select(pf => pf.ProductId)
-                        .Distinct()
+                    // Group by ProductOption to create OR within option, AND between options
+                    var optionGroups = await _db.ProductOptionValues
+                        .Where(pov => selectedOptionIds.Contains(pov.Id))
+                        .GroupBy(pov => pov.ProductOptionId)
+                        .Select(g => new
+                        {
+                            OptionId = g.Key,
+                            SelectedValueIds = g.Select(pov => pov.Id).ToList()
+                        })
                         .ToListAsync();
+
+                    var productIds = await _db.Products
+                        .Where(p => p.CategoryId == categoryEntity.Id)
+                        .Select(p => p.Id)
+                        .ToListAsync();
+
+                    // Apply AND logic between option groups
+                    foreach (var group in optionGroups)
+                    {
+                        // OR within this option: match ANY value in this group
+                        var productsInGroup = await _db.ProductFilters
+                            .Where(pf => group.SelectedValueIds.Contains(pf.OptionValueId))
+                            .Select(pf => pf.ProductId)
+                            .Distinct()
+                            .ToListAsync();
+
+                        // AND: Intersect with previous results
+                        productIds = productIds.Intersect(productsInGroup).ToList();
+                    }
 
                     query = query.Where(p => productIds.Contains(p.Id));
                 }

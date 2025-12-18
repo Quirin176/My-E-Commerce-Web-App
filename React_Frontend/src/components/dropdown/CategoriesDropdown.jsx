@@ -154,7 +154,7 @@ export default function CategoriesDropdown({ categories = [] }) {
                 </div>
 
                 {/* CONTENT */}
-                <div className="p-8">
+                <div className="p-4">
                   {loadingFilters[selectedCategory] ? (
                     <div className="text-center py-12">
                       <div className="inline-block">
@@ -163,7 +163,7 @@ export default function CategoriesDropdown({ categories = [] }) {
                       <p className="text-gray-500 text-sm mt-4">Loading filters...</p>
                     </div>
                   ) : categoryFilters[selectedCategory]?.length > 0 ? (
-                    <div className="space-y-8">
+                    <div className="space-y-4">
                       {categoryFilters[selectedCategory].map((option) => (
                         <div key={option.optionId}>
                           {/* OPTION NAME */}
@@ -187,7 +187,7 @@ export default function CategoriesDropdown({ categories = [] }) {
                       ))}
 
                       {/* DIVIDER */}
-                      <div className="border-t border-gray-200 pt-8">
+                      <div className="border-t border-gray-200 pt-4">
                         {/* VIEW ALL BUTTON */}
                         <button
                           onClick={() => {

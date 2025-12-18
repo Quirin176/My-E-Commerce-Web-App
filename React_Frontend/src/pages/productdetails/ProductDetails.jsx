@@ -4,13 +4,15 @@ import { useParams, Link } from "react-router-dom";
 import { productApi } from "../../api/productApi";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 export default function ProductDetails() {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [modalImageIndex, setModalImageIndex] = useState(0);
 
   const { user } = useAuth();
   const { addToCart } = useCart();
@@ -43,7 +45,6 @@ export default function ProductDetails() {
     const loadProduct = async () => {
       try {
         const data = await productApi.getById(id);
-
         setProduct(data);
         console.log("Product loaded:", data);
       } catch (error) {
@@ -57,15 +58,40 @@ export default function ProductDetails() {
     loadProduct();
   }, [id]);
 
+  // Handle click outside modal to close
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget) {
+      setShowImageModal(false);
+    }
+  };
+
+  // Handle ESC key to close modal
+  useEffect(() => {
+    const handleEscKey = (e) => {
+      if (e.key === "Escape" && showImageModal) {
+        setShowImageModal(false);
+      }
+    };
+
+    if (showImageModal) {
+      document.addEventListener("keydown", handleEscKey);
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleEscKey);
+    };
+  }, [showImageModal]);
+
   if (loading) return <p className="text-center p-6">Loading product...</p>;
   if (!product) return <p className="text-lg text-center p-6 text-red-500">Product not found.</p>;
 
-  // Get images array - use Images from API response or fall back to imageUrl
+  // Get images array
   const images = product.images && product.images.length > 0 
     ? product.images 
     : (product.imageUrl ? [product.imageUrl] : ["https://via.placeholder.com/400x400?text=No+Image"]);
 
   const currentImage = images[currentImageIndex];
+  const modalImage = images[modalImageIndex];
 
   const goToPrevImage = () => {
     setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
@@ -75,7 +101,19 @@ export default function ProductDetails() {
     setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
   };
 
-  // Get category name from category object or use fallback
+  const goToPrevImageModal = () => {
+    setModalImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
+
+  const goToNextImageModal = () => {
+    setModalImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
+
+  const openImageModal = (index) => {
+    setModalImageIndex(index);
+    setShowImageModal(true);
+  };
+
   const categoryName = product.category?.name || "Unknown Category";
 
   return (
@@ -84,16 +122,18 @@ export default function ProductDetails() {
         
         {/* Product Images Gallery */}
         <div className="w-full lg:w-1/2">
-          <div className="relative bg-gray-100 rounded-lg overflow-hidden">
-            {/* Main Image */}
-            <img
-              src={currentImage}
-              alt={`${product.name} - Image ${currentImageIndex + 1}`}
-              className="w-full h-96 object-contain"
-              onError={(e) => {
-                e.target.src = "https://via.placeholder.com/400x400?text=No+Image";
-              }}
-            />
+          <div className="relative bg-gray-100 rounded-lg overflow-hidden group cursor-pointer">
+            {/* Main Image - Clickable */}
+            <div onClick={() => openImageModal(currentImageIndex)} className="relative">
+              <img
+                src={currentImage}
+                alt={`${product.name} - Image ${currentImageIndex + 1}`}
+                className="w-full h-96 object-contain transition"
+                onError={(e) => {
+                  e.target.src = "https://via.placeholder.com/400x400?text=No+Image";
+                }}
+              />
+            </div>
 
             {/* Navigation Buttons - Show only if multiple images */}
             {images.length > 1 && (
@@ -137,7 +177,7 @@ export default function ProductDetails() {
                   <img
                     src={img}
                     alt={`Thumbnail ${index + 1}`}
-                    className="w-full h-full object-cover rounded"
+                    className="w-full h-full object-cover rounded cursor-pointer hover:opacity-80"
                     onError={(e) => {
                       e.target.src = "https://via.placeholder.com/80?text=No+Image";
                     }}
@@ -161,16 +201,6 @@ export default function ProductDetails() {
               {categoryName}
             </Link>
           </p>
-
-          {/* Short Description
-          {product.shortDescription && (
-            <div className="mb-6 p-4 bg-gray-50 rounded border-l-4 border-blue-600">
-              <h3 className="font-semibold text-gray-700 mb-2">Summary</h3>
-              <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-                {product.shortDescription}
-              </p>
-            </div>
-          )} */}
 
           {/* Product Options/Attributes */}
           {product.options && product.options.length > 0 && (
@@ -209,6 +239,90 @@ export default function ProductDetails() {
           <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
             {product.description}
           </p>
+        </div>
+      )}
+
+      {/* IMAGE MODAL */}
+      {showImageModal && (
+        <div 
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+          onClick={handleBackdropClick}
+        >
+          {/* Modal Container */}
+          <div className="relative max-w-4xl w-full max-h-[90vh] flex flex-col bg-black rounded-lg overflow-hidden">
+            
+            {/* Close Button */}
+            <button
+              onClick={() => setShowImageModal(false)}
+              className="absolute top-4 right-4 bg-transparent hover:bg-black/20 text-white p-2 border-black rounded-full transition z-10"
+              aria-label="Close modal"
+            >
+              <X size={32} className="text-black" />
+            </button>
+
+            {/* Main Image in Modal */}
+            <div className="flex-1 flex items-center justify-center overflow-hidden">
+              <img
+                src={modalImage}
+                alt={`Product view ${modalImageIndex + 1}`}
+                className="w-full h-full object-contain"
+                onError={(e) => {
+                  e.target.src = "https://via.placeholder.com/800?text=No+Image";
+                }}
+              />
+            </div>
+
+            {/* Navigation Buttons */}
+            {images.length > 1 && (
+              <>
+                <button
+                  onClick={goToPrevImageModal}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-transparent hover:bg-black/20 text-black p-3 rounded-full transition"
+                  aria-label="Previous image"
+                >
+                  <ChevronLeft size={32} />
+                </button>
+                <button
+                  onClick={goToNextImageModal}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-transparent hover:bg-black/20 text-black p-3 rounded-full transition"
+                  aria-label="Next image"
+                >
+                  <ChevronRight size={32} />
+                </button>
+              </>
+            )}
+
+            {/* Image Counter */}
+            <div className="absolute bottom-4 right-4 bg-black/60 text-white px-4 py-2 rounded text-sm font-semibold">
+              {modalImageIndex + 1} / {images.length}
+            </div>
+
+            {/* Thumbnail Strip at Bottom */}
+            {images.length > 1 && (
+              <div className="bg-black/50 p-3 flex gap-2 overflow-x-auto">
+                {images.map((img, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setModalImageIndex(index)}
+                    className={`flex-shrink-0 w-16 h-16 rounded border-2 transition ${
+                      modalImageIndex === index
+                        ? "border-blue-400"
+                        : "border-gray-600 hover:border-gray-400"
+                    }`}
+                  >
+                    <img
+                      src={img}
+                      alt={`Thumbnail ${index + 1}`}
+                      className="w-full h-full object-cover rounded"
+                      onError={(e) => {
+                        e.target.src = "https://via.placeholder.com/64?text=No+Image";
+                      }}
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

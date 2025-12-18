@@ -3,14 +3,15 @@ import CategoryTabs from "../../components/CategoryTabs";
 
 const Home = () => {
   const categories = siteConfig.categories;
+  const colors = siteConfig.colors;
 
   return (
   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", }}>
     {/* MAIN HEADER */}
-    <h1 style={{ fontSize: 40, color: siteConfig.colors.headerBg, fontWeight: "bold", marginBottom: 10, textAlign: "center", letterSpacing: 2, }}>Welcome to My Store</h1>
+    <h1 style={{ fontSize: 40, color: colors.primarycolor, fontWeight: "bold", marginBottom: 10, textAlign: "center", letterSpacing: 2, }}>Welcome to My Store</h1>
 
     {/* UNDERLINE */}
-    <div style={{ width: 120, height: 5, borderRadius: 5, background: `linear-gradient(90deg, ${siteConfig.colors.headerBg}, #777)`, marginBottom: 25, }}></div>
+    <div style={{ width: 600, height: 5, borderRadius: 5, background: `linear-gradient(90deg, ${colors.primarycolor}, #777)`, marginBottom: 25, }}></div>
 
     {/* INTRO PARAGRAPH */}
     <p style={{ fontSize: 24, color: "#444", maxWidth: "700px", textAlign: "center", marginBottom: 40, lineHeight: 1.5, }}>
@@ -19,7 +20,7 @@ const Home = () => {
     </p>
 
     {/* CATEGORIES HEADER */}
-    <h2 style={{ fontSize: 40, color: siteConfig.colors.headerBg, fontWeight: "bold", marginBottom: 20, textAlign: "center", }}>Explore Shop's Products</h2>
+    <h2 style={{ fontSize: 40, color: colors.primarycolor, fontWeight: "bold", marginBottom: 20, textAlign: "center", }}>Explore Shop's Products</h2>
 
     <CategoryTabs products={categories} />
   </div>
