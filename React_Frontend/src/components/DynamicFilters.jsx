@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { siteConfig } from "../config/siteConfig";
 
 export default function DynamicFilters({ 
   categories, 
@@ -12,6 +13,7 @@ export default function DynamicFilters({
   priceOrder,
   setPriceOrder
 }) {
+  const colors = siteConfig.colors;
   const [openDropdowns, setOpenDropdowns] = useState({});
 
   const toggleDropdown = (categoryId) => {
@@ -50,7 +52,9 @@ export default function DynamicFilters({
                     <span className="font-semibold text-gray-700 truncate text-xs">
                       {category.name}
                       {selectedInCategory.length > 0 && (
-                        <span className="ml-1 text-xs bg-blue-500 text-white px-1.5 py-0.5 rounded inline-block">
+                        <span
+                        className="ml-1 text-xs text-white px-1.5 py-0.5 rounded inline-block"
+                        style={{ background: colors.primarycolor }}>
                           {selectedInCategory.length}
                         </span>
                       )}
@@ -132,7 +136,8 @@ export default function DynamicFilters({
               return option ? (
                 <span
                   key={id}
-                  className="bg-blue-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                  className="text-white px-2 py-1 rounded text-xs flex items-center gap-1"
+                  style={{ background: colors.primarycolor}}
                 >
                   {option.value}
                   <button

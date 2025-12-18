@@ -2,13 +2,24 @@ import { useState } from "react";
 import { ChevronDown, LayoutGrid, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { filterApi } from "../../api/filterApi";
+import { siteConfig } from "../../config/siteConfig";
 
-export default function CategoriesDropdown({ categories = [], textColor = "", listhoverBg = "" }) {
+export default function CategoriesDropdown({ categories = [] }) {
+  const colors = siteConfig.colors;
   const [open, setOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [categoryFilters, setCategoryFilters] = useState({});
   const [loadingFilters, setLoadingFilters] = useState({});
   const navigate = useNavigate();
+
+  // Get icon component from category
+  const getCategoryIcon = (category) => {
+    if (category.icon) {
+      const IconComponent = category.icon;
+      return <IconComponent size={20} />;
+    }
+    return <LayoutGrid size={20} />;
+  };
 
   // Load filters when category is hovered
   const handleCategoryHover = async (categoryLink) => {
@@ -52,7 +63,7 @@ export default function CategoriesDropdown({ categories = [], textColor = "", li
     <div className="relative inline-block font-semibold">
       <button 
         className="flex items-center gap-2 px-2 py-1 border rounded font-semibold hover:shadow-md transition" 
-        style={{ color: textColor }} 
+        style={{ color: "White" }} 
         onMouseUp={() => setOpen(true)}
       >
         <LayoutGrid size={18} />
@@ -72,16 +83,19 @@ export default function CategoriesDropdown({ categories = [], textColor = "", li
       {open && (
         <div 
           className="fixed left-1/2 transform -translate-x-1/2 bg-white border-0 rounded-xl shadow-2xl z-50 flex overflow-hidden"
-          style={{ width: "1400px", height: "700px" }}
+          style={{ width: "1500px", height: "700px" }}
           onMouseLeave={handleClose}
         >
           {/* LEFT SIDE: CATEGORIES LIST */}
-          <div className={`${selectedCategory ? "w-1/4" : "w-full"} border-r border-gray-200 overflow-y-auto bg-white transition-all duration-300`}>
-            <div className="sticky top-0 bg-gradient-to-b from-blue-600 to-blue-500 text-white p-4 z-10">
+          <div className={`${selectedCategory ? "w-1/5" : "w-full"} border-r border-gray-200 overflow-y-auto bg-white transition-all duration-300`}>
+            <div
+            className="sticky bg-gradient-to-b text-white pl-4 py-2"
+            style={{ background: colors.primarycolor}}
+            >
               <h3 className="text-lg font-bold">Categories</h3>
             </div>
             
-            <div className="p-3 space-y-2">
+            <div className="p-2 space-y-2">
               {categories.map((item, index) => (
                 <button
                   key={index}
@@ -90,25 +104,35 @@ export default function CategoriesDropdown({ categories = [], textColor = "", li
                     handleClose();
                     navigate(`/category/${encodeURIComponent(item.link)}`);
                   }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition duration-200 ${
-                    selectedCategory === item.link 
-                      ? "bg-blue-600 text-white shadow-md" 
-                      : "hover:bg-white hover:shadow-sm text-gray-700"
-                  }`}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition duration-200"
+                  style={{
+                    backgroundColor: selectedCategory === item.link ? colors.primarycolor : "White",
+                    color: selectedCategory === item.link ? "White" : "Black"
+                  }}
                 >
-                  {/* IMAGE */}
-                  <img 
-                    src={item.image} 
-                    alt={item.label} 
-                    className="w-12 h-12 object-cover rounded-md border border-gray-200"
-                  />
+
+                  {/* ICON BOX */}
+                  <div
+                  // className={`flex items-center justify-center w-12 h-12 rounded-md border-2 transition ${
+                  //   selectedCategory === item.link
+                  //     ? "border-white bg-blue-700"
+                  //     : "border-gray-200 bg-gray-50"}`}
+                  className="flex items-center justify-center w-8 h-8 rounded-md border-2 transition"  
+                  style={{ background: selectedCategory === item.link ? colors.primarycolor : "#F9FAFB",
+                  borderColor: selectedCategory === item.link ? "white" : "#E5E7EB"}}
+                  >
+                    <div className={selectedCategory === item.link ? "text-white" : "text-gray-700"}>
+                      {getCategoryIcon(item)}
+                    </div>
+                  </div>
+                  
                   {/* LABEL */}
                   <div className="flex-1 text-left">
                     <span className="font-semibold text-base block">{item.label}</span>
                   </div>
                   {/* ARROW */}
                   <ChevronDown 
-                    size={16} 
+                    size={20} 
                     className={`transition ${selectedCategory === item.link ? "rotate-180" : ""}`}
                   />
                 </button>
@@ -118,15 +142,15 @@ export default function CategoriesDropdown({ categories = [], textColor = "", li
 
           {/* RIGHT SIDE: FILTERS FOR SELECTED CATEGORY */}
           {selectedCategory && (
-            <div className="w-3/4 overflow-y-auto bg-white">
+            <div className="w-4/5 overflow-y-auto bg-white">
             {selectedCategory && (
               <div>
                 {/* HEADER */}
-                <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-500 border-b border-gray-200 px-4 py-1 z-10">
-                  <h3 className="text-xl font-bold text-white">
-                    {categories.find(c => c.link === selectedCategory)?.label}
-                  </h3>
-                  <p className="text-sm text-white mt-1">Choose filters</p>
+                <div
+                  className="sticky bg-gradient-to-r border-b border-gray-200 pl-4 py-2"
+                  style={{ background: colors.primarycolor}}
+                >
+                  <p className="text-lg font-bold text-white">Filters</p>
                 </div>
 
                 {/* CONTENT */}
@@ -148,12 +172,12 @@ export default function CategoriesDropdown({ categories = [], textColor = "", li
                           </h4>
 
                           {/* OPTION VALUES */}
-                          <div className="flex flex-wrap gap-3">
+                          <div className="flex flex-wrap gap-2">
                             {option.optionValues.map((value) => (
                               <button
                                 key={value.optionValueId}
                                 onClick={() => handleFilterClick(selectedCategory, value.optionValueId)}
-                                className="px-4 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-blue-600 hover:text-white hover:shadow-md transition duration-200 font-medium border border-gray-200 hover:border-blue-600"
+                                className="px-4 py-2 bg-white hover:bg-gray-700 text-gray-700 hover:text-white text-sm rounded-lg hover:shadow-md transition duration-200 font-medium border border-gray-300"
                               >
                                 {value.value}
                               </button>
@@ -170,7 +194,8 @@ export default function CategoriesDropdown({ categories = [], textColor = "", li
                             handleClose();
                             navigate(`/category/${encodeURIComponent(selectedCategory)}`);
                           }}
-                          className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-bold rounded-lg hover:shadow-lg transition duration-200 hover:from-blue-700 hover:to-blue-800"
+                          className="w-full px-6 py-3 bg-gradient-to-r text-white text-sm font-bold rounded-lg hover:shadow-lg transition duration-200 hover:brightness-75"
+                          style={{ background: colors.primarycolor}}
                         >
                           View All Products in {categories.find(c => c.link === selectedCategory)?.label}
                         </button>
@@ -184,7 +209,8 @@ export default function CategoriesDropdown({ categories = [], textColor = "", li
                           handleClose();
                           navigate(`/category/${encodeURIComponent(selectedCategory)}`);
                         }}
-                        className="px-6 py-3 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition duration-200"
+                        className="px-6 py-3 text-white text-sm font-bold rounded-lg hover:brightness-75 transition duration-200"
+                        style={{ background: colors.primarycolor}}
                       >
                         View Products
                       </button>

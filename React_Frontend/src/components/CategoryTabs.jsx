@@ -7,6 +7,7 @@ import { productApi } from "../api/productApi";
 import ProductCard from "./ProductCard";
 
 const CategoryTabs = ({ products }) => {
+  const colors = siteConfig.colors;
   const [activeTab, setActiveTab] = useState(products[0]?.label || "");
   const [items, setItems] = useState([]);
   const [pageIndex, setPageIndex] = useState(0);
@@ -47,7 +48,7 @@ const CategoryTabs = ({ products }) => {
   const canPrev = pageIndex > 0;
 
   return (
-    <div style={{ borderRadius: 10, width: "100%", maxWidth: 1200, margin: "0 auto", textAlign: "center", background: "royalblue" }}>
+    <div style={{ borderRadius: 10, width: "100%", maxWidth: 1200, margin: "0 auto", textAlign: "center", background: colors.primarycolor, paddingBottom: 10 }}>
       {/* CATEGORY TABS */}
       <div style={{ display: "flex", justifyContent: "left", borderTopLeftRadius: 10, borderTopRightRadius: 10, marginBottom: 10, background: "white" }}>
         {products.map((cat) => (
@@ -63,7 +64,7 @@ const CategoryTabs = ({ products }) => {
               borderTopLeftRadius: 10,
               borderTopRightRadius: 10,
               cursor: "pointer",
-              background: activeTab === cat.label ? siteConfig.colors.headerBg : "white",
+              background: activeTab === cat.label ? colors.primarycolor : "white",
               color: activeTab === cat.label ? "white" : "black",
               fontSize: 24,
               fontWeight: "bold",

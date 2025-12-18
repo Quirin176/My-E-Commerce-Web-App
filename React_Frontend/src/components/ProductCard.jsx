@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { siteConfig } from "../config/siteConfig";
 
 export default function ProductCard({ product }) {
+  const colors = siteConfig.colors;
   const { addToCart } = useCart();
   const { user } = useAuth();
 
@@ -54,7 +55,7 @@ export default function ProductCard({ product }) {
           <div className="h-12 overflow-hidden">
             <h3
               className="font-bold text-base leading-6 text-center"
-              style={{ color: siteConfig.colors.headerBg }}
+              style={{ color: colors.headerBg }}
             >
               {product.name}
             </h3>
@@ -78,13 +79,14 @@ export default function ProductCard({ product }) {
       <div className="p-2">
         <p
           className="text-end text-lg font-bold mb-3 border-t border-b border-gray-100"
-          style={{ color: siteConfig.colors.headerBg }}
+          style={{ color: colors.primarycolor }}
         >
           {product.price?.toLocaleString() || "N/A"} VND
         </p>
         <button
           onClick={handleAdd}
-          className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-150 transform hover:scale-[1.01]"
+          className="w-full font-semibold text-white py-3 rounded-lg hover:brightness-75 transition duration-150 transform hover:scale-[1.01]"
+          style={{ background: colors.primarycolor }}
         >
           Add to Cart
         </button>

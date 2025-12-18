@@ -80,7 +80,7 @@ export default function Header() {
 return (
   <header
     className="shadow-md"
-    style={{ backgroundColor: colors.headerBg }}
+    style={{ backgroundColor: colors.primarycolor }}
   >
     <div className="container mx-auto px-4 py-3">
       <div className="flex items-center justify-between gap-6">
@@ -94,11 +94,7 @@ return (
             {siteConfig.webName}
           </Link>
 
-          <CategoriesDropdown
-            categories={siteConfig.categories}
-            textColor={colors.categoryTextColor}
-            listhoverBg={colors.categorylistHoverBg}
-          />
+          <CategoriesDropdown categories={siteConfig.categories}/>
         </div>
 
         {/* ================= CENTER (SEARCH) ================= */}
@@ -137,11 +133,8 @@ return (
             {/* Search */}
             <button
               type="submit"
-              className="
-                absolute right-2 top-1/2 -translate-y-1/2
-                bg-blue-600 hover:bg-blue-700
-                p-2 rounded-lg text-white transition
-              "
+              className="absolute right-2 top-1/2 -translate-y-1/2 hover:brightness-75 p-2 rounded-lg text-white transition"
+              style={{ background: colors.primarycolor}}
             >
               <Search size={18} />
             </button>
