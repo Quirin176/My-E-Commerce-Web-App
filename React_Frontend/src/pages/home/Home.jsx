@@ -9,14 +9,14 @@ const Home = () => {
   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", }}>
 
     {/* WARNING */}
-    <h2 style={{ fontSize: 40, color: colors.primarycolor, fontWeight: "bold", marginBottom: 10, textAlign: "center", letterSpacing: 2, }}>
+    <h2 style={{ fontSize: 40, color: colors.primarycolor, fontWeight: "bold", marginBottom: 10, textAlign: "center", }}>
       ⚠️ This is a demo store for testing purposes only.
       <br/>
       No real orders will be processed. ⚠️
     </h2>
 
     {/* MAIN HEADER */}
-    <h2 style={{ fontSize: 40, color: colors.primarycolor, fontWeight: "bold", marginBottom: 10, textAlign: "center", letterSpacing: 2, }}>Welcome to My Store</h2>
+    <h2 style={{ fontSize: 40, color: colors.primarycolor, fontWeight: "bold", marginBottom: 10, textAlign: "center", }}>Welcome to My Store</h2>
 
     {/* UNDERLINE */}
     <div style={{ width: 600, height: 5, borderRadius: 5, background: `linear-gradient(90deg, ${colors.primarycolor}, #ffff00)`, marginBottom: 25, }}></div>
