@@ -82,7 +82,7 @@ const CategoryTabs = ({ products }) => {
             <ProductCard key={item.id} product={item} />
           ))
         ) : (
-          <div style={{ gridColumn: "1 / -1", padding: 20, textAlign: "center", color: "#999" }}>
+          <div style={{ gridColumn: "1 / -1", padding: 20, textAlign: "center", color: "White" }}>
             No products found in this category.
           </div>
         )}

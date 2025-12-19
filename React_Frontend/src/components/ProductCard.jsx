@@ -47,7 +47,7 @@ export default function ProductCard({ product }) {
               "https://via.placeholder.com/200x150?text=No+Image"
             }
             alt={product.name}
-            className="w-48 h-32 object-cover rounded-md"
+            className="w-48 h-48 object-cover rounded-md"
           />
         </div>
 
