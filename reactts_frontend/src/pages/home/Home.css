@@ -1,0 +1,26 @@
+.hero {
+  padding: 40px;
+  background: #f5f5f5;
+  text-align: center;
+}
+
+.categories, .products {
+  padding: 32px;
+}
+
+.category-list {
+  display: flex;
+  gap: 16px;
+}
+
+.category-item {
+  padding: 20px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}

@@ -9,16 +9,14 @@ export default function AppLayout(){
   return (
     <div className="min-h-screen flex flex-col">
 
-      {/* HEADER */}
       <Header/>
 
-      {/* CONTENT */}
       <main className="flex-1 container mx-auto px-4 py-4">
         <Outlet />
       </main>
 
-      {/* FOOTER */}
       <Footer/>
+      
     </div>
   );
 }
