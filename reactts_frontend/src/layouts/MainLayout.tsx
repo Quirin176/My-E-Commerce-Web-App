@@ -1,9 +1,8 @@
-import { ReactNode } from "react";
 import Header from "../components/MainLayout/Header";
 import Footer from "../components/MainLayout/Footer";
 
 interface MainLayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 const MainLayout = ({ children }: MainLayoutProps) => {
@@ -11,7 +10,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     <div className="min-h-screen flex flex-col">
       <Header />
 
-      <main className="flex-1 container mx-auto px-4 py-4">
+      <main className="flex flex-col container mx-auto px-4 py-4">
         {children}
       </main>
 
