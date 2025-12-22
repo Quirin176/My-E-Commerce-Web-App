@@ -19,6 +19,7 @@ export const Login: React.FC = () => {
       await login(email, password);
       navigate('/');
     } catch (err: any) {
+      console.error('Login error:', err);
       setError(err.message || 'Login failed');
     } finally {
       setIsLoading(false);
@@ -26,8 +27,8 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md bg-white rounded-lg shadow p-8">
+    <div className="min-h-screen flex justify-center">
+      <div className="w-full max-w-md bg-white rounded-lg shadow-2xl p-8">
         <h2 className="text-2xl font-bold mb-6">Login</h2>
         
         {error && (
@@ -84,3 +85,5 @@ export const Login: React.FC = () => {
     </div>
   );
 };
+
+export default Login;

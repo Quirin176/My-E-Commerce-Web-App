@@ -1,9 +1,7 @@
-const Footer = () => {
+export default function Footer() {
   return (
-    <footer style={{ padding: "16px", borderTop: "1px solid #ddd" }}>
-      <p>© 2025 E-Commerce Shop</p>
+    <footer className="bg-gray-50 py-4 text-center">
+      © {new Date().getFullYear()} E-Commerce Shop
     </footer>
   );
 };
-
-export default Footer;

@@ -2,7 +2,7 @@ import { Link } from "react-router";
 import { siteConfig } from "../../config/siteConfig";
 
 const colors = siteConfig.colors;
-const Header = () => {
+export default function Header() {
   return (
     <header
       className="fixed top-0 left-0 w-full z-50 shadow-md"
@@ -34,5 +34,3 @@ const Header = () => {
     </header>
   );
 };
-
-export default Header;

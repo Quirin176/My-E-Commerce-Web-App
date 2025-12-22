@@ -9,7 +9,7 @@ export default function AppLayout(){
       <Header/>
 
       <main className="flex-1 container mx-auto px-4 py-4">
-        <Outlet />
+        <Outlet/>
       </main>
 
       <Footer/>
