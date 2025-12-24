@@ -26,7 +26,7 @@ export default function App() {
       </Route>
 
       {/* Auth pages use AuthLayout (no nav/footer) */}
-      <Route path="/auth">
+      <Route path="/auth" element={<Auth />} >
         <Route path="login" element={<Login />} />
         <Route path="signup" element={<Signup />} />
       </Route>

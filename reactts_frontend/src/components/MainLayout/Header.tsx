@@ -1,8 +1,12 @@
 import { Link } from "react-router";
 import { siteConfig } from "../../config/siteConfig";
+import {useAuth} from "../../hooks/useAuth";
+import UserDropDown from "../User/UserDropDown";
 
 const colors = siteConfig.colors;
 export default function Header() {
+  const { user } = useAuth();
+
   return (
     <header
       className="fixed top-0 left-0 w-full z-50 shadow-md"
@@ -21,14 +25,21 @@ export default function Header() {
           {/* NAVIGATION LINKS */}
 
           {/* USER */}
+          {!user && (
           <div className="flex items-center gap-6">
-            <Link to="/auth/login" className="text-white hover:underline">
+            <Link to="/auth?mode=login" className="text-white hover:underline">
               Login
             </Link>
-            <Link to="/auth/signup" className="text-white hover:underline">
-              Register
+            <Link to="/auth?mode=signup" className="text-white hover:underline">
+              Signup
             </Link>
-          </div>
+          </div>)}
+
+          {user && (
+          <div className="flex items-center gap-3">
+            <UserDropDown/>
+            {/* <span className="text-white">Hello, {user.username}</span> */}
+          </div>)}
         </div>
       </div>
     </header>

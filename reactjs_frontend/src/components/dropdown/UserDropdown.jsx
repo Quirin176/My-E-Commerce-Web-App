@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
-export default function UserDropdown({categories = ["My Account", "Orders", "Log out"], textColor = "", listhoverBg = ""}) {
+export default function UserDropdown({categories = ["My Account", "My Orders", "Log out"], textColor = "", listhoverBg = ""}) {
   const [open, setOpen] = useState(false);
-  const { user, logout } = useAuth();  
+  const { user, logout } = useAuth();
   const handleClick = (item) => {
     if (item === "Log out") {
       logout();

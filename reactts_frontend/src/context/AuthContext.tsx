@@ -35,6 +35,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
   };
 
+  {/* LOGIN */}
   const login = useCallback(async (email: string, password: string) => {
     setLoading(true);
     setError(null);
@@ -59,6 +60,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, []);
 
+  {/* SIGNUP */}
   const signup = useCallback(async (userData: {
     username: string;
     email: string;
@@ -89,6 +91,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, []);
 
+  {/* LOGOUT */}
   const logout = useCallback(() => {
     localStorage.removeItem('user');
     localStorage.removeItem('token');

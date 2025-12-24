@@ -1,205 +1,339 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 
 export default function Auth() {
-  const [mode, setMode] = useState<"login" | "signup">("login");
-
-  // Login form state
+  const [searchParams] = useSearchParams();
+  const mode = searchParams.get("mode");
+  const [isLogin, setIsLogin] = useState(mode !== "signup");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  // Signup form state
-  const [form, setForm] = useState({
-    username: "",
-    email: "",
-    phone: "",
-    password: "",
-    confirmPassword: "",
-  });
-
+  const [username, setUsername] = useState("");
+  const [phone, setPhone] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const { login, signup } = useAuth();
   const navigate = useNavigate();
 
-  // Handlers
-  const handleSignupChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const submitLogin = async (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
 
     try {
-      await login(email, password);
       navigate("/");
+      console.log("Login:", { email, password });
+      toast.success("Login successful!");
     } catch (err) {
-      setError(err.message || "Login failed");
+      setError(err?.message || "Login failed");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const submitSignup = async (e) => {
+  const handleSignupSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match");
+    if (!username || !email || !phone || !password || !confirmPassword) {
+      setError("Please fill in all fields!");
       return;
     }
 
+    if (password !== confirmPassword) {
+      setError("Passwords do not match!");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters!");
+      return;
+    }
+
+    setIsLoading(true);
     try {
-      const ok = await signup(form);
-      if (ok) navigate("/home");
+      console.log("Signup:", { username, email, phone, password });
+      toast.success("Signup successful!");
     } catch (err) {
-      setError(err.message || "Signup failed");
+      setError("Signup failed: " + (err?.message || "Unknown error"));
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  const toggleAuth = () => {
+    setError("");
+    setEmail("");
+    setPassword("");
+    setUsername("");
+    setPhone("");
+    setConfirmPassword("");
+    setIsLogin(!isLogin);
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 p-4 overflow-hidden">
+      <style>{`
+        @keyframes slideInFromLeft {
+          from {
+            opacity: 0;
+            transform: translateX(-100%);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
 
-        {/* 🟦 Sliding Container */}
-        <div
-          className={`flex transition-all duration-700 ease-in-out ${
-            mode === "signup" ? "translate-x-1/2" : "translate-x-0"
-          }`}
-          style={{ width: "100%" }}
-        >
-          {/* ------------------ LOGIN FORM ------------------ */}
-          <div className="w-1/2 p-10 flex flex-col justify-center">
-            <h2 className="text-3xl font-bold text-center mb-6">Sign In</h2>
+        @keyframes slideOutToRight {
+          from {
+            opacity: 1;
+            transform: translateX(0);
+          }
+          to {
+            opacity: 0;
+            transform: translateX(100%);
+          }
+        }
 
-            {error && <p className="text-red-500 text-center">{error}</p>}
+        @keyframes slideInFromRight {
+          from {
+            opacity: 0;
+            transform: translateX(100%);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
 
-            <form onSubmit={submitLogin} className="space-y-4">
-              <input
-                type="email"
-                placeholder="Email"
-                className="w-full bg-gray-100 rounded-lg px-4 py-3"
-                onChange={(e) => setEmail(e.target.value)}
-              />
+        @keyframes slideOutToLeft {
+          from {
+            opacity: 1;
+            transform: translateX(0);
+          }
+          to {
+            opacity: 0;
+            transform: translateX(-100%);
+          }
+        }
 
-              <input
-                type="password"
-                placeholder="Password"
-                className="w-full bg-gray-100 rounded-lg px-4 py-3"
-                onChange={(e) => setPassword(e.target.value)}
-              />
+        .login-card {
+          animation: slideInFromLeft 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
 
-              <button className="text-sm text-gray-500 hover:underline">
-                Forgot Password?
-              </button>
+        .login-card.exit {
+          animation: slideOutToRight 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        .signup-card {
+          animation: slideInFromRight 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        .signup-card.exit {
+          animation: slideOutToLeft 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        .container-wrapper {
+          position: relative;
+          width: 100%;
+          max-width: 1280px;
+          height: 720px;
+        }
+
+        .card {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          border-radius: 3rem;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+          overflow: hidden;
+          background: white;
+        }
+      `}</style>
+
+      <div className="container-wrapper">
+        {/* LOGIN CARD */}
+        <div className={`card ${isLogin ? 'login-card' : 'login-card exit'}`}>
+          <div className="flex h-full">
+            {/* LOGIN LEFT */}
+            <div className="w-1/2 p-12 flex flex-col justify-center">
+              <h2 className="text-4xl font-bold mb-8 text-gray-800">Sign In</h2>
+
+              {/* Social icons */}
+              <div className="flex gap-6 mb-8 items-center justify-center">
+                <span className="text-3xl cursor-pointer hover:scale-125 transition-transform duration-300">🐦</span>
+                <span className="text-3xl cursor-pointer hover:scale-125 transition-transform duration-300">📘</span>
+                <span className="text-3xl cursor-pointer hover:scale-125 transition-transform duration-300">📷</span>
+                <span className="text-3xl cursor-pointer hover:scale-125 transition-transform duration-300">🔗</span>
+              </div>
+
+              <p className="text-gray-500 mb-6 text-sm">or use your email password</p>
+
+              {error && (
+                <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg border border-red-200 text-sm">
+                  {error}
+                </div>
+              )}
+
+              <div className="space-y-4">
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none transition"
+                  required
+                />
+
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none transition"
+                  required
+                />
+
+                <button className="text-sm text-gray-500 hover:underline block hover:text-gray-700 transition">
+                  Forgot Your Password?
+                </button>
+
+                <button
+                  onClick={handleLoginSubmit}
+                  disabled={isLoading}
+                  className="w-full bg-teal-600 text-white py-3 rounded-lg font-medium hover:bg-teal-700 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? "Signing in..." : "SIGN IN"}
+                </button>
+              </div>
+            </div>
+
+            {/* LOGIN RIGHT */}
+            <div className="w-1/2 flex flex-col items-center justify-center text-white p-12 bg-linear-to-br from-cyan-600 to-teal-500 rounded-l-[3rem]">
+              <h2 className="text-4xl font-bold mb-6">Hello, Friend!</h2>
+              <p className="text-center text-lg mb-8 opacity-90">
+                Don't have an account yet? Register with your personal details
+              </p>
 
               <button
-                type="submit"
-                className="w-full bg-teal-600 text-white py-3 rounded-lg hover:bg-teal-700"
-              >
-                SIGN IN
-              </button>
-            </form>
-
-            <p className="mt-6 text-center">
-              Don't have an account?{" "}
-              <button
-                onClick={() => setMode("signup")}
-                className="text-teal-600 font-semibold hover:underline"
-              >
-                Sign up
-              </button>
-            </p>
-          </div>
-
-          {/* ------------------ SIGNUP FORM ------------------ */}
-          <div className="w-1/2 p-10 flex flex-col justify-center">
-            <h2 className="text-3xl font-bold text-center mb-6">
-              Create an Account
-            </h2>
-
-            {error && <p className="text-red-500 text-center">{error}</p>}
-
-            <form onSubmit={submitSignup} className="space-y-4">
-              <input
-                type="text"
-                name="username"
-                placeholder="Username"
-                className="w-full bg-gray-100 rounded-lg px-4 py-3"
-                onChange={handleSignupChange}
-              />
-
-              <input
-                type="email"
-                name="email"
-                placeholder="Email"
-                className="w-full bg-gray-100 rounded-lg px-4 py-3"
-                onChange={handleSignupChange}
-              />
-
-              <input
-                type="tel"
-                name="phone"
-                placeholder="Phone Number"
-                className="w-full bg-gray-100 rounded-lg px-4 py-3"
-                onChange={handleSignupChange}
-              />
-
-              <input
-                type="password"
-                name="password"
-                placeholder="Password"
-                className="w-full bg-gray-100 rounded-lg px-4 py-3"
-                onChange={handleSignupChange}
-              />
-
-              <input
-                type="password"
-                name="confirmPassword"
-                placeholder="Confirm Password"
-                className="w-full bg-gray-100 rounded-lg px-4 py-3"
-                onChange={handleSignupChange}
-              />
-
-              <button
-                type="submit"
-                className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700"
+                onClick={toggleAuth}
+                className="border-2 border-white px-8 py-3 rounded-full font-medium hover:bg-white hover:text-cyan-600 active:scale-95 transition duration-300"
               >
                 SIGN UP
               </button>
-            </form>
-
-            <p className="mt-6 text-center">
-              Already have an account?{" "}
-              <button
-                onClick={() => setMode("login")}
-                className="text-blue-600 font-semibold hover:underline"
-              >
-                Login
-              </button>
-            </p>
+            </div>
           </div>
         </div>
 
-        {/* ------------------ INSTRUCTION PANEL ------------------ */}
-        <div
-          className={`
-            absolute top-0 h-full w-1/2
-            flex flex-col items-center justify-center text-white p-10
-            bg-linear-to-br from-cyan-600 to-teal-500
-            transition-all duration-700 ease-in-out
-            ${mode === "signup" ? "translate-x-full rounded-l-[6rem]" : "translate-x-0 rounded-r-[6rem]"}
-          `}
-        >
-          <h2 className="text-4xl font-bold mb-4">
-            {mode === "signup" ? "Welcome Back!" : "Hello, Friend!"}
-          </h2>
+        {/* SIGNUP CARD */}
+        <div className={`card ${!isLogin ? 'signup-card' : 'signup-card exit'}`}>
+          <div className="flex h-full">
+            {/* SIGNUP LEFT */}
+            <div className="w-1/2 flex flex-col items-center justify-center text-white p-12 bg-linear-to-br from-cyan-600 to-teal-500 rounded-r-[3rem]">
+              <h2 className="text-4xl font-bold mb-6">Welcome Back!</h2>
+              <p className="text-center text-lg mb-8 opacity-90">
+                Already have an account? Sign in to continue
+              </p>
 
-          <p className="text-lg text-center opacity-90">
-            {mode === "signup"
-              ? "Enter your details to start using the application."
-              : "Register now to enjoy all features."}
-          </p>
+              <button
+                onClick={toggleAuth}
+                className="border-2 border-white px-8 py-3 rounded-full font-medium hover:bg-white hover:text-cyan-600 active:scale-95 transition duration-300"
+              >
+                LOGIN
+              </button>
+            </div>
+
+            {/* SIGNUP RIGHT */}
+            <div className="w-1/2 p-10 flex flex-col justify-center overflow-y-auto">
+              <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
+                Create an Account
+              </h2>
+
+              {error && (
+                <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg border border-red-200 text-sm">
+                  {error}
+                </div>
+              )}
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block mb-2 font-medium text-gray-700">
+                    User Name
+                  </label>
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition"
+                    placeholder="Enter your full name"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-2 font-medium text-gray-700">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition"
+                    placeholder="Enter your email"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-2 font-medium text-gray-700">
+                    Phone
+                  </label>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition"
+                    placeholder="Enter your phone number"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-2 font-medium text-gray-700">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition"
+                    placeholder="Create a password"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-2 font-medium text-gray-700">
+                    Confirm Password
+                  </label>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition"
+                    placeholder="Confirm your password"
+                  />
+                </div>
+
+                <button
+                  onClick={handleSignupSubmit}
+                  disabled={isLoading}
+                  className="w-full bg-teal-600 text-white py-3 rounded-lg font-medium hover:bg-teal-700 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? "Creating account..." : "Sign Up"}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
