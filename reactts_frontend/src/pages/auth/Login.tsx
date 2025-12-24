@@ -28,8 +28,7 @@ export default function Login() {
 
 return (
   <div className="min-h-screen flex items-center justify-center bg-gray-100">
-    <div className="flex w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden"
-    style={{width: 896, height:650}}>
+    <div className="flex w-full bg-white rounded-3xl shadow-2xl overflow-hidden" style={{width: 1280, height:720}}>
 
       {/* LEFT — SIGN IN */}
       <div className="w-1/2 p-10 flex flex-col justify-center">
