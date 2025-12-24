@@ -6,6 +6,7 @@ import Home from "./pages/home/Home";
 
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
+import Auth from "./pages/auth/Auth";
 
 // // Context
 // import { useAuth } from "./context/AuthContext";

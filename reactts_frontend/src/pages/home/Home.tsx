@@ -1,11 +1,9 @@
-import MainLayout from "../../layouts/MainLayout";
 import { siteConfig } from "../../config/siteConfig";
 
 const Home = () => {
   const colors = siteConfig.colors;
 
   return (
-    <MainLayout>
   <div className="flex flex-col items-center">
 
     {/* WARNING */}
@@ -31,7 +29,6 @@ const Home = () => {
     {/* CATEGORIES HEADER */}
     <h3 className="text-4xl font-bold mb-10 text-center" style={{ color: colors.primarycolor }}>Explore Shop's Products</h3>
   </div>
-    </MainLayout>
   );
 };
 
