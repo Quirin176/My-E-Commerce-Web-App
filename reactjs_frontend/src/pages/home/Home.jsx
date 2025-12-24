@@ -1,7 +1,7 @@
 import {siteConfig} from "../../config/siteConfig";
 import CategoryTabs from "../../components/CategoryTabs";
 
-const Home = () => {
+export default function Home() {
   const categories = siteConfig.categories;
   const colors = siteConfig.colors;
 
@@ -34,5 +34,3 @@ const Home = () => {
   </div>
   );
 };
-
-export default Home;
