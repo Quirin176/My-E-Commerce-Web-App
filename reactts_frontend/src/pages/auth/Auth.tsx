@@ -16,6 +16,7 @@ export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
+  const { login, signup } = useAuth();
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
@@ -23,9 +24,9 @@ export default function Auth() {
     setIsLoading(true);
 
     try {
-      navigate("/");
-      console.log("Login:", { email, password });
+      await login(email, password);
       toast.success("Login successful!");
+      navigate("/");
     } catch (err) {
       setError(err?.message || "Login failed");
     } finally {
@@ -54,15 +55,17 @@ export default function Auth() {
 
     setIsLoading(true);
     try {
-      console.log("Signup:", { username, email, phone, password });
+      await signup({ username, email, phone, password });
       toast.success("Signup successful!");
+      navigate("/auth?mode=login");
     } catch (err) {
       setError("Signup failed: " + (err?.message || "Unknown error"));
+      toast.error("Signup failed: " + (err?.message || "Unknown error"));
     } finally {
       setIsLoading(false);
     }
   };
-
+  
   const toggleAuth = () => {
     setError("");
     setEmail("");

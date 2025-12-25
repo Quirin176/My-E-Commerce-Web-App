@@ -9,7 +9,7 @@ export default function Header() {
 
   return (
     <header
-      className="fixed top-0 left-0 w-full z-50 shadow-md"
+      className="fixed top-0 left-0 w-full z-50 shadow-md px-8 py-1"
       style={{ backgroundColor: colors.primarycolor }}
     >
       <div className="px-4 py-3">
@@ -26,11 +26,17 @@ export default function Header() {
 
           {/* USER */}
           {!user && (
-          <div className="flex items-center gap-6">
-            <Link to="/auth?mode=login" className="text-white hover:underline">
+          <div className="flex items-center">
+            <Link
+            to="/auth?mode=login"
+            className="font-semibold text-white hover:text-black hover:bg-white rounded-0 border px-4 py-1"
+            >
               Login
             </Link>
-            <Link to="/auth?mode=signup" className="text-white hover:underline">
+            <Link
+            to="/auth?mode=signup"
+            className="font-semibold text-white hover:text-black hover:bg-white rounded-0 border px-4 py-1"
+            >
               Signup
             </Link>
           </div>)}

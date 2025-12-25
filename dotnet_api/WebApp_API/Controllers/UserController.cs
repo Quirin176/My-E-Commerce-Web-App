@@ -30,7 +30,9 @@ namespace WebApp_API.Controllers
             {
                 user.Username,
                 user.Email,
-                user.Phone
+                user.Phone,
+                user.Role,
+                user.CreatedAt,
             });
         }
 

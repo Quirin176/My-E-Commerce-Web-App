@@ -1,15 +1,24 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import toast from "react-hot-toast"
 import { User2 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 
 export default function UserDropDown({
   dropdown = ["My Account", "My Orders", "Logout"],
 }) {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const { user, logout } = useAuth();
+
   const handleClick = (item: string) => {
-    if (item === "Log out") {
+    if (item === "Logout") {
       logout();
+      toast.success("Logged out successfully!");
+      navigate("/");
+    }
+    if (item === "My Acount") {
+      navigate("/profile")
     }
     setOpen(false);
   };
@@ -24,8 +33,6 @@ export default function UserDropDown({
         return "#";
     }
   };
-
-  const { user, logout } = useAuth();
 
   return (
     <div className="flex flex-column items-center">

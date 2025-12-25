@@ -1,13 +1,16 @@
 import { User } from "../models/User";
-import { SignupRequest } from "../dto/SignupRequest";
-import { LoginRequest } from "../dto/LoginRequest";
 
 export interface AuthContextType {
   user: User | null;
   loading: boolean;
   error: string | null;
-  signup: (data: SignupRequest) => Promise<void>;
-  login: (data: LoginRequest) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
+  signup: (data: {
+    username: string;
+    email: string;
+    phone: string;
+    password: string;
+  }) => Promise<boolean>;
   logout: () => void;
   clearError: () => void;
 }
