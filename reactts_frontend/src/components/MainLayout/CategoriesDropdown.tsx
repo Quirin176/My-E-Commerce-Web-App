@@ -1,19 +1,21 @@
 import { useState } from "react";
-import { ChevronDown, LayoutGrid, X } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { ChevronDown, LayoutGrid } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { filterApi } from "../../api/filterApi";
 import { siteConfig } from "../../config/siteConfig";
+import type { Category } from "../../types/models/Category";
+import type { ProductOption } from "../../types/models/ProductOption.ts";
 
 export default function CategoriesDropdown({ categories = siteConfig.categories }) {
   const colors = siteConfig.colors;
   const [open, setOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [categoryFilters, setCategoryFilters] = useState({});
-  const [loadingFilters, setLoadingFilters] = useState({});
-  const navigate = useNavigate();
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [categoryFilters, setCategoryFilters] = useState<Record<string, ProductOption[]>>({});
+  const [loadingFilters, setLoadingFilters] = useState<Record<string, boolean>>({});
+    const navigate = useNavigate();
 
   // Get icon component from category
-  const getCategoryIcon = (category) => {
+  const getCategoryIcon = (category: Category) => {
     if (category.icon) {
       const IconComponent = category.icon;
       return <IconComponent size={20} />;
@@ -22,7 +24,7 @@ export default function CategoriesDropdown({ categories = siteConfig.categories 
   };
 
   // Load filters when category is hovered
-  const handleCategoryHover = async (categoryLink) => {
+  const handleCategoryHover = async (categoryLink: string) => {
     if (categoryFilters[categoryLink]) {
       setSelectedCategory(categoryLink);
       return;
@@ -49,7 +51,7 @@ export default function CategoriesDropdown({ categories = siteConfig.categories 
   };
 
   // Handle filter click - navigate with filter applied
-  const handleFilterClick = (categoryLink, optionValueId) => {
+  const handleFilterClick = (categoryLink: string, optionValueId: string | number) => {
     setOpen(false);
     navigate(`/category/${encodeURIComponent(categoryLink)}?filter=${optionValueId}`);
   };
@@ -64,8 +66,8 @@ export default function CategoriesDropdown({ categories = siteConfig.categories 
       <button 
         className="flex items-center gap-2 px-2 py-1 border rounded font-semibold hover:shadow-md transition" 
         style={{ color: "White" }} 
-        onMouseUp={() => setOpen(true)}
-      >
+        onClick={() => setOpen(!open)}
+        >
         <LayoutGrid size={18} />
         <span className="text-base">Categories</span>
         <ChevronDown size={18} className={`${open ? "rotate-180" : ""} transition`} />
@@ -89,7 +91,7 @@ export default function CategoriesDropdown({ categories = siteConfig.categories 
           {/* LEFT SIDE: CATEGORIES LIST */}
           <div className={`${selectedCategory ? "w-1/5" : "w-full"} border-r border-gray-200 overflow-y-auto bg-white transition-all duration-300`}>
             <div
-            className="sticky bg-gradient-to-b text-white pl-4 py-2"
+            className="sticky bg-linear-to-b text-white pl-4 py-2"
             style={{ background: colors.primarycolor}}
             >
               <h3 className="text-lg font-bold">Categories</h3>
@@ -143,11 +145,10 @@ export default function CategoriesDropdown({ categories = siteConfig.categories 
           {/* RIGHT SIDE: FILTERS FOR SELECTED CATEGORY */}
           {selectedCategory && (
             <div className="w-4/5 overflow-y-auto bg-white">
-            {selectedCategory && (
-              <div>
+
                 {/* HEADER */}
                 <div
-                  className="sticky bg-gradient-to-r border-b border-gray-200 pl-4 py-2"
+                  className="sticky bg-linear-to-r border-b border-gray-200 pl-4 py-2"
                   style={{ background: colors.primarycolor}}
                 >
                   <p className="text-lg font-bold text-white">Filters</p>
@@ -194,7 +195,7 @@ export default function CategoriesDropdown({ categories = siteConfig.categories 
                             handleClose();
                             navigate(`/category/${encodeURIComponent(selectedCategory)}`);
                           }}
-                          className="w-full px-6 py-3 bg-gradient-to-r text-white text-sm font-bold rounded-lg hover:shadow-lg transition duration-200 hover:brightness-75"
+                          className="w-full px-6 py-3 bg-linear-to-r text-white text-sm font-bold rounded-lg hover:shadow-lg transition duration-200 hover:brightness-75"
                           style={{ background: colors.primarycolor}}
                         >
                           View All Products in {categories.find(c => c.link === selectedCategory)?.label}
@@ -217,9 +218,7 @@ export default function CategoriesDropdown({ categories = siteConfig.categories 
                     </div>
                   )}
                 </div>
-              </div>
-            )}
-          </div>)}
+              </div>)}
         </div>
       )}
     </div>
