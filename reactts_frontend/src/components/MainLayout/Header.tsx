@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { siteConfig } from "../../config/siteConfig";
 import {useAuth} from "../../hooks/useAuth";
 import UserDropDown from "../User/UserDropDown";
+import CategoriesDropdown from "./CategoriesDropdown";
 
 const colors = siteConfig.colors;
 export default function Header() {
@@ -20,6 +21,8 @@ export default function Header() {
             <Link to="/" className="text-white text-2xl font-bold">
               {siteConfig.webName}
             </Link>
+
+            <CategoriesDropdown/>
           </div>
 
           {/* NAVIGATION LINKS */}

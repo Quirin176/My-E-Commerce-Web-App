@@ -1,10 +1,15 @@
-export interface Product{
-    Id: number;
-    Name: string;
-    Slug: string;
-    Description: string;
-    ShortDescription: string;
-    Price: number;
-    ImageUrl: string;
-    CategoryId: number;
+export interface Product {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  shortDescription?: string;
+  price: number;
+  imageUrl?: string;
+  image?: string;
+  categoryId?: number;
+  options?: Array<{
+    optionName: string;
+    value: string;
+  }>;
 }
