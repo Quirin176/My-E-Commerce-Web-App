@@ -3,6 +3,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
 
 import Home from "./pages/home/Home";
+import CategoryProducts from "./pages/categories/Categories";
+import ProductDetail from "./pages/productdetail/ProductDetail";
 
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
@@ -26,6 +28,8 @@ export default function App() {
       <Route element={<MainLayout />}>
         <Route path="/home" element={<Home />} />
         <Route path="/" element={<Navigate to="/home" replace />} />
+        <Route path="/category/:slug" element={<CategoryProducts />} />
+        <Route path="/product/:id" element={<ProductDetail />} />
 
         {/* User Account Pages */}
         <Route path="/profile" element={<Protected><Profile /></Protected>} />

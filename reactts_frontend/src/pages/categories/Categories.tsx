@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 // import DynamicFilters from "../../../components/DynamicFilters";
 import ProductCard from "../../components/Product/ProductCard";
 import { productApi } from "../../api/productApi";
-// import { filterApi } from "../../../api/filterApi";
+import { filterApi } from "../../api/filterApi";
 
 export default function CategoryProducts() {
   const { slug } = useParams();
@@ -41,10 +41,6 @@ export default function CategoryProducts() {
 
       const productList = Array.isArray(data) ? data : data?.data || [];
       setProducts(productList);
-      // console.log(`Loaded ${productList.length} products with filters:`, {
-      //   category: slug,
-      //   optionIds: selectedOptions,
-      // });
     } catch (error) {
       console.error("Error loading products:", error);
       toast.error("Failed to load products");
@@ -66,7 +62,6 @@ export default function CategoryProducts() {
         const filters = await filterApi.getFiltersByCategory(slug);
         const filterList = Array.isArray(filters) ? filters : [];
         setDynamicFilters(filterList);
-        // console.log(`Loaded filters for ${slug}:`, filterList);
       } catch (error) {
         console.error("Error loading filters:", error);
         setDynamicFilters([]);
