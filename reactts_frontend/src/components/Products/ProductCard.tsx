@@ -1,42 +1,18 @@
-import React from "react";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
-import { useCart } from "../context/CartContext";
-import { useAuth } from "../context/AuthContext";
-import { siteConfig } from "../config/siteConfig";
+import { siteConfig } from "../../config/siteConfig";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function ProductCard({ product }) {
-  const colors = siteConfig.colors;
-  const { addToCart } = useCart();
-  const { user } = useAuth();
+    const colors = siteConfig.colors;
+    // const { addToCart } = useCart();
+    const { user } = useAuth();
 
-  const handleAdd = () => {
-    if (!user || user.role === "Admin") {
-      toast.error(
-        "You must be logged in as a customer to add items to the cart."
-      );
-      return;
-    }
+    const handleAdd = () => {
 
-    const item = {
-      id: product.id,
-      name: product.name,
-      slug: product.slug,
-      price: product.price,
-      image: product.imageUrl || product.image,
-      options: product.options || [],
     };
 
-    try {
-      addToCart(item, 1);
-      toast.success(`${item.name} added to cart!`);
-    } catch (error) {
-      toast.error(`Failed to add ${item.name} to cart.`);
-      console.error("Cart addition error:", error);
-    }
-  };
-
-  return (
+    return (
     <div className="border rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 bg-white flex flex-col">
       <Link to={`/product/${product.slug}`} className="block">
         <div className="flex justify-center pt-2">
@@ -92,5 +68,5 @@ export default function ProductCard({ product }) {
         </button>
       </div>
     </div>
-  );
+    );
 }

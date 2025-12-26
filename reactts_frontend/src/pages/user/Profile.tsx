@@ -42,7 +42,7 @@ export default function Profile() {
     0;
 
   return Array.from({ length: count }, (_, i) => (
-    <Star key={i} className="w-6 h-6 text-yellow-500" />
+    <Star key={i} className="w-6 h-6 text-yellow-500" fill="currentColor"/>
   ));
 };
 
@@ -64,8 +64,8 @@ export default function Profile() {
         
 {/* DISPLAY USERNAME */}
 <div>
-  <label className="text-xl font-semibold block mb-1 flex items-center gap-2">
-    <User2 className="w-6 h-6" />
+  <label className="text-xl font-semibold mb-1 flex items-center gap-2">
+    <User2 className="w-6 h-6"/>
     Username
   </label>
   <div className="text-xl w-full border p-2 rounded bg-gray-50">
@@ -75,8 +75,8 @@ export default function Profile() {
 
 {/* DISPLAY EMAIL */}
 <div>
-  <label className="text-xl font-semibold block mb-1 flex items-center gap-2">
-    <Mail className="w-6 h-6" />
+  <label className="text-xl font-semibold mb-1 flex items-center gap-2">
+    <Mail className="w-6 h-6"/>
     Email
   </label>
   <div className="text-xl w-full border p-2 rounded bg-gray-50">
@@ -86,8 +86,8 @@ export default function Profile() {
 
 {/* DISPLAY PHONE */}
 <div>
-  <label className="text-xl font-semibold block mb-1 flex items-center gap-2">
-    <Phone className="w-6 h-6" />
+  <label className="text-xl font-semibold mb-1 flex items-center gap-2">
+    <Phone className="w-6 h-6"/>
     Phone
   </label>
   <div className="text-xl w-full border p-2 rounded bg-gray-50">
@@ -97,8 +97,8 @@ export default function Profile() {
 
 {/* DISPLAY ROLE */}
 <div>
-  <label className="text-xl font-semibold block mb-1 flex items-center gap-2">
-    <Star className="w-6 h-6" />
+  <label className="text-xl font-semibold mb-1 flex items-center gap-2">
+    <Star className="w-6 h-6"/>
     Type
     <div className="flex items-center gap-1">
       {getStars(profileData.role)}
@@ -112,8 +112,8 @@ export default function Profile() {
 
 {/* DISPLAY CREATED AT */}
 <div>
-  <label className="text-xl font-semibold block mb-1 flex items-center gap-2">
-    <NotebookText className="w-6 h-6" />
+  <label className="text-xl font-semibold mb-1 flex items-center gap-2">
+    <NotebookText className="w-6 h-6"/>
     Account Created At
   </label>
   <div className="text-xl w-full border p-2 rounded bg-gray-50">

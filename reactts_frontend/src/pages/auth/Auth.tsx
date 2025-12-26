@@ -2,78 +2,110 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import type { SignupRequest } from "../../types/dto/SignupRequest";
 
 export default function Auth() {
   const [searchParams] = useSearchParams();
   const mode = searchParams.get("mode");
   const [isLogin, setIsLogin] = useState(mode !== "signup");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [username, setUsername] = useState("");
-  const [phone, setPhone] = useState("");
+
+  // Login form state
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  
+  // Signup form state
+  const [signupForm, setSignupForm] = useState<SignupRequest>({
+    username: "",
+    email: "",
+    phone: "",
+    password: "",
+  });
   const [confirmPassword, setConfirmPassword] = useState("");
+
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
   const { login, signup } = useAuth();
 
-  const handleLoginSubmit = async (e) => {
+  {/* ========== LOGIN HANDLER ========== */}
+  const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
     try {
-      await login(email, password);
+      await login(loginEmail, loginPassword);
       toast.success("Login successful!");
       navigate("/");
-    } catch (err) {
-      setError(err?.message || "Login failed");
+    } catch (err: any) {
+      const errorMsg = err?.message || "Login failed";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSignupSubmit = async (e) => {
+  {/* ========== SIGNUP HANDLER ========== */}
+  const handleSignupSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
-    if (!username || !email || !phone || !password || !confirmPassword) {
+    // Validation
+    if (!signupForm.username || !signupForm.email || !signupForm.phone || !signupForm.password || !confirmPassword) {
       setError("Please fill in all fields!");
       return;
     }
 
-    if (password !== confirmPassword) {
+    if (signupForm.password !== confirmPassword) {
       setError("Passwords do not match!");
       return;
     }
 
-    if (password.length < 6) {
+    if (signupForm.password.length < 6) {
       setError("Password must be at least 6 characters!");
       return;
     }
 
     setIsLoading(true);
     try {
-      await signup({ username, email, phone, password });
-      toast.success("Signup successful!");
-      navigate("/auth?mode=login");
-    } catch (err) {
-      setError("Signup failed: " + (err?.message || "Unknown error"));
-      toast.error("Signup failed: " + (err?.message || "Unknown error"));
+      const success = await signup(signupForm);
+      if (success) {
+        toast.success("Signup successful!");
+        navigate("/auth?mode=login");
+      }
+    } catch (err: any) {
+      const errorMsg = "Signup failed: " + (err?.message || "Unknown error");
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setIsLoading(false);
     }
   };
   
+  {/* ========== TOGGLE BETWEEN LOGIN/SIGNUP ========== */}
   const toggleAuth = () => {
     setError("");
-    setEmail("");
-    setPassword("");
-    setUsername("");
-    setPhone("");
+    setLoginEmail("");
+    setLoginPassword("");
+    setSignupForm({
+      username: "",
+      email: "",
+      phone: "",
+      password: "",
+    });
     setConfirmPassword("");
     setIsLogin(!isLogin);
+  };
+
+  {/* ========== HANDLE SIGNUP FORM CHANGE ========== */}
+  const handleSignupChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setSignupForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   return (
@@ -181,12 +213,12 @@ export default function Auth() {
                 </div>
               )}
 
-              <div className="space-y-4">
+              <form onSubmit={handleLoginSubmit} className="space-y-4">
                 <input
                   type="email"
                   placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
                   className="w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none transition"
                   required
                 />
@@ -194,8 +226,8 @@ export default function Auth() {
                 <input
                   type="password"
                   placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
                   className="w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none transition"
                   required
                 />
@@ -205,13 +237,13 @@ export default function Auth() {
                 </button>
 
                 <button
-                  onClick={handleLoginSubmit}
+                  type="submit"
                   disabled={isLoading}
                   className="w-full bg-teal-600 text-white py-3 rounded-lg font-medium hover:bg-teal-700 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? "Signing in..." : "SIGN IN"}
                 </button>
-              </div>
+              </form>
             </div>
 
             {/* LOGIN RIGHT */}
@@ -261,17 +293,19 @@ export default function Auth() {
                 </div>
               )}
 
-              <div className="space-y-4">
+              <form onSubmit={handleSignupSubmit} className="space-y-4">
                 <div>
                   <label className="block mb-2 font-medium text-gray-700">
                     User Name
                   </label>
                   <input
                     type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    name="username"
+                    value={signupForm.username}
+                    onChange={handleSignupChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition"
                     placeholder="Enter your full name"
+                    required
                   />
                 </div>
 
@@ -281,10 +315,12 @@ export default function Auth() {
                   </label>
                   <input
                     type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    name="email"
+                    value={signupForm.email}
+                    onChange={handleSignupChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition"
                     placeholder="Enter your email"
+                    required
                   />
                 </div>
 
@@ -294,10 +330,12 @@ export default function Auth() {
                   </label>
                   <input
                     type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    name="phone"
+                    value={signupForm.phone}
+                    onChange={handleSignupChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition"
                     placeholder="Enter your phone number"
+                    required
                   />
                 </div>
 
@@ -307,10 +345,12 @@ export default function Auth() {
                   </label>
                   <input
                     type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    name="password"
+                    value={signupForm.password}
+                    onChange={handleSignupChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition"
                     placeholder="Create a password"
+                    required
                   />
                 </div>
 
@@ -324,17 +364,18 @@ export default function Auth() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition"
                     placeholder="Confirm your password"
+                    required
                   />
                 </div>
 
                 <button
-                  onClick={handleSignupSubmit}
+                  type="submit"
                   disabled={isLoading}
                   className="w-full bg-teal-600 text-white py-3 rounded-lg font-medium hover:bg-teal-700 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? "Creating account..." : "Sign Up"}
                 </button>
-              </div>
+              </form>
             </div>
           </div>
         </div>

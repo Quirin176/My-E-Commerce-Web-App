@@ -1,6 +1,7 @@
 import { createContext, useState, useCallback } from 'react';
 import { authApi } from '../api/authApi';
 import type { User } from '../types/models/User';
+import type { SignupRequest } from '../types/dto/SignupRequest';
 import type { AuthContextType } from '../types/context/AuthContextType';
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -36,7 +37,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   {/* LOGIN */}
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string): Promise<User> => {
     setLoading(true);
     setError(null);
 
@@ -61,12 +62,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   {/* SIGNUP */}
-  const signup = useCallback(async (userData: {
-    username: string;
-    email: string;
-    phone: string;
-    password: string;
-  }) => {
+  const signup = useCallback(async (userData: SignupRequest): Promise<boolean> => {
     setLoading(true);
     setError(null);
 
