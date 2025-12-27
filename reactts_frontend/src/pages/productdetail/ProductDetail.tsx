@@ -5,19 +5,25 @@ import { productApi } from "../../api/productApi";
 import { useAuth } from "../../hooks/useAuth";
 // import { useCart } from "../../context/CartContext";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import type { Product } from "../../types/models/Product";
 
 export default function ProductDetails() {
   const { id } = useParams();
-  const [product, setProduct] = useState(null);
+  const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showImageModal, setShowImageModal] = useState(false);
   const [modalImageIndex, setModalImageIndex] = useState(0);
 
   const { user } = useAuth();
-  const { addToCart } = useCart();
+//   const { addToCart } = useCart();
 
   const handleAdd = () => {
+    if (!product) {
+      toast.error("Product not found.");
+      return;
+    }
+
     if (!user || user.role === "Admin") {
       toast.error("You must be logged in as a customer to add items to the cart.");
       return;
@@ -27,12 +33,12 @@ export default function ProductDetails() {
       id: product.id,
       name: product.name,
       price: product.price,
-      image: product.images?.[0] || product.imageUrl || "https://via.placeholder.com/400",
+      image: product.image?.[0] || product.imageUrl || "https://via.placeholder.com/400",
       options: product.options || [],
     };
 
     try {
-      addToCart(item, 1);
+    //   addToCart(item, 1);
       toast.success(`${item.name} added to cart!`);
     } catch (error) {
       toast.error(`Failed to add ${item.name} to cart.`);
@@ -59,7 +65,7 @@ export default function ProductDetails() {
   }, [id]);
 
   // Handle click outside modal to close
-  const handleBackdropClick = (e) => {
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
       setShowImageModal(false);
     }
@@ -67,7 +73,7 @@ export default function ProductDetails() {
 
   // Handle ESC key to close modal
   useEffect(() => {
-    const handleEscKey = (e) => {
+    const handleEscKey = (e: KeyboardEvent) => {
       if (e.key === "Escape" && showImageModal) {
         setShowImageModal(false);
       }
@@ -85,9 +91,9 @@ export default function ProductDetails() {
   if (loading) return <p className="text-center p-6">Loading product...</p>;
   if (!product) return <p className="text-lg text-center p-6 text-red-500">Product not found.</p>;
 
-  // Get images array
-  const images = product.images && product.images.length > 0 
-    ? product.images 
+  // Get images array - ensure it's always an array
+  const images: string[] = Array.isArray(product.imageUrl) 
+    ? product.imageUrl 
     : (product.imageUrl ? [product.imageUrl] : ["https://via.placeholder.com/400x400?text=No+Image"]);
 
   const currentImage = images[currentImageIndex];
@@ -109,12 +115,12 @@ export default function ProductDetails() {
     setModalImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
   };
 
-  const openImageModal = (index) => {
+  const openImageModal = (index: number) => {
     setModalImageIndex(index);
     setShowImageModal(true);
   };
 
-  const categoryName = product.category?.name || "Unknown Category";
+  const categoryName = product.category?.label || "Unknown Category";
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
@@ -130,7 +136,8 @@ export default function ProductDetails() {
                 alt={`${product.name} - Image ${currentImageIndex + 1}`}
                 className="w-full h-96 object-contain transition"
                 onError={(e) => {
-                  e.target.src = "https://via.placeholder.com/400x400?text=No+Image";
+                  const target = e.target as HTMLImageElement;
+                  target.src = "https://via.placeholder.com/400x400?text=No+Image";
                 }}
               />
             </div>
@@ -164,11 +171,11 @@ export default function ProductDetails() {
           {/* Thumbnail Strip - Show only if multiple images */}
           {images.length > 1 && (
             <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
-              {images.map((img, index) => (
+              {images.map((img: string, index: number) => (
                 <button
                   key={index}
                   onClick={() => setCurrentImageIndex(index)}
-                  className={`flex-shrink-0 w-20 h-20 rounded border-2 transition ${
+                  className={`shrink-0 w-20 h-20 rounded border-2 transition ${
                     currentImageIndex === index
                       ? "border-blue-600"
                       : "border-gray-300 hover:border-gray-400"
@@ -179,7 +186,8 @@ export default function ProductDetails() {
                     alt={`Thumbnail ${index + 1}`}
                     className="w-full h-full object-cover rounded cursor-pointer hover:opacity-80"
                     onError={(e) => {
-                      e.target.src = "https://via.placeholder.com/80?text=No+Image";
+                      const target = e.target as HTMLImageElement;
+                      target.src = "https://via.placeholder.com/80?text=No+Image";
                     }}
                   />
                 </button>
@@ -267,7 +275,8 @@ export default function ProductDetails() {
                 alt={`Product view ${modalImageIndex + 1}`}
                 className="w-full h-full object-contain"
                 onError={(e) => {
-                  e.target.src = "https://via.placeholder.com/800?text=No+Image";
+                  const target = e.target as HTMLImageElement;
+                  target.src = "https://via.placeholder.com/800?text=No+Image";
                 }}
               />
             </div>
@@ -300,11 +309,11 @@ export default function ProductDetails() {
             {/* Thumbnail Strip at Bottom */}
             {images.length > 1 && (
               <div className="bg-black/50 p-3 flex gap-2 overflow-x-auto">
-                {images.map((img, index) => (
+                {images.map((img: string, index: number) => (
                   <button
                     key={index}
                     onClick={() => setModalImageIndex(index)}
-                    className={`flex-shrink-0 w-16 h-16 rounded border-2 transition ${
+                    className={`shrink-0 w-16 h-16 rounded border-2 transition ${
                       modalImageIndex === index
                         ? "border-blue-400"
                         : "border-gray-600 hover:border-gray-400"
@@ -315,7 +324,8 @@ export default function ProductDetails() {
                       alt={`Thumbnail ${index + 1}`}
                       className="w-full h-full object-cover rounded"
                       onError={(e) => {
-                        e.target.src = "https://via.placeholder.com/64?text=No+Image";
+                        const target = e.target as HTMLImageElement;
+                        target.src = "https://via.placeholder.com/64?text=No+Image";
                       }}
                     />
                   </button>
