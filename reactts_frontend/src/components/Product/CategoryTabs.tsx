@@ -4,11 +4,19 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { siteConfig } from "../../config/siteConfig";
 import { productApi } from "../../api/productApi";
 import ProductCard from "./ProductCard";
+import type { Product } from "../../types/models/Product";
+import type { Category } from "../../types/models/Category";
 
-const CategoryTabs = ({ products }) => {
+interface CategoryTabsProps {
+  products: Category[];
+}
+
+const CategoryTabs = ({ products }: CategoryTabsProps) => {
   const colors = siteConfig.colors;
+
   const [activeTab, setActiveTab] = useState(products[0]?.label || "");
-  const [items, setItems] = useState([]);
+
+  const [items, setItems] = useState<Product[]>([]);
   const [pageIndex, setPageIndex] = useState(0);
 
   const ITEMS_PER_PAGE = 5;

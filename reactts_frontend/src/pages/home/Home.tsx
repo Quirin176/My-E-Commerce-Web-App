@@ -1,7 +1,9 @@
+import CategoryTabs from "../../components/Product/CategoryTabs";
 import { siteConfig } from "../../config/siteConfig";
 
 const Home = () => {
   const colors = siteConfig.colors;
+  const categories = siteConfig.categories;
 
   return (
   <div className="flex flex-col items-center">
@@ -28,6 +30,8 @@ const Home = () => {
 
     {/* CATEGORIES HEADER */}
     <h3 className="text-4xl font-bold mb-10 text-center" style={{ color: colors.primarycolor }}>Explore Shop's Products</h3>
+
+    <CategoryTabs products = {categories}/>
   </div>
   );
 };

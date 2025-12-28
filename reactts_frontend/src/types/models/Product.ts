@@ -9,6 +9,7 @@ export interface Product {
   price: number;
   imageUrl?: string;
   image?: string;
+  images?: string[];
   categoryId?: number;
   category: Category;
   options?: Array<{

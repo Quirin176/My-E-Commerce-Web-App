@@ -92,8 +92,8 @@ export default function ProductDetails() {
   if (!product) return <p className="text-lg text-center p-6 text-red-500">Product not found.</p>;
 
   // Get images array - ensure it's always an array
-  const images: string[] = Array.isArray(product.imageUrl) 
-    ? product.imageUrl 
+const images: string[] = product.images && product.images.length > 0
+    ? product.images
     : (product.imageUrl ? [product.imageUrl] : ["https://via.placeholder.com/400x400?text=No+Image"]);
 
   const currentImage = images[currentImageIndex];

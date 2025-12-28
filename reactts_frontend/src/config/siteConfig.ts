@@ -11,10 +11,10 @@ export const siteConfig = {
 
   categories: [
     // { label: "Computer", link: "computer", image: "https://pcmarket.vn/media/product/10239_340784857_799984757660921_1932046047919300131_n.jpg" },
-    { label: "Laptop", link: "laptop", icon: Laptop },
-    { label: "Monitor", link: "monitor", icon: Monitor },
-    { label: "Keyboard", link: "keyboard", icon: Keyboard },
-    { label: "Mouse", link: "mouse", icon: Mouse }
+    { label: "Laptop", slug: "laptop", link: "laptop", icon: Laptop },
+    { label: "Monitor", slug: "monitor", link: "monitor", icon: Monitor },
+    { label: "Keyboard", slug: "keyboard", link: "keyboard", icon: Keyboard },
+    { label: "Mouse", slug: "mouse", link: "mouse", icon: Mouse }
   ],
 
   // usermenuItems: [
