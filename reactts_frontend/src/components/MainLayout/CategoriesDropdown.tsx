@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, LayoutGrid } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { filterApi } from "../../api/filterApi";
+import { filterApi } from "../../api/products/filterApi";
 import { siteConfig } from "../../config/siteConfig";
 import type { Category } from "../../types/models/Category";
 import type { ProductOption } from "../../types/models/ProductOption.ts";

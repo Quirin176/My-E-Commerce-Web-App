@@ -10,6 +10,7 @@ import AdminProducts from "./pages/admin/AdminProducts";
 import AdminOrders from "./pages/admin/AdminOrders";
 
 import About from "./pages/about/About";
+import Cart from "./pages/user/Cart"
 
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
@@ -40,6 +41,7 @@ export default function App() {
         <Route path="/admin/orders" element={<AdminOrders />} />
 
         <Route path="/about" element={<About />} />
+        <Route path="/cart" element={<Cart />} />
 
         {/* User Account Pages */}
         <Route path="/profile" element={<Protected><Profile /></Protected>} />

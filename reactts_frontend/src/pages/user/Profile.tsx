@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Mail, NotebookText, Phone, User2, Star } from "lucide-react";
-import { userApi } from "../../api/userApi";
+import { userApi } from "../../api/user/userApi";
 
 export default function Profile() {
   const [profileData, setProfileData] = useState({

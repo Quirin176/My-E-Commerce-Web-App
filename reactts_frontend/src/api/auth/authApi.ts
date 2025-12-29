@@ -1,7 +1,7 @@
-import type { LoginRequest } from "../types/dto/LoginRequest";
-import type { SignupRequest } from "../types/dto/SignupRequest";
-import type { UserDto } from "../types/dto/UserDto";
-import { apiClient } from "./apiClient";
+import type { LoginRequest } from "../../types/dto/LoginRequest";
+import type { SignupRequest } from "../../types/dto/SignupRequest";
+import type { UserDto } from "../../types/dto/UserDto";
+import { apiClient } from "../apiClient";
 
 export const authApi = {
   login: async (email: string, password: string): Promise<UserDto> => {

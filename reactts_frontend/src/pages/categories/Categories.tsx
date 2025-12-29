@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import DynamicFilters from "../../components/Product/DynamicFilters";
 import ProductCard from "../../components/Product/ProductCard";
 import { productApi } from "../../api/products/productApi";
-import { filterApi } from "../../api/filterApi";
+import { filterApi } from "../../api/products/filterApi";
 import type { Product } from "../../types/models/Product";
 import type { ProductOption } from "../../types/models/ProductOption";
 
