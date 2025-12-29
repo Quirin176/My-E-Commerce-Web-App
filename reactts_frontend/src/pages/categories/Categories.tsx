@@ -1,15 +1,20 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import DynamicFilters from "../../components/Product/DynamicFilters";
 import ProductCard from "../../components/Product/ProductCard";
-import { productApi } from "../../api/productApi";
+import { productApi } from "../../api/products/productApi";
 import { filterApi } from "../../api/filterApi";
 import type { Product } from "../../types/models/Product";
 import type { ProductOption } from "../../types/models/ProductOption";
 
+interface ErrorType {
+  name?: string;
+  message?: string;
+}
+
 export default function CategoryProducts() {
-  const { slug } = useParams();
+  const { slug } = useParams<{ slug: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -26,24 +31,16 @@ export default function CategoryProducts() {
   const [dynamicFilters, setDynamicFilters] = useState<ProductOption[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<(string | number)[]>([]);
 
-  // Guard against invalid slug
-  if (!slug) {
-    return (
-      <div className="p-8 text-center">
-        <h1 className="text-2xl font-bold text-red-600 mb-2">Invalid Category</h1>
-        <p className="text-gray-600">The requested category could not be found.</p>
-      </div>
-    );
-  }
-
   // Format category name from slug
   const formattedName = slug
-    .split("-")
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+    ? slug
+        .split("-")
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ")
+    : "Products";
 
-  // Load products with all filters applied
-  const loadProducts = async () => {
+  // Load products with all filters applied - wrap in useCallback to avoid dependency issues
+  const loadProducts = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -53,6 +50,11 @@ export default function CategoryProducts() {
     }
 
     try {
+      if (!slug) {
+        setProducts([]);
+        return;
+      }
+
       // Prepare filter options - ensure they're strings for API consistency
       const optionsString = selectedOptions.length > 0 
         ? selectedOptions.map(String).join(",") 
@@ -76,13 +78,16 @@ export default function CategoryProducts() {
 
       setProducts(productList);
       setError(null);
-    } catch (error: any) {
+    } catch (err) {
+      // Type guard for error object
+      const error = err as ErrorType;
+      
       // Don't show error if request was cancelled
       if (error.name === "AbortError") {
         return;
       }
 
-      console.error("Error loading products:", error);
+      console.error("Error loading products:", err);
       const errorMessage = error?.message || "Failed to load products";
       setError(errorMessage);
       toast.error(errorMessage);
@@ -90,30 +95,33 @@ export default function CategoryProducts() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [slug, minPrice, maxPrice, priceOrder, selectedOptions]);
 
   // Load products when any filter changes
   useEffect(() => {
     loadProducts();
-  }, [slug, minPrice, maxPrice, priceOrder, selectedOptions]);
+  }, [loadProducts]);
 
   // Load available filters for this category
   useEffect(() => {
     const loadFilters = async () => {
+      if (!slug) {
+        setDynamicFilters([]);
+        return;
+      }
+
       try {
         const filters = await filterApi.getFiltersByCategory(slug);
         const filterList = Array.isArray(filters) ? filters : [];
         setDynamicFilters(filterList);
-      } catch (error) {
-        console.error("Error loading filters:", error);
+      } catch (err) {
+        console.error("Error loading filters:", err);
         toast.error("Failed to load category filters");
         setDynamicFilters([]);
       }
     };
 
-    if (slug) {
-      loadFilters();
-    }
+    loadFilters();
   }, [slug]);
 
   // Handle URL filter parameter from dropdown/header navigation
@@ -139,7 +147,6 @@ export default function CategoryProducts() {
         setSelectedOptions([parsedValue]);
         
         // Clean up URL parameter after setting filter
-        // Create new params without the filter param
         const newParams = new URLSearchParams(searchParams);
         newParams.delete("filter");
         navigate(
@@ -152,15 +159,15 @@ export default function CategoryProducts() {
     }
   }, [searchParams, dynamicFilters, selectedOptions, navigate]);
 
-  // Update URL when filters change (optional - for bookmarking)
-  const updateUrlFilters = () => {
-    if (selectedOptions.length > 0) {
-      const params = new URLSearchParams();
-      params.set("filters", selectedOptions.map(String).join(","));
-      // Uncomment to enable URL-based filter persistence:
-      // navigate(`?${params.toString()}`, { replace: true });
-    }
-  };
+  // Guard against invalid slug
+  if (!slug) {
+    return (
+      <div className="p-8 text-center">
+        <h1 className="text-2xl font-bold text-red-600 mb-2">Invalid Category</h1>
+        <p className="text-gray-600">The requested category could not be found.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-4">
@@ -198,7 +205,7 @@ export default function CategoryProducts() {
           <h3 className="text-lg font-semibold text-red-800 mb-2">Error Loading Products</h3>
           <p className="text-red-700 mb-4">{error}</p>
           <button
-            onClick={loadProducts}
+            onClick={() => loadProducts()}
             className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
           >
             Try Again
@@ -227,5 +234,5 @@ export default function CategoryProducts() {
         </div>
       )}
     </div>
-  );
+  )
 }

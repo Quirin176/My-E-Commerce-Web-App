@@ -1,5 +1,5 @@
 import { createContext, useState, useCallback } from 'react';
-import { authApi } from '../api/authApi';
+import { authApi } from '../api/auth/authApi';
 import type { User } from '../types/models/User';
 import type { SignupRequest } from '../types/dto/SignupRequest';
 import type { AuthContextType } from '../types/context/AuthContextType';

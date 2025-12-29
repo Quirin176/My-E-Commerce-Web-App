@@ -6,6 +6,11 @@ import Home from "./pages/home/Home";
 import CategoryProducts from "./pages/categories/Categories";
 import ProductDetail from "./pages/productdetail/ProductDetail";
 
+import AdminProducts from "./pages/admin/AdminProducts";
+import AdminOrders from "./pages/admin/AdminOrders";
+
+import About from "./pages/about/About";
+
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
 import Auth from "./pages/auth/Auth";
@@ -30,6 +35,11 @@ export default function App() {
         <Route path="/" element={<Navigate to="/home" replace />} />
         <Route path="/category/:slug" element={<CategoryProducts />} />
         <Route path="/product/:id" element={<ProductDetail />} />
+        
+        <Route path="/admin/products" element={<AdminProducts />} />
+        <Route path="/admin/orders" element={<AdminOrders />} />
+
+        <Route path="/about" element={<About />} />
 
         {/* User Account Pages */}
         <Route path="/profile" element={<Protected><Profile /></Protected>} />

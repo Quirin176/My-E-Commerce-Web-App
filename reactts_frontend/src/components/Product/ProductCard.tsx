@@ -54,7 +54,7 @@ export default function ProductCard({ product }: { product: Product }) {
         <div className="p-2 flex flex-col">
           <div className="h-12 overflow-hidden">
             <h3
-              className="font-bold text-base leading-6 text-center"
+              className="font-bold leading-6 text-center"
               style={{ color: colors.primarycolor }}
             >
               {product.name}
@@ -78,7 +78,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
       <div className="p-2">
         <p
-          className="text-end text-lg font-bold mb-3 border-t border-b border-gray-100"
+          className="text-end font-bold mb-3 border-t border-b border-gray-100"
           style={{ color: colors.primarycolor }}
         >
           {product.price?.toLocaleString() || "N/A"} VND

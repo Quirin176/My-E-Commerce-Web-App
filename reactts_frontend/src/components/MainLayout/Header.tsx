@@ -13,8 +13,8 @@ export default function Header() {
       className="fixed top-0 left-0 w-full z-50 shadow-md px-8 py-1"
       style={{ backgroundColor: colors.primarycolor }}
     >
-      <div className="px-4 py-3">
-        <div className="flex items-center justify-between gap-6">
+      <div className="px-4 py-2">
+        <div className="flex items-center justify-between">
 
           {/* LOGO AND SITE NAME */}
           <div className="flex items-center gap-6 shrink-0">
@@ -26,6 +26,34 @@ export default function Header() {
           </div>
 
           {/* NAVIGATION LINKS */}
+          {user?.role === "Admin" && (
+            <div className="flex items-center gap-6">
+              <Link
+              to="/admin/products"
+              className="font-semibold text-white">
+                Products
+              </Link>
+              <Link
+              to="/admin/orders"
+              className="font-semibold text-white">
+                Orders
+              </Link>
+            </div>
+          )}
+          {user?.role !== "Admin" && (
+            <div className="flex items-center gap-6">
+              <Link
+              to="/about"
+              className="font-semibold text-white">
+                About us
+              </Link>
+              <Link
+              to="/cart"
+              className="font-semibold text-white">
+                Cart
+              </Link>
+            </div>
+          )}
 
           {/* USER */}
           {!user && (
@@ -47,7 +75,6 @@ export default function Header() {
           {user && (
           <div className="flex items-center gap-3">
             <UserDropDown/>
-            {/* <span className="text-white">Hello, {user.username}</span> */}
           </div>)}
         </div>
       </div>

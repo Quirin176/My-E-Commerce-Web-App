@@ -1,4 +1,4 @@
-import { apiClient } from "./apiClient";
+import { apiClient } from "../apiClient";
 
 export const categoryApi = {
   getAll: async () => {
@@ -6,12 +6,12 @@ export const categoryApi = {
     return res.data;
   },
 
-  getById: async (id) => {
+  getById: async (id: number) => {
     const res = await apiClient.get(`/categories/${id}`);
     return res.data;
   },
 
-  getBySlug: async (slug) => {
+  getBySlug: async (slug: string) => {
     const res = await apiClient.get(`/categories/${slug}`);
     return res.data;
   },
