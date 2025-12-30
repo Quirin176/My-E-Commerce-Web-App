@@ -1,4 +1,4 @@
-import { apiClient } from "./apiClient";
+import { apiClient } from "../apiClient";
 
 export const adminOrdersApi = {
   // GET: /api/AdminOrders - Get all orders with filters
