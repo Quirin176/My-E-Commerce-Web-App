@@ -1,13 +1,13 @@
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
-// import { useCart } from "../context/CartContext";
 import { useAuth } from "../../hooks/useAuth";
+import { useCart } from "../../hooks/useCart";
 import { siteConfig } from "../../config/siteConfig";
 import type { Product } from "../../types/models/Product";
 
 export default function ProductCard({ product }: { product: Product }) {
   const colors = siteConfig.colors;
-  // const { addToCart } = useCart();
+  const { addToCart } = useCart();
   const { user } = useAuth();
 
   const handleAdd = () => {
@@ -28,7 +28,7 @@ export default function ProductCard({ product }: { product: Product }) {
     };
 
     try {
-      // addToCart(item, 1);
+      addToCart(item, 1);
       toast.success(`${item.name} added to cart!`);
     } catch (error) {
       toast.error(`Failed to add ${item.name} to cart.`);
