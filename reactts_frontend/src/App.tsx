@@ -47,6 +47,7 @@ export default function App() {
         <Route path="/profile" element={<Protected><Profile /></Protected>} />
         {/* <Route path="/orders" element={<Protected><Orders /></Protected>} />
         <Route path="/order/:orderId" element={<Protected><OrderDetail /></Protected>} /> */}
+        {/* <Route path="/checkout" element={<Protected><Checkout /></Protected>} /> */}
       </Route>
 
       {/* Auth pages use AuthLayout (no nav/footer) */}
