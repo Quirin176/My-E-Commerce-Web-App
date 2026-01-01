@@ -126,9 +126,9 @@ export default function Cart() {
                     </Link>
 
                     {/* Options */}
-                    {item.options && item.options.length > 0 && (
+                    {item.option && item.option.length > 0 && (
                       <div className="mt-2 space-y-1">
-                        {item.options.map((opt, index) => (
+                        {item.option.map((opt, index) => (
                           <p key={index} className="text-sm text-gray-600">
                             <strong>{opt.optionName}:</strong> {opt.value}
                           </p>

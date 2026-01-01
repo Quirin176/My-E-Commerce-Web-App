@@ -22,8 +22,14 @@ import Profile from "./pages/user/Profile";
 // // Context
 import { useAuth } from "./hooks/useAuth";
 
+
 // Protected Route Component
-function Protected({ children }) {
+interface ProtectedProps {
+  children: React.ReactNode;
+}
+
+// Protected Route Component
+function Protected({ children }: ProtectedProps) {
   const { user } = useAuth();
   return user ? children : <Navigate to="/" replace />; 
 }

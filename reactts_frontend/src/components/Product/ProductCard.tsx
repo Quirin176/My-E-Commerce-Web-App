@@ -23,7 +23,7 @@ export default function ProductCard({ product }: { product: Product }) {
       name: product.name,
       slug: product.slug,
       price: product.price,
-      image: product.imageUrl || product.image,
+      image: product.imageUrl || product.image || "https://via.placeholder.com/200x150?text=No+Image",
       options: product.options || [],
     };
 

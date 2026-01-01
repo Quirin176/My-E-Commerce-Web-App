@@ -1,12 +1,26 @@
 import { useEffect, useState, useMemo } from "react";
 import { adminProductsApi } from "../api/admin/adminProductsApi";
+import type { Product } from "../types/models/Product";
+
+interface FilterState {
+  category: number | null;
+  brand: string | null;
+  search: string;
+  minPrice: string | number;
+  maxPrice: string | number;
+}
+
+interface SortState {
+  key: keyof Product;
+  direction: "asc" | "desc";
+}
 
 export function useProducts() {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Filters
-  const [filter, setFilter] = useState({
+  const [filter, setFilter] = useState<FilterState>({
     category: null,
     brand: null,
     search: "",
@@ -15,7 +29,7 @@ export function useProducts() {
   });
 
   // Sorting
-  const [sort, setSort] = useState({ key: "id", direction: "desc" });
+  const [sort, setSort] = useState<SortState>({ key: "id", direction: "desc" });
 
   // Load products
   useEffect(() => {
@@ -40,7 +54,7 @@ export function useProducts() {
       ? products.filter((p) => p.categoryId === filter.category)
       : products;
 
-    const brandSet = new Set();
+    const brandSet = new Set<string>();
     filtered.forEach((p) => {
       const brand = p.options?.find(
         (o) => o.optionName?.toLowerCase() === "brand"
@@ -95,13 +109,15 @@ export function useProducts() {
       const aVal = a[sort.key];
       const bVal = b[sort.key];
 
-      if (typeof aVal === "number") {
+      if (typeof aVal === "number" && typeof bVal === "number") {
         return sort.direction === "asc" ? aVal - bVal : bVal - aVal;
       }
 
+      const aStr = String(aVal).toLowerCase();
+      const bStr = String(bVal).toLowerCase();
       return sort.direction === "asc"
-        ? String(aVal).localeCompare(String(bVal))
-        : String(bVal).localeCompare(String(aVal));
+        ? aStr.localeCompare(bStr)
+        : bStr.localeCompare(aStr);
     });
 
     return list;
