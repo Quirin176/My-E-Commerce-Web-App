@@ -1,7 +1,7 @@
 import { apiClient } from "../apiClient";
 
 export const filterApi = {
-  getFiltersByCategory: async (slug) => {
+  getFiltersByCategory: async (slug: string) => {
     try {
       const res = await apiClient.get(`/filters/category/${slug}`);
       return res.data;
@@ -12,7 +12,7 @@ export const filterApi = {
   },
 
   // Get filters by category ID (for admin form)
-  getFiltersByCategoryId: async (categoryId) => {
+  getFiltersByCategoryId: async (categoryId: number) => {
     try {
       const res = await apiClient.get(`/filters/category-id/${categoryId}`);
       return res.data;
@@ -22,7 +22,7 @@ export const filterApi = {
     }
   },
   // Create an option value
-  createOptionValue: async (optionId, value) => {
+  createOptionValue: async (optionId: number, value: string) => {
     const res = await apiClient.post(`/filters/option-values`, { 
       optionId,
       value
@@ -30,7 +30,7 @@ export const filterApi = {
     return res.data;
   },
 
-  updateOptionValue: async (optionValueId, value) => {
+  updateOptionValue: async (optionValueId: number, value: string) => {
     const res = await apiClient.put(`/filters/option-values/${optionValueId}`, { 
       value
     });
@@ -38,7 +38,7 @@ export const filterApi = {
   },
 
   // Delete an option value
-  deleteOptionValue: async (optionValueId) => {
+  deleteOptionValue: async (optionValueId: number) => {
     const res = await apiClient.delete(`/filters/option-values/${optionValueId}`);
     return res.data;
   },
