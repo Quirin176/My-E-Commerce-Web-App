@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { slugify } from "../../utils/slugify";
 
 interface FormData {
   name: string;
@@ -25,10 +26,12 @@ interface UseProductFormReturn {
   validateForm: () => boolean;
   addImageUrl: () => void;
   removeImageUrl: (index: number) => void;
+  updateImageUrl: (index: number, newUrl: string) => void;
   handleCategoryChange: (categoryId: string | number) => void;
   handleOptionChange: (optionValueId: string | number) => void;
   resetForm: () => void;
   getInitialFormData: () => FormData;
+  autoGenerateSlug: (name: string) => void;
 }
 
 export const useProductForm = (): UseProductFormReturn => {
@@ -54,6 +57,18 @@ export const useProductForm = (): UseProductFormReturn => {
       ...prev,
       [field]: value,
     }));
+  }, []);
+
+  // Auto-generate slug when name changes
+  const autoGenerateSlug = useCallback((name: string) => {
+    if (name.trim()) {
+      const generatedSlug = slugify(name);
+      setFormData((prev) => ({
+        ...prev,
+        name: name,
+        slug: generatedSlug,
+      }));
+    }
   }, []);
 
   const validateForm = useCallback((): boolean => {
@@ -131,5 +146,6 @@ export const useProductForm = (): UseProductFormReturn => {
     handleOptionChange,
     resetForm,
     getInitialFormData,
+    autoGenerateSlug,
   };
 };

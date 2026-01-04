@@ -1,4 +1,4 @@
-import { X, AlertCircle } from 'lucide-react';
+import { X, AlertCircle, Plus, Trash2 } from 'lucide-react';
 import type { ProductOption } from '../../types/models/ProductOption';
 
 interface ProductFormModalProps {
@@ -15,6 +15,7 @@ interface ProductFormModalProps {
   addImageUrl: () => void;
   removeImageUrl: (index: number) => void;
   handleOptionChange: (optionValueId: string | number) => void;
+  autoGenerateSlug: (name: string) => void;
 }
 
 export default function ProductFormModal({
@@ -31,8 +32,18 @@ export default function ProductFormModal({
   addImageUrl,
   removeImageUrl,
   handleOptionChange,
+  autoGenerateSlug,
 }: ProductFormModalProps) {
   if (!showForm) return null;
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newName = e.target.value;
+    autoGenerateSlug(newName);
+  };
+
+  const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    updateField('imageUrl', e.target.value);
+  };
 
   return (
     <>
@@ -64,12 +75,12 @@ export default function ProductFormModal({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Product Name
+                  Product Name *
                 </label>
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => updateField('name', e.target.value)}
+                  onChange={handleNameChange}
                   placeholder="Enter product name"
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${
                     formErrors.name ? 'border-red-500' : 'border-gray-300'
@@ -84,7 +95,7 @@ export default function ProductFormModal({
 
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Product Slug (Auto-generated)
+                  Product Slug (Auto-generated) *
                 </label>
                 <input
                   type="text"
@@ -100,6 +111,7 @@ export default function ProductFormModal({
                     <AlertCircle size={16} /> {formErrors.slug}
                   </p>
                 )}
+                <p className="text-xs text-gray-500 mt-1">Auto-generated from product name</p>
               </div>
             </div>
 
@@ -107,7 +119,7 @@ export default function ProductFormModal({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Price (VND)
+                  Price (VND) *
                 </label>
                 <input
                   type="number"
@@ -127,7 +139,7 @@ export default function ProductFormModal({
 
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Category
+                  Category *
                 </label>
                 <select
                   value={formData.categoryId}
@@ -176,24 +188,27 @@ export default function ProductFormModal({
               />
             </div>
 
-            {/* Images */}
+            {/* Product Images - Enhanced */}
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">
-                Product Images
+                Product Images *
               </label>
+              
+              {/* Image URL Input */}
               <div className="flex gap-2 mb-3">
                 <input
                   type="text"
                   value={formData.imageUrl}
-                  onChange={(e) => updateField('imageUrl', e.target.value)}
+                  onChange={handleImageUrlChange}
                   placeholder="https://example.com/image.jpg"
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 />
                 <button
                   type="button"
                   onClick={addImageUrl}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition"
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-2"
                 >
+                  <Plus size={18} />
                   Add Image
                 </button>
               </div>
@@ -204,35 +219,45 @@ export default function ProductFormModal({
                 </p>
               )}
 
+              {/* Images List */}
               {formData.imageUrls.length > 0 && (
-                <div className="space-y-2">
-                  {formData.imageUrls.map((url, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-3 bg-gray-100 rounded-lg">
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div>
+                  <p className="text-sm font-semibold text-gray-700 mb-3">
+                    Added Images ({formData.imageUrls.length})
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    {formData.imageUrls.map((url, idx) => (
+                      <div key={idx} className="relative group">
                         <img
                           src={url}
                           alt={`Product ${idx + 1}`}
-                          className="w-12 h-12 object-cover rounded"
+                          className="w-full h-24 object-cover rounded-lg border-2 border-gray-300"
                           onError={(e) => {
-                            e.currentTarget.src = 'https://via.placeholder.com/48?text=No+Image';
+                            e.currentTarget.src = 'https://via.placeholder.com/96?text=No+Image';
                           }}
                         />
-                        <p className="text-sm text-gray-700 truncate">{url}</p>
+                        {/* Image Number Badge */}
+                        <span className="absolute top-1 left-1 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                          {idx + 1}
+                        </span>
+                        {/* Delete Button */}
+                        <button
+                          type="button"
+                          onClick={() => removeImageUrl(idx)}
+                          className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                        {/* Hover Overlay */}
+                        <div className="absolute inset-0 bg-black/0 hover:bg-black/20 rounded-lg transition"></div>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => removeImageUrl(idx)}
-                        className="text-red-600 hover:text-red-700 ml-2"
-                      >
-                        <X size={20} />
-                      </button>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* Category Filters/Options */}
+            {/* Category Filters/Options - Enhanced with checkmarks for existing products */}
             {formData.categoryId && filters.length > 0 && (
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
@@ -241,20 +266,33 @@ export default function ProductFormModal({
                 <div className="space-y-4">
                   {filters.map(option => (
                     <div key={option.optionId} className="border border-gray-300 rounded-lg p-4">
-                      <h4 className="font-semibold text-gray-700 mb-2">{option.name}</h4>
-                      <div className="flex flex-wrap gap-6">
+                      <h4 className="font-semibold text-gray-700 mb-3">{option.name}</h4>
+                      <div className="flex flex-wrap gap-2">
                         {option.optionValues?.map(value => (
                           <label
                             key={value.optionValueId}
-                            className="flex items-center gap-2 px-3 py-2 border rounded-lg hover:bg-gray-50 cursor-pointer"
+                            className="flex items-center gap-2 px-4 py-2 border-2 rounded-lg cursor-pointer transition"
+                            style={{
+                              borderColor: formData.selectedOptionValueIds.includes(value.optionValueId)
+                                ? '#3b82f6'
+                                : '#d1d5db',
+                              backgroundColor: formData.selectedOptionValueIds.includes(value.optionValueId)
+                                ? '#eff6ff'
+                                : 'white',
+                            }}
                           >
                             <input
                               type="checkbox"
                               checked={formData.selectedOptionValueIds.includes(value.optionValueId)}
                               onChange={() => handleOptionChange(value.optionValueId)}
-                              className="w-4 h-4"
+                              className="w-4 h-4 cursor-pointer"
                             />
-                            <span className="text-sm">{value.value}</span>
+                            <span className="text-sm font-medium text-gray-700">
+                              {value.value}
+                            </span>
+                            {formData.selectedOptionValueIds.includes(value.optionValueId) && (
+                              <span className="ml-auto text-blue-600">✓</span>
+                            )}
                           </label>
                         ))}
                       </div>

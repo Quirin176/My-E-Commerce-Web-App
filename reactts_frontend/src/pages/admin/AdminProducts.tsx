@@ -6,7 +6,6 @@ import { useProductFilters } from '../../hooks/useProductFilters';
 import { useProductForm } from '../../hooks/admin/useProductForm';
 import { useProductSearch } from '../../hooks/useProductSearch';
 import { useProductModal } from '../../hooks/admin/useProductModal';
-import { slugify } from '../../utils/slugify';
 import ProductFormModal from '../../components/Admin/AdminProductFormModal';
 
 const AdminProducts = () => {
@@ -24,7 +23,8 @@ const AdminProducts = () => {
     handleOptionChange, 
     updateField,
     resetForm,
-    setFormData 
+    setFormData,
+    autoGenerateSlug
   } = useProductForm();
   const { searchTerm, setSearchTerm, filteredProducts, clearSearch } = useProductSearch(products);
   const { 
@@ -70,21 +70,32 @@ const AdminProducts = () => {
     }
   };
 
-  const handleEdit = (product: any) => {
-    setFormData({
-      name: product.name,
-      slug: slugify(product.name),
-      shortDescription: product.shortDescription || '',
-      description: product.description || '',
-      price: product.price.toString(),
-      imageUrl: product.imageUrl || '',
-      imageUrls: product.images || [],
-      categoryId: product.categoryId || '',
-      selectedOptionValueIds: []
-    });
-    loadFiltersByCategory(product.categoryId);
-    openEditForm(product.id);
-  };
+const handleEdit = (product: any) => {
+  // Build image array from product
+  const images = product.images && product.images.length > 0
+    ? product.images
+    : (product.imageUrl ? [product.imageUrl] : []);
+
+  setFormData({
+    name: product.name,
+    slug: product.slug,
+    shortDescription: product.shortDescription || '',
+    description: product.description || '',
+    price: product.price.toString(),
+    imageUrl: '',
+    imageUrls: images,
+    categoryId: product.categoryId || '',
+    // Map product options to their option value IDs
+    selectedOptionValueIds: product.options?.map(opt => {
+      const filter = filters.find(f =>
+        f.optionValues?.some(v => v.value === opt.value)
+      );
+      return filter?.optionValues?.find(v => v.value === opt.value)?.optionValueId || null;
+    }).filter(Boolean) || []
+  });
+  loadFiltersByCategory(product.categoryId);
+  openEditForm(product.id);
+};
 
   const handleDelete = async (id: number) => {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
@@ -139,6 +150,7 @@ const AdminProducts = () => {
           addImageUrl={addImageUrl}
           removeImageUrl={removeImageUrl}
           handleOptionChange={handleOptionChange}
+          autoGenerateSlug={autoGenerateSlug}
         />
 
         {/* Search Bar */}
