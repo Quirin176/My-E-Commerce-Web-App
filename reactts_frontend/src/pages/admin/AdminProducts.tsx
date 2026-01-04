@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { Plus, Edit2, Trash2, X, Search, ChevronDown, AlertCircle } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, ChevronDown, AlertCircle } from 'lucide-react';
 import { useAdminProducts } from '../../hooks/admin/useAdminProducts';
 import { useCategories } from '../../hooks/useCategories';
 import { useProductFilters } from '../../hooks/useProductFilters';
 import { useProductForm } from '../../hooks/admin/useProductForm';
 import { useProductSearch } from '../../hooks/useProductSearch';
 import { useProductModal } from '../../hooks/admin/useProductModal';
+import { slugify } from '../../utils/slugify';
+import ProductFormModal from '../../components/Admin/AdminProductFormModal';
 
 const AdminProducts = () => {
   // Hooks for data management
@@ -71,7 +73,7 @@ const AdminProducts = () => {
   const handleEdit = (product: any) => {
     setFormData({
       name: product.name,
-      slug: product.slug,
+      slug: slugify(product.name),
       shortDescription: product.shortDescription || '',
       description: product.description || '',
       price: product.price.toString(),
@@ -122,237 +124,22 @@ const AdminProducts = () => {
           </div>
         )}
 
-        {/* Product Form */}
-        {showForm && (
-          <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-800">
-                {editingId ? 'Edit Product' : 'Create New Product'}
-              </h2>
-              <button
-                onClick={handleCloseForm}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <X size={24} />
-              </button>
-            </div>
-
-            <div className="space-y-6">
-              {/* Basic Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Product Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => updateField('name', e.target.value)}
-                    placeholder="Enter product name"
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${
-                      formErrors.name ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                  />
-                  {formErrors.name && (
-                    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                      <AlertCircle size={16} /> {formErrors.name}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Product Slug *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.slug}
-                    onChange={(e) => updateField('slug', e.target.value)}
-                    placeholder="product-slug"
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${
-                      formErrors.slug ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                  />
-                  {formErrors.slug && (
-                    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                      <AlertCircle size={16} /> {formErrors.slug}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Price and Category */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Price (VND) *
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.price}
-                    onChange={(e) => updateField('price', e.target.value)}
-                    placeholder="0"
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${
-                      formErrors.price ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                  />
-                  {formErrors.price && (
-                    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                      <AlertCircle size={16} /> {formErrors.price}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Category *
-                  </label>
-                  <select
-                    value={formData.categoryId}
-                    onChange={(e) => handleCategorySelect(e.target.value)}
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${
-                      formErrors.categoryId ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                  >
-                    <option value="">Select a category</option>
-                    {categories.map(cat => (
-                      <option key={cat.id} value={cat.id}>{cat.name}</option>
-                    ))}
-                  </select>
-                  {formErrors.categoryId && (
-                    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                      <AlertCircle size={16} /> {formErrors.categoryId}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Descriptions */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Short Description
-                </label>
-                <textarea
-                  value={formData.shortDescription}
-                  onChange={(e) => updateField('shortDescription', e.target.value)}
-                  placeholder="Brief product description"
-                  rows="2"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Full Description
-                </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => updateField('description', e.target.value)}
-                  placeholder="Detailed product description"
-                  rows="4"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                />
-              </div>
-
-              {/* Images */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Product Images *
-                </label>
-                <div className="flex gap-2 mb-3">
-                  <input
-                    type="text"
-                    value={formData.imageUrl}
-                    onChange={(e) => updateField('imageUrl', e.target.value)}
-                    placeholder="https://example.com/image.jpg"
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={addImageUrl}
-                    className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition"
-                  >
-                    Add Image
-                  </button>
-                </div>
-
-                {formErrors.imageUrl && (
-                  <p className="text-red-500 text-sm mb-3 flex items-center gap-1">
-                    <AlertCircle size={16} /> {formErrors.imageUrl}
-                  </p>
-                )}
-
-                {formData.imageUrls.length > 0 && (
-                  <div className="space-y-2">
-                    {formData.imageUrls.map((url, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-3 bg-gray-100 rounded-lg">
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <img src={url} alt={`Product ${idx + 1}`} className="w-12 h-12 object-cover rounded" onError={(e) => {
-                            e.currentTarget.src = 'https://via.placeholder.com/48?text=No+Image';
-                          }} />
-                          <p className="text-sm text-gray-700 truncate">{url}</p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => removeImageUrl(idx)}
-                          className="text-red-600 hover:text-red-700 ml-2"
-                        >
-                          <X size={20} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Category Filters/Options */}
-              {formData.categoryId && filters.length > 0 && (
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Product Attributes (Options)
-                  </label>
-                  <div className="space-y-4">
-                    {filters.map(option => (
-                      <div key={option.optionId} className="border border-gray-300 rounded-lg p-4">
-                        <h4 className="font-semibold text-gray-700 mb-2">{option.name}</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {option.optionValues?.map(value => (
-                            <label key={value.optionValueId} className="flex items-center gap-2 px-3 py-2 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={formData.selectedOptionValueIds.includes(value.optionValueId)}
-                                onChange={() => handleOptionChange(value.optionValueId)}
-                                className="w-4 h-4"
-                              />
-                              <span className="text-sm">{value.value}</span>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Submit Buttons */}
-              <div className="flex gap-3 pt-6 border-t">
-                <button
-                  onClick={handleSubmit}
-                  disabled={submitting}
-                  className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {submitting ? 'Saving...' : editingId ? 'Update Product' : 'Create Product'}
-                </button>
-                <button
-                  onClick={handleCloseForm}
-                  className="flex-1 px-6 py-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition font-semibold"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Product Form Modal */}
+        <ProductFormModal
+          showForm={showForm}
+          editingId={editingId}
+          formData={formData}
+          formErrors={formErrors}
+          categories={categories}
+          filters={filters}
+          submitting={submitting}
+          onClose={handleCloseForm}
+          onSubmit={handleSubmit}
+          updateField={updateField}
+          addImageUrl={addImageUrl}
+          removeImageUrl={removeImageUrl}
+          handleOptionChange={handleOptionChange}
+        />
 
         {/* Search Bar */}
         <div className="mb-6">
@@ -470,9 +257,15 @@ const AdminProducts = () => {
                         <h4 className="font-semibold text-gray-700 mb-2">Gallery</h4>
                         <div className="flex gap-2 overflow-x-auto">
                           {product.images.map((img, idx) => (
-                            <img key={idx} src={img} alt={`${product.name} ${idx + 1}`} className="w-24 h-24 object-cover rounded" onError={(e) => {
-                              e.currentTarget.src = 'https://via.placeholder.com/96?text=No+Image';
-                            }} />
+                            <img
+                              key={idx}
+                              src={img}
+                              alt={`${product.name} ${idx + 1}`}
+                              className="w-24 h-24 object-cover rounded"
+                              onError={(e) => {
+                                e.currentTarget.src = 'https://via.placeholder.com/96?text=No+Image';
+                              }}
+                            />
                           ))}
                         </div>
                       </div>
