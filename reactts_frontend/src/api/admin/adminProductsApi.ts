@@ -1,4 +1,5 @@
 import { apiClient } from "../apiClient";
+import type { Product } from "../../types/models/Product";
 
 export const adminProductsApi = {
   getProducts: async () => {
@@ -16,12 +17,12 @@ export const adminProductsApi = {
     return res.data;
   },
 
-  createProduct: async (data: any) => {
+  createProduct: async (data: Product) => {
     const res = await apiClient.post("/products", data);
     return res.data;
   },
 
-  updateProduct: async (id: number, data: any) => {
+  updateProduct: async (id: number, data: Product) => {
     const res = await apiClient.put(`/products/${id}`, data);
     return res.data;
   },

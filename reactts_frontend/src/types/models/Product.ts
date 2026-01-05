@@ -4,12 +4,11 @@ export interface Product {
   id: number;
   name: string;
   slug: string;
+  price: number;
   description?: string;
   shortDescription?: string;
-  price: number;
   imageUrl?: string;
-  image?: string;
-  images?: string[];
+  images: Array<string>;
   categoryId?: number;
   category: Category;
   options?: Array<{

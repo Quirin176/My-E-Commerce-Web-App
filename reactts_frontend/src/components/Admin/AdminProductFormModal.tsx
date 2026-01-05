@@ -1,12 +1,14 @@
 import { X, AlertCircle, Plus, Trash2 } from 'lucide-react';
+import type { Category } from '../../types/models/Category';
+import type { Product } from '../../types/models/Product';
 import type { ProductOption } from '../../types/models/ProductOption';
 
 interface ProductFormModalProps {
   showForm: boolean;
   editingId: number | null;
-  formData: any;
+  formData: Product;
   formErrors: Record<string, string>;
-  categories: any[];
+  categories: Category[];
   filters: ProductOption[];
   submitting: boolean;
   onClose: () => void;
@@ -220,13 +222,13 @@ export default function ProductFormModal({
               )}
 
               {/* Images List */}
-              {formData.imageUrls.length > 0 && (
+              {formData.images?.length > 0 && (
                 <div>
                   <p className="text-sm font-semibold text-gray-700 mb-3">
-                    Added Images ({formData.imageUrls.length})
+                    Added Images ({formData.images.length})
                   </p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                    {formData.imageUrls.map((url, idx) => (
+                    {formData.images.map((url, idx) => (
                       <div key={idx} className="relative group">
                         <img
                           src={url}
