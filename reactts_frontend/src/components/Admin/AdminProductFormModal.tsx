@@ -172,8 +172,7 @@ export default function ProductFormModal({
                 value={formData.shortDescription}
                 onChange={(e) => updateField('shortDescription', e.target.value)}
                 placeholder="Brief product description"
-                rows={2}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full h-40 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
               />
             </div>
 
@@ -185,8 +184,7 @@ export default function ProductFormModal({
                 value={formData.description}
                 onChange={(e) => updateField('description', e.target.value)}
                 placeholder="Detailed product description"
-                rows={4}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full h-60 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
               />
             </div>
 

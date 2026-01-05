@@ -8,7 +8,7 @@ interface FormData {
   description: string;
   price: string;
   imageUrl: string;
-  imageUrls: string[];
+  images: string[];
   categoryId: string | number;
   selectedOptionValueIds: (string | number)[];
 }
@@ -26,7 +26,7 @@ interface UseProductFormReturn {
   validateForm: () => boolean;
   addImageUrl: () => void;
   removeImageUrl: (index: number) => void;
-  updateImageUrl: (index: number, newUrl: string) => void;
+  // updateImageUrl: (index: number, newUrl: string) => void;
   handleCategoryChange: (categoryId: string | number) => void;
   handleOptionChange: (optionValueId: string | number) => void;
   resetForm: () => void;
@@ -42,7 +42,7 @@ export const useProductForm = (): UseProductFormReturn => {
     description: "",
     price: "",
     imageUrl: "",
-    imageUrls: [],
+    images: [],
     categoryId: "",
     selectedOptionValueIds: [],
   };
@@ -86,7 +86,7 @@ export const useProductForm = (): UseProductFormReturn => {
     if (!formData.categoryId) {
       errors.categoryId = "Category is required";
     }
-    if (!formData.imageUrl && formData.imageUrls.length === 0) {
+    if (!formData.images && formData.images.length === 0) {
       errors.imageUrl = "At least one image is required";
     }
 
@@ -95,19 +95,19 @@ export const useProductForm = (): UseProductFormReturn => {
   }, [formData]);
 
   const addImageUrl = useCallback(() => {
-    if (formData.imageUrl && !formData.imageUrls.includes(formData.imageUrl)) {
+    if (formData.imageUrl && !formData.images.includes(formData.imageUrl)) {
       setFormData((prev) => ({
         ...prev,
-        imageUrls: [...prev.imageUrls, prev.imageUrl],
+        images: [...prev.images, prev.imageUrl],
         imageUrl: "",
       }));
     }
-  }, [formData.imageUrl, formData.imageUrls]);
+  }, [formData.imageUrl, formData.images]);
 
   const removeImageUrl = useCallback((index: number) => {
     setFormData((prev) => ({
       ...prev,
-      imageUrls: prev.imageUrls.filter((_, i) => i !== index),
+      images: prev.images.filter((_, i) => i !== index),
     }));
   }, []);
 

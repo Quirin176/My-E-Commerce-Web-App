@@ -52,7 +52,7 @@ const AdminProducts = () => {
       const payload = {
         ...formData,
         price: parseFloat(formData.price),
-        imageUrls: formData.imageUrls.length > 0 ? formData.imageUrls : [formData.imageUrl]
+        imageUrls: formData.images.length > 0 ? formData.images : [formData.imageUrl]
       };
 
       if (editingId) {
@@ -83,7 +83,7 @@ const handleEdit = (product: any) => {
     description: product.description || '',
     price: product.price.toString(),
     imageUrl: '',
-    imageUrls: images,
+    images: images,
     categoryId: product.categoryId || '',
     // Map product options to their option value IDs
     selectedOptionValueIds: product.options?.map(opt => {
