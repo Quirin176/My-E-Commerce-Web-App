@@ -44,8 +44,13 @@ export default function ProductFormModal({
   };
 
   const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateField('imageUrl', e.target.value);
+    updateField('images', e.target.value);
   };
+
+  // Get display images - use the images array directly
+  const allImages = (formData.images && Array.isArray(formData.images)) 
+    ? formData.images 
+    : [];
 
   return (
     <>
@@ -220,13 +225,13 @@ export default function ProductFormModal({
               )}
 
               {/* Images List */}
-              {formData.images?.length > 0 && (
+              {allImages.length > 0 && (
                 <div>
                   <p className="text-sm font-semibold text-gray-700 mb-3">
-                    Added Images ({formData.images.length})
+                    Added Images ({allImages.length})
                   </p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                    {formData.images.map((url, idx) => (
+                    {allImages.map((url, idx) => (
                       <div key={idx} className="relative group">
                         <img
                           src={url}
@@ -291,7 +296,7 @@ export default function ProductFormModal({
                               {value.value}
                             </span>
                             {formData.selectedOptionValueIds.includes(value.optionValueId) && (
-                              <span className="ml-auto text-blue-600">✓</span>
+                              <span className="ml-auto text-blue-600"></span>
                             )}
                           </label>
                         ))}

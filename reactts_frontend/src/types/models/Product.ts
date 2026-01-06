@@ -8,11 +8,12 @@ export interface Product {
   description?: string;
   shortDescription?: string;
   imageUrl?: string;
-  images: Array<string>;
+  images: string[];
   categoryId?: number;
-  category: Category;
+  category?: Category;
   options?: Array<{
     optionName: string;
     value: string;
   }>;
+  selectedOptionValueIds?: Array<number>;
 }

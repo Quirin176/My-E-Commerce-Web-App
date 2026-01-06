@@ -7,6 +7,7 @@ import { useProductForm } from '../../hooks/admin/useProductForm';
 import { useProductSearch } from '../../hooks/useProductSearch';
 import { useProductModal } from '../../hooks/admin/useProductModal';
 import ProductFormModal from '../../components/Admin/AdminProductFormModal';
+import type { Product } from '../../types/models/Product';
 
 const AdminProducts = () => {
   // Hooks for data management
@@ -70,29 +71,44 @@ const AdminProducts = () => {
     }
   };
 
-const handleEdit = (product: any) => {
-  // Build image array from product
-  const images = product.images && product.images.length > 0
-    ? product.images
-    : (product.imageUrl ? [product.imageUrl] : []);
+const handleEdit = (product: Product) => {
+  // Build image array - use the 'images' array from product data, fall back to imageUrl if needed
+  let images: string[] = [];
+
+  // If product has images array, use it
+  if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+    images = product.images;
+  } 
+  // Otherwise, fall back to imageUrl
+  else if (product.imageUrl) {
+    images = [product.imageUrl];
+  }
 
   setFormData({
     name: product.name,
     slug: product.slug,
     shortDescription: product.shortDescription || '',
     description: product.description || '',
-    price: product.price.toString(),
-    imageUrl: '',
+    price: product.price || 0,
+    imageUrl: product.imageUrl || '',
     images: images,
-    categoryId: product.categoryId || '',
-    // Map product options to their option value IDs
+    categoryId: product.categoryId || 0,
     selectedOptionValueIds: product.options?.map(opt => {
-      const filter = filters.find(f =>
-        f.optionValues?.some(v => v.value === opt.value)
+      // Find the option value ID that matches this option
+      const matchingFilter = filters.find(f =>
+        f.optionValues?.some(v => v.value === opt.value && v.optionValueId)
       );
-      return filter?.optionValues?.find(v => v.value === opt.value)?.optionValueId || null;
-    }).filter(Boolean) || []
+      
+      if (matchingFilter) {
+        const matchingValue = matchingFilter.optionValues?.find(
+          v => v.value === opt.value
+        );
+        return matchingValue?.optionValueId || null;
+      }
+      return null;
+    }).filter((id): id is string | number => id !== null) || []
   });
+
   loadFiltersByCategory(product.categoryId);
   openEditForm(product.id);
 };

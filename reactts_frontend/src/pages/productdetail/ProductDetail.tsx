@@ -33,7 +33,7 @@ export default function ProductDetails() {
       id: product.id,
       name: product.name,
       price: product.price,
-      image: product.image?.[0] || product.imageUrl || "https://via.placeholder.com/400",
+      image: product.images[0] || product.imageUrl || "https://via.placeholder.com/400",
       options: product.options || [],
     };
 
@@ -120,7 +120,7 @@ const images: string[] = product.images && product.images.length > 0
     setShowImageModal(true);
   };
 
-  const categoryName = product.category?.label || "Unknown Category";
+  const categoryName = product.category?.name || "Unknown Category";
 
   return (
     <div className="p-8 max-w-6xl mx-auto">

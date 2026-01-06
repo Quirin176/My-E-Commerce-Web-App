@@ -1,58 +1,43 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { slugify } from "../../utils/slugify";
-
-interface FormData {
-  name: string;
-  slug: string;
-  shortDescription: string;
-  description: string;
-  price: string;
-  imageUrl: string;
-  images: string[];
-  categoryId: string | number;
-  selectedOptionValueIds: (string | number)[];
-}
-
-interface FormErrors {
-  [key: string]: string;
-}
+import type { Product } from "../../types/models/Product";
 
 interface UseProductFormReturn {
-  formData: FormData;
-  formErrors: FormErrors;
-  setFormData: (data: FormData) => void;
-  setFormErrors: (errors: FormErrors) => void;
-  updateField: (field: keyof FormData, value: any) => void;
+  formData: Product;
+  formErrors: Record<string, string>;
+  setFormData: (data: Product) => void;
+  setFormErrors: (errors: Record<string, string>) => void;
+  updateField: (field: keyof Product, value: unknown) => void;
   validateForm: () => boolean;
   addImageUrl: () => void;
   removeImageUrl: (index: number) => void;
-  // updateImageUrl: (index: number, newUrl: string) => void;
-  handleCategoryChange: (categoryId: string | number) => void;
-  handleOptionChange: (optionValueId: string | number) => void;
+  handleCategoryChange: (categoryId: number) => void;
+  handleOptionChange: (optionValueId: number) => void;
   resetForm: () => void;
-  getInitialFormData: () => FormData;
+  getInitialFormData: () => Product;
   autoGenerateSlug: (name: string) => void;
 }
 
 export const useProductForm = (): UseProductFormReturn => {
-  const initialFormData: FormData = {
+  const initialFormData = useMemo<Product>(() => ({
+    id: 0,
     name: "",
     slug: "",
     shortDescription: "",
     description: "",
-    price: "",
+    price: 0,
     imageUrl: "",
-    images: [],
-    categoryId: "",
-    selectedOptionValueIds: [],
-  };
+    images: [] as string[],
+    categoryId: 0,
+    selectedOptionValueIds: [] as Array<number>,
+  }), []);
 
-  const [formData, setFormData] = useState<FormData>(initialFormData);
-  const [formErrors, setFormErrors] = useState<FormErrors>({});
+  const [formData, setFormData] = useState<Product>(initialFormData);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  const getInitialFormData = useCallback(() => initialFormData, []);
+  const getInitialFormData = useCallback(() => initialFormData, [initialFormData]);
 
-  const updateField = useCallback((field: keyof FormData, value: any) => {
+  const updateField = useCallback((field: keyof Product, value: unknown) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -72,7 +57,7 @@ export const useProductForm = (): UseProductFormReturn => {
   }, []);
 
   const validateForm = useCallback((): boolean => {
-    const errors: FormErrors = {};
+    const errors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
       errors.name = "Product name is required";
@@ -80,13 +65,13 @@ export const useProductForm = (): UseProductFormReturn => {
     if (!formData.slug.trim()) {
       errors.slug = "Product slug is required";
     }
-    if (!formData.price || parseFloat(formData.price) <= 0) {
+    if (!formData.price || formData.price <= 0) {
       errors.price = "Valid price is required";
     }
     if (!formData.categoryId) {
       errors.categoryId = "Category is required";
     }
-    if (!formData.images && formData.images.length === 0) {
+    if (!formData.images || formData.images.length === 0) {
       errors.imageUrl = "At least one image is required";
     }
 
@@ -95,39 +80,51 @@ export const useProductForm = (): UseProductFormReturn => {
   }, [formData]);
 
   const addImageUrl = useCallback(() => {
-    if (formData.imageUrl && !formData.images.includes(formData.imageUrl)) {
-      setFormData((prev) => ({
-        ...prev,
-        images: [...prev.images, prev.imageUrl],
-        imageUrl: "",
-      }));
+    if (formData.imageUrl && formData.imageUrl.trim()) {
+      const newImageUrl = formData.imageUrl.trim();
+      
+      // Check if image already exists in array
+      if (!formData.images?.includes(newImageUrl)) {
+        setFormData((prev) => ({
+          ...prev,
+          images: [...(prev.images || []), newImageUrl],
+          imageUrl: "",  // Clear input after adding
+        }));
+      }
     }
   }, [formData.imageUrl, formData.images]);
 
   const removeImageUrl = useCallback((index: number) => {
     setFormData((prev) => ({
       ...prev,
-      images: prev.images.filter((_, i) => i !== index),
+      images: prev.images?.filter((_, i) => i !== index) || [],
     }));
   }, []);
 
-  const handleCategoryChange = useCallback((categoryId: string | number) => {
+  const handleCategoryChange = useCallback((categoryId: number) => {
     setFormData((prev) => ({
       ...prev,
-      categoryId,
+      categoryId: typeof categoryId === 'string' ? parseInt(categoryId) : categoryId,
       selectedOptionValueIds: [],
     }));
   }, []);
 
-  const handleOptionChange = useCallback((optionValueId: string | number) => {
-    setFormData((prev) => ({
-      ...prev,
-      selectedOptionValueIds: prev.selectedOptionValueIds.includes(optionValueId)
-        ? prev.selectedOptionValueIds.filter((id) => id !== optionValueId)
-        : [...prev.selectedOptionValueIds, optionValueId],
-    }));
+  const handleOptionChange = useCallback((optionValueId: number) => {
+    setFormData((prev) => {
+      const currentOptions = prev.selectedOptionValueIds || [];
+      const isSelected = currentOptions.some(id => 
+        String(id) === String(optionValueId)
+      );
+      
+      return {
+        ...prev,
+        selectedOptionValueIds: isSelected
+          ? currentOptions.filter(id => String(id) !== String(optionValueId))
+          : [...currentOptions, optionValueId],
+      };
+    });
   }, []);
-
+  
   const resetForm = useCallback(() => {
     setFormData(initialFormData);
     setFormErrors({});
