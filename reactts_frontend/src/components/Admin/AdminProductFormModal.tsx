@@ -10,14 +10,16 @@ interface ProductFormModalProps {
   formErrors: Record<string, string>;
   categories: Category[];
   filters: ProductOption[];
+  filtersLoading: boolean;
   submitting: boolean;
   onClose: () => void;
   onSubmit: () => Promise<void>;
-  updateField: (field: string, value: any) => void;
+  updateField: (field: string, value: unknown) => void;
   addImageUrl: () => void;
   removeImageUrl: (index: number) => void;
-  handleOptionChange: (optionValueId: string | number) => void;
+  handleOptionChange: (optionValueId: number) => void;
   autoGenerateSlug: (name: string) => void;
+  onCategoryChange?: (categoryId: number) => void;
 }
 
 export default function ProductFormModal({
@@ -27,6 +29,7 @@ export default function ProductFormModal({
   formErrors,
   categories,
   filters,
+  filtersLoading,
   submitting,
   onClose,
   onSubmit,
@@ -35,6 +38,7 @@ export default function ProductFormModal({
   removeImageUrl,
   handleOptionChange,
   autoGenerateSlug,
+  onCategoryChange,
 }: ProductFormModalProps) {
   if (!showForm) return null;
 
@@ -51,6 +55,9 @@ export default function ProductFormModal({
   const allImages = (formData.images && Array.isArray(formData.images)) 
     ? formData.images 
     : [];
+
+  // Get selected option value IDs
+  const selectedIds = formData.selectedOptionValueIds ?? [];
 
   return (
     <>
@@ -150,7 +157,14 @@ export default function ProductFormModal({
                 </label>
                 <select
                   value={formData.categoryId}
-                  onChange={(e) => updateField('categoryId', e.target.value)}
+                  onChange={(e) => {
+                    const categoryId = parseInt(e.target.value) || 0;
+                    updateField('categoryId', categoryId);
+                    // Trigger callback if provided
+                    if (onCategoryChange) {
+                      onCategoryChange(categoryId);
+                    }
+                  }}
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${
                     formErrors.categoryId ? 'border-red-500' : 'border-gray-300'
                   }`}
@@ -262,48 +276,61 @@ export default function ProductFormModal({
               )}
             </div>
 
-            {/* Category Filters/Options - Enhanced with checkmarks for existing products */}
+            {/* Category Filters/Options - FIXED with safe access */}
             {formData.categoryId && filters.length > 0 && (
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
                   Product Attributes (Options)
                 </label>
-                <div className="space-y-4">
-                  {filters.map(option => (
-                    <div key={option.optionId} className="border border-gray-300 rounded-lg p-4">
-                      <h4 className="font-semibold text-gray-700 mb-3">{option.name}</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {option.optionValues?.map(value => (
-                          <label
-                            key={value.optionValueId}
-                            className="flex items-center gap-2 px-4 py-2 border-2 rounded-lg cursor-pointer transition"
-                            style={{
-                              borderColor: formData.selectedOptionValueIds.includes(value.optionValueId)
-                                ? '#3b82f6'
-                                : '#d1d5db',
-                              backgroundColor: formData.selectedOptionValueIds.includes(value.optionValueId)
-                                ? '#eff6ff'
-                                : 'white',
-                            }}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={formData.selectedOptionValueIds.includes(value.optionValueId)}
-                              onChange={() => handleOptionChange(value.optionValueId)}
-                              className="w-4 h-4 cursor-pointer"
-                            />
-                            <span className="text-sm font-medium text-gray-700">
-                              {value.value}
-                            </span>
-                            {formData.selectedOptionValueIds.includes(value.optionValueId) && (
-                              <span className="ml-auto text-blue-600"></span>
-                            )}
-                          </label>
-                        ))}
-                      </div>
+                
+                {/* Loading state for filters */}
+                {filtersLoading && (
+                  <div className="text-center py-4">
+                    <div className="inline-block">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                     </div>
-                  ))}
-                </div>
+                    <p className="text-gray-500 text-sm mt-2">Loading attributes...</p>
+                  </div>
+                )}
+                
+                {!filtersLoading && (
+                  <div className="space-y-4">
+                    {filters.map(option => (
+                      <div key={option.optionId} className="border border-gray-300 rounded-lg p-4">
+                        <h4 className="font-semibold text-gray-700 mb-3">{option.name}</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {option.optionValues?.map(value => (
+                            <label
+                              key={value.optionValueId}
+                              className="flex items-center gap-2 px-4 py-2 border-2 rounded-lg cursor-pointer transition"
+                              style={{
+                                borderColor: selectedIds.includes(value.optionValueId)
+                                  ? '#3b82f6'
+                                  : '#d1d5db',
+                                backgroundColor: selectedIds.includes(value.optionValueId)
+                                  ? '#eff6ff'
+                                  : 'white',
+                              }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={selectedIds.includes(value.optionValueId)}
+                                onChange={() => handleOptionChange(value.optionValueId)}
+                                className="w-4 h-4 cursor-pointer"
+                              />
+                              <span className="text-sm font-medium text-gray-700">
+                                {value.value}
+                              </span>
+                              {selectedIds.includes(value.optionValueId) && (
+                                <span className="ml-auto text-blue-600">✓</span>
+                              )}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 

@@ -1,8 +1,8 @@
 export interface ProductOption {
-  optionId: string | number;
+  optionId: number;
   name: string;
   optionValues: Array<{
-    optionValueId: string | number;
+    optionValueId: number;
     value: string;
   }>;
 }

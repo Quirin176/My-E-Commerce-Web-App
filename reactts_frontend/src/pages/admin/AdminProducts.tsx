@@ -2,18 +2,18 @@ import { useState } from 'react';
 import { Plus, Edit2, Trash2, Search, ChevronDown, AlertCircle } from 'lucide-react';
 import { useAdminProducts } from '../../hooks/admin/useAdminProducts';
 import { useCategories } from '../../hooks/useCategories';
-import { useProductFilters } from '../../hooks/useProductFilters';
 import { useProductForm } from '../../hooks/admin/useProductForm';
 import { useProductSearch } from '../../hooks/useProductSearch';
 import { useProductModal } from '../../hooks/admin/useProductModal';
 import ProductFormModal from '../../components/Admin/AdminProductFormModal';
+import { filterApi } from '../../api/products/filterApi';
 import type { Product } from '../../types/models/Product';
+import type { ProductOption } from '../../types/models/ProductOption';
 
 const AdminProducts = () => {
   // Hooks for data management
   const { products, loading: productsLoading, error: productsError, createProduct, updateProduct, deleteProduct } = useAdminProducts();
   const { categories } = useCategories();
-  const { filters, loadFiltersByCategory } = useProductFilters();
   const { 
     formData, 
     formErrors, 
@@ -31,19 +31,17 @@ const AdminProducts = () => {
   const { 
     showForm, 
     editingId, 
-    expandedProduct, 
+    expandedProduct,
+    currentCategoryFilters,
+    filtersLoading,
     openCreateForm, 
     openEditForm, 
     closeForm, 
-    toggleExpandProduct 
+    toggleExpandProduct,
+    loadFiltersForCategory,
   } = useProductModal();
 
   const [submitting, setSubmitting] = useState(false);
-
-  const handleCategorySelect = (categoryId: number) => {
-    handleCategoryChange(categoryId);
-    loadFiltersByCategory(categoryId);
-  };
 
   const handleSubmit = async () => {
     if (!validateForm()) return;
@@ -52,7 +50,7 @@ const AdminProducts = () => {
     try {
       const payload = {
         ...formData,
-        price: parseFloat(formData.price),
+        price: parseFloat(formData.price as any),
         imageUrls: formData.images.length > 0 ? formData.images : [formData.imageUrl]
       };
 
@@ -71,31 +69,23 @@ const AdminProducts = () => {
     }
   };
 
-const handleEdit = (product: Product) => {
-  // Build image array - use the 'images' array from product data, fall back to imageUrl if needed
-  let images: string[] = [];
+  const handleEdit = (product: Product) => {
+    // Build image array - use the 'images' array from product data, fall back to imageUrl if needed
+    let images: string[] = [];
 
-  // If product has images array, use it
-  if (product.images && Array.isArray(product.images) && product.images.length > 0) {
-    images = product.images;
-  } 
-  // Otherwise, fall back to imageUrl
-  else if (product.imageUrl) {
-    images = [product.imageUrl];
-  }
+    // If product has images array, use it
+    if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+      images = product.images;
+    } 
+    // Otherwise, fall back to imageUrl
+    else if (product.imageUrl) {
+      images = [product.imageUrl];
+    }
 
-  setFormData({
-    name: product.name,
-    slug: product.slug,
-    shortDescription: product.shortDescription || '',
-    description: product.description || '',
-    price: product.price || 0,
-    imageUrl: product.imageUrl || '',
-    images: images,
-    categoryId: product.categoryId || 0,
-    selectedOptionValueIds: product.options?.map(opt => {
+    // Properly handle selectedOptionValueIds type conversion
+    const selectedIds = product.options?.map(opt => {
       // Find the option value ID that matches this option
-      const matchingFilter = filters.find(f =>
+      const matchingFilter = currentCategoryFilters.find(f =>
         f.optionValues?.some(v => v.value === opt.value && v.optionValueId)
       );
       
@@ -106,12 +96,26 @@ const handleEdit = (product: Product) => {
         return matchingValue?.optionValueId || null;
       }
       return null;
-    }).filter((id): id is string | number => id !== null) || []
-  });
+    }).filter((id): id is string | number => id !== null) || [];
 
-  loadFiltersByCategory(product.categoryId);
-  openEditForm(product.id);
-};
+    setFormData({
+      name: product.name,
+      slug: product.slug,
+      shortDescription: product.shortDescription || '',
+      description: product.description || '',
+      price: product.price || 0,
+      imageUrl: product.imageUrl || '',
+      images: images,
+      categoryId: product.categoryId || 0,
+      selectedOptionValueIds: selectedIds
+    });
+
+    // Load filters for the category
+    if (product.categoryId) {
+      loadFiltersForCategory(product.categoryId);
+    }
+    openEditForm(product.id);
+  };
 
   const handleDelete = async (id: number) => {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
@@ -128,6 +132,11 @@ const handleEdit = (product: Product) => {
     closeForm();
   };
 
+  const handleCreateNew = () => {
+    resetForm();
+    openCreateForm();
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -135,7 +144,7 @@ const handleEdit = (product: Product) => {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800">Products Management</h1>
           <button
-            onClick={openCreateForm}
+            onClick={handleCreateNew}
             className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
           >
             <Plus size={20} />
@@ -158,7 +167,8 @@ const handleEdit = (product: Product) => {
           formData={formData}
           formErrors={formErrors}
           categories={categories}
-          filters={filters}
+          filters={currentCategoryFilters}
+          filtersLoading={filtersLoading}
           submitting={submitting}
           onClose={handleCloseForm}
           onSubmit={handleSubmit}
@@ -167,6 +177,12 @@ const handleEdit = (product: Product) => {
           removeImageUrl={removeImageUrl}
           handleOptionChange={handleOptionChange}
           autoGenerateSlug={autoGenerateSlug}
+          onCategoryChange={(categoryId: number) => {
+            handleCategoryChange(categoryId);
+            if (categoryId) {
+              loadFiltersForCategory(categoryId);
+            }
+          }}
         />
 
         {/* Search Bar */}

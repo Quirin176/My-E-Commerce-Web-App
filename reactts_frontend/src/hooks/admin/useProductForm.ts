@@ -20,7 +20,7 @@ interface UseProductFormReturn {
 
 export const useProductForm = (): UseProductFormReturn => {
   const initialFormData = useMemo<Product>(() => ({
-    id: 0,
+    id: "",
     name: "",
     slug: "",
     shortDescription: "",
@@ -28,7 +28,7 @@ export const useProductForm = (): UseProductFormReturn => {
     price: 0,
     imageUrl: "",
     images: [] as string[],
-    categoryId: 0,
+    categoryId: "",
     selectedOptionValueIds: [] as Array<number>,
   }), []);
 
