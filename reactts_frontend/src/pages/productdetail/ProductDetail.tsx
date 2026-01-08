@@ -14,6 +14,7 @@ export default function ProductDetails() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showImageModal, setShowImageModal] = useState(false);
   const [modalImageIndex, setModalImageIndex] = useState(0);
+  const [thumbStyle, setThumbStyle] = useState<'vertical' | 'horizontal'>('horizontal');
 
   const { user } = useAuth();
 //   const { addToCart } = useCart();
@@ -257,7 +258,7 @@ const images: string[] = product.images && product.images.length > 0
           onClick={handleBackdropClick}
         >
           {/* Modal Container */}
-          <div className="relative max-w-4xl w-full max-h-[90vh] flex flex-col bg-black rounded-lg overflow-hidden">
+          <div className={`relative max-w-4xl w-full max-h-[90vh] flex ${thumbStyle === 'vertical' ? 'flex-row' : 'flex-col'} bg-black rounded-lg overflow-hidden`}>
             
             {/* Close Button */}
             <button
@@ -306,9 +307,9 @@ const images: string[] = product.images && product.images.length > 0
               {modalImageIndex + 1} / {images.length}
             </div>
 
-            {/* Thumbnail Strip at Bottom */}
+            {/* Vertical Thumbnail Strip on Right */}
             {images.length > 1 && (
-              <div className="bg-black/50 p-3 flex gap-2 overflow-x-auto">
+              <div className={`bg-black/50 p-3 flex ${thumbStyle === 'vertical' ? 'flex-col overflow-y-auto' : 'flex-row overflow-x-auto'} gap-2`}>
                 {images.map((img: string, index: number) => (
                   <button
                     key={index}

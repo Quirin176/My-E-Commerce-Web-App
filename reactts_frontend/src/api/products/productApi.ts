@@ -3,13 +3,13 @@ import { apiClient } from "../apiClient";
 export const productApi = {
 
   // GET: /api/products
-  async getAll() {
+  async getProductsAll() {
     const res = await apiClient.get("/products");
     return res.data;
   },
 
   // GET: /api/products with filters
-  async getByFilters(category, filters = {}) {
+  async getByFilters(category: string, filters = {}) {
     const params = {
       category: category,
       minPrice: filters.minPrice,
@@ -23,13 +23,13 @@ export const productApi = {
   },
 
   // GET: /api/products/{id}
-  async getById(id) {
+  async getById(id: number | string) {
     const res = await apiClient.get(`/products/${id}`);
     return res.data;
   },
 
   // GET: /api/products/slug/{slug}
-  async getBySlug(slug) {
+  async getBySlug(slug: string) {
     const res = await apiClient.get(`/products/${slug}`);
     return res.data;
   }

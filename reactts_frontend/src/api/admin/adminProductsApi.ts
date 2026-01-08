@@ -2,13 +2,18 @@ import { apiClient } from "../apiClient";
 import type { Product } from "../../types/models/Product";
 
 export const adminProductsApi = {
-  getProducts: async () => {
+  getProductsAll: async () => {
     const res = await apiClient.get("/products");
     return res.data;
   },
 
-  getProductById: async (id: number) => {
+  getProductById: async (id: number | string) => {
     const res = await apiClient.get(`/products/${id}`);
+    return res.data;
+  },
+
+  getProductBySlug: async (slug: string) => {
+    const res = await apiClient.get(`/products/${slug}`);
     return res.data;
   },
 
@@ -22,12 +27,17 @@ export const adminProductsApi = {
     return res.data;
   },
 
-  updateProduct: async (id: number, data: Product) => {
+  updateProductById: async (id: number | string, data: Product) => {
     const res = await apiClient.put(`/products/${id}`, data);
     return res.data;
   },
 
-  deleteProduct: async (id: number) => {
+  updateProductBySlug: async (slug: string, data: Product) => {
+    const res = await apiClient.put(`/products/${slug}`, data);
+    return res.data;
+  },
+
+  deleteProduct: async (id: number | string) => {
     const res = await apiClient.delete(`/products/${id}`);
     return res.data;
   }

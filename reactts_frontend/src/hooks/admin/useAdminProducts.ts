@@ -10,8 +10,8 @@ interface UseAdminProductsReturn {
 
     // CRUD Operations
     fetchProducts: () => Promise<void>;
-    createProduct: (data: any) => Promise<void>;
-    updateProduct: (id: number, data: any) => Promise<void>;
+    createProduct: (data: Product) => Promise<void>;
+    updateProduct: (id: number, data: Product) => Promise<void>;
     deleteProduct: (id: number) => Promise<void>;
 }
 
@@ -27,7 +27,7 @@ export const useAdminProducts = (): UseAdminProductsReturn => {
 
         try {
             console.debug(`[useAdminProducts] Fetching Products`);
-            const data = await adminProductsApi.getProducts();
+            const data = await adminProductsApi.getProductsAll();
             setProducts(Array.isArray(data) ? data : []); //Set Products[] if data available
             console.debug(`[useAdminProducts] Products Loaded:`, data)
         } catch (error: unknown) {
@@ -41,7 +41,7 @@ export const useAdminProducts = (): UseAdminProductsReturn => {
     }, [])
 
     // Create new Product
-    const createProduct = useCallback(async (data: any) => {
+    const createProduct = useCallback(async (data: Product) => {
         setLoading(true);
         setError(null);
 
@@ -62,14 +62,14 @@ export const useAdminProducts = (): UseAdminProductsReturn => {
         }
     }, [])
 
-    // Update Product
-    const updateProduct = useCallback(async (id: number, data: any) => {
+    // // Update Product
+    const updateProduct = useCallback(async (id: number, data: Product) => {
         setLoading(true);
         setError(null);
 
         try {
             console.debug(`[useAdminProducts] Updating Product ${id}:`, data);
-            const updatedProduct = await adminProductsApi.updateProduct(id, data);
+            const updatedProduct = await adminProductsApi.updateProductById(id, data);
             setProducts(prev => prev.map(p => p.id === id ? updatedProduct : p));
             toast.success(`Product updated successfully!`);
             console.debug(`[useAdminProducts] Product Updated:`, updatedProduct);
@@ -83,6 +83,28 @@ export const useAdminProducts = (): UseAdminProductsReturn => {
             setLoading(false);
         }
     }, [])
+
+    // Update Product
+    // const updateProduct = useCallback(async (slug: string, data: Product) => {
+    //     setLoading(true);
+    //     setError(null);
+
+    //     try {
+    //         console.debug(`[useAdminProducts] Updating Product ${slug}:`, data);
+    //         const updatedProduct = await adminProductsApi.updateProductBySlug(slug, data);
+    //         setProducts(prev => prev.map(p => p.slug === slug ? updatedProduct : p));
+    //         toast.success(`Product updated successfully!`);
+    //         console.debug(`[useAdminProducts] Product Updated:`, updatedProduct);
+    //     } catch (error: unknown) {
+    //         const errorMessage = error instanceof Error ? error.message : "Failed to Update Product";
+    //         setError(errorMessage);
+    //         toast.error(errorMessage);
+    //         console.error(`[useAdminProducts] Error Updating Product:`, error);
+    //         throw error;
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // }, [])
 
     // Delete Product
     const deleteProduct = useCallback(async (id: number) => {

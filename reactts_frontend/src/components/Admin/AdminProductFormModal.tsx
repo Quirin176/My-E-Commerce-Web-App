@@ -89,7 +89,7 @@ export default function ProductFormModal({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Product Name *
+                  Product Name
                 </label>
                 <input
                   type="text"
@@ -109,17 +109,16 @@ export default function ProductFormModal({
 
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Product Slug (Auto-generated) *
+                  Product Slug (Auto-generated)
                 </label>
                 <input
                   type="text"
                   value={formData.slug}
-                  onChange={(e) => updateField('slug', e.target.value)}
                   placeholder="product-slug"
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${
-                    formErrors.slug ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                />
+                  disabled={true}
+                  readOnly={true}
+                  className={`w-full px-4 py-2 border rounded-lg outline-none cursor-not-allowed bg-gray-200 text-gray-600 ${ formErrors.slug ? 'border-red-500' : 'border-gray-300'}`}
+                  />
                 {formErrors.slug && (
                   <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
                     <AlertCircle size={16} /> {formErrors.slug}
@@ -133,7 +132,7 @@ export default function ProductFormModal({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Price (VND) *
+                  Price (VND)
                 </label>
                 <input
                   type="number"
@@ -153,7 +152,7 @@ export default function ProductFormModal({
 
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Category *
+                  Category
                 </label>
                 <select
                   value={formData.categoryId}
@@ -210,7 +209,7 @@ export default function ProductFormModal({
             {/* Product Images - Enhanced */}
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">
-                Product Images *
+                Product Images
               </label>
               
               {/* Image URL Input */}

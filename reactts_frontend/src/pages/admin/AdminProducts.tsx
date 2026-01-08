@@ -6,12 +6,9 @@ import { useProductForm } from '../../hooks/admin/useProductForm';
 import { useProductSearch } from '../../hooks/useProductSearch';
 import { useProductModal } from '../../hooks/admin/useProductModal';
 import ProductFormModal from '../../components/Admin/AdminProductFormModal';
-import { filterApi } from '../../api/products/filterApi';
 import type { Product } from '../../types/models/Product';
-import type { ProductOption } from '../../types/models/ProductOption';
 
 const AdminProducts = () => {
-  // Hooks for data management
   const { products, loading: productsLoading, error: productsError, createProduct, updateProduct, deleteProduct } = useAdminProducts();
   const { categories } = useCategories();
   const { 
@@ -20,7 +17,7 @@ const AdminProducts = () => {
     validateForm, 
     addImageUrl, 
     removeImageUrl, 
-    handleCategoryChange, 
+    handleCategoryChange: hookHandleCategoryChange, 
     handleOptionChange, 
     updateField,
     resetForm,
@@ -49,9 +46,15 @@ const AdminProducts = () => {
     setSubmitting(true);
     try {
       const payload = {
-        ...formData,
-        price: parseFloat(formData.price as any),
-        imageUrls: formData.images.length > 0 ? formData.images : [formData.imageUrl]
+        name: formData.name,
+        slug: formData.slug,
+        shortDescription: formData.shortDescription,
+        description: formData.description,
+        price: parseFloat(String(formData.price)),
+        imageUrl: formData.imageUrl || '',
+        imageUrls: formData.images && formData.images.length > 0 ? formData.images : [],
+        categoryId: Number(formData.categoryId),
+        selectedOptionValueIds: formData.selectedOptionValueIds || []
       };
 
       if (editingId) {
@@ -70,58 +73,51 @@ const AdminProducts = () => {
   };
 
   const handleEdit = (product: Product) => {
-    // Build image array - use the 'images' array from product data, fall back to imageUrl if needed
-    let images: string[] = [];
+    // Get images array properly
+    const images: string[] = Array.isArray(product.images) && product.images.length > 0
+      ? product.images
+      : (product.imageUrl ? [product.imageUrl] : []);
 
-    // If product has images array, use it
-    if (product.images && Array.isArray(product.images) && product.images.length > 0) {
-      images = product.images;
-    } 
-    // Otherwise, fall back to imageUrl
-    else if (product.imageUrl) {
-      images = [product.imageUrl];
+    // Get selected option value IDs
+    const selectedIds: number[] = [];
+    if (product.options && Array.isArray(product.options) && currentCategoryFilters.length > 0) {
+      product.options.forEach((opt) => {
+        currentCategoryFilters.forEach((filter) => {
+          filter.optionValues?.forEach((value) => {
+            if (value.value === opt.value) {
+              selectedIds.push(value.optionValueId);
+            }
+          });
+        });
+      });
     }
 
-    // Properly handle selectedOptionValueIds type conversion
-    const selectedIds = product.options?.map(opt => {
-      // Find the option value ID that matches this option
-      const matchingFilter = currentCategoryFilters.find(f =>
-        f.optionValues?.some(v => v.value === opt.value && v.optionValueId)
-      );
-      
-      if (matchingFilter) {
-        const matchingValue = matchingFilter.optionValues?.find(
-          v => v.value === opt.value
-        );
-        return matchingValue?.optionValueId || null;
-      }
-      return null;
-    }).filter((id): id is string | number => id !== null) || [];
-
     setFormData({
+      id: product.id,
       name: product.name,
       slug: product.slug,
       shortDescription: product.shortDescription || '',
       description: product.description || '',
       price: product.price || 0,
-      imageUrl: product.imageUrl || '',
+      imageUrl: '',
       images: images,
       categoryId: product.categoryId || 0,
       selectedOptionValueIds: selectedIds
     });
 
-    // Load filters for the category
+    // Load filters for the category FIRST
     if (product.categoryId) {
-      loadFiltersForCategory(product.categoryId);
+      loadFiltersForCategory(Number(product.categoryId));
     }
-    openEditForm(product.id);
+    
+    openEditForm(Number(product.id));
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: number | string) => {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
 
     try {
-      await deleteProduct(id);
+      await deleteProduct(Number(id));
     } catch (error) {
       console.error('Error deleting product:', error);
     }
@@ -135,6 +131,14 @@ const AdminProducts = () => {
   const handleCreateNew = () => {
     resetForm();
     openCreateForm();
+  };
+
+  // Handle category change from modal
+  const handleModalCategoryChange = (categoryId: number) => {
+    hookHandleCategoryChange(categoryId);
+    if (categoryId) {
+      loadFiltersForCategory(categoryId);
+    }
   };
 
   return (
@@ -172,17 +176,12 @@ const AdminProducts = () => {
           submitting={submitting}
           onClose={handleCloseForm}
           onSubmit={handleSubmit}
-          updateField={updateField}
+          updateField={(field: string, value: unknown) => updateField(field as keyof Product, value)}
           addImageUrl={addImageUrl}
           removeImageUrl={removeImageUrl}
           handleOptionChange={handleOptionChange}
           autoGenerateSlug={autoGenerateSlug}
-          onCategoryChange={(categoryId: number) => {
-            handleCategoryChange(categoryId);
-            if (categoryId) {
-              loadFiltersForCategory(categoryId);
-            }
-          }}
+          onCategoryChange={handleModalCategoryChange}
         />
 
         {/* Search Bar */}
@@ -225,7 +224,7 @@ const AdminProducts = () => {
               <div key={product.id} className="bg-white rounded-lg shadow hover:shadow-lg transition">
                 <div
                   className="p-6 cursor-pointer hover:bg-gray-50 transition"
-                  onClick={() => toggleExpandProduct(product.id)}
+                  onClick={() => toggleExpandProduct(Number(product.id))}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex gap-4 flex-1">
@@ -234,7 +233,8 @@ const AdminProducts = () => {
                         alt={product.name}
                         className="w-20 h-20 object-cover rounded"
                         onError={(e) => {
-                          e.currentTarget.src = 'https://via.placeholder.com/80?text=No+Image';
+                          const target = e.target as HTMLImageElement;
+                          target.src = 'https://via.placeholder.com/80?text=No+Image';
                         }}
                       />
                       <div className="flex-1">
@@ -298,7 +298,7 @@ const AdminProducts = () => {
                     )}
                     {product.images && product.images.length > 0 && (
                       <div>
-                        <h4 className="font-semibold text-gray-700 mb-2">Gallery</h4>
+                        <h4 className="font-semibold text-gray-700 mb-2">Gallery ({product.images.length} images)</h4>
                         <div className="flex gap-2 overflow-x-auto">
                           {product.images.map((img, idx) => (
                             <img
@@ -307,7 +307,8 @@ const AdminProducts = () => {
                               alt={`${product.name} ${idx + 1}`}
                               className="w-24 h-24 object-cover rounded"
                               onError={(e) => {
-                                e.currentTarget.src = 'https://via.placeholder.com/96?text=No+Image';
+                                const target = e.target as HTMLImageElement;
+                                target.src = 'https://via.placeholder.com/96?text=No+Image';
                               }}
                             />
                           ))}
