@@ -1,12 +1,12 @@
 import { X, AlertCircle, Plus, Trash2 } from 'lucide-react';
 import type { Category } from '../../types/models/Category';
-import type { Product } from '../../types/models/Product';
+import type { ProductFormData } from "../../hooks/admin/useProductForm";
 import type { ProductOption } from '../../types/models/ProductOption';
 
 interface ProductFormModalProps {
   showForm: boolean;
   editingId: number | null;
-  formData: Product;
+  formData: ProductFormData;
   formErrors: Record<string, string>;
   categories: Category[];
   filters: ProductOption[];

@@ -1,6 +1,19 @@
 import { apiClient } from "../apiClient";
 import type { Product } from "../../types/models/Product";
 
+export interface PaginatedResponse<T> {
+  success: boolean;
+  data: T[];
+  pagination: {
+    currentPage: number;
+    pageSize: number;
+    totalCount: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+}
+
 export const adminProductsApi = {
   getProductsAll: async () => {
     const res = await apiClient.get("/products");
@@ -20,6 +33,32 @@ export const adminProductsApi = {
   getProductByCategory: async (category: string) => {
     const res = await apiClient.get(`/products/${category}`);
     return res.data;
+  },
+
+  // Get paginated products with search and sorting
+  async getProductsPaginated(
+    page: number = 1,
+    pageSize: number = 10,
+    search?: string,
+    sortBy: string = "id",
+    sortOrder: string = "desc"
+  ) {
+    try {
+      const params = new URLSearchParams();
+      params.append("page", String(page));
+      params.append("pageSize", String(pageSize));
+      if (search) params.append("search", search);
+      params.append("sortBy", sortBy);
+      params.append("sortOrder", sortOrder);
+
+      const res = await apiClient.get<PaginatedResponse<Product>>(
+        `/products/admin/paginated?${params.toString()}`
+      );
+      return res.data;
+    } catch (error) {
+      console.error("Error fetching paginated products:", error);
+      throw error;
+    }
   },
 
   createProduct: async (data: Product) => {
