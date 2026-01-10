@@ -12,25 +12,37 @@ export interface PaginatedResponse<T> {
     hasNextPage: boolean;
     hasPreviousPage: boolean;
   };
-}
+};
+
+export interface UpdatedProductPayload {
+  name?: string;
+  slug?: string;
+  shortDescription?: string;
+  description?: string;
+  price?: number;
+  imgUrl?: string;
+  imgUrls?: string[];
+  categoryId?: number;
+  options?: { optionId: number; valueId: number }[];
+};
 
 export const adminProductsApi = {
-  getProductsAll: async () => {
+  async getProductsAll() {
     const res = await apiClient.get("/products");
     return res.data;
   },
 
-  getProductById: async (id: number | string) => {
+  async getProductById(id: number | string) {
     const res = await apiClient.get(`/products/${id}`);
     return res.data;
   },
 
-  getProductBySlug: async (slug: string) => {
+  async getProductBySlug(slug: string) {
     const res = await apiClient.get(`/products/${slug}`);
     return res.data;
   },
 
-  getProductByCategory: async (category: string) => {
+  async getProductByCategory(category: string) {
     const res = await apiClient.get(`/products/${category}`);
     return res.data;
   },
@@ -61,23 +73,45 @@ export const adminProductsApi = {
     }
   },
 
-  createProduct: async (data: Product) => {
+  async createProduct(data: UpdatedProductPayload) {
     const res = await apiClient.post("/products", data);
     return res.data;
   },
 
-  updateProductById: async (id: number | string, data: Product) => {
+  async updateProductById(id: number | string, data: UpdatedProductPayload) {
     const res = await apiClient.put(`/products/${id}`, data);
     return res.data;
   },
 
-  updateProductBySlug: async (slug: string, data: Product) => {
+  async updateProductBySlug(slug: string, data: UpdatedProductPayload) {
     const res = await apiClient.put(`/products/${slug}`, data);
     return res.data;
   },
 
-  deleteProduct: async (id: number | string) => {
+  async deleteProduct(id: number | string) {
     const res = await apiClient.delete(`/products/${id}`);
     return res.data;
-  }
+  },
+
+  // Create an option value
+  async createOptionValue(optionId: number, value: string) {
+    const res = await apiClient.post(`/filters/option-values`, { 
+      optionId,
+      value
+    });
+    return res.data;
+  },
+
+  async updateOptionValue(optionValueId: number, value: string) {
+    const res = await apiClient.put(`/filters/option-values/${optionValueId}`, { 
+      value
+    });
+    return res.data;
+  },
+
+  // Delete an option value
+  async deleteOptionValue(optionValueId: number) {
+    const res = await apiClient.delete(`/filters/option-values/${optionValueId}`);
+    return res.data;
+  },
 };

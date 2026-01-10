@@ -14,7 +14,7 @@ interface UseProductModalReturn {
   openEditForm: (id: number) => void;
   closeForm: () => void;
   toggleExpandProduct: (id: number) => void;
-  loadFiltersForCategory: (categoryId: number) => Promise<void>;
+  loadOptionsForCategory: (categoryId: number) => Promise<void>;
   clearFilters: () => void;
 }
 
@@ -44,7 +44,7 @@ export const useProductModal = (): UseProductModalReturn => {
     setExpandedProduct((prev) => (prev === id ? null : id));
   }, []);
 
-  const loadFiltersForCategory = useCallback(async (categoryId: number) => {
+  const loadOptionsForCategory = useCallback(async (categoryId: number) => {
     if (!categoryId || categoryId <= 0) {
       setCurrentCategoryFilters([]);
       return;
@@ -58,10 +58,10 @@ export const useProductModal = (): UseProductModalReturn => {
       
       // Validate filter structure
       const validFilters = filters.filter(
-        (f) =>
-          f.optionId &&
-          f.name &&
-          Array.isArray(f.optionValues)
+        (o: ProductOption) =>
+          o.optionId &&
+          o.name &&
+          Array.isArray(o.optionValues)
       );
 
       setCurrentCategoryFilters(validFilters);
@@ -89,7 +89,7 @@ export const useProductModal = (): UseProductModalReturn => {
     openEditForm,
     closeForm,
     toggleExpandProduct,
-    loadFiltersForCategory,
+    loadOptionsForCategory,
     clearFilters,
   };
 };

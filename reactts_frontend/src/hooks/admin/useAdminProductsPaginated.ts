@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { adminProductsApi, type PaginatedResponse } from "../../api/admin/adminProductsApi";
+import { adminProductsApi, type PaginatedResponse, type UpdatedProductPayload } from "../../api/admin/adminProductsApi";
 import type { Product } from "../../types/models/Product";
 
 interface UseAdminProductsPaginatedReturn {
@@ -18,8 +18,8 @@ interface UseAdminProductsPaginatedReturn {
   fetchProducts: (page: number, search?: string) => Promise<void>;
   goToPage: (page: number) => void;
   searchProducts: (search: string) => Promise<void>;
-  createProduct: (data: Product) => Promise<void>;
-  updateProduct: (id: number, data: Product) => Promise<void>;
+  createProduct: (data: UpdatedProductPayload) => Promise<void>;
+  updateProduct: (id: number, data: UpdatedProductPayload) => Promise<void>;
   deleteProduct: (id: number) => Promise<void>;
 }
 
@@ -92,7 +92,7 @@ export const useAdminProductsPaginated = (): UseAdminProductsPaginatedReturn => 
 
   // Create product (refresh current page)
   const createProduct = useCallback(
-    async (data: Product) => {
+    async (data: UpdatedProductPayload) => {
       try {
         await adminProductsApi.createProduct(data);
         toast.success("Product created successfully!");
@@ -109,7 +109,7 @@ export const useAdminProductsPaginated = (): UseAdminProductsPaginatedReturn => 
 
   // Update product (refresh current page)
   const updateProduct = useCallback(
-    async (id: number, data: Product) => {
+    async (id: number, data: UpdatedProductPayload) => {
       try {
         await adminProductsApi.updateProductById(id, data);
         toast.success("Product updated successfully!");

@@ -50,6 +50,11 @@ export default function ProductDetails() {
   // Fetch product by ID
   useEffect(() => {
     const loadProduct = async () => {
+      if (!id) {
+        setLoading(true);
+        return;
+      }
+
       try {
         const data = await productApi.getById(id);
         setProduct(data);
@@ -287,14 +292,14 @@ const images: string[] = product.images && product.images.length > 0
               <>
                 <button
                   onClick={goToPrevImageModal}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-transparent hover:bg-black/20 text-black p-3 rounded-full transition"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition"
                   aria-label="Previous image"
                 >
                   <ChevronLeft size={32} />
                 </button>
                 <button
                   onClick={goToNextImageModal}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-transparent hover:bg-black/20 text-black p-3 rounded-full transition"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition"
                   aria-label="Next image"
                 >
                   <ChevronRight size={32} />

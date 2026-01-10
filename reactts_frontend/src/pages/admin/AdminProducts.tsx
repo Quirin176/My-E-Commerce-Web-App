@@ -15,9 +15,15 @@ import { useCategories } from "../../hooks/useCategories";
 import { useProductForm } from "../../hooks/admin/useProductForm";
 import { useProductModal } from "../../hooks/admin/useProductModal";
 import ProductFormModal from "../../components/Admin/AdminProductFormModal";
+import { useSearchParams } from "react-router-dom";
 import type { Product } from "../../types/models/Product";
 
 const AdminProducts = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  // Get initial page from URL, default to 1
+  const initialPage = parseInt(searchParams.get("page") || "1");
+
   const {
     products,
     loading: productsLoading,
@@ -60,7 +66,7 @@ const AdminProducts = () => {
     openEditForm,
     closeForm,
     toggleExpandProduct,
-    loadFiltersForCategory,
+    loadOptionsForCategory,
   } = useProductModal();
 
   const [submitting, setSubmitting] = useState(false);
@@ -70,17 +76,27 @@ const AdminProducts = () => {
   const handleSearch = async (value: string) => {
     setSearchTerm(value);
     await searchProducts(value);
+    // Reset to page 1 when searching and update URL
+    setSearchParams({ page: "1" });
   };
 
   const handleClearSearch = async () => {
     setSearchTerm("");
     await searchProducts("");
+    // Reset to page 1 and update URL
+    setSearchParams({ page: "1" });
   };
 
   // ========== PAGE NAVIGATION ==========
   const handleGoToPage = (page: number) => {
     if (page < 1 || page > totalPages) return;
+    
+    // Update URL with new page number
+    setSearchParams({ page: String(page) });
+    
+    // Call the API to load products for that page
     goToPage(page);
+    
     // Smooth scroll to top
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -160,7 +176,7 @@ const AdminProducts = () => {
     });
 
     if (product.categoryId) {
-      loadFiltersForCategory(Number(product.categoryId));
+      loadOptionsForCategory(Number(product.categoryId));
     }
 
     openEditForm(Number(product.id));
@@ -197,7 +213,7 @@ const AdminProducts = () => {
     updateField("categoryId", categoryId);
     updateField("selectedOptionValueIds", []);
     if (categoryId) {
-      loadFiltersForCategory(categoryId);
+      loadOptionsForCategory(categoryId);
     }
   };
 
@@ -336,7 +352,7 @@ const AdminProducts = () => {
                             "https://via.placeholder.com/80?text=No+Image"
                           }
                           alt={product.name}
-                          className="w-20 h-20 object-cover rounded flex-shrink-0"
+                          className="w-20 h-20 object-cover rounded shrink-0"
                           onError={(e) => {
                             (e.target as HTMLImageElement).src =
                               "https://via.placeholder.com/80?text=No+Image";
@@ -356,7 +372,7 @@ const AdminProducts = () => {
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="flex gap-2 flex-shrink-0">
+                      <div className="flex gap-2 shrink-0">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -441,7 +457,7 @@ const AdminProducts = () => {
                                 key={idx}
                                 src={img}
                                 alt={`${product.name} ${idx + 1}`}
-                                className="w-24 h-24 object-cover rounded flex-shrink-0"
+                                className="w-24 h-24 object-cover rounded shrink-0"
                                 onError={(e) => {
                                   (e.target as HTMLImageElement).src =
                                     "https://via.placeholder.com/96?text=No+Image";

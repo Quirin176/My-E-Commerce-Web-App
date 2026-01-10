@@ -21,25 +21,4 @@ export const filterApi = {
       return [];
     }
   },
-  // Create an option value
-  createOptionValue: async (optionId: number, value: string) => {
-    const res = await apiClient.post(`/filters/option-values`, { 
-      optionId,
-      value
-    });
-    return res.data;
-  },
-
-  updateOptionValue: async (optionValueId: number, value: string) => {
-    const res = await apiClient.put(`/filters/option-values/${optionValueId}`, { 
-      value
-    });
-    return res.data;
-  },
-
-  // Delete an option value
-  deleteOptionValue: async (optionValueId: number) => {
-    const res = await apiClient.delete(`/filters/option-values/${optionValueId}`);
-    return res.data;
-  },
 };
