@@ -20,8 +20,6 @@ import type { Product } from "../../types/models/Product";
 
 const AdminProducts = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  
-  // Get initial page from URL, default to 1
   const initialPage = parseInt(searchParams.get("page") || "1");
 
   const {
@@ -71,33 +69,26 @@ const AdminProducts = () => {
 
   const [submitting, setSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoadingModalData, setIsLoadingModalData] = useState(false);
 
   // ========== HANDLE SEARCH ==========
   const handleSearch = async (value: string) => {
     setSearchTerm(value);
     await searchProducts(value);
-    // Reset to page 1 when searching and update URL
     setSearchParams({ page: "1" });
   };
 
   const handleClearSearch = async () => {
     setSearchTerm("");
     await searchProducts("");
-    // Reset to page 1 and update URL
     setSearchParams({ page: "1" });
   };
 
   // ========== PAGE NAVIGATION ==========
   const handleGoToPage = (page: number) => {
     if (page < 1 || page > totalPages) return;
-    
-    // Update URL with new page number
     setSearchParams({ page: String(page) });
-    
-    // Call the API to load products for that page
     goToPage(page);
-    
-    // Smooth scroll to top
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -140,46 +131,70 @@ const AdminProducts = () => {
     }
   };
 
-  // ========== EDIT PRODUCT ==========
-  const handleEdit = (product: Product) => {
-    const images: string[] =
-      Array.isArray(product.images) && product.images.length > 0
-        ? product.images
-        : product.imageUrl
-        ? [product.imageUrl]
-        : [];
+  // ========== EDIT PRODUCT - PROPERLY WAIT FOR DATA ==========
+  const handleEdit = async (product: Product) => {
+    setIsLoadingModalData(true);
+    try {
+      console.log("[handleEdit] Starting edit for product:", product.id);
 
-    const selectedIds: number[] = [];
-    if (product.options && Array.isArray(product.options)) {
-      product.options.forEach((opt) => {
-        currentCategoryFilters.forEach((filter) => {
-          filter.optionValues?.forEach((value) => {
-            if (value.value === opt.value) {
-              selectedIds.push(value.optionValueId);
-            }
-          });
-        });
+      // Get images
+      const images: string[] =
+        Array.isArray(product.images) && product.images.length > 0
+          ? product.images
+          : product.imageUrl
+          ? [product.imageUrl]
+          : [];
+
+      // Set form data immediately
+      setFormData({
+        id: product.id || "",
+        name: product.name || "",
+        slug: product.slug || "",
+        shortDescription: product.shortDescription || "",
+        description: product.description || "",
+        price: product.price || 0,
+        imageUrl: "",
+        images: images,
+        categoryId: product.categoryId || "",
+        selectedOptionValueIds: [],
       });
+
+      console.log("[handleEdit] Form data set, loading options...");
+
+      // Wait for options to load
+      if (product.categoryId) {
+        const loadedFilters = await loadOptionsForCategory(Number(product.categoryId));
+        console.log("[handleEdit] Filters loaded:", loadedFilters);
+
+        // Map product options to selected option value IDs
+        const selectedIds: number[] = [];
+        if (product.options && Array.isArray(product.options)) {
+          product.options.forEach((opt) => {
+            loadedFilters.forEach((filter) => {
+              filter.optionValues?.forEach((value) => {
+                if (value.value === opt.value) {
+                  selectedIds.push(value.optionValueId);
+                }
+              });
+            });
+          });
+        }
+
+        console.log("[handleEdit] Selected option IDs:", selectedIds);
+
+        // Update form with selected options
+        updateField("selectedOptionValueIds", selectedIds);
+      }
+
+      console.log("[handleEdit] Opening form...");
+      // NOW open the form - everything is loaded
+      openEditForm(Number(product.id));
+    } catch (error) {
+      console.error("Error loading product for edit:", error);
+      toast.error("Failed to load product details");
+    } finally {
+      setIsLoadingModalData(false);
     }
-
-    setFormData({
-      id: product.id || "",
-      name: product.name || "",
-      slug: product.slug || "",
-      shortDescription: product.shortDescription || "",
-      description: product.description || "",
-      price: product.price || 0,
-      imageUrl: "",
-      images: images,
-      categoryId: product.categoryId || "",
-      selectedOptionValueIds: selectedIds,
-    });
-
-    if (product.categoryId) {
-      loadOptionsForCategory(Number(product.categoryId));
-    }
-
-    openEditForm(Number(product.id));
   };
 
   // ========== DELETE PRODUCT ==========
@@ -256,27 +271,40 @@ const AdminProducts = () => {
           </div>
         )}
 
+        {/* ========== MODAL DATA LOADING OVERLAY ========== */}
+        {isLoadingModalData && (
+          <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center pointer-events-none">
+            <div className="bg-white rounded-lg p-8 shadow-2xl text-center pointer-events-auto">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-700 font-semibold">Loading product details...</p>
+              <p className="text-gray-500 text-sm mt-2">Please wait while we fetch options and images</p>
+            </div>
+          </div>
+        )}
+
         {/* ========== PRODUCT FORM MODAL ========== */}
-        <ProductFormModal
-          showForm={showForm}
-          editingId={editingId}
-          formData={formData}
-          formErrors={formErrors}
-          categories={categories}
-          filters={currentCategoryFilters}
-          filtersLoading={filtersLoading}
-          submitting={submitting}
-          onClose={handleCloseForm}
-          onSubmit={handleSubmit}
-          updateField={(field: string, value: unknown) =>
-            updateField(field as keyof typeof formData, value)
-          }
-          addImageUrl={addImageUrl}
-          removeImageUrl={removeImageUrl}
-          handleOptionChange={handleOptionChange}
-          autoGenerateSlug={autoGenerateSlug}
-          onCategoryChange={handleModalCategoryChange}
-        />
+        {!isLoadingModalData && (
+          <ProductFormModal
+            showForm={showForm}
+            editingId={editingId}
+            formData={formData}
+            formErrors={formErrors}
+            categories={categories}
+            filters={currentCategoryFilters}
+            filtersLoading={filtersLoading}
+            submitting={submitting}
+            onClose={handleCloseForm}
+            onSubmit={handleSubmit}
+            updateField={(field: string, value: unknown) =>
+              updateField(field as keyof typeof formData, value)
+            }
+            addImageUrl={addImageUrl}
+            removeImageUrl={removeImageUrl}
+            handleOptionChange={handleOptionChange}
+            autoGenerateSlug={autoGenerateSlug}
+            onCategoryChange={handleModalCategoryChange}
+          />
+        )}
 
         {/* ========== SEARCH BAR ========== */}
         <div className="mb-6">
@@ -378,7 +406,8 @@ const AdminProducts = () => {
                             e.stopPropagation();
                             handleEdit(product);
                           }}
-                          className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition"
+                          disabled={isLoadingModalData}
+                          className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
                           title="Edit product"
                         >
                           <Edit2 size={18} />
@@ -487,7 +516,6 @@ const AdminProducts = () => {
             {/* ========== PAGINATION ========== */}
             {totalPages > 1 && (
               <div className="bg-white rounded-lg shadow p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                {/* Pagination Info */}
                 <div className="text-gray-600 text-sm">
                   Showing <strong>{startIndex}</strong> to{" "}
                   <strong>{endIndex}</strong> of{" "}
@@ -499,9 +527,7 @@ const AdminProducts = () => {
                   )}
                 </div>
 
-                {/* Page Navigation */}
                 <div className="flex items-center gap-2">
-                  {/* Previous Button */}
                   <button
                     onClick={() => handleGoToPage(currentPage - 1)}
                     disabled={!hasPreviousPage}
@@ -511,9 +537,7 @@ const AdminProducts = () => {
                     <ChevronLeft size={20} />
                   </button>
 
-                  {/* Page Numbers */}
                   <div className="flex items-center gap-1">
-                    {/* First Page */}
                     <button
                       onClick={() => handleGoToPage(1)}
                       className={`px-3 py-2 rounded-lg font-semibold transition ${
@@ -525,12 +549,10 @@ const AdminProducts = () => {
                       1
                     </button>
 
-                    {/* Ellipsis for skipped pages */}
                     {currentPage > 3 && (
                       <span className="px-2 py-2 text-gray-400">...</span>
                     )}
 
-                    {/* Middle Pages */}
                     {Array.from({ length: totalPages }, (_, i) => i + 1)
                       .filter(
                         (page) =>
@@ -552,12 +574,10 @@ const AdminProducts = () => {
                         </button>
                       ))}
 
-                    {/* Ellipsis for skipped pages */}
                     {currentPage < totalPages - 2 && (
                       <span className="px-2 py-2 text-gray-400">...</span>
                     )}
 
-                    {/* Last Page */}
                     {totalPages > 1 && (
                       <button
                         onClick={() => handleGoToPage(totalPages)}
@@ -572,7 +592,6 @@ const AdminProducts = () => {
                     )}
                   </div>
 
-                  {/* Next Button */}
                   <button
                     onClick={() => handleGoToPage(currentPage + 1)}
                     disabled={!hasNextPage}
@@ -583,7 +602,6 @@ const AdminProducts = () => {
                   </button>
                 </div>
 
-                {/* Page Input */}
                 <div className="flex items-center gap-2">
                   <label htmlFor="pageInput" className="text-sm text-gray-600">
                     Go to:

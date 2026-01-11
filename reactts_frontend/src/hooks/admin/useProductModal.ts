@@ -14,7 +14,7 @@ interface UseProductModalReturn {
   openEditForm: (id: number) => void;
   closeForm: () => void;
   toggleExpandProduct: (id: number) => void;
-  loadOptionsForCategory: (categoryId: number) => Promise<void>;
+  loadOptionsForCategory: (categoryId: number) => Promise<ProductOption[]>;
   clearFilters: () => void;
 }
 
@@ -44,35 +44,42 @@ export const useProductModal = (): UseProductModalReturn => {
     setExpandedProduct((prev) => (prev === id ? null : id));
   }, []);
 
-  const loadOptionsForCategory = useCallback(async (categoryId: number) => {
-    if (!categoryId || categoryId <= 0) {
-      setCurrentCategoryFilters([]);
-      return;
-    }
+  const loadOptionsForCategory = useCallback(
+    async (categoryId: number): Promise<ProductOption[]> => {
+      if (!categoryId || categoryId <= 0) {
+        setCurrentCategoryFilters([]);
+        return [];
+      }
 
-    setFiltersLoading(true);
+      setFiltersLoading(true);
 
-    try {
-      const data = await filterApi.getFiltersByCategoryId(categoryId);
-      const filters = Array.isArray(data) ? data : (data?.data || []);
-      
-      // Validate filter structure
-      const validFilters = filters.filter(
-        (o: ProductOption) =>
-          o.optionId &&
-          o.name &&
-          Array.isArray(o.optionValues)
-      );
+      try {
+        console.log("[useProductModal] Loading options for category:", categoryId);
+        const data = await filterApi.getFiltersByCategoryId(categoryId);
+        const filters = Array.isArray(data) ? data : (data?.data || []);
+        
+        // Validate filter structure
+        const validFilters = filters.filter(
+          (o: ProductOption) =>
+            o.optionId &&
+            o.name &&
+            Array.isArray(o.optionValues)
+        );
 
-      setCurrentCategoryFilters(validFilters);
-    } catch (error) {
-      console.error("Error loading filters:", error);
-      toast.error("Failed to load product attributes");
-      setCurrentCategoryFilters([]);
-    } finally {
-      setFiltersLoading(false);
-    }
-  }, []);
+        console.log("[useProductModal] Loaded filters:", validFilters);
+        setCurrentCategoryFilters(validFilters);
+        return validFilters;
+      } catch (error) {
+        console.error("[useProductModal] Error loading filters:", error);
+        toast.error("Failed to load product attributes");
+        setCurrentCategoryFilters([]);
+        return [];
+      } finally {
+        setFiltersLoading(false);
+      }
+    },
+    []
+  );
 
   const clearFilters = useCallback(() => {
     setCurrentCategoryFilters([]);
