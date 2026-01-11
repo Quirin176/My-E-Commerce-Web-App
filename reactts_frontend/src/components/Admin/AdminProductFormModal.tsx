@@ -138,7 +138,7 @@ export default function ProductFormModal({
                   type="number"
                   value={formData.price}
                   onChange={(e) => updateField('price', e.target.value)}
-                  placeholder="0"
+                  placeholder="Enter product price"
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${
                     formErrors.price ? 'border-red-500' : 'border-gray-300'
                   }`}

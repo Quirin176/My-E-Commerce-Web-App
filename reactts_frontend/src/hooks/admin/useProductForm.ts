@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { slugify } from "../../utils/slugify";
 
+// Define the structure of the product form data
 export interface ProductFormData {
   id: string | number;
   name: string;
@@ -14,6 +15,7 @@ export interface ProductFormData {
   selectedOptionValueIds: number[];
 }
 
+// Define the return type of the useProductForm hook
 interface UseProductFormReturn {
   formData: ProductFormData;
   formErrors: Record<string, string>;
@@ -27,23 +29,26 @@ interface UseProductFormReturn {
   autoGenerateSlug: (name: string) => void;
 }
 
+// Initial form data template
 const INITIAL_FORM_DATA: ProductFormData = {
   id: "",
   name: "",
   slug: "",
   shortDescription: "",
   description: "",
-  price: 0,
+  price: "",
   imageUrl: "",
   images: [],
   categoryId: "",
   selectedOptionValueIds: [],
 };
 
+// Custom hook to manage product form state and logic
 export const useProductForm = (): UseProductFormReturn => {
   const [formData, setFormData] = useState<ProductFormData>(INITIAL_FORM_DATA);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
+  // Update a specific field in the form data
   const updateField = useCallback((field: keyof ProductFormData, value: unknown) => {
     setFormData((prev) => ({
       ...prev,
@@ -59,40 +64,33 @@ export const useProductForm = (): UseProductFormReturn => {
     }
   }, [formErrors]);
 
+  // Auto-generate slug from product name
   const autoGenerateSlug = useCallback((name: string) => {
     const generatedSlug = slugify(name);
     setFormData((prev) => ({
       ...prev,
-      name: name.trim(),
+      name: name,
       slug: generatedSlug,
     }));
   }, []);
 
+  // Validate the form data before submission
   const validateForm = useCallback((): boolean => {
     const errors: Record<string, string> = {};
 
-    // Validate name
     if (!formData.name.trim()) {
       errors.name = "Product name is required";
     }
-
-    // Validate slug
     if (!formData.slug.trim()) {
       errors.slug = "Product slug is required";
     }
-
-    // Validate price
     const priceNum = Number(formData.price);
     if (isNaN(priceNum) || priceNum <= 0) {
       errors.price = "Valid price is required (must be greater than 0)";
     }
-
-    // Validate category
     if (!formData.categoryId || Number(formData.categoryId) <= 0) {
       errors.categoryId = "Category is required";
     }
-
-    // Validate at least one image
     if (!formData.images || formData.images.length === 0) {
       errors.images = "At least one image is required";
     }
@@ -101,9 +99,11 @@ export const useProductForm = (): UseProductFormReturn => {
     return Object.keys(errors).length === 0;
   }, [formData]);
 
+  // Add a new image URL to the images array
   const addImageUrl = useCallback(() => {
     const trimmedUrl = formData.imageUrl?.trim();
     
+    // Validate the image URL
     if (!trimmedUrl) {
       setFormErrors((prev) => ({
         ...prev,
@@ -111,8 +111,6 @@ export const useProductForm = (): UseProductFormReturn => {
       }));
       return;
     }
-
-    // Simple URL validation
     if (!trimmedUrl.startsWith("http://") && !trimmedUrl.startsWith("https://")) {
       setFormErrors((prev) => ({
         ...prev,
@@ -120,8 +118,6 @@ export const useProductForm = (): UseProductFormReturn => {
       }));
       return;
     }
-
-    // Check for duplicates
     if (formData.images.includes(trimmedUrl)) {
       setFormErrors((prev) => ({
         ...prev,
@@ -130,6 +126,7 @@ export const useProductForm = (): UseProductFormReturn => {
       return;
     }
 
+    // Add the valid image URL to the images array
     setFormData((prev) => ({
       ...prev,
       images: [...prev.images, trimmedUrl],
@@ -144,6 +141,7 @@ export const useProductForm = (): UseProductFormReturn => {
     });
   }, [formData.imageUrl, formData.images]);
 
+  // Remove an image URL from the images array by index
   const removeImageUrl = useCallback((index: number) => {
     setFormData((prev) => ({
       ...prev,
@@ -151,6 +149,7 @@ export const useProductForm = (): UseProductFormReturn => {
     }));
   }, []);
 
+  // Handle selection/deselection of product option values
   const handleOptionChange = useCallback((optionValueId: number) => {
     setFormData((prev) => {
       const isSelected = prev.selectedOptionValueIds.includes(optionValueId);
@@ -163,6 +162,7 @@ export const useProductForm = (): UseProductFormReturn => {
     });
   }, []);
 
+  // Reset the form to its initial state
   const resetForm = useCallback(() => {
     setFormData(INITIAL_FORM_DATA);
     setFormErrors({});

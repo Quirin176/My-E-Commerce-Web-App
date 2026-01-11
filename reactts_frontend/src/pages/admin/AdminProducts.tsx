@@ -1,21 +1,12 @@
 import { useState } from "react";
-import {
-  Plus,
-  Edit2,
-  Trash2,
-  Search,
-  ChevronDown,
-  AlertCircle,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
-import toast from "react-hot-toast";
+import { Plus, Edit2, Trash2, Search, ChevronDown, AlertCircle, ChevronLeft, ChevronRight, } from "lucide-react";
 import { useAdminProductsPaginated } from "../../hooks/admin/useAdminProductsPaginated";
 import { useCategories } from "../../hooks/useCategories";
 import { useProductForm } from "../../hooks/admin/useProductForm";
 import { useProductModal } from "../../hooks/admin/useProductModal";
-import ProductFormModal from "../../components/Admin/AdminProductFormModal";
 import { useSearchParams } from "react-router-dom";
+import toast from "react-hot-toast";
+import ProductFormModal from "../../components/Admin/AdminProductFormModal";
 import type { Product } from "../../types/models/Product";
 
 const AdminProducts = () => {
