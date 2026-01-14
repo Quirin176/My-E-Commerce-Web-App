@@ -54,6 +54,7 @@ export const useProductForm = (): UseProductFormReturn => {
       ...prev,
       [field]: value,
     }));
+
     // Clear error for this field when user starts typing
     if (formErrors[field]) {
       setFormErrors((prev) => {
@@ -143,11 +144,14 @@ export const useProductForm = (): UseProductFormReturn => {
 
   // Remove an image URL from the images array by index
   const removeImageUrl = useCallback((index: number) => {
-    setFormData((prev) => ({
+    setFormData((prev) => {
+    const newImages = prev.images.filter((_, i) => i !== index);
+    return {
       ...prev,
-      images: prev.images.filter((_, i) => i !== index),
-    }));
-  }, []);
+      images: newImages,
+    };
+  });
+}, []);
 
   // Handle selection/deselection of product option values
   const handleOptionChange = useCallback((optionValueId: number) => {

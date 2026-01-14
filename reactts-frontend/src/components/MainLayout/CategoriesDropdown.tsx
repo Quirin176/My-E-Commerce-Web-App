@@ -6,6 +6,10 @@ import { siteConfig } from "../../config/siteConfig";
 import type { Category } from "../../types/models/Category";
 import type { ProductOption } from "../../types/models/ProductOption.ts";
 
+interface categoriesList {
+  categories?: Category[];
+}
+
 export default function CategoriesDropdown({ categories = siteConfig.categories }) {
   const colors = siteConfig.colors;
   const [open, setOpen] = useState(false);

@@ -3,6 +3,14 @@ import toast from "react-hot-toast";
 import { adminProductsApi, type PaginatedResponse, type UpdatedProductPayload } from "../../api/admin/adminProductsApi";
 import type { Product } from "../../types/models/Product";
 
+interface FilterOptions {
+  categoryName?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+}
+
 interface UseAdminProductsPaginatedReturn {
   products: Product[];
   loading: boolean;
@@ -14,16 +22,29 @@ interface UseAdminProductsPaginatedReturn {
   hasNextPage: boolean;
   hasPreviousPage: boolean;
   
+  // Filter states
+  filters: FilterOptions;
+  setFilters: (filters: FilterOptions) => void;
+  
   // Functions
   fetchProducts: (page: number, search?: string) => Promise<void>;
   goToPage: (page: number) => void;
   searchProducts: (search: string) => Promise<void>;
+  applyFilters: (newFilters: FilterOptions) => Promise<void>;
+  clearFilters: () => void;
   createProduct: (data: UpdatedProductPayload) => Promise<void>;
   updateProduct: (id: number, data: UpdatedProductPayload) => Promise<void>;
   deleteProduct: (id: number) => Promise<void>;
 }
 
 const PAGE_SIZE = 10;
+const DEFAULT_FILTERS: FilterOptions = {
+  categoryName: undefined,
+  minPrice: undefined,
+  maxPrice: undefined,
+  sortBy: "id",
+  sortOrder: "desc",
+};
 
 export const useAdminProductsPaginated = (): UseAdminProductsPaginatedReturn => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -36,20 +57,23 @@ export const useAdminProductsPaginated = (): UseAdminProductsPaginatedReturn => 
   const [hasNextPage, setHasNextPage] = useState(false);
   const [hasPreviousPage, setHasPreviousPage] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filters, setFilters] = useState<FilterOptions>(DEFAULT_FILTERS);
 
-  // Fetch products with pagination
+  // Fetch products with pagination and filters
   const fetchProducts = useCallback(
     async (page: number = 1, search: string = "") => {
       setLoading(true);
       setError(null);
 
       try {
-        console.debug(`[useAdminProductsPaginated] Fetching page ${page}, search: "${search}"`);
+        console.debug(`[useAdminProductsPaginated] Fetching page ${page}, search: "${search}", filters:`, filters);
         
         const response = await adminProductsApi.getProductsPaginated(
           page,
           PAGE_SIZE,
-          search || undefined
+          search || undefined,
+          filters.sortBy || "id",
+          filters.sortOrder || "desc"
         );
 
         setProducts(Array.isArray(response.data) ? response.data : []);
@@ -69,8 +93,28 @@ export const useAdminProductsPaginated = (): UseAdminProductsPaginatedReturn => 
         setLoading(false);
       }
     },
-    []
+    [filters]
   );
+
+  // Apply filters and reset to page 1
+  const applyFilters = useCallback(
+    async (newFilters: FilterOptions) => {
+      console.debug("[useAdminProductsPaginated] Applying filters:", newFilters);
+      setFilters(newFilters);
+      setCurrentPage(1);
+      await fetchProducts(1, searchTerm);
+    },
+    [fetchProducts, searchTerm]
+  );
+
+  // Clear all filters
+  const clearFilters = useCallback(async () => {
+    console.debug("[useAdminProductsPaginated] Clearing filters");
+    setFilters(DEFAULT_FILTERS);
+    setSearchTerm("");
+    setCurrentPage(1);
+    await fetchProducts(1, "");
+  }, [fetchProducts]);
 
   // Go to page
   const goToPage = useCallback(
@@ -162,9 +206,13 @@ export const useAdminProductsPaginated = (): UseAdminProductsPaginatedReturn => 
     pageSize,
     hasNextPage,
     hasPreviousPage,
+    filters,
+    setFilters,
     fetchProducts,
     goToPage,
     searchProducts,
+    applyFilters,
+    clearFilters,
     createProduct,
     updateProduct,
     deleteProduct,

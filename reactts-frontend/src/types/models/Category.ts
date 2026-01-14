@@ -3,5 +3,5 @@ export interface Category {
   name: string;
   slug: string;
   link: string;
-  icon?: React.ComponentType<{ size: number }>;
+  // icon?: React.ComponentType<{ size: number }>;
 }

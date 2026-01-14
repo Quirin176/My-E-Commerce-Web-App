@@ -228,7 +228,7 @@ const AdminProducts = () => {
   const endIndex = Math.min(currentPage * pageSize, totalCount);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* ========== HEADER ========== */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
@@ -286,9 +286,7 @@ const AdminProducts = () => {
             submitting={submitting}
             onClose={handleCloseForm}
             onSubmit={handleSubmit}
-            updateField={(field: string, value: unknown) =>
-              updateField(field as keyof typeof formData, value)
-            }
+            updateField={(field: string, value: unknown) => updateField(field as keyof typeof formData, value)}
             addImageUrl={addImageUrl}
             removeImageUrl={removeImageUrl}
             handleOptionChange={handleOptionChange}

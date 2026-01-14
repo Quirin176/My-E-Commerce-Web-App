@@ -1,6 +1,8 @@
 import { apiClient } from "../apiClient";
 
 export const categoryApi = {
+
+  // Get all categories (id, name, slug)
   getAll: async () => {
     const res = await apiClient.get("/categories");
     return res.data;
