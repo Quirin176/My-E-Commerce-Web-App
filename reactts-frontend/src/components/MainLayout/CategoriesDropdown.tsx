@@ -3,12 +3,7 @@ import { ChevronDown, LayoutGrid } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { filterApi } from "../../api/products/filterApi";
 import { siteConfig } from "../../config/siteConfig";
-import type { Category } from "../../types/models/Category";
 import type { ProductOption } from "../../types/models/ProductOption.ts";
-
-interface categoriesList {
-  categories?: Category[];
-}
 
 export default function CategoriesDropdown({ categories = siteConfig.categories }) {
   const colors = siteConfig.colors;
@@ -16,11 +11,12 @@ export default function CategoriesDropdown({ categories = siteConfig.categories 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [categoryFilters, setCategoryFilters] = useState<Record<string, ProductOption[]>>({});
   const [loadingFilters, setLoadingFilters] = useState<Record<string, boolean>>({});
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   // Get icon component from category
-  const getCategoryIcon = (category: Category) => {
-    if (category.icon) {
+  const getCategoryIcon = (categoryName: string) => {
+    const category = categories.find(cat => cat.name === categoryName);
+    if (category && category.icon) {
       const IconComponent = category.icon;
       return <IconComponent size={20} />;
     }
@@ -102,44 +98,39 @@ export default function CategoriesDropdown({ categories = siteConfig.categories 
             </div>
             
             <div className="p-2 space-y-2">
-              {categories.map((item, index) => (
+              {categories.map((item) => (
                 <button
-                  key={index}
-                  onMouseEnter={() => handleCategoryHover(item.link)}
+                  key={item.id}
+                  onMouseEnter={() => handleCategoryHover(item.slug)}
                   onClick={() => {
                     handleClose();
-                    navigate(`/category/${encodeURIComponent(item.link)}`);
+                    navigate(`/category/${encodeURIComponent(item.slug)}`);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition duration-200"
                   style={{
-                    backgroundColor: selectedCategory === item.link ? colors.primarycolor : "White",
-                    color: selectedCategory === item.link ? "White" : "Black"
+                    backgroundColor: selectedCategory === item.slug ? colors.primarycolor : "White",
+                    color: selectedCategory === item.slug ? "White" : "Black"
                   }}
                 >
 
                   {/* ICON BOX */}
                   <div
-                  // className={`flex items-center justify-center w-12 h-12 rounded-md border-2 transition ${
-                  //   selectedCategory === item.link
-                  //     ? "border-white bg-blue-700"
-                  //     : "border-gray-200 bg-gray-50"}`}
-                  className="flex items-center justify-center w-8 h-8 rounded-md border-2 transition"  
-                  style={{ background: selectedCategory === item.link ? colors.primarycolor : "#F9FAFB",
-                  borderColor: selectedCategory === item.link ? "white" : "#E5E7EB"}}
+                  className="flex items-center justify-center w-8 h-8 rounded-md border-2 transition"
+                  style={{ background: selectedCategory === item.slug ? colors.primarycolor : "#F9FAFB", borderColor: selectedCategory === item.slug ? "white" : "#E5E7EB"}}
                   >
-                    <div className={selectedCategory === item.link ? "text-white" : "text-gray-700"}>
-                      {getCategoryIcon(item)}
+                    <div className={selectedCategory === item.slug ? "text-white" : "text-gray-700"}>
+                      {getCategoryIcon(item.name)}
                     </div>
                   </div>
                   
                   {/* LABEL */}
                   <div className="flex-1 text-left">
-                    <span className="font-semibold text-base block">{item.label}</span>
+                    <span className="font-semibold text-base block">{item.name}</span>
                   </div>
                   {/* ARROW */}
                   <ChevronDown 
                     size={20} 
-                    className={`transition ${selectedCategory === item.link ? "rotate-180" : ""}`}
+                    className={`transition ${selectedCategory === item.slug ? "rotate-180" : ""}`}
                   />
                 </button>
               ))}
@@ -202,7 +193,7 @@ export default function CategoriesDropdown({ categories = siteConfig.categories 
                           className="w-full px-6 py-3 bg-linear-to-r text-white text-sm font-bold rounded-lg hover:shadow-lg transition duration-200 hover:brightness-75"
                           style={{ background: colors.primarycolor}}
                         >
-                          View All Products in {categories.find(c => c.link === selectedCategory)?.label}
+                          View All Products in {categories.find(c => c.slug === selectedCategory)?.name}
                         </button>
                       </div>
                     </div>
