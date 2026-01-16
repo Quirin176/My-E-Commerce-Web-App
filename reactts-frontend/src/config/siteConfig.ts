@@ -6,11 +6,10 @@ export const siteConfig = {
   API_URL: "http://localhost:5159/api",
 
   colors: {
-    primarycolor: "dodgerblue",
+    primarycolor: "royalblue",
   },
 
   categories: [
-    // { name: "Computer", slug: "computer", image: "https://pcmarket.vn/media/product/10239_340784857_799984757660921_1932046047919300131_n.jpg" },
     { id: 1, name: "Laptop", slug: "laptop", icon: Laptop },
     { id: 2, name: "Monitor", slug: "monitor", icon: Monitor },
     { id: 3, name: "Keyboard", slug: "keyboard", icon: Keyboard },

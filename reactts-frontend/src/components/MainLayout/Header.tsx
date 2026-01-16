@@ -10,7 +10,7 @@ export default function Header() {
 
   return (
     <header
-      className="fixed top-0 left-0 w-full z-50 shadow-md px-8 py-1"
+      className="fixed top-0 left-0 w-full z-50 shadow-md px-8"
       style={{ backgroundColor: colors.primarycolor }}
     >
       <div className="px-4 py-2">
