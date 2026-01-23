@@ -1,7 +1,7 @@
 // THIS IS A COMPONENT FOR DISPLAYING A PRODUCT CARD IN THE ADMIN DASHBOARD WITH OPTIONS TO VIEW, EDIT, OR DELETE THE PRODUCT
 
 import { useState } from "react";
-import { Edit2, Trash2, View } from "lucide-react";
+import { Edit2, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAdminProductsPaginated } from "../../hooks/admin/useAdminProductsPaginated";
 import AdminProductForm from "./AdminProductForm";
