@@ -1,47 +1,54 @@
+// THIS IS A CUSTOM HOOK FOR MANAGING THE STATE AND BEHAVIOR OF THE ADMIN PRODUCT MODAL
+
 import { useCallback, useState } from "react";
 import toast from "react-hot-toast";
 import { filterApi } from "../../api/products/filterApi";
 import type { ProductOption } from "../../types/models/ProductOption";
 
-interface UseProductModalReturn {
+interface UseAdminProductFormReturn {
   showForm: boolean;
   editingId: number | null;
-  expandedProduct: number | null;
+  isViewMode: boolean;
   currentCategoryFilters: ProductOption[];
   filtersLoading: boolean;
   setShowForm: (show: boolean) => void;
   openCreateForm: () => void;
   openEditForm: (id: number) => void;
+  openViewForm: (id: number) => void;
   closeForm: () => void;
-  toggleExpandProduct: (id: number) => void;
   loadOptionsForCategory: (categoryId: number) => Promise<ProductOption[]>;
   clearFilters: () => void;
 }
 
-export const useProductModal = (): UseProductModalReturn => {
+export const useAdminProductForm = (): UseAdminProductFormReturn => {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [expandedProduct, setExpandedProduct] = useState<number | null>(null);
+  const [isViewMode, setIsViewMode] = useState(false);
   const [currentCategoryFilters, setCurrentCategoryFilters] = useState<ProductOption[]>([]);
   const [filtersLoading, setFiltersLoading] = useState(false);
 
   const openCreateForm = useCallback(() => {
     setEditingId(null);
+    setIsViewMode(false);
     setShowForm(true);
   }, []);
 
   const openEditForm = useCallback((id: number) => {
     setEditingId(id);
+    setIsViewMode(false);
+    setShowForm(true);
+  }, []);
+
+  const openViewForm = useCallback((id: number) => {
+    setEditingId(id);
+    setIsViewMode(true);
     setShowForm(true);
   }, []);
 
   const closeForm = useCallback(() => {
     setShowForm(false);
     setEditingId(null);
-  }, []);
-
-  const toggleExpandProduct = useCallback((id: number) => {
-    setExpandedProduct((prev) => (prev === id ? null : id));
+    setIsViewMode(false);
   }, []);
 
   const loadOptionsForCategory = useCallback(
@@ -88,14 +95,14 @@ export const useProductModal = (): UseProductModalReturn => {
   return {
     showForm,
     editingId,
-    expandedProduct,
+    isViewMode,
     currentCategoryFilters,
     filtersLoading,
     setShowForm,
     openCreateForm,
     openEditForm,
+    openViewForm,
     closeForm,
-    toggleExpandProduct,
     loadOptionsForCategory,
     clearFilters,
   };

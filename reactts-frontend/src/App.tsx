@@ -19,6 +19,8 @@ import Profile from "./pages/user/Profile";
 // import Orders from "./pages/user/Orders";
 // import OrderDetail from "./pages/user/OrderDetail";
 
+import Test from "./pages/test/Test";
+
 // // Context
 import { useAuth } from "./hooks/useAuth";
 
@@ -65,6 +67,7 @@ export default function App() {
       {/* Catch all - redirect to home */}
       <Route path="*" element={<Navigate to="/home" replace />} />
       
+      <Route path="/test" element={<Test />} />
     </Routes>
   );
 }

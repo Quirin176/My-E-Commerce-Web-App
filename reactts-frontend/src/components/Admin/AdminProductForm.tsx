@@ -1,11 +1,14 @@
+// THIS IS A MODAL COMPONENT FOR ADDING/EDITING/VIEWING PRODUCTS IN THE ADMIN DASHBOARD
+
 import { X, AlertCircle, Plus, Trash2 } from 'lucide-react';
 import type { Category } from '../../types/models/Category';
 import type { ProductFormData } from "../../hooks/admin/useProductForm";
 import type { ProductOption } from '../../types/models/ProductOption';
 
-interface ProductFormModalProps {
+interface AdminProductFormProps {
   showForm: boolean;
   editingId: number | null;
+  isViewMode: boolean;
   formData: ProductFormData;
   formErrors: Record<string, string>;
   categories: Category[];
@@ -22,9 +25,10 @@ interface ProductFormModalProps {
   onCategoryChange?: (categoryId: number) => void;
 }
 
-export default function ProductFormModal({
+export default function AdminProductForm({
   showForm,
   editingId,
+  isViewMode,
   formData,
   formErrors,
   categories,
@@ -39,7 +43,7 @@ export default function ProductFormModal({
   handleOptionChange,
   autoGenerateSlug,
   onCategoryChange,
-}: ProductFormModalProps) {
+}: AdminProductFormProps) {
   if (!showForm) return null;
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,8 +56,8 @@ export default function ProductFormModal({
   };
 
   // Get display images - use the images array directly
-  const allImages = (formData.images && Array.isArray(formData.images)) 
-    ? formData.images 
+  const allImages = (formData.images && Array.isArray(formData.images))
+    ? formData.images
     : [];
 
   // Get selected option value IDs
@@ -70,11 +74,13 @@ export default function ProductFormModal({
       {/* Modal Container */}
       <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-lg shadow-2xl w-full max-w-7xl max-h-[90vh] overflow-y-auto">
+
           {/* Modal Header */}
           <div className="sticky top-0 bg-white border-b px-6 py-3 flex justify-between items-center">
             <h2 className="text-2xl font-bold text-black">
-              {editingId ? 'Edit Product' : 'Add New Product'}
+              {isViewMode ? 'Product Information' : editingId ? 'Edit Product' : 'Add New Product'}
             </h2>
+            
             <button
               onClick={onClose}
               className="text-black hover:bg-gray-300 transition cursor-pointer"
@@ -95,10 +101,9 @@ export default function ProductFormModal({
                   type="text"
                   value={formData.name}
                   onChange={handleNameChange}
+                  disabled={isViewMode}
                   placeholder="Enter product name"
-                  className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${
-                    formErrors.name ? 'border-red-500' : 'border-black'
-                  }`}
+                  className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${formErrors.name ? 'border-red-500' : 'border-black'}`}
                 />
                 {formErrors.name && (
                   <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
@@ -109,7 +114,7 @@ export default function ProductFormModal({
 
               <div>
                 <label className="block font-bold text-black mb-2">
-                  Product Slug (Auto-generated from product name)
+                  Product Slug (Auto-generated)
                 </label>
                 <input
                   type="text"
@@ -117,8 +122,8 @@ export default function ProductFormModal({
                   placeholder="product-slug"
                   disabled={true}
                   readOnly={true}
-                  className={`w-full px-4 py-2 border-2 rounded-lg outline-none cursor-not-allowed bg-gray-200 text-gray-600 ${ formErrors.slug ? 'border-red-500' : 'border-black'}`}
-                  />
+                  className={`w-full px-4 py-2 border-2 rounded-lg outline-none cursor-not-allowed bg-gray-200 text-gray-600 ${formErrors.slug ? 'border-red-500' : 'border-black'}`}
+                />
                 {formErrors.slug && (
                   <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
                     <AlertCircle size={16} /> {formErrors.slug}
@@ -128,19 +133,18 @@ export default function ProductFormModal({
             </div>
 
             {/* Price and Category */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block font-bold text-black mb-2">
+            <div className="grid grid-cols-2 gap-6">
+              <div className="flex items-center gap-2 w-full">
+                <label className="font-bold text-black whitespace-nowrap">
                   Price (VND)
                 </label>
                 <input
                   type="number"
                   value={formData.price}
                   onChange={(e) => updateField('price', e.target.value)}
+                  disabled={isViewMode}
                   placeholder="Enter product price"
-                  className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${
-                    formErrors.price ? 'border-red-500' : 'border-black'
-                  }`}
+                  className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${formErrors.price ? 'border-red-500' : 'border-black'}`}
                 />
                 {formErrors.price && (
                   <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
@@ -149,8 +153,8 @@ export default function ProductFormModal({
                 )}
               </div>
 
-              <div>
-                <label className="block font-bold text-black mb-2">
+              <div className="flex items-center gap-2 w-full">
+                <label className="font-bold text-black whitespace-nowrap">
                   Category
                 </label>
                 <select
@@ -163,9 +167,8 @@ export default function ProductFormModal({
                       onCategoryChange(categoryId);
                     }
                   }}
-                  className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${
-                    formErrors.categoryId ? 'border-red-500' : 'border-black'
-                  }`}
+                  disabled={isViewMode}
+                  className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${formErrors.categoryId ? 'border-red-500' : 'border-black'}`}
                 >
                   <option value="">Select a category</option>
                   {categories.map(cat => (
@@ -188,8 +191,9 @@ export default function ProductFormModal({
               <textarea
                 value={formData.shortDescription}
                 onChange={(e) => updateField('shortDescription', e.target.value)}
+                disabled={isViewMode}
                 placeholder="Brief product description"
-                className="w-full h-40 px-4 py-2 border-2 border-black rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                className={`w-full h-40 px-4 py-2 border-2 border-black rounded-lg focus:ring-2 focus:ring-blue-500 outline-none`}
               />
             </div>
 
@@ -200,8 +204,9 @@ export default function ProductFormModal({
               <textarea
                 value={formData.description}
                 onChange={(e) => updateField('description', e.target.value)}
+                disabled={isViewMode}
                 placeholder="Detailed product description"
-                className="w-full h-60 px-4 py-2 border-2 border-black rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                className={`w-full h-60 px-4 py-2 border-2 border-black rounded-lg focus:ring-2 focus:ring-blue-500 outline-none`}
               />
             </div>
 
@@ -210,25 +215,29 @@ export default function ProductFormModal({
               <label className="block font-bold text-black mb-2">
                 Product Images
               </label>
-              
+
               {/* Image URL Input */}
-              <div className="flex gap-2 mb-3">
-                <input
-                  type="text"
-                  value={formData.imageUrl}
-                  onChange={handleImageUrlChange}
-                  placeholder="https://example.com/image.jpg"
-                  className="flex-1 px-4 py-2 border-2 border-black rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                />
-                <button
-                  type="button"
-                  onClick={addImageUrl}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-2"
-                >
-                  <Plus size={18} />
-                  Add Image
-                </button>
-              </div>
+              {!isViewMode && (
+                <div className="flex gap-2 mb-3">
+                  <input
+                    type="text"
+                    disabled={isViewMode}
+                    value={formData.imageUrl}
+                    onChange={handleImageUrlChange}
+                    placeholder="https://example.com/image.jpg"
+                    className="flex-1 px-4 py-2 border-2 border-black rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                  <button
+                    type="button"
+                    disabled={isViewMode}
+                    onClick={addImageUrl}
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-2"
+                  >
+                    <Plus size={18} />
+                    Add Image
+                  </button>
+                </div>
+              )}
 
               {formErrors.imageUrl && (
                 <p className="text-red-500 text-sm mb-3 flex items-center gap-1">
@@ -257,9 +266,12 @@ export default function ProductFormModal({
                         <span className="absolute bottom-1 left-1 bg-black/60 text-white text-xs px-2 py-1 rounded">
                           {idx + 1}
                         </span>
+
                         {/* Delete Button */}
+                        {!isViewMode && (
                         <button
                           type="button"
+                          disabled={isViewMode}
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
@@ -270,6 +282,8 @@ export default function ProductFormModal({
                         >
                           <Trash2 size={14} />
                         </button>
+                        )}
+
                         {/* Hover Overlay */}
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-lg transition"></div>
                       </div>
@@ -285,7 +299,7 @@ export default function ProductFormModal({
                 <label className="block font-bold text-black mb-2">
                   Product Attributes (Options)
                 </label>
-                
+
                 {/* Loading state for filters */}
                 {filtersLoading && (
                   <div className="text-center py-4">
@@ -295,7 +309,7 @@ export default function ProductFormModal({
                     <p className="text-gray-500 text-sm mt-2">Loading attributes...</p>
                   </div>
                 )}
-                
+
                 {!filtersLoading && (
                   <div className="space-y-2">
                     {filters.map(option => (
@@ -317,6 +331,7 @@ export default function ProductFormModal({
                             >
                               <input
                                 type="checkbox"
+                                disabled={isViewMode}
                                 checked={selectedIds.includes(value.optionValueId)}
                                 onChange={() => handleOptionChange(value.optionValueId)}
                                 className="w-4 h-4 cursor-pointer"
@@ -324,9 +339,6 @@ export default function ProductFormModal({
                               <span className="text-sm font-medium text-black border-black">
                                 {value.value}
                               </span>
-                              {/* {selectedIds.includes(value.optionValueId) && (
-                                <span className="ml-auto text-blue-600">✓</span>
-                              )} */}
                             </label>
                           ))}
                         </div>
@@ -338,10 +350,11 @@ export default function ProductFormModal({
             )}
 
             {/* Submit Buttons */}
+            {!isViewMode && (
             <div className="flex gap-3 pt-6 border-t">
               <button
                 onClick={onSubmit}
-                disabled={submitting}
+                disabled={isViewMode || submitting}
                 className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? 'Saving...' : editingId ? 'Update Product' : 'Create Product'}
@@ -353,6 +366,7 @@ export default function ProductFormModal({
                 Cancel
               </button>
             </div>
+            )}
           </div>
         </div>
       </div>

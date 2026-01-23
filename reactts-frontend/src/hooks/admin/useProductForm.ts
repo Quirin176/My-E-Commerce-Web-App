@@ -1,3 +1,5 @@
+// THIS IS A CUSTOM HOOK FOR MANAGING THE STATE AND LOGIC OF A PRODUCT FORM IN THE ADMIN DASHBOARD
+
 import { useCallback, useState } from "react";
 import { slugify } from "../../utils/slugify";
 

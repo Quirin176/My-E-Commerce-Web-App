@@ -1,6 +1,8 @@
+// THIS IS A CUSTOM HOOK FOR MANAGING PAGINATED ADMIN PRODUCTS WITH FILTERING, SEARCHING, CREATING, UPDATING, AND DELETING FUNCTIONALITIES
+
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { adminProductsApi, type PaginatedResponse, type UpdatedProductPayload } from "../../api/admin/adminProductsApi";
+import { adminProductsApi, type UpdatedProductPayload } from "../../api/admin/adminProductsApi";
 import type { Product } from "../../types/models/Product";
 
 interface FilterOptions {

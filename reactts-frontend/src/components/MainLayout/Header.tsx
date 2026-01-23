@@ -1,6 +1,8 @@
 import { Link } from "react-router";
+import { Search } from "lucide-react";
+import { searchApi } from "../../api/products/searchApi";
 import { siteConfig } from "../../config/siteConfig";
-import {useAuth} from "../../hooks/useAuth";
+import { useAuth } from "../../hooks/useAuth";
 import UserDropDown from "../User/UserDropDown";
 import CategoriesDropdown from "./CategoriesDropdown";
 
@@ -22,20 +24,34 @@ export default function Header() {
               {siteConfig.webName}
             </Link>
 
-            <CategoriesDropdown/>
+            <CategoriesDropdown />
+          </div>
+
+          {/* SEARCH BAR */}
+          <div>
+            <div className="flex bg-white rounded-2xl gap-4 px-4 py-2 items-center">
+              <input
+              style={{ width: 500}}
+                type="text"
+                placeholder="Search For Products"
+              />
+              <button className="text-gray-600 hover:text-black cursor-pointer">
+                <Search size={20} />
+              </button>
+            </div>
           </div>
 
           {/* NAVIGATION LINKS */}
           {user?.role === "Admin" && (
             <div className="flex items-center gap-6">
               <Link
-              to="/admin/products"
-              className="font-semibold text-white">
+                to="/admin/products"
+                className="font-semibold text-white">
                 Products
               </Link>
               <Link
-              to="/admin/orders"
-              className="font-semibold text-white">
+                to="/admin/orders"
+                className="font-semibold text-white">
                 Orders
               </Link>
             </div>
@@ -43,13 +59,13 @@ export default function Header() {
           {user?.role !== "Admin" && (
             <div className="flex items-center gap-6">
               <Link
-              to="/about"
-              className="font-semibold text-white">
+                to="/about"
+                className="font-semibold text-white">
                 About us
               </Link>
               <Link
-              to="/cart"
-              className="font-semibold text-white">
+                to="/cart"
+                className="font-semibold text-white">
                 Cart
               </Link>
             </div>
@@ -57,25 +73,25 @@ export default function Header() {
 
           {/* USER */}
           {!user && (
-          <div className="flex items-center">
-            <Link
-            to="/auth?mode=login"
-            className="font-semibold text-white hover:text-black hover:bg-white rounded-0 border px-4 py-1"
-            >
-              Login
-            </Link>
-            <Link
-            to="/auth?mode=signup"
-            className="font-semibold text-white hover:text-black hover:bg-white rounded-0 border px-4 py-1"
-            >
-              Signup
-            </Link>
-          </div>)}
+            <div className="flex items-center">
+              <Link
+                to="/auth?mode=login"
+                className="font-semibold text-white hover:text-black hover:bg-white rounded-0 border px-4 py-1"
+              >
+                Login
+              </Link>
+              <Link
+                to="/auth?mode=signup"
+                className="font-semibold text-white hover:text-black hover:bg-white rounded-0 border px-4 py-1"
+              >
+                Signup
+              </Link>
+            </div>)}
 
           {user && (
-          <div className="flex items-center gap-3">
-            <UserDropDown/>
-          </div>)}
+            <div className="flex items-center gap-3">
+              <UserDropDown />
+            </div>)}
         </div>
       </div>
     </header>
