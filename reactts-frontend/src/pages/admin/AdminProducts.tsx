@@ -7,6 +7,7 @@ import { useAdminProductForm } from "../../hooks/admin/useAdminProductForm";
 import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import AdminProductCard from "../../components/Admin/AdminProductCard";
+import AdminProductForm from "../../components/Admin/AdminProductForm";
 import { filterApi } from "../../api/products/filterApi";
 
 export default function AdminProducts() {
@@ -44,7 +45,7 @@ export default function AdminProducts() {
     autoGenerateSlug,
   } = useProductForm();
 
-    const {
+  const {
     showForm,
     editingId,
     isViewMode,
@@ -184,7 +185,7 @@ export default function AdminProducts() {
           </div>
           <button
             onClick={handleCreateNew}
-            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold whitespace-nowrap"
+            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold whitespace-nowrap cursor-pointer"
           >
             <Plus size={20} />
             Add Product
@@ -330,11 +331,10 @@ export default function AdminProducts() {
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => handleGoToPage(1)}
-                      className={`px-3 py-2 rounded-lg font-semibold transition ${
-                        currentPage === 1
+                      className={`px-3 py-2 rounded-lg font-semibold transition ${currentPage === 1
                           ? "bg-blue-600 text-white"
                           : "border border-gray-300 hover:bg-gray-50"
-                      }`}
+                        }`}
                     >
                       1
                     </button>
@@ -354,11 +354,10 @@ export default function AdminProducts() {
                         <button
                           key={page}
                           onClick={() => handleGoToPage(page)}
-                          className={`px-3 py-2 rounded-lg font-semibold transition ${
-                            currentPage === page
+                          className={`px-3 py-2 rounded-lg font-semibold transition ${currentPage === page
                               ? "bg-blue-600 text-white"
                               : "border border-gray-300 hover:bg-gray-50"
-                          }`}
+                            }`}
                         >
                           {page}
                         </button>
@@ -371,11 +370,10 @@ export default function AdminProducts() {
                     {totalPages > 1 && (
                       <button
                         onClick={() => handleGoToPage(totalPages)}
-                        className={`px-3 py-2 rounded-lg font-semibold transition ${
-                          currentPage === totalPages
+                        className={`px-3 py-2 rounded-lg font-semibold transition ${currentPage === totalPages
                             ? "bg-blue-600 text-white"
                             : "border border-gray-300 hover:bg-gray-50"
-                        }`}
+                          }`}
                       >
                         {totalPages}
                       </button>
@@ -424,6 +422,29 @@ export default function AdminProducts() {
               </div>
             )}
           </>
+        )}
+
+        {/* ========== CREATE NEW PRODUCT MODAL ========== */}
+        {showForm && editingId === null && (
+          <AdminProductForm
+            showForm={showForm}
+            editingId={editingId}
+            isViewMode={isViewMode}
+            formData={formData}
+            formErrors={formErrors}
+            categories={categories}
+            filters={currentCategoryFilters}
+            filtersLoading={filtersLoading}
+            submitting={submitting}
+            onClose={handleCloseForm}
+            onSubmit={handleSubmit}
+            updateField={(field: string, value: unknown) => updateField(field as keyof typeof formData, value)}
+            addImageUrl={addImageUrl}
+            removeImageUrl={removeImageUrl}
+            handleOptionChange={handleOptionChange}
+            autoGenerateSlug={autoGenerateSlug}
+            onCategoryChange={handleModalCategoryChange}
+          />
         )}
       </div>
     </div>

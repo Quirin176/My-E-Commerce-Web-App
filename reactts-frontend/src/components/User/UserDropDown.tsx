@@ -35,48 +35,43 @@ export default function UserDropDown({
   };
 
   return (
-    <div className="flex flex-column items-center">
-      
-      <User2 className="text-white cursor-pointer" />
+    <div className="relative flex items-center gap-2">
+      <User2 size={50} strokeWidth={1.25} className="text-white cursor-pointer" />
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex flex-col items-start text-white cursor-pointer"
+      >
+        <span className="text-lg">Welcome,</span>
+        <span className="text-lg font-semibold">{user?.username}</span>
+      </button>
 
-      <div className="relative inline-block font-semibold">
-        <button
-          onClick={() => setOpen(!open)}
-          className="flex items-center gap-2 px-4 py-2 font-semibold text-white cursor-pointer"
+      {open && (
+        <div
+          className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-48 bg-white border rounded-lg shadow-lg p-2 z-50"
+          onMouseLeave={() => setOpen(false)}
         >
-          <span className="text-lg text-white font-semibold underline">
-            Welcome, {user?.username}
-          </span>
-        </button>
-
-        {open && (
-          <div
-            className="absolute left-0 mt-2 w-48 bg-white border rounded shadow-lg p-2 z-50"
-            onMouseLeave={() => setOpen(false)}
-          >
-            {dropdown.map((item, index) => (
-              <div key={index}>
-                {item === "Log out" ? (
-                  <button
-                    onClick={() => handleClick(item)}
-                    className="w-full text-left px-3 py-2 rounded hover:bg-gray"
-                  >
-                    {item}
-                  </button>
-                ) : (
-                  <Link
-                    to={getLink(item)}
-                    onClick={() => handleClick(item)}
-                    className="block px-3 py-2 rounded hover:bg-gray"
-                  >
-                    {item}
-                  </Link>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+          {dropdown.map((item, index) => (
+            <div key={index}>
+              {item === "Log out" ? (
+                <button
+                  onClick={() => handleClick(item)}
+                  className="w-full text-left px-3 py-2 rounded hover:text-white hover:font-bold hover:bg-black"
+                >
+                  {item}
+                </button>
+              ) : (
+                <Link
+                  to={getLink(item)}
+                  onClick={() => handleClick(item)}
+                  className="block px-3 py-2 rounded hover:text-white hover:font-bold hover:bg-black"
+                >
+                  {item}
+                </Link>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

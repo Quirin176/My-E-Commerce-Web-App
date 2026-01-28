@@ -188,8 +188,6 @@ export default function Home() {
 
                 <p className="text-2xl text-gray-700 mb-8">
                   Explore a wide range of high-quality products
-                  <br />
-                  Carefully organized into categories to help you quickly find what you're looking for
                 </p>
 
                 <div className="bg-yellow-50 border-2 border-yellow-400 rounded-xl p-8 mb-8">

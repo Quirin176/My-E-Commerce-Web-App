@@ -76,14 +76,14 @@ export default function AdminProductForm({
         <div className="bg-white rounded-lg shadow-2xl w-full max-w-7xl max-h-[90vh] overflow-y-auto">
 
           {/* Modal Header */}
-          <div className="sticky top-0 bg-white border-b px-6 py-3 flex justify-between items-center">
+          <div className="sticky bg-white border-b px-6 py-2 flex justify-between items-center">
             <h2 className="text-2xl font-bold text-black">
               {isViewMode ? 'Product Information' : editingId ? 'Edit Product' : 'Add New Product'}
             </h2>
             
             <button
               onClick={onClose}
-              className="text-black hover:bg-gray-300 transition cursor-pointer"
+              className="text-black hover:bg-gray-300 transition rounded-xl cursor-pointer p-1"
             >
               <X size={32} />
             </button>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Eye, EyeClosed } from "lucide-react";
 import toast from "react-hot-toast";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
@@ -10,20 +11,16 @@ export default function Auth() {
   const [isLogin, setIsLogin] = useState(mode !== "signup");
 
   // Login form state
-  const [loginEmail, setLoginEmail] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
+  const [loginEmail, setLoginEmail] = useState<string>("");
+  const [loginPassword, setLoginPassword] = useState<string>("");
+  const [showLoginPassword, setShowLoginPassword] = useState<boolean>(false);
   
   // Signup form state
-  const [signupForm, setSignupForm] = useState<SignupRequest>({
-    username: "",
-    email: "",
-    phone: "",
-    password: "",
-  });
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [signupForm, setSignupForm] = useState<SignupRequest>({username: "", email: "", phone: "", password: "",});
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
 
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
   const { login, signup } = useAuth();
@@ -38,10 +35,10 @@ export default function Auth() {
       await login(loginEmail, loginPassword);
       toast.success("Login successful!");
       navigate("/");
-    } catch (err: any) {
-      const errorMsg = err?.message || "Login failed";
-      setError(errorMsg);
-      toast.error(errorMsg);
+    } catch (err) {
+      setError("Login Failed");
+      console.error("Login Failed: ", err)
+      toast.error("ERROR: Login Failed");
     } finally {
       setIsLoading(false);
     }
@@ -219,18 +216,27 @@ export default function Auth() {
                   placeholder="Email"
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none transition"
+                  className="w-full px-4 py-3 text-lg bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none transition"
                   required
                 />
 
-                <input
-                  type="password"
+                <div className="relative">
+                  <input
+                  type={showLoginPassword ? "text" : "password"}
                   placeholder="Password"
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none transition"
+                  className="w-full px-4 py-3 text-lg bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none transition"
                   required
                 />
+                <button
+                type="button"
+                onClick={() => setShowLoginPassword(!showLoginPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 cursor-pointer"
+                >
+                  {showLoginPassword ? (<Eye size={24}/>) : (<EyeClosed size={24}/>)}
+                </button>
+                </div>
 
                 <button className="text-sm text-gray-500 hover:underline block hover:text-gray-700 transition">
                   Forgot Your Password?

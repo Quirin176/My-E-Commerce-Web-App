@@ -7,7 +7,10 @@ import { useAdminProductForm } from "../../hooks/admin/useAdminProductForm";
 import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import AdminProductCard from "../../components/Admin/AdminProductCard";
+import AdminProductForm from "../../components/Admin/AdminProductForm";
+import DynamicFilters from "../../components/Product/DynamicFilters";
 import { filterApi } from "../../api/products/filterApi";
+import type { ProductOption } from "../../types/models/ProductOption";
 
 export default function AdminProducts() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -44,7 +47,7 @@ export default function AdminProducts() {
     autoGenerateSlug,
   } = useProductForm();
 
-    const {
+  const {
     showForm,
     editingId,
     isViewMode,
@@ -57,19 +60,17 @@ export default function AdminProducts() {
     loadOptionsForCategory,
   } = useAdminProductForm();
 
-  const [submitting, setSubmitting] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isLoadingModalData, setIsLoadingModalData] = useState(false);
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [isLoadingModalData, setIsLoadingModalData] = useState<boolean>(false);
 
-  // Category filter
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-
-  // Products options filter
+  // Dynamic filter states
+  const [dynamicFilters, setDynamicFilters] = useState<ProductOption[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<(string | number)[]>([]);
+
 
   // ========== LOAD OPTIONS FOR SELECTED CATEGORY ==========
   const handleCategoryChange = async (categorySlug: string | null) => {
-    setSelectedCategory(categorySlug);
     setSelectedOptions([]);
 
     if (!categorySlug) return;
@@ -134,8 +135,7 @@ export default function AdminProducts() {
       closeForm();
     } catch (error) {
       console.error("Error saving product:", error);
-      const message =
-        error instanceof Error ? error.message : "Failed to save product";
+      const message = error instanceof Error ? error.message : "Failed to save product";
       toast.error(message);
     } finally {
       setSubmitting(false);
@@ -184,12 +184,24 @@ export default function AdminProducts() {
           </div>
           <button
             onClick={handleCreateNew}
-            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold whitespace-nowrap"
+            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold whitespace-nowrap cursor-pointer"
           >
             <Plus size={20} />
             Add Product
           </button>
         </div>
+{/* 
+        <DynamicFilters
+          categories={ }
+          selectedOptions={ }
+          setSelectedOptions={ }
+          minPrice={ }
+          setMinPrice={ }
+          maxPrice={ }
+          setMaxPrice={ }
+          priceOrder={ }
+          setPriceOrder={ }
+        /> */}
 
         {/* ========== ERROR DISPLAY ========== */}
         {productsError && (
@@ -330,11 +342,10 @@ export default function AdminProducts() {
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => handleGoToPage(1)}
-                      className={`px-3 py-2 rounded-lg font-semibold transition ${
-                        currentPage === 1
-                          ? "bg-blue-600 text-white"
-                          : "border border-gray-300 hover:bg-gray-50"
-                      }`}
+                      className={`px-3 py-2 rounded-lg font-semibold transition ${currentPage === 1
+                        ? "bg-blue-600 text-white"
+                        : "border border-gray-300 hover:bg-gray-50"
+                        }`}
                     >
                       1
                     </button>
@@ -354,11 +365,10 @@ export default function AdminProducts() {
                         <button
                           key={page}
                           onClick={() => handleGoToPage(page)}
-                          className={`px-3 py-2 rounded-lg font-semibold transition ${
-                            currentPage === page
-                              ? "bg-blue-600 text-white"
-                              : "border border-gray-300 hover:bg-gray-50"
-                          }`}
+                          className={`px-3 py-2 rounded-lg font-semibold transition ${currentPage === page
+                            ? "bg-blue-600 text-white"
+                            : "border border-gray-300 hover:bg-gray-50"
+                            }`}
                         >
                           {page}
                         </button>
@@ -371,11 +381,10 @@ export default function AdminProducts() {
                     {totalPages > 1 && (
                       <button
                         onClick={() => handleGoToPage(totalPages)}
-                        className={`px-3 py-2 rounded-lg font-semibold transition ${
-                          currentPage === totalPages
-                            ? "bg-blue-600 text-white"
-                            : "border border-gray-300 hover:bg-gray-50"
-                        }`}
+                        className={`px-3 py-2 rounded-lg font-semibold transition ${currentPage === totalPages
+                          ? "bg-blue-600 text-white"
+                          : "border border-gray-300 hover:bg-gray-50"
+                          }`}
                       >
                         {totalPages}
                       </button>
@@ -424,6 +433,29 @@ export default function AdminProducts() {
               </div>
             )}
           </>
+        )}
+
+        {/* ========== CREATE NEW PRODUCT MODAL ========== */}
+        {showForm && editingId === null && (
+          <AdminProductForm
+            showForm={showForm}
+            editingId={editingId}
+            isViewMode={isViewMode}
+            formData={formData}
+            formErrors={formErrors}
+            categories={categories}
+            filters={currentCategoryFilters}
+            filtersLoading={filtersLoading}
+            submitting={submitting}
+            onClose={handleCloseForm}
+            onSubmit={handleSubmit}
+            updateField={(field: string, value: unknown) => updateField(field as keyof typeof formData, value)}
+            addImageUrl={addImageUrl}
+            removeImageUrl={removeImageUrl}
+            handleOptionChange={handleOptionChange}
+            autoGenerateSlug={autoGenerateSlug}
+            onCategoryChange={handleModalCategoryChange}
+          />
         )}
       </div>
     </div>

@@ -79,7 +79,7 @@ export default function ProductCard({ product }: { product: Product }) {
       <div className="p-2">
         <p
           className="text-end font-bold mb-3 border-t border-b border-gray-100"
-          style={{ color: colors.primarycolor }}
+          style={{ color: colors.pricecolor }}
         >
           {product.price?.toLocaleString() || "N/A"} VND
         </p>

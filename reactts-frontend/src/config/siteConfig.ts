@@ -6,7 +6,8 @@ export const siteConfig = {
   API_URL: "http://localhost:5159/api",
 
   colors: {
-    primarycolor: "royalblue",
+    primarycolor: "black",
+    pricecolor: "red",
   },
 
   categories: [

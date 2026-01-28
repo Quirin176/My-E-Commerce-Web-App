@@ -3,7 +3,7 @@ import { ChevronDown, LayoutGrid } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { filterApi } from "../../api/products/filterApi";
 import { siteConfig } from "../../config/siteConfig";
-import type { ProductOption } from "../../types/models/ProductOption.ts";
+import type { ProductOption } from "../../types/models/ProductOption";
 
 export default function CategoriesDropdown({ categories = siteConfig.categories }) {
   const colors = siteConfig.colors;
@@ -64,12 +64,12 @@ export default function CategoriesDropdown({ categories = siteConfig.categories 
   return (
     <div className="relative inline-block font-semibold">
       <button 
-        className="flex items-center gap-2 px-2 py-1 border rounded font-semibold hover:shadow-md transition" 
-        style={{ color: "White" }} 
+        className="flex items-center gap-2 px-4 py-2 border-2 rounded-4xl font-semibold hover:shadow-md transition" 
+        style={{ color: "White" }}
         onClick={() => setOpen(!open)}
         >
         <LayoutGrid size={18} />
-        <span className="text-base">Categories</span>
+        <span className="text-base pr-20">All Categories</span>
         <ChevronDown size={18} className={`${open ? "rotate-180" : ""} transition`} />
       </button>
 

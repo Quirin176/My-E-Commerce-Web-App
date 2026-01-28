@@ -28,14 +28,18 @@ export default function Header() {
           </div>
 
           {/* SEARCH BAR */}
-          <div>
-            <div className="flex bg-white rounded-2xl gap-4 px-4 py-2 items-center">
+          <div className="bg-white rounded-2xl pl-4 pr-2">
+            <div className="flex gap-4 py-2 items-center">
               <input
-              style={{ width: 500}}
+                className="text-lg"
+                style={{ width: 500 }}
                 type="text"
                 placeholder="Search For Products"
               />
-              <button className="text-gray-600 hover:text-black cursor-pointer">
+              <button
+                className="px-4 py-2 rounded-2xl text-white hover:text-gray-600 cursor-pointer"
+                style={{ background: colors.primarycolor }}
+              >
                 <Search size={20} />
               </button>
             </div>
@@ -76,15 +80,15 @@ export default function Header() {
             <div className="flex items-center">
               <Link
                 to="/auth?mode=login"
-                className="font-semibold text-white hover:text-black hover:bg-white rounded-0 border px-4 py-1"
+                className="font-semibold text-white hover:underline px-4 py-1"
               >
-                Login
+                Sign in
               </Link>
               <Link
                 to="/auth?mode=signup"
-                className="font-semibold text-white hover:text-black hover:bg-white rounded-0 border px-4 py-1"
+                className="font-semibold text-white hover:underline px-4 py-1"
               >
-                Signup
+                Register
               </Link>
             </div>)}
 

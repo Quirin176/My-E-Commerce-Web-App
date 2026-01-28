@@ -1,10 +1,22 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { siteConfig } from "../../config/siteConfig";
-import type { DynamicFiltersProps } from "../../types/models/DynamicFiltersProps";
+import type { ProductOption } from "../../types/models/ProductOption";
+
+export interface DynamicFiltersProps {
+  loadedOptions: ProductOption[] | null | undefined;
+  selectedOptions: (string | number)[];
+  setSelectedOptions: (option: (string | number)[]) => void;
+  minPrice: string | number;
+  setMinPrice: (price: string | number) => void;
+  maxPrice: string | number;
+  setMaxPrice: (price: string | number) => void;
+  priceOrder: string;
+  setPriceOrder: (order: string) => void;
+}
 
 export default function DynamicFilters({
-  categories,
+  loadedOptions,
   selectedOptions,
   setSelectedOptions,
   minPrice,
@@ -43,49 +55,49 @@ export default function DynamicFilters({
     }
   };
 
-  // Guard against invalid categories
-  const validCategories = Array.isArray(categories) && categories.length > 0 ? categories : [];
+  // Guard against invalid options
+  const options = Array.isArray(loadedOptions) && loadedOptions.length > 0 ? loadedOptions : [];
 
   return (
     <div className="bg-white p-3 rounded shadow border mb-4">
       <div className="flex flex-wrap gap-2 items-center">
-        
+
         {/* Dynamic Option Dropdowns*/}
-        {validCategories.length > 0 && (
+        {options.length > 0 && (
           <>
-            {validCategories.map(category => {
+            {options.map(option => {
               const selectedInCategory = selectedOptions.filter(id =>
-                category.optionValues.some(v => v.optionValueId === id)
+                option.optionValues.some(v => v.optionValueId === id)
               );
 
               return (
-                <div key={category.optionId} className="relative">
+                <div key={option.optionId} className="relative">
                   <button
-                    onClick={() => toggleDropdown(category.optionId)}
+                    onClick={() => toggleDropdown(option.optionId)}
                     className="flex items-center justify-between px-2 py-1.5 border rounded bg-white hover:bg-gray-50 transition text-sm min-w-28"
                   >
                     <span className="font-semibold text-gray-700 truncate text-xs">
-                      {category.name}
+                      {option.name}
                       {selectedInCategory.length > 0 && (
                         <span
-                        className="ml-1 text-xs text-white px-1.5 py-0.5 rounded inline-block"
-                        style={{ background: colors.primarycolor }}>
+                          className="ml-1 text-xs text-white px-1.5 py-0.5 rounded inline-block"
+                          style={{ background: colors.primarycolor }}>
                           {selectedInCategory.length}
                         </span>
                       )}
                     </span>
                     <ChevronDown
                       size={16}
-                      className={`transition ml-1 shrink-0 ${openDropdowns[category.optionId] ? 'rotate-180' : ''}`}
+                      className={`transition ml-1 shrink-0 ${openDropdowns[option.optionId] ? 'rotate-180' : ''}`}
                     />
                   </button>
 
-                  {openDropdowns[category.optionId] && (
+                  {openDropdowns[option.optionId] && (
                     <div
-                    className="absolute top-full left-0 mt-1 bg-white border rounded shadow-lg z-50 w-40"
-                    onMouseLeave={() => closeDropdown(category.optionId)}>
+                      className="absolute top-full left-0 mt-1 bg-white border rounded shadow-lg z-50 w-40"
+                      onMouseLeave={() => closeDropdown(option.optionId)}>
                       <div className="p-2 max-h-48 overflow-y-auto">
-                        {category.optionValues.map(value => (
+                        {option.optionValues.map(value => (
                           <label
                             key={value.optionValueId}
                             className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-100 transition cursor-pointer"
@@ -147,14 +159,14 @@ export default function DynamicFilters({
         <div className="mt-3 pt-3 border-t flex items-center justify-between">
           <div className="flex flex-wrap gap-1.5">
             {selectedOptions.map(id => {
-              const option = validCategories
+              const option = options
                 .flatMap(c => c.optionValues || [])
                 .find(v => String(v.optionValueId) === String(id));
               return option ? (
                 <span
                   key={id}
                   className="text-white px-2 py-1 rounded text-xs flex items-center gap-1"
-                  style={{ background: colors.primarycolor}}
+                  style={{ background: colors.primarycolor }}
                 >
                   {option.value}
                   <button

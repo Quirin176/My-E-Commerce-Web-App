@@ -9,7 +9,6 @@ import type { Product } from "../../types/models/Product";
 import type { Category } from "../../types/models/Category";
 import type { ProductOption } from "../../types/models/ProductOption";
 import type { ProductFormData } from "../../hooks/admin/useProductForm";
-import { siteConfig } from "../../config/siteConfig";
 
 interface AdminProductCardProps {
   product: Product;
@@ -64,7 +63,6 @@ export default function AdminProductCard({
   openViewForm,
   loadOptionsForCategory,
 }: AdminProductCardProps) {
-  const colors = siteConfig.colors;
   const [isLoadingModalData, setIsLoadingModalData] = useState(false);
 
   const { deleteProduct } = useAdminProductsPaginated();
