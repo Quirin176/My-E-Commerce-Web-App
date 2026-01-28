@@ -32,16 +32,6 @@ export const adminProductsApi = {
     return res.data;
   },
 
-  async getProductById(id: number | string) {
-    const res = await apiClient.get(`/products/${id}`);
-    return res.data;
-  },
-
-  async getProductBySlug(slug: string) {
-    const res = await apiClient.get(`/products/${slug}`);
-    return res.data;
-  },
-
   async getProductByCategory(category: string) {
     const res = await apiClient.get(`/products/${category}`);
     return res.data;

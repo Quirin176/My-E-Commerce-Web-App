@@ -5,14 +5,14 @@ import toast from "react-hot-toast";
 import DynamicFilters from "../../components/Product/DynamicFilters";
 import ProductCard from "../../components/Product/ProductCard";
 import { productApi } from "../../api/products/productApi";
-import { filterApi } from "../../api/products/filterApi";
+import { categoryApi } from "../../api/products/categoryApi";
 import type { Product } from "../../types/models/Product";
 import type { ProductOption } from "../../types/models/ProductOption";
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 15;
 
-export default function Categories() {
-  const { slug } = useParams<{ slug: string }>();
+export default function Category() {
+  const { selectedCategory } = useParams<{ selectedCategory: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -35,7 +35,7 @@ export default function Categories() {
   const [error, setError] = useState<string | null>(null);
 
   // Format category name from slug
-  const formattedName = slug ? slug.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ") : "Products";
+  const formattedName = selectedCategory ? selectedCategory.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ") : "Products";
 
   // Calculate pagination info
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
@@ -53,7 +53,7 @@ export default function Categories() {
     }
 
     try {
-      if (!slug) {
+      if (!selectedCategory) {
         setProducts([]);
         return;
       }
@@ -61,7 +61,7 @@ export default function Categories() {
       // Prepare filter options - ensure they're strings for API consistency
       const optionsString = selectedOptions.length > 0 ? selectedOptions.map(String).join(",") : null;
 
-      const data = await productApi.getByFilters(slug, {
+      const data = await productApi.getByFilters(selectedCategory, {
         minPrice: Number(minPrice) || 0,
         maxPrice: Number(maxPrice) || 100000000,
         priceOrder,
@@ -94,7 +94,7 @@ export default function Categories() {
     } finally {
       setLoading(false);
     }
-  }, [slug, minPrice, maxPrice, priceOrder, selectedOptions, currentPage]);
+  }, [selectedCategory, minPrice, maxPrice, priceOrder, selectedOptions, currentPage]);
 
   // Load products when any filter or page changes
   useEffect(() => {
@@ -104,13 +104,13 @@ export default function Categories() {
   // API Load available filters for this category
   useEffect(() => {
     const loadFilters = async () => {
-      if (!slug) {
+      if (!selectedCategory) {
         setLoadedOptions([]);
         return;
       }
 
       try {
-        const filters = await filterApi.getFiltersByCategory(slug);
+        const filters = await categoryApi.getFiltersBySlug(selectedCategory);
         const filterList = Array.isArray(filters) ? filters : [];
         setLoadedOptions(filterList);
       } catch (err) {
@@ -121,7 +121,7 @@ export default function Categories() {
     };
 
     loadFilters();
-  }, [slug]);
+  }, [selectedCategory]);
 
   // Handle URL filter parameter from dropdown/header navigation
   useEffect(() => {
@@ -195,7 +195,7 @@ export default function Categories() {
   };
 
   // Guard against invalid slug
-  if (!slug) {
+  if (!selectedCategory) {
     return (
       <div className="p-8 text-center">
         <h1 className="text-2xl font-bold text-red-600 mb-2">Invalid Category</h1>

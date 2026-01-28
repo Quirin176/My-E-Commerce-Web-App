@@ -9,13 +9,19 @@ import toast from "react-hot-toast";
 import AdminProductCard from "../../components/Admin/AdminProductCard";
 import AdminProductForm from "../../components/Admin/AdminProductForm";
 import DynamicFilters from "../../components/Product/DynamicFilters";
-import { filterApi } from "../../api/products/filterApi";
+import { categoryApi } from "../../api/products/categoryApi";
 import type { ProductOption } from "../../types/models/ProductOption";
+
+const ITEMS_PER_PAGE = 10;
 
 export default function AdminProducts() {
   const [searchParams, setSearchParams] = useSearchParams();
+  
+  const { categories } = useCategories();
+
   const initialPage = parseInt(searchParams.get("page") || "1");
 
+  // Output Data from useAdminProductsPaginated
   const {
     products,
     loading: productsLoading,
@@ -30,9 +36,7 @@ export default function AdminProducts() {
     searchProducts,
     createProduct,
     updateProduct,
-  } = useAdminProductsPaginated();
-
-  const { categories } = useCategories();
+  } = useAdminProductsPaginated(10);
 
   const {
     formData,
@@ -65,23 +69,11 @@ export default function AdminProducts() {
   const [isLoadingModalData, setIsLoadingModalData] = useState<boolean>(false);
 
   // Dynamic filter states
-  const [dynamicFilters, setDynamicFilters] = useState<ProductOption[]>([]);
+  const [minPrice, setMinPrice] = useState<string | number>("0");
+  const [maxPrice, setMaxPrice] = useState<string | number>("100000000");
+  const [priceOrder, setPriceOrder] = useState<string>(searchParams.get("sort") || "newest");
+  const [loadedOptions, setLoadedOptions] = useState<ProductOption[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<(string | number)[]>([]);
-
-
-  // ========== LOAD OPTIONS FOR SELECTED CATEGORY ==========
-  const handleCategoryChange = async (categorySlug: string | null) => {
-    setSelectedOptions([]);
-
-    if (!categorySlug) return;
-
-    try {
-      const filters = await filterApi.getFiltersByCategory(categorySlug);
-      const filterList = Array.isArray(filters) ? filters : (filters?.data || []);
-    } catch (error) {
-      console.error("Error loading filters for category:", error);
-    }
-  };
 
   // ========== HANDLE SEARCH ==========
   const handleSearch = async (value: string) => {
@@ -190,18 +182,19 @@ export default function AdminProducts() {
             Add Product
           </button>
         </div>
-{/* 
-        <DynamicFilters
-          categories={ }
-          selectedOptions={ }
-          setSelectedOptions={ }
-          minPrice={ }
-          setMinPrice={ }
-          maxPrice={ }
-          setMaxPrice={ }
-          priceOrder={ }
-          setPriceOrder={ }
-        /> */}
+
+      {/* Dynamic filters
+      <DynamicFilters
+        loadedOptions={loadedOptions}
+        selectedOptions={selectedOptions}
+        setSelectedOptions={handleFilterChange}
+        minPrice={minPrice}
+        setMinPrice={setMinPrice}
+        maxPrice={maxPrice}
+        setMaxPrice={setMaxPrice}
+        priceOrder={priceOrder}
+        setPriceOrder={handleSortChange}
+      /> */}
 
         {/* ========== ERROR DISPLAY ========== */}
         {productsError && (

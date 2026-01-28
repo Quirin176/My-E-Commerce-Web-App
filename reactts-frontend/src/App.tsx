@@ -42,7 +42,7 @@ export default function App() {
       <Route element={<MainLayout />}>
         <Route path="/home" element={<Home />} />
         <Route path="/" element={<Navigate to="/home" replace />} />
-        <Route path="/category/:slug" element={<CategoryProducts />} />
+        <Route path="/category/:selectedCategory" element={<CategoryProducts />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         
         <Route path="/admin/products" element={<AdminProducts />} />

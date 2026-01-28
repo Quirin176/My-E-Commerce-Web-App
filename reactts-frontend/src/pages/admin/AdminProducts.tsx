@@ -8,7 +8,7 @@ import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import AdminProductCard from "../../components/Admin/AdminProductCard";
 import AdminProductForm from "../../components/Admin/AdminProductForm";
-import { filterApi } from "../../api/products/filterApi";
+import { categoryApi } from "../../api/products/categoryApi";
 
 export default function AdminProducts() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -76,7 +76,7 @@ export default function AdminProducts() {
     if (!categorySlug) return;
 
     try {
-      const filters = await filterApi.getFiltersByCategory(categorySlug);
+      const filters = await categoryApi.getFiltersBySlug(categorySlug);
       const filterList = Array.isArray(filters) ? filters : (filters?.data || []);
     } catch (error) {
       console.error("Error loading filters for category:", error);

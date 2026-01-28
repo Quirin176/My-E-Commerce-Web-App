@@ -39,7 +39,6 @@ interface UseAdminProductsPaginatedReturn {
   deleteProduct: (id: number) => Promise<void>;
 }
 
-const PAGE_SIZE = 10;
 const DEFAULT_FILTERS: FilterOptions = {
   categoryName: undefined,
   minPrice: undefined,
@@ -48,22 +47,21 @@ const DEFAULT_FILTERS: FilterOptions = {
   sortOrder: "desc",
 };
 
-export const useAdminProductsPaginated = (): UseAdminProductsPaginatedReturn => {
+export const useAdminProductsPaginated = (ITEMS_PER_PAGE: number): UseAdminProductsPaginatedReturn => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
-  const [pageSize] = useState(PAGE_SIZE);
+  const [pageSize] = useState(ITEMS_PER_PAGE);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [hasPreviousPage, setHasPreviousPage] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<FilterOptions>(DEFAULT_FILTERS);
 
-  // Fetch products with pagination and filters
-  const fetchProducts = useCallback(
-    async (page: number = 1, search: string = "") => {
+  // API load products with pagination, search, and filters
+  const fetchProducts = useCallback(async (page: number = 1, search: string = "") => {
       setLoading(true);
       setError(null);
 
@@ -72,7 +70,7 @@ export const useAdminProductsPaginated = (): UseAdminProductsPaginatedReturn => 
         
         const response = await adminProductsApi.getProductsPaginated(
           page,
-          PAGE_SIZE,
+          ITEMS_PER_PAGE,
           search || undefined,
           filters.sortBy || "id",
           filters.sortOrder || "desc"

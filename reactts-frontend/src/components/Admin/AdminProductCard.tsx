@@ -65,7 +65,7 @@ export default function AdminProductCard({
 }: AdminProductCardProps) {
   const [isLoadingModalData, setIsLoadingModalData] = useState(false);
 
-  const { deleteProduct } = useAdminProductsPaginated();
+  const { deleteProduct } = useAdminProductsPaginated(10);
 
   // ========== EDIT PRODUCT ==========
   const handleEdit = async (productData: Product) => {

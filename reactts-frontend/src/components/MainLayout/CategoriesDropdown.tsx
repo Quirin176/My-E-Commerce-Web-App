@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, LayoutGrid } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { filterApi } from "../../api/products/filterApi";
+import { categoryApi } from "../../api/products/categoryApi";
 import { siteConfig } from "../../config/siteConfig";
 import type { ProductOption } from "../../types/models/ProductOption";
 
@@ -32,7 +32,7 @@ export default function CategoriesDropdown({ categories = siteConfig.categories 
 
     setLoadingFilters(prev => ({ ...prev, [categoryLink]: true }));
     try {
-      const filters = await filterApi.getFiltersByCategory(categoryLink);
+      const filters = await categoryApi.getFiltersBySlug(categoryLink);
       setCategoryFilters(prev => ({
         ...prev,
         [categoryLink]: filters || []

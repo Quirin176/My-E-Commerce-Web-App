@@ -22,14 +22,14 @@ export const productApi = {
     return res.data;
   },
 
-  // GET: /api/products/{id}
-  async getById(id: number | string) {
+  // GET: /api/products/{id} - Get all data of a product by id
+  async getProductById(id: number | string) {
     const res = await apiClient.get(`/products/${id}`);
     return res.data;
   },
 
-  // GET: /api/products/slug/{slug}
-  async getBySlug(slug: string) {
+  // GET: /api/products/slug/{slug} - Get all data of a product by slug
+  async getProductBySlug(slug: string) {
     const res = await apiClient.get(`/products/${slug}`);
     return res.data;
   }

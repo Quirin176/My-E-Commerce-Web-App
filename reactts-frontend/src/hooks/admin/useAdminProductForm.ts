@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import toast from "react-hot-toast";
-import { filterApi } from "../../api/products/filterApi";
+import { categoryApi } from "../../api/products/categoryApi";
 import type { ProductOption } from "../../types/models/ProductOption";
 
 interface UseAdminProductFormReturn {
@@ -62,7 +62,7 @@ export const useAdminProductForm = (): UseAdminProductFormReturn => {
 
       try {
         console.log("[useProductModal] Loading options for category:", categoryId);
-        const data = await filterApi.getFiltersByCategoryId(categoryId);
+        const data = await categoryApi.getFiltersById(categoryId);
         const filters = Array.isArray(data) ? data : (data?.data || []);
         
         // Validate filter structure
