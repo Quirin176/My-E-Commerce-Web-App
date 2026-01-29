@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LayoutGrid } from "lucide-react";
 import { siteConfig } from "../../config/siteConfig";
-import { filterApi } from "../../api/products/filterApi";
+import { categoryApi } from "../../api/products/categoryApi";
 import type { ProductOption } from "../../types/models/ProductOption.ts";
 import CategoryTabs from "../../components/Product/CategoryTabs";
 
@@ -34,7 +34,7 @@ export default function Home() {
 
     setLoadingFilters(prev => ({ ...prev, [categoryLink]: true }));
     try {
-      const filters = await filterApi.getFiltersByCategory(categoryLink);
+      const filters = await categoryApi.getFiltersBySlug(categoryLink);
       setCategoryFilters(prev => ({
         ...prev,
         [categoryLink]: filters || []

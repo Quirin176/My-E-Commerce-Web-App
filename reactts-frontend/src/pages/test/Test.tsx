@@ -8,7 +8,7 @@ import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import AdminProductCard from "../../components/Admin/AdminProductCard";
 import AdminProductForm from "../../components/Admin/AdminProductForm";
-import DynamicFilters from "../../components/Product/DynamicFilters";
+import AdminDynamicFilters from "../../components/Admin/AdminDynamicFilters";
 import { categoryApi } from "../../api/products/categoryApi";
 import type { ProductOption } from "../../types/models/ProductOption";
 
@@ -16,7 +16,7 @@ const ITEMS_PER_PAGE = 10;
 
 export default function AdminProducts() {
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   const { categories } = useCategories();
 
   const initialPage = parseInt(searchParams.get("page") || "1");
@@ -36,7 +36,7 @@ export default function AdminProducts() {
     searchProducts,
     createProduct,
     updateProduct,
-  } = useAdminProductsPaginated(10);
+  } = useAdminProductsPaginated(ITEMS_PER_PAGE);
 
   const {
     formData,
@@ -69,11 +69,37 @@ export default function AdminProducts() {
   const [isLoadingModalData, setIsLoadingModalData] = useState<boolean>(false);
 
   // Dynamic filter states
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [minPrice, setMinPrice] = useState<string | number>("0");
   const [maxPrice, setMaxPrice] = useState<string | number>("100000000");
   const [priceOrder, setPriceOrder] = useState<string>(searchParams.get("sort") || "newest");
   const [loadedOptions, setLoadedOptions] = useState<ProductOption[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<(string | number)[]>([]);
+  const [loadingFilters, setLoadingFilters] = useState(false);
+
+  // ========== LOAD OPTIONS FOR SELECTED CATEGORY ==========
+  const handleCategoryChange = async (slug: string) => {
+    setSelectedCategory(slug);
+    setSelectedOptions([]);
+
+    if (!slug) {
+      setLoadedOptions([]);
+      return;
+    }
+
+    setLoadingFilters(true);
+    try {
+      const filters = await categoryApi.getFiltersBySlug(slug);
+      const filterList = Array.isArray(filters) ? filters : (filters?.data || []);
+      setLoadedOptions(filterList);
+    } catch (error) {
+      console.error("Error loading filters for category:", error);
+      toast.error("Failed to load category filters");
+      setLoadedOptions([]);
+    } finally {
+      setLoadingFilters(false);
+    }
+  };
 
   // ========== HANDLE SEARCH ==========
   const handleSearch = async (value: string) => {
@@ -159,6 +185,27 @@ export default function AdminProducts() {
   const startIndex = (currentPage - 1) * pageSize + 1;
   const endIndex = Math.min(currentPage * pageSize, totalCount);
 
+  // ========== HANDLE FILTER CHANGES ==========
+  const handleFilterChange = (newOptions: (string | number)[]) => {
+    setSelectedOptions(newOptions);
+    setSearchParams({ page: "1" });
+  };
+
+  const handleMinPriceChange = (value: string | number) => {
+    setMinPrice(value);
+    setSearchParams({ page: "1" });
+  };
+
+  const handleMaxPriceChange = (value: string | number) => {
+    setMaxPrice(value);
+    setSearchParams({ page: "1" });
+  };
+
+  const handlePriceOrderChange = (value: string) => {
+    setPriceOrder(value);
+    setSearchParams({ page: "1" });
+  };
+
   return (
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto">
@@ -183,19 +230,6 @@ export default function AdminProducts() {
           </button>
         </div>
 
-      {/* Dynamic filters
-      <DynamicFilters
-        loadedOptions={loadedOptions}
-        selectedOptions={selectedOptions}
-        setSelectedOptions={handleFilterChange}
-        minPrice={minPrice}
-        setMinPrice={setMinPrice}
-        maxPrice={maxPrice}
-        setMaxPrice={setMaxPrice}
-        priceOrder={priceOrder}
-        setPriceOrder={handleSortChange}
-      /> */}
-
         {/* ========== ERROR DISPLAY ========== */}
         {productsError && (
           <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center gap-3">
@@ -218,7 +252,7 @@ export default function AdminProducts() {
           </div>
         )}
 
-        {/* ========== SEARCH BAR ========== */}
+        {/* ========== SEARCH BAR ==========
         <div className="mb-6">
           <div className="relative">
             <Search size={20} className="absolute left-3 top-3 text-gray-400" />
@@ -238,7 +272,22 @@ export default function AdminProducts() {
               </button>
             )}
           </div>
-        </div>
+        </div> */}
+
+        {/* Dynamic filters */}
+        <AdminDynamicFilters
+          loadedCategories={categories}
+          onCategoryChange={handleCategoryChange}
+          loadedOptions={loadedOptions}
+          selectedOptions={selectedOptions}
+          setSelectedOptions={handleFilterChange}
+          minPrice={minPrice}
+          setMinPrice={handleMinPriceChange}
+          maxPrice={maxPrice}
+          setMaxPrice={handleMaxPriceChange}
+          priceOrder={priceOrder}
+          setPriceOrder={handlePriceOrderChange}
+        />
 
         {/* ========== PRODUCTS LIST ========== */}
         {productsLoading ? (
