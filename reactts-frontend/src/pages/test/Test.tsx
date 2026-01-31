@@ -21,23 +21,6 @@ export default function AdminProducts() {
 
   const initialPage = parseInt(searchParams.get("page") || "1");
 
-  // Output Data from useAdminProductsPaginated
-  const {
-    products,
-    loading: productsLoading,
-    error: productsError,
-    currentPage,
-    totalPages,
-    totalCount,
-    pageSize,
-    hasNextPage,
-    hasPreviousPage,
-    goToPage,
-    searchProducts,
-    createProduct,
-    updateProduct,
-  } = useAdminProductsPaginated(ITEMS_PER_PAGE);
-
   const {
     formData,
     formErrors,
@@ -72,10 +55,26 @@ export default function AdminProducts() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [minPrice, setMinPrice] = useState<string | number>("0");
   const [maxPrice, setMaxPrice] = useState<string | number>("100000000");
-  const [priceOrder, setPriceOrder] = useState<string>(searchParams.get("sort") || "newest");
+  const [sortOrder, setPriceOrder] = useState<string>(searchParams.get("sort") || "newest");
   const [loadedOptions, setLoadedOptions] = useState<ProductOption[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<(string | number)[]>([]);
   const [loadingFilters, setLoadingFilters] = useState(false);
+
+  // Output Data from useAdminProductsPaginated
+  const {
+    products,
+    loading: productsLoading,
+    error: productsError,
+    currentPage,
+    totalPages,
+    totalCount,
+    fetchProducts,
+    goToPage,
+    searchProducts,
+    createProduct,
+    updateProduct,
+    deleteProduct
+  } = useAdminProductsPaginated(ITEMS_PER_PAGE, minPrice, maxPrice, sortOrder, selectedCategory, selectedOptions);
 
   // ========== LOAD OPTIONS FOR SELECTED CATEGORY ==========
   const handleCategoryChange = async (slug: string) => {
@@ -181,10 +180,6 @@ export default function AdminProducts() {
     }
   };
 
-  // Calculate start and end indices for display
-  const startIndex = (currentPage - 1) * pageSize + 1;
-  const endIndex = Math.min(currentPage * pageSize, totalCount);
-
   // ========== HANDLE FILTER CHANGES ==========
   const handleFilterChange = (newOptions: (string | number)[]) => {
     setSelectedOptions(newOptions);
@@ -205,6 +200,51 @@ export default function AdminProducts() {
     setPriceOrder(value);
     setSearchParams({ page: "1" });
   };
+
+const applyFilters = () => {
+  // Normalize / validate price inputs
+  const cleanedMin = minPrice === "" ? 0 : Number(minPrice);
+  const cleanedMax =
+    maxPrice === "" ? Number.MAX_SAFE_INTEGER : Number(maxPrice);
+
+  if (cleanedMin < 0 || cleanedMax < 0) {
+    toast.error("Price cannot be negative.");
+    return;
+  }
+
+  if (cleanedMin > cleanedMax) {
+    toast.error("Min price cannot be greater than max price.");
+    return;
+  }
+
+  // Build URL params
+  const params: Record<string, string> = {
+    page: "1",
+  };
+
+  if (selectedCategory) params.category = selectedCategory;
+  if (cleanedMin > 0) params.min = cleanedMin.toString();
+  if (cleanedMax < Number.MAX_SAFE_INTEGER)
+    params.max = cleanedMax.toString();
+  if (sortOrder) params.sort = sortOrder;
+
+  if (selectedOptions.length > 0) {
+    // Option values CSV (e.g. "1,3,7")
+    params.options = selectedOptions.join(",");
+  }
+
+  // Update URL
+  setSearchParams(params);
+  
+  // goToPage(1); // Reset pagination in hook
+  // searchProducts(searchTerm); // Trigger search with existing API logic
+
+  fetchProducts(1, searchTerm);
+};
+
+  // Calculate start and end indices for display
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE + 1;
+  const endIndex = Math.min(currentPage * ITEMS_PER_PAGE, totalCount);
 
   return (
     <div className="min-h-screen">
@@ -285,8 +325,9 @@ export default function AdminProducts() {
           setMinPrice={handleMinPriceChange}
           maxPrice={maxPrice}
           setMaxPrice={handleMaxPriceChange}
-          priceOrder={priceOrder}
-          setPriceOrder={handlePriceOrderChange}
+          sortOrder={sortOrder}
+          setSortOrder={handlePriceOrderChange}
+          onApplyFilters={applyFilters}
         />
 
         {/* ========== PRODUCTS LIST ========== */}
@@ -361,9 +402,7 @@ export default function AdminProducts() {
             {totalPages > 1 && (
               <div className="bg-white rounded-lg shadow p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="text-gray-600 text-sm">
-                  Showing <strong>{startIndex}</strong> to{" "}
-                  <strong>{endIndex}</strong> of{" "}
-                  <strong>{totalCount}</strong> products
+                  Showing <strong>{startIndex}</strong> to <strong>{endIndex}</strong> of <strong>{totalCount}</strong> products
                   {searchTerm && (
                     <span className="ml-2 text-blue-600">
                       (filtered)
@@ -374,7 +413,6 @@ export default function AdminProducts() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleGoToPage(currentPage - 1)}
-                    disabled={!hasPreviousPage}
                     className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
                     title="Previous page"
                   >
@@ -435,7 +473,6 @@ export default function AdminProducts() {
 
                   <button
                     onClick={() => handleGoToPage(currentPage + 1)}
-                    disabled={!hasNextPage}
                     className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
                     title="Next page"
                   >
@@ -461,12 +498,6 @@ export default function AdminProducts() {
                         if (!isNaN(value)) {
                           handleGoToPage(value);
                         }
-                      }
-                    }}
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value);
-                      if (!isNaN(value) && e.target.value.length > 0) {
-                        handleGoToPage(value);
                       }
                     }}
                     className="w-16 px-2 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 outline-none"

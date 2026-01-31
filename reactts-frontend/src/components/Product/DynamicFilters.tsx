@@ -11,8 +11,8 @@ export interface DynamicFiltersProps {
   setMinPrice: (price: string | number) => void;
   maxPrice: string | number;
   setMaxPrice: (price: string | number) => void;
-  priceOrder: string;
-  setPriceOrder: (order: string) => void;
+  sortOrder: string;
+  setSortOrder: (order: string) => void;
 }
 
 export default function DynamicFilters({
@@ -23,8 +23,8 @@ export default function DynamicFilters({
   setMinPrice,
   maxPrice,
   setMaxPrice,
-  priceOrder,
-  setPriceOrder
+  sortOrder,
+  setSortOrder
 }: DynamicFiltersProps) {
 
   const colors = siteConfig.colors;
@@ -144,8 +144,8 @@ export default function DynamicFilters({
           {/* Sort Dropdown */}
           <select
             className="border p-1.5 rounded text-xs min-w-32 bg-white hover:bg-gray-50 transition"
-            value={priceOrder}
-            onChange={(e) => setPriceOrder(e.target.value)}
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
           >
             <option value="newest">Newest</option>
             <option value="ascending">Low → High</option>

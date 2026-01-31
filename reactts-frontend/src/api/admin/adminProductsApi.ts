@@ -13,6 +13,25 @@ export interface PaginatedResponse<T> {
     hasPreviousPage: boolean;
   };
 };
+export interface ProductFilterParams {
+  category: string;
+  minPrice?: number;
+  maxPrice?: number;
+  options?: number[];          // array of option value IDs
+  priceOrder?: "newest" | "oldest" | "ascending" | "descending";
+}
+
+export interface ProductItem {
+  id: number;
+  name: string;
+  price: number;
+  imageUrl: string;
+  shortDescription: string;
+  options: {
+    optionName: string;
+    value: string;
+  }[];
+}
 
 export interface UpdatedProductPayload {
   name?: string;
@@ -38,30 +57,36 @@ export const adminProductsApi = {
   },
 
   // Get paginated products with search and sorting
-  async getProductsPaginated(
-    page: number = 1,
-    pageSize: number = 10,
-    search?: string,
-    sortBy: string = "id",
-    sortOrder: string = "desc"
-  ) {
-    try {
-      const params = new URLSearchParams();
-      params.append("page", String(page));
-      params.append("pageSize", String(pageSize));
-      if (search) params.append("search", search);
-      params.append("sortBy", sortBy);
-      params.append("sortOrder", sortOrder);
-
-      const res = await apiClient.get<PaginatedResponse<Product>>(
-        `/products/admin/paginated?${params.toString()}`
-      );
-      return res.data;
-    } catch (error) {
-      console.error("Error fetching paginated products:", error);
-      throw error;
-    }
-  },
+async getProductsPaginated(
+  page = 1,
+  pageSize = 10,
+  search?: string,
+  sortBy = "id",
+  sortOrder = "desc",
+  filters?: {
+    category?: string | null;
+    minPrice?: number;
+    maxPrice?: number;
+    options?: (string | number)[];
+    priceOrder?: "newest" | "oldest" | "ascending" | "descending";
+  }
+) {
+  const params = new URLSearchParams();
+  params.append("page", String(page));
+  params.append("pageSize", String(pageSize));
+  if (search) params.append("search", search);
+  params.append("sortBy", sortBy);
+  params.append("sortOrder", sortOrder);
+  if (filters) {
+    if (filters.category) params.append("category", filters.category);
+    if (filters.minPrice !== undefined) params.append("minPrice", String(filters.minPrice));
+    if (filters.maxPrice !== undefined) params.append("maxPrice", String(filters.maxPrice));
+    if (filters.options && filters.options.length > 0) params.append("options", filters.options.join(","));
+    if (filters.priceOrder) params.append("priceOrder", filters.priceOrder);
+  }
+  const res = await apiClient.get<PaginatedResponse<Product>>(`/products/admin/paginated?${params.toString()}`);
+  return res.data;
+},
 
   async createProduct(data: UpdatedProductPayload) {
     const res = await apiClient.post("/products", data);
@@ -85,7 +110,7 @@ export const adminProductsApi = {
 
   // Create an option value
   async createOptionValue(optionId: number, value: string) {
-    const res = await apiClient.post(`/filters/option-values`, { 
+    const res = await apiClient.post(`/filters/option-values`, {
       optionId,
       value
     });
@@ -93,7 +118,7 @@ export const adminProductsApi = {
   },
 
   async updateOptionValue(optionValueId: number, value: string) {
-    const res = await apiClient.put(`/filters/option-values/${optionValueId}`, { 
+    const res = await apiClient.put(`/filters/option-values/${optionValueId}`, {
       value
     });
     return res.data;

@@ -14,8 +14,9 @@ export interface DynamicFiltersProps {
     setMinPrice: (price: string | number) => void;
     maxPrice: string | number;
     setMaxPrice: (price: string | number) => void;
-    priceOrder: string;
-    setPriceOrder: (order: string) => void;
+    sortOrder: string;
+    setSortOrder: (order: string) => void;
+    onApplyFilters: () => void;
 }
 
 export default function DynamicFilters({
@@ -28,8 +29,9 @@ export default function DynamicFilters({
     setMinPrice,
     maxPrice,
     setMaxPrice,
-    priceOrder,
-    setPriceOrder
+    sortOrder,
+    setSortOrder,
+    onApplyFilters
 }: DynamicFiltersProps) {
 
     const colors = siteConfig.colors;
@@ -69,9 +71,9 @@ export default function DynamicFilters({
             <div className="flex flex-wrap gap-2 items-center">
                 <select
                     onChange={(e) => onCategoryChange(e.target.value ? e.target.value : "")}
-                    className="border rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition"
+                    className="text-xs font-semibold text-gray-700 border rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition"
                 >
-                    <option value="">Select Category</option>
+                    <option value="">Category</option>
                     {loadedCategories.map((cat) => (
                         <option key={cat.id} value={cat.slug}>
                             {cat.name}
@@ -161,13 +163,39 @@ export default function DynamicFilters({
                     {/* Sort Dropdown */}
                     <select
                         className="border p-1.5 rounded text-xs min-w-32 bg-white hover:bg-gray-50 transition"
-                        value={priceOrder}
-                        onChange={(e) => setPriceOrder(e.target.value)}
+                        value={sortOrder}
+                        onChange={(e) => setSortOrder(e.target.value)}
                     >
                         <option value="newest">Newest</option>
+                        <option value="oldest">Oldest</option>
                         <option value="ascending">Low → High</option>
                         <option value="descending">High → Low</option>
                     </select>
+                    
+                <button
+                    className="border p-1.5 rounded-lg text-xs min-w-32 bg-blue-600 text-white hover:bg-blue-700 transition"
+                    onClick={() => {
+                        // sanitize price inputs
+                        const cleanedMin = minPrice === "" ? 0 : Number(minPrice);
+                        const cleanedMax =
+                            maxPrice === "" ? Number.MAX_SAFE_INTEGER : Number(maxPrice);
+
+                        if (cleanedMin < 0 || cleanedMax < 0) {
+                            alert("Price cannot be negative.");
+                            return;
+                        }
+
+                        if (cleanedMin > cleanedMax) {
+                            alert("Min price cannot be greater than max price.");
+                            return;
+                        }
+
+                        // Trigger parent refresh
+                        onApplyFilters();
+                    }}
+                >
+                    Apply Filters
+                </button>
                 </div>
             </div>
 

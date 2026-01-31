@@ -315,6 +315,7 @@ namespace WebApp_API.Controllers
             {
                 "ascending" => query.OrderBy(p => p.Price),
                 "descending" => query.OrderByDescending(p => p.Price),
+                "oldest" => query.OrderBy(p => p.Id),
                 _ => query.OrderByDescending(p => p.Id) // newest (default)
             };
 
@@ -338,118 +339,169 @@ namespace WebApp_API.Controllers
             return Ok(products);
         }
 
-[HttpGet("admin/paginated")]
-[Authorize(Roles = "Admin")]
-public async Task<IActionResult> GetProductsPaginated(
-    [FromQuery] int page = 1,
-    [FromQuery] int pageSize = 10,
-    [FromQuery] string search = null,
-    [FromQuery] string sortBy = "id",
-    [FromQuery] string sortOrder = "desc")
-{
-    try
-    {
-        Console.WriteLine($"[PRODUCTS] GetProductsPaginated - Page: {page}, Size: {pageSize}, Search: {search}");
-
-        // Validate parameters
-        if (page < 1) page = 1;
-        if (pageSize < 1 || pageSize > 100) pageSize = 10; // Max 100 per page for safety
-
-        // Start with base query
-        IQueryable<Product> query = _db.Products.Include(p => p.Category);
-
-        // Apply search filter
-        if (!string.IsNullOrWhiteSpace(search))
+        // GET: /api/products/admin/paginated - Admin endpoint for paginated products with search and sorting
+        [HttpGet("admin/paginated")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetProductsPaginated(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string search = null,
+            [FromQuery] string sortBy = "id",
+            [FromQuery] string sortOrder = "desc",
+            [FromQuery] string category = null,
+            [FromQuery] decimal minPrice = 0,
+            [FromQuery] decimal maxPrice = decimal.MaxValue,
+            [FromQuery] string options = null,
+            [FromQuery] string priceOrder = "newest")
         {
-            var searchTerm = search.ToLower().Trim();
-            query = query.Where(p => 
-                p.Name.ToLower().Contains(searchTerm) || 
-                p.Slug.ToLower().Contains(searchTerm)
-            );
-            Console.WriteLine($"[PRODUCTS] Search filter applied: {searchTerm}");
-        }
-
-        // Apply sorting
-        query = sortBy.ToLower() switch
-        {
-            "name" => sortOrder == "asc" 
-                ? query.OrderBy(p => p.Name) 
-                : query.OrderByDescending(p => p.Name),
-            "price" => sortOrder == "asc" 
-                ? query.OrderBy(p => p.Price) 
-                : query.OrderByDescending(p => p.Price),
-            "category" => sortOrder == "asc" 
-                ? query.OrderBy(p => p.Category.Name) 
-                : query.OrderByDescending(p => p.Category.Name),
-            _ => sortOrder == "asc" 
-                ? query.OrderBy(p => p.Id) 
-                : query.OrderByDescending(p => p.Id)
-        };
-
-        // Get total count BEFORE pagination
-        var totalCount = await query.CountAsync();
-        Console.WriteLine($"[PRODUCTS] Total count after search: {totalCount}");
-
-        // Calculate pagination
-        var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
-        var skipAmount = (page - 1) * pageSize;
-
-        // Apply pagination - ONLY fetch what we need
-        var products = await query
-            .Skip(skipAmount)
-            .Take(pageSize)
-            .Select(p => new
+            try
             {
-                p.Id,
-                p.Name,
-                p.Slug,
-                p.Price,
-                p.ImageUrl,
-                p.ShortDescription,
-                p.Description,
-                p.CategoryId,
-                Category = new { p.Category.Id, p.Category.Name },
-                Images = _db.ProductImages
-                    .Where(pi => pi.ProductId == p.Id)
-                    .OrderBy(pi => pi.DisplayOrder)
-                    .Select(pi => pi.ImageUrl)
-                    .ToList(),
-                Options = _db.ProductFilters
-                    .Where(pf => pf.ProductId == p.Id)
-                    .Select(pf => new
+                Console.WriteLine($"[PRODUCTS] GetProductsPaginated - Page: {page}, Size: {pageSize}, Search: {search}");
+
+                // Validate parameters
+                if (page < 1) page = 1;
+                if (pageSize < 1 || pageSize > 100) pageSize = 10; // Max 100 per page for safety
+
+                // Start with base query
+                IQueryable<Product> query = _db.Products.Include(p => p.Category);
+
+                // Apply search filter
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    var searchTerm = search.ToLower().Trim();
+                    query = query.Where(p =>
+                        p.Name.ToLower().Contains(searchTerm) ||
+                        p.Slug.ToLower().Contains(searchTerm)
+                    );
+                    Console.WriteLine($"[PRODUCTS] Search filter applied: {searchTerm}");
+                }
+
+                if (!string.IsNullOrWhiteSpace(category))
+                {
+                    var cat = await _db.Categories.FirstOrDefaultAsync(c => c.Slug == category);
+                    if (cat == null) return Ok(new { success = true, data = new List<object>(), pagination = new { currentPage = page, pageSize, totalCount = 0, totalPages = 0 } });
+                    query = query.Where(p => p.CategoryId == cat.Id);
+                }
+
+                if (minPrice > 0) query = query.Where(p => p.Price >= minPrice);
+                if (maxPrice < decimal.MaxValue) query = query.Where(p => p.Price <= maxPrice);
+
+                // apply options filtering (OR within same ProductOption, AND across different options)
+                if (!string.IsNullOrWhiteSpace(options))
+                {
+                    var selectedOptionIds = options.Split(',')
+                        .Select(s => int.TryParse(s.Trim(), out var id) ? (int?)id : null)
+                        .Where(id => id.HasValue)
+                        .Select(id => id.Value)
+                        .ToList();
+
+                    if (selectedOptionIds.Count > 0)
                     {
-                        optionName = pf.OptionValue.ProductOption.Name,
-                        value = pf.OptionValue.Value
+                        // Group by ProductOption to create OR within option, AND between options
+                        var optionGroups = await _db.ProductOptionValues
+                            .Where(pov => selectedOptionIds.Contains(pov.Id))
+                            .GroupBy(pov => pov.ProductOptionId)
+                            .Select(g => new
+                            {
+                                OptionId = g.Key,
+                                SelectedValueIds = g.Select(pov => pov.Id).ToList()
+                            })
+                            .ToListAsync();
+
+                        // Start with product ids that already match the current query (category/min/max applied)
+                        var productIds = await query.Select(p => p.Id).ToListAsync();
+
+                        // Apply AND logic between option groups
+                        foreach (var group in optionGroups)
+                        {
+                            // OR within this option: match ANY value in this group
+                            var productsInGroup = await _db.ProductFilters
+                                .Where(pf => group.SelectedValueIds.Contains(pf.OptionValueId))
+                                .Select(pf => pf.ProductId)
+                                .Distinct()
+                                .ToListAsync();
+
+                            // AND: Intersect with previous results
+                            productIds = productIds.Intersect(productsInGroup).ToList();
+                        }
+
+                        query = query.Where(p => productIds.Contains(p.Id));
+                    }
+                }
+
+                // Apply sorting
+                query = priceOrder switch
+                {
+                    "ascending" => query.OrderBy(p => p.Price),
+                    "descending" => query.OrderByDescending(p => p.Price),
+                    "oldest" => query.OrderBy(p => p.Id),
+                    _ => query.OrderByDescending(p => p.Id)
+                };
+
+                // Get total count BEFORE pagination
+                var totalCount = await query.CountAsync();
+                Console.WriteLine($"[PRODUCTS] Total count after search: {totalCount}");
+
+                // Calculate pagination
+                var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+                var skipAmount = (page - 1) * pageSize;
+
+                // Apply pagination - ONLY fetch what we need
+                var products = await query
+                    .Skip(skipAmount)
+                    .Take(pageSize)
+                    .Select(p => new
+                    {
+                        p.Id,
+                        p.Name,
+                        p.Slug,
+                        p.Price,
+                        p.ImageUrl,
+                        p.ShortDescription,
+                        p.Description,
+                        p.CategoryId,
+                        Category = new { p.Category.Id, p.Category.Name },
+                        Images = _db.ProductImages
+                            .Where(pi => pi.ProductId == p.Id)
+                            .OrderBy(pi => pi.DisplayOrder)
+                            .Select(pi => pi.ImageUrl)
+                            .ToList(),
+                        Options = _db.ProductFilters
+                            .Where(pf => pf.ProductId == p.Id)
+                            .Select(pf => new
+                            {
+                                optionName = pf.OptionValue.ProductOption.Name,
+                                value = pf.OptionValue.Value
+                            })
+                            .ToList()
                     })
-                    .ToList()
-            })
-            .ToListAsync();
+                    .ToListAsync();
 
-        Console.WriteLine($"[PRODUCTS] Fetched {products.Count} products for page {page}");
+                Console.WriteLine($"[PRODUCTS] Fetched {products.Count} products for page {page}");
 
-        // Return paginated response
-        return Ok(new
-        {
-            success = true,
-            data = products,
-            pagination = new
-            {
-                currentPage = page,
-                pageSize = pageSize,
-                totalCount = totalCount,
-                totalPages = totalPages,
-                hasNextPage = page < totalPages,
-                hasPreviousPage = page > 1
+                // Return paginated response
+                return Ok(new
+                {
+                    success = true,
+                    data = products,
+                    pagination = new
+                    {
+                        currentPage = page,
+                        pageSize = pageSize,
+                        totalCount = totalCount,
+                        totalPages = totalPages,
+                        hasNextPage = page < totalPages,
+                        hasPreviousPage = page > 1
+                    }
+                });
             }
-        });
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"[PRODUCTS] Error in GetProductsPaginated: {ex.Message}");
-        Console.WriteLine($"[PRODUCTS] Stack trace: {ex.StackTrace}");
-        return StatusCode(500, new { message = "Error fetching products", error = ex.Message });
-    }
-}
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[PRODUCTS] Error in GetProductsPaginated: {ex.Message}");
+                Console.WriteLine($"[PRODUCTS] Stack trace: {ex.StackTrace}");
+                return StatusCode(500, new { message = "Error fetching products", error = ex.Message });
+            }
+        }
 
         [HttpPost]
         [Authorize(Roles = "Admin")]

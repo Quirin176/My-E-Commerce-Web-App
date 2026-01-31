@@ -27,7 +27,7 @@ export default function Category() {
   // Dynamic filter states
   const [minPrice, setMinPrice] = useState<string | number>("0");
   const [maxPrice, setMaxPrice] = useState<string | number>("100000000");
-  const [priceOrder, setPriceOrder] = useState<string>(searchParams.get("sort") || "newest");
+  const [sortOrder, setSortOrder] = useState<string>(searchParams.get("sort") || "newest");
   const [loadedOptions, setLoadedOptions] = useState<ProductOption[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<(string | number)[]>([]);
 
@@ -64,7 +64,7 @@ export default function Category() {
       const data = await productApi.getByFilters(selectedCategory, {
         minPrice: Number(minPrice) || 0,
         maxPrice: Number(maxPrice) || 100000000,
-        priceOrder,
+        sortOrder,
         options: optionsString,
       });
 
@@ -94,7 +94,7 @@ export default function Category() {
     } finally {
       setLoading(false);
     }
-  }, [selectedCategory, minPrice, maxPrice, priceOrder, selectedOptions, currentPage]);
+  }, [selectedCategory, minPrice, maxPrice, sortOrder, selectedOptions, currentPage]);
 
   // Load products when any filter or page changes
   useEffect(() => {
@@ -176,13 +176,13 @@ export default function Category() {
     if (newPage < 1 || newPage > maxPages) return;
 
     setCurrentPage(newPage);
-    updateUrlParams(newPage, priceOrder);
+    updateUrlParams(newPage, sortOrder);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // Handle sort change: Set price order, reset page and update URL
   const handleSortChange = (newSort: string) => {
-    setPriceOrder(newSort);
+    setSortOrder(newSort);
     setCurrentPage(1);
     updateUrlParams(1, newSort);
   };
@@ -191,7 +191,7 @@ export default function Category() {
   const handleFilterChange = (newOptions: (string | number)[]) => {
     setSelectedOptions(newOptions);
     setCurrentPage(1);
-    updateUrlParams(1, priceOrder);
+    updateUrlParams(1, sortOrder);
   };
 
   // Guard against invalid slug
@@ -225,8 +225,8 @@ export default function Category() {
         setMinPrice={setMinPrice}
         maxPrice={maxPrice}
         setMaxPrice={setMaxPrice}
-        priceOrder={priceOrder}
-        setPriceOrder={handleSortChange}
+        sortOrder={sortOrder}
+        setSortOrder={handleSortChange}
       />
 
       {/* Products grid or loading/empty state */}
