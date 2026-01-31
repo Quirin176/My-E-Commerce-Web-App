@@ -68,7 +68,7 @@ async getProductsPaginated(
     minPrice?: number;
     maxPrice?: number;
     options?: (string | number)[];
-    priceOrder?: "newest" | "oldest" | "ascending" | "descending";
+    sortOrder?: "newest" | "oldest" | "ascending" | "descending";
   }
 ) {
   const params = new URLSearchParams();
@@ -82,7 +82,7 @@ async getProductsPaginated(
     if (filters.minPrice !== undefined) params.append("minPrice", String(filters.minPrice));
     if (filters.maxPrice !== undefined) params.append("maxPrice", String(filters.maxPrice));
     if (filters.options && filters.options.length > 0) params.append("options", filters.options.join(","));
-    if (filters.priceOrder) params.append("priceOrder", filters.priceOrder);
+    if (filters.sortOrder) params.append("sortOrder", filters.sortOrder);
   }
   const res = await apiClient.get<PaginatedResponse<Product>>(`/products/admin/paginated?${params.toString()}`);
   return res.data;

@@ -19,7 +19,7 @@ export default function AdminProducts() {
 
   const { categories } = useCategories();
 
-  const initialPage = parseInt(searchParams.get("page") || "1");
+  // const initialPage = parseInt(searchParams.get("page") || "1");
 
   const {
     formData,
@@ -55,7 +55,7 @@ export default function AdminProducts() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [minPrice, setMinPrice] = useState<string | number>("0");
   const [maxPrice, setMaxPrice] = useState<string | number>("100000000");
-  const [sortOrder, setPriceOrder] = useState<string>(searchParams.get("sort") || "newest");
+  const [sortOrder, setSortOrder] = useState<string>(searchParams.get("sort") || "newest");
   const [loadedOptions, setLoadedOptions] = useState<ProductOption[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<(string | number)[]>([]);
   const [loadingFilters, setLoadingFilters] = useState(false);
@@ -73,7 +73,6 @@ export default function AdminProducts() {
     searchProducts,
     createProduct,
     updateProduct,
-    deleteProduct
   } = useAdminProductsPaginated(ITEMS_PER_PAGE, minPrice, maxPrice, sortOrder, selectedCategory, selectedOptions);
 
   // ========== LOAD OPTIONS FOR SELECTED CATEGORY ==========
@@ -197,8 +196,8 @@ export default function AdminProducts() {
   };
 
   const handlePriceOrderChange = (value: string) => {
-    setPriceOrder(value);
-    setSearchParams({ page: "1" });
+    setSortOrder(value);
+    setSearchParams({ page: "1", sortOrder: value });
   };
 
 const applyFilters = () => {
@@ -223,15 +222,10 @@ const applyFilters = () => {
   };
 
   if (selectedCategory) params.category = selectedCategory;
-  if (cleanedMin > 0) params.min = cleanedMin.toString();
-  if (cleanedMax < Number.MAX_SAFE_INTEGER)
-    params.max = cleanedMax.toString();
+  if (cleanedMin > 0) params.minPrice = cleanedMin.toString();
+  if (cleanedMax < Number.MAX_SAFE_INTEGER) params.max = cleanedMax.toString();
   if (sortOrder) params.sort = sortOrder;
-
-  if (selectedOptions.length > 0) {
-    // Option values CSV (e.g. "1,3,7")
-    params.options = selectedOptions.join(",");
-  }
+  if (selectedOptions.length > 0) params.options = selectedOptions.join(",");
 
   // Update URL
   setSearchParams(params);
@@ -292,7 +286,7 @@ const applyFilters = () => {
           </div>
         )}
 
-        {/* ========== SEARCH BAR ==========
+        {/* ========== SEARCH BAR ========== */}
         <div className="mb-6">
           <div className="relative">
             <Search size={20} className="absolute left-3 top-3 text-gray-400" />
@@ -312,12 +306,13 @@ const applyFilters = () => {
               </button>
             )}
           </div>
-        </div> */}
+        </div>
 
         {/* Dynamic filters */}
         <AdminDynamicFilters
           loadedCategories={categories}
           onCategoryChange={handleCategoryChange}
+          isLoading={loadingFilters}
           loadedOptions={loadedOptions}
           selectedOptions={selectedOptions}
           setSelectedOptions={handleFilterChange}
@@ -371,6 +366,7 @@ const applyFilters = () => {
                   <AdminProductCard
                     product={product}
                     isLoading={isLoadingModalData}
+                    setIsLoadingModalData={setIsLoadingModalData}
                     showForm={showForm}
                     editingId={editingId}
                     isViewMode={isViewMode}

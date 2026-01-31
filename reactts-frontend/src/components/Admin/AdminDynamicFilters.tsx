@@ -7,6 +7,7 @@ import type { ProductOption } from "../../types/models/ProductOption";
 export interface DynamicFiltersProps {
     loadedCategories: Category[];
     onCategoryChange: (slug: string) => void;
+    isLoading: boolean;
     loadedOptions: ProductOption[] | null | undefined;
     selectedOptions: (string | number)[];
     setSelectedOptions: (option: (string | number)[]) => void;
@@ -22,6 +23,7 @@ export interface DynamicFiltersProps {
 export default function DynamicFilters({
     loadedCategories,
     onCategoryChange,
+    isLoading,
     loadedOptions,
     selectedOptions,
     setSelectedOptions,
@@ -70,6 +72,7 @@ export default function DynamicFilters({
 
             <div className="flex flex-wrap gap-2 items-center">
                 <select
+                disabled={isLoading}
                     onChange={(e) => onCategoryChange(e.target.value ? e.target.value : "")}
                     className="text-xs font-semibold text-gray-700 border rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition"
                 >
@@ -80,6 +83,10 @@ export default function DynamicFilters({
                         </option>
                     ))}
                 </select>
+
+{isLoading && (
+  <div className="ml-2 text-xs text-gray-500">Loading options…</div>
+)}
 
                 {/* Dynamic Option Dropdowns*/}
                 {options.length > 0 && (
@@ -172,7 +179,8 @@ export default function DynamicFilters({
                         <option value="descending">High → Low</option>
                     </select>
                     
-                <button
+                {/* <button
+                disabled={isLoading}
                     className="border p-1.5 rounded-lg text-xs min-w-32 bg-blue-600 text-white hover:bg-blue-700 transition"
                     onClick={() => {
                         // sanitize price inputs
@@ -195,7 +203,7 @@ export default function DynamicFilters({
                     }}
                 >
                     Apply Filters
-                </button>
+                </button> */}
                 </div>
             </div>
 

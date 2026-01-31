@@ -35,19 +35,15 @@ export const useAdminProductsPaginated = (
         minPrice: Number(minPrice) || undefined,
         maxPrice: Number(maxPrice) || undefined,
         options: selectedOptions && selectedOptions.length > 0 ? selectedOptions : undefined,
-        // Narrow type to allowed API values
-        priceOrder: sortOrder as "newest" | "oldest" | "ascending" | "descending"
+        sortOrder: sortOrder as "newest" | "oldest" | "ascending" | "descending"
       };
-
-        // If user selects oldest => request id asc at top-level sortOrder arg for clarity
-        const apiSortOrder = sortOrder === "oldest" ? "asc" : "desc";
 
         const response = await adminProductsApi.getProductsPaginated(
           page,
           ITEMS_PER_PAGE,
           search || undefined,
           "id",
-          apiSortOrder,
+          sortOrder,
           filters
         );
 

@@ -246,7 +246,7 @@ namespace WebApp_API.Controllers
             [FromQuery] decimal minPrice = 0,
             [FromQuery] decimal maxPrice = decimal.MaxValue,
             [FromQuery] string options = null,
-            [FromQuery] string priceOrder = "newest")
+            [FromQuery] string sortOrder = "newest")
         {
             if (string.IsNullOrWhiteSpace(category))
                 return BadRequest(new { message = "Category is required" });
@@ -311,7 +311,7 @@ namespace WebApp_API.Controllers
             }
 
             // Apply sorting
-            query = priceOrder switch
+            query = sortOrder switch
             {
                 "ascending" => query.OrderBy(p => p.Price),
                 "descending" => query.OrderByDescending(p => p.Price),
@@ -346,13 +346,11 @@ namespace WebApp_API.Controllers
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10,
             [FromQuery] string search = null,
-            [FromQuery] string sortBy = "id",
-            [FromQuery] string sortOrder = "desc",
             [FromQuery] string category = null,
             [FromQuery] decimal minPrice = 0,
             [FromQuery] decimal maxPrice = decimal.MaxValue,
             [FromQuery] string options = null,
-            [FromQuery] string priceOrder = "newest")
+            [FromQuery] string sortOrder = "newest")
         {
             try
             {
@@ -430,7 +428,7 @@ namespace WebApp_API.Controllers
                 }
 
                 // Apply sorting
-                query = priceOrder switch
+                query = sortOrder switch
                 {
                     "ascending" => query.OrderBy(p => p.Price),
                     "descending" => query.OrderByDescending(p => p.Price),

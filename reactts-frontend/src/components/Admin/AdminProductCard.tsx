@@ -13,6 +13,7 @@ import type { ProductFormData } from "../../hooks/admin/useProductForm";
 interface AdminProductCardProps {
   product: Product;
   isLoading: boolean;
+  setIsLoadingModalData: (loading: boolean) => void;
   showForm: boolean;
   editingId: number | null;
   isViewMode: boolean;
@@ -40,6 +41,7 @@ interface AdminProductCardProps {
 export default function AdminProductCard({
   product,
   isLoading,
+  setIsLoadingModalData,
   showForm,
   editingId,
   isViewMode,
@@ -63,7 +65,6 @@ export default function AdminProductCard({
   openViewForm,
   loadOptionsForCategory,
 }: AdminProductCardProps) {
-  const [isLoadingModalData, setIsLoadingModalData] = useState(false);
 
   const { deleteProduct } = useAdminProductsPaginated(10);
 

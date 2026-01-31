@@ -8,29 +8,18 @@ import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import AdminProductCard from "../../components/Admin/AdminProductCard";
 import AdminProductForm from "../../components/Admin/AdminProductForm";
+import AdminDynamicFilters from "../../components/Admin/AdminDynamicFilters";
 import { categoryApi } from "../../api/products/categoryApi";
+import type { ProductOption } from "../../types/models/ProductOption";
+
+const ITEMS_PER_PAGE = 10;
 
 export default function AdminProducts() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialPage = parseInt(searchParams.get("page") || "1");
-
-  const {
-    products,
-    loading: productsLoading,
-    error: productsError,
-    currentPage,
-    totalPages,
-    totalCount,
-    pageSize,
-    hasNextPage,
-    hasPreviousPage,
-    goToPage,
-    searchProducts,
-    createProduct,
-    updateProduct,
-  } = useAdminProductsPaginated();
 
   const { categories } = useCategories();
+
+  // const initialPage = parseInt(searchParams.get("page") || "1");
 
   const {
     formData,
@@ -58,28 +47,55 @@ export default function AdminProducts() {
     loadOptionsForCategory,
   } = useAdminProductForm();
 
-  const [submitting, setSubmitting] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isLoadingModalData, setIsLoadingModalData] = useState(false);
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [isLoadingModalData, setIsLoadingModalData] = useState<boolean>(false);
 
-  // Category filter
+  // Dynamic filter states
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-
-  // Products options filter
+  const [minPrice, setMinPrice] = useState<string | number>("0");
+  const [maxPrice, setMaxPrice] = useState<string | number>("100000000");
+  const [sortOrder, setSortOrder] = useState<string>(searchParams.get("sort") || "newest");
+  const [loadedOptions, setLoadedOptions] = useState<ProductOption[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<(string | number)[]>([]);
+  const [loadingFilters, setLoadingFilters] = useState(false);
+
+  // Output Data from useAdminProductsPaginated
+  const {
+    products,
+    loading: productsLoading,
+    error: productsError,
+    currentPage,
+    totalPages,
+    totalCount,
+    fetchProducts,
+    goToPage,
+    searchProducts,
+    createProduct,
+    updateProduct,
+  } = useAdminProductsPaginated(ITEMS_PER_PAGE, minPrice, maxPrice, sortOrder, selectedCategory, selectedOptions);
 
   // ========== LOAD OPTIONS FOR SELECTED CATEGORY ==========
-  const handleCategoryChange = async (categorySlug: string | null) => {
-    setSelectedCategory(categorySlug);
+  const handleCategoryChange = async (slug: string) => {
+    setSelectedCategory(slug);
     setSelectedOptions([]);
 
-    if (!categorySlug) return;
+    if (!slug) {
+      setLoadedOptions([]);
+      return;
+    }
 
+    setLoadingFilters(true);
     try {
-      const filters = await categoryApi.getFiltersBySlug(categorySlug);
+      const filters = await categoryApi.getFiltersBySlug(slug);
       const filterList = Array.isArray(filters) ? filters : (filters?.data || []);
+      setLoadedOptions(filterList);
     } catch (error) {
       console.error("Error loading filters for category:", error);
+      toast.error("Failed to load category filters");
+      setLoadedOptions([]);
+    } finally {
+      setLoadingFilters(false);
     }
   };
 
@@ -135,8 +151,7 @@ export default function AdminProducts() {
       closeForm();
     } catch (error) {
       console.error("Error saving product:", error);
-      const message =
-        error instanceof Error ? error.message : "Failed to save product";
+      const message = error instanceof Error ? error.message : "Failed to save product";
       toast.error(message);
     } finally {
       setSubmitting(false);
@@ -164,9 +179,66 @@ export default function AdminProducts() {
     }
   };
 
+  // ========== HANDLE FILTER CHANGES ==========
+  const handleFilterChange = (newOptions: (string | number)[]) => {
+    setSelectedOptions(newOptions);
+    setSearchParams({ page: "1" });
+  };
+
+  const handleMinPriceChange = (value: string | number) => {
+    setMinPrice(value);
+    setSearchParams({ page: "1" });
+  };
+
+  const handleMaxPriceChange = (value: string | number) => {
+    setMaxPrice(value);
+    setSearchParams({ page: "1" });
+  };
+
+  const handlePriceOrderChange = (value: string) => {
+    setSortOrder(value);
+    setSearchParams({ page: "1", sortOrder: value });
+  };
+
+const applyFilters = () => {
+  // Normalize / validate price inputs
+  const cleanedMin = minPrice === "" ? 0 : Number(minPrice);
+  const cleanedMax =
+    maxPrice === "" ? Number.MAX_SAFE_INTEGER : Number(maxPrice);
+
+  if (cleanedMin < 0 || cleanedMax < 0) {
+    toast.error("Price cannot be negative.");
+    return;
+  }
+
+  if (cleanedMin > cleanedMax) {
+    toast.error("Min price cannot be greater than max price.");
+    return;
+  }
+
+  // Build URL params
+  const params: Record<string, string> = {
+    page: "1",
+  };
+
+  if (selectedCategory) params.category = selectedCategory;
+  if (cleanedMin > 0) params.minPrice = cleanedMin.toString();
+  if (cleanedMax < Number.MAX_SAFE_INTEGER) params.max = cleanedMax.toString();
+  if (sortOrder) params.sort = sortOrder;
+  if (selectedOptions.length > 0) params.options = selectedOptions.join(",");
+
+  // Update URL
+  setSearchParams(params);
+  
+  // goToPage(1); // Reset pagination in hook
+  // searchProducts(searchTerm); // Trigger search with existing API logic
+
+  fetchProducts(1, searchTerm);
+};
+
   // Calculate start and end indices for display
-  const startIndex = (currentPage - 1) * pageSize + 1;
-  const endIndex = Math.min(currentPage * pageSize, totalCount);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE + 1;
+  const endIndex = Math.min(currentPage * ITEMS_PER_PAGE, totalCount);
 
   return (
     <div className="min-h-screen">
@@ -236,6 +308,23 @@ export default function AdminProducts() {
           </div>
         </div>
 
+        {/* Dynamic filters */}
+        <AdminDynamicFilters
+          loadedCategories={categories}
+          onCategoryChange={handleCategoryChange}
+          isLoading={loadingFilters}
+          loadedOptions={loadedOptions}
+          selectedOptions={selectedOptions}
+          setSelectedOptions={handleFilterChange}
+          minPrice={minPrice}
+          setMinPrice={handleMinPriceChange}
+          maxPrice={maxPrice}
+          setMaxPrice={handleMaxPriceChange}
+          sortOrder={sortOrder}
+          setSortOrder={handlePriceOrderChange}
+          onApplyFilters={applyFilters}
+        />
+
         {/* ========== PRODUCTS LIST ========== */}
         {productsLoading ? (
           <div className="text-center py-12">
@@ -277,6 +366,7 @@ export default function AdminProducts() {
                   <AdminProductCard
                     product={product}
                     isLoading={isLoadingModalData}
+                    setIsLoadingModalData={setIsLoadingModalData}
                     showForm={showForm}
                     editingId={editingId}
                     isViewMode={isViewMode}
@@ -308,9 +398,7 @@ export default function AdminProducts() {
             {totalPages > 1 && (
               <div className="bg-white rounded-lg shadow p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="text-gray-600 text-sm">
-                  Showing <strong>{startIndex}</strong> to{" "}
-                  <strong>{endIndex}</strong> of{" "}
-                  <strong>{totalCount}</strong> products
+                  Showing <strong>{startIndex}</strong> to <strong>{endIndex}</strong> of <strong>{totalCount}</strong> products
                   {searchTerm && (
                     <span className="ml-2 text-blue-600">
                       (filtered)
@@ -321,7 +409,6 @@ export default function AdminProducts() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleGoToPage(currentPage - 1)}
-                    disabled={!hasPreviousPage}
                     className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
                     title="Previous page"
                   >
@@ -332,8 +419,8 @@ export default function AdminProducts() {
                     <button
                       onClick={() => handleGoToPage(1)}
                       className={`px-3 py-2 rounded-lg font-semibold transition ${currentPage === 1
-                          ? "bg-blue-600 text-white"
-                          : "border border-gray-300 hover:bg-gray-50"
+                        ? "bg-blue-600 text-white"
+                        : "border border-gray-300 hover:bg-gray-50"
                         }`}
                     >
                       1
@@ -355,8 +442,8 @@ export default function AdminProducts() {
                           key={page}
                           onClick={() => handleGoToPage(page)}
                           className={`px-3 py-2 rounded-lg font-semibold transition ${currentPage === page
-                              ? "bg-blue-600 text-white"
-                              : "border border-gray-300 hover:bg-gray-50"
+                            ? "bg-blue-600 text-white"
+                            : "border border-gray-300 hover:bg-gray-50"
                             }`}
                         >
                           {page}
@@ -371,8 +458,8 @@ export default function AdminProducts() {
                       <button
                         onClick={() => handleGoToPage(totalPages)}
                         className={`px-3 py-2 rounded-lg font-semibold transition ${currentPage === totalPages
-                            ? "bg-blue-600 text-white"
-                            : "border border-gray-300 hover:bg-gray-50"
+                          ? "bg-blue-600 text-white"
+                          : "border border-gray-300 hover:bg-gray-50"
                           }`}
                       >
                         {totalPages}
@@ -382,7 +469,6 @@ export default function AdminProducts() {
 
                   <button
                     onClick={() => handleGoToPage(currentPage + 1)}
-                    disabled={!hasNextPage}
                     className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
                     title="Next page"
                   >
@@ -408,12 +494,6 @@ export default function AdminProducts() {
                         if (!isNaN(value)) {
                           handleGoToPage(value);
                         }
-                      }
-                    }}
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value);
-                      if (!isNaN(value) && e.target.value.length > 0) {
-                        handleGoToPage(value);
                       }
                     }}
                     className="w-16 px-2 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 outline-none"
