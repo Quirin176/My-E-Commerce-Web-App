@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useCart } from "../../hooks/useCart";
 import { siteConfig } from "../../config/siteConfig";
-import type { Product } from "../../types/models/Product";
+import type { Product } from "../../types/models/products/Product";
 
 export default function ProductCard({ product }: { product: Product }) {
   const colors = siteConfig.colors;

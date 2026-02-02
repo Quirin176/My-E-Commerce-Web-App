@@ -3,7 +3,7 @@ import { ChevronDown, LayoutGrid } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { categoryApi } from "../../api/products/categoryApi";
 import { siteConfig } from "../../config/siteConfig";
-import type { ProductOption } from "../../types/models/ProductOption";
+import type { ProductOption } from "../../types/models/products/ProductOption";
 
 export default function CategoriesDropdown({ categories = siteConfig.categories }) {
   const colors = siteConfig.colors;

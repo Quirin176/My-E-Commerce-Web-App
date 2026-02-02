@@ -7,6 +7,7 @@ using WebApp_API.Models;
 
 namespace WebApp_API.Controllers
 {
+    // Route: api/orders
     [Route("api/[controller]")]
     [ApiController]
     public class OrdersController : ControllerBase
@@ -14,7 +15,8 @@ namespace WebApp_API.Controllers
         private readonly AppDbContext _db;
         public OrdersController(AppDbContext db) => _db = db;
 
-        // Create new order (unchanged from before)
+        // ==================== CUSTOMER METHODS ====================
+        // POST api/orders - Create new order
         [HttpPost]
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> CreateOrder([FromBody] OrderDTOs.CreateOrderRequest request)
@@ -90,7 +92,7 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // UPDATED: Get order by ID with full details including items
+        // GET api/orders/{id} - Get order by ID with full details including items
         [HttpGet("{id}")]
         [Authorize]
         public async Task<IActionResult> GetOrder(int id)
@@ -141,7 +143,7 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // UPDATED: Get user's orders with summary information
+        // GET api/orders/user/my-orders - Get user's orders with summary information
         [HttpGet("user/my-orders")]
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> GetUserOrders()
@@ -192,7 +194,8 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // Update order status (Admin only)
+        // ==================== ADMIN METHODS ====================
+        // PUT api/orders/{id}/status - Update order status (Admin only)
         [HttpPut("{id}/status")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateOrderStatus(int id, [FromBody] OrderDTOs.UpdateOrderStatusRequest request)
@@ -222,7 +225,7 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // Get all orders (Admin only)
+        // GET api/orders/admin/all-orders - Get all orders (Admin only)
         [HttpGet("admin/all-orders")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllOrders(

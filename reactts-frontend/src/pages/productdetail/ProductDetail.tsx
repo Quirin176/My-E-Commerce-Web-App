@@ -5,7 +5,7 @@ import { productApi } from "../../api/products/productApi";
 import { useAuth } from "../../hooks/useAuth";
 // import { useCart } from "../../context/CartContext";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import type { Product } from "../../types/models/Product";
+import type { Product } from "../../types/models/products/Product";
 
 export default function ProductDetails() {
   const { id } = useParams();

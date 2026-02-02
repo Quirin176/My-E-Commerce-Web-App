@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { LayoutGrid } from "lucide-react";
 import { siteConfig } from "../../config/siteConfig";
 import { categoryApi } from "../../api/products/categoryApi";
-import type { ProductOption } from "../../types/models/ProductOption.ts";
+import type { ProductOption } from "../../types/models/products/ProductOption.ts";
 import CategoryTabs from "../../components/Product/CategoryTabs";
 
 export default function Home() {

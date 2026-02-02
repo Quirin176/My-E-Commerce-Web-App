@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import type { Product } from "../types/models/Product";
+import type { Product } from "../types/models/products/Product";
 
 interface UseProductSearchReturn {
   searchTerm: string;

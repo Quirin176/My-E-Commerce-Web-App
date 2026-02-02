@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import toast from "react-hot-toast";
 import { categoryApi } from "../../api/products/categoryApi";
-import type { ProductOption } from "../../types/models/ProductOption";
+import type { ProductOption } from "../../types/models/products/ProductOption";
 
 interface UseAdminProductFormReturn {
   showForm: boolean;

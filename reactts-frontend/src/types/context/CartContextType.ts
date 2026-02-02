@@ -1,4 +1,4 @@
-import type { CartItem } from "../models/CartItem";
+import type { CartItem } from "../models/cart/CartItem";
 
 export interface CartContextType {
   items: CartItem[];

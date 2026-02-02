@@ -1,5 +1,5 @@
 import { apiClient } from "../apiClient";
-import type { Product } from "../../types/models/Product";
+import type { Product } from "../../types/models/products/Product";
 
 export interface PaginatedResponse<T> {
   success: boolean;

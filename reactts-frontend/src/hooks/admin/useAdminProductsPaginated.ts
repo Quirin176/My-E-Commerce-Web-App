@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { adminProductsApi, type UpdatedProductPayload } from "../../api/admin/adminProductsApi";
-import type { Product } from "../../types/models/Product";
+import type { Product } from "../../types/models/products/Product";
 
 export const useAdminProductsPaginated = (
   ITEMS_PER_PAGE: number,

@@ -5,8 +5,8 @@ import { categoryApi } from "../../api/products/categoryApi";
 import { productApi } from "../../api/products/productApi";
 import { siteConfig } from "../../config/siteConfig";
 import ProductCard from "./ProductCard";
-import type { Category } from "../../types/models/Category";
-import type { Product } from "../../types/models/Product";
+import type { Category } from "../../types/models/products/Category";
+import type { Product } from "../../types/models/products/Product";
 
 const CategoryTabs = () => {
   const colors = siteConfig.colors;

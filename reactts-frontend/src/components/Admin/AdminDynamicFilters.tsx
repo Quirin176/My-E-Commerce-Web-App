@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { siteConfig } from "../../config/siteConfig";
-import type { Category } from "../../types/models/Category";
-import type { ProductOption } from "../../types/models/ProductOption";
+import type { Category } from "../../types/models/products/Category";
+import type { ProductOption } from "../../types/models/products/ProductOption";
 
 export interface DynamicFiltersProps {
     loadedCategories: Category[];

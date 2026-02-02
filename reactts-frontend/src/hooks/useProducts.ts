@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { adminProductsApi } from "../api/admin/adminProductsApi";
-import type { Product } from "../types/models/Product";
+import type { Product } from "../types/models/products/Product";
 
 interface FilterState {
   category: number | null;

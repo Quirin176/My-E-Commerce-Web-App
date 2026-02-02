@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { siteConfig } from "../../config/siteConfig";
-import type { ProductOption } from "../../types/models/ProductOption";
+import type { ProductOption } from "../../types/models/products/ProductOption";
 
 export interface DynamicFiltersProps {
   loadedOptions: ProductOption[] | null | undefined;

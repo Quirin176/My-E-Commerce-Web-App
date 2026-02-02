@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { CartContext } from "./CartContext";
-import type { CartItem } from "../types/models/CartItem";
+import type { CartItem } from "../types/models/cart/CartItem";
 import type { CartContextType } from "../types/context/CartContextType";
 
 interface CartProviderProps {

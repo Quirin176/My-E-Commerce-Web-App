@@ -10,7 +10,7 @@ import AdminProductCard from "../../components/Admin/AdminProductCard";
 import AdminProductForm from "../../components/Admin/AdminProductForm";
 import AdminDynamicFilters from "../../components/Admin/AdminDynamicFilters";
 import { categoryApi } from "../../api/products/categoryApi";
-import type { ProductOption } from "../../types/models/ProductOption";
+import type { ProductOption } from "../../types/models/products/ProductOption";
 
 const ITEMS_PER_PAGE = 10;
 

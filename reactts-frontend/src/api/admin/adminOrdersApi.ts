@@ -1,8 +1,16 @@
 import { apiClient } from "../apiClient";
 
+export interface AdminOrdersFilters {
+  status: string,
+  minDate: string,
+  maxDate: string,
+  sortBy: string,
+  sortOrder: string
+}
+
 export const adminOrdersApi = {
-  // GET: /api/AdminOrders - Get all orders with filters
-  async getAllOrders(filters = {}) {
+  // GET /api/AdminOrders - Get all orders with filters
+  async getAllOrders(filters: AdminOrdersFilters) {
     try {
       // Use the existing /orders endpoint with filters
       const params = new URLSearchParams();
@@ -22,7 +30,7 @@ export const adminOrdersApi = {
   },
 
   // GET order detail by ID
-  async getOrderDetail(orderId) {
+  async getOrderDetail(orderId: number) {
     try {
       const res = await apiClient.get(`/AdminOrders/${orderId}`);
       return res.data;
@@ -33,7 +41,7 @@ export const adminOrdersApi = {
   },
 
   // UPDATE order status
-  async updateOrderStatus(orderId, status) {
+  async updateOrderStatus(orderId: number, status: string) {
     try {
       const res = await apiClient.put(`/AdminOrders/${orderId}/status`, {
         status: status,
@@ -46,7 +54,7 @@ export const adminOrdersApi = {
   },
 
   // UPDATE entire order
-  async updateOrder(orderId, orderData) {
+  async updateOrder(orderId: number, orderData) {
     try {
       const res = await apiClient.put(`/AdminOrders/${orderId}`, orderData);
       return res.data;
@@ -57,7 +65,7 @@ export const adminOrdersApi = {
   },
 
   // DELETE order
-  async deleteOrder(orderId) {
+  async deleteOrder(orderId: number) {
     try {
       const res = await apiClient.delete(`/AdminOrders/${orderId}`);
       return res.data;
@@ -97,7 +105,7 @@ export const adminOrdersApi = {
   },
 
   // SEND confirmation email
-  async sendConfirmationEmail(orderId) {
+  async sendConfirmationEmail(orderId: number) {
     try {
       const res = await apiClient.post(`/AdminOrders/${orderId}/send-email`);
       return res.data;

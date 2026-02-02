@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import type { Category } from "../types/models/Category"
+import type { Category } from "../types/models/products/Category"
 import { categoryApi } from "../api/products/categoryApi";
 
 interface UseCategoriesReturn {

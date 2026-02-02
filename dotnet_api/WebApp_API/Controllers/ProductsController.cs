@@ -7,7 +7,7 @@ using WebApp_API.Models;
 
 namespace WebApp_API.Controllers
 {
-    // Route : api/products
+    // Route: api/products
     [Route("api/[controller]")]
     [ApiController]
     public class ProductsController : ControllerBase

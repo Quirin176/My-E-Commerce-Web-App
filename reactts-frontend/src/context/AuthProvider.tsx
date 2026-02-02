@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { authApi } from "../api/auth/authApi";
 import { AuthContext } from "./AuthContext";
-import type { User } from "../types/models/User";
+import type { User } from "../types/models/auth/User";
 import type { SignupRequest } from "../types/dto/SignupRequest";
 import type { AuthContextType } from "../types/context/AuthContextType";
 import type { UserDto } from "../types/dto/UserDto";

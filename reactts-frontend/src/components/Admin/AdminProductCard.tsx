@@ -5,9 +5,9 @@ import { Edit2, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAdminProductsPaginated } from "../../hooks/admin/useAdminProductsPaginated";
 import AdminProductForm from "./AdminProductForm";
-import type { Product } from "../../types/models/Product";
-import type { Category } from "../../types/models/Category";
-import type { ProductOption } from "../../types/models/ProductOption";
+import type { Product } from "../../types/models/products/Product";
+import type { Category } from "../../types/models/products/Category";
+import type { ProductOption } from "../../types/models/products/ProductOption";
 import type { ProductFormData } from "../../hooks/admin/useProductForm";
 
 interface AdminProductCardProps {
