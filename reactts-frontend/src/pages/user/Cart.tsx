@@ -1,92 +1,101 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import toast from "react-hot-toast";
+import CartItemCard from "../../components/Cart/CartItemCard";
 import { useAuth } from "../../hooks/useAuth";
 import { useCart } from "../../hooks/useCart";
 import { siteConfig } from "../../config/siteConfig"
 
 export default function Cart() {
-    const colors = siteConfig.colors;
-    const navigate = useNavigate();
-    const { items, removeFromCart, updateQuantity, clearCart, getTotalPrice } = useCart();
-    const { user } = useAuth();
-    const [isCheckingOut, setIsCheckingout] = useState(false)
+  const colors = siteConfig.colors;
+  const navigate = useNavigate();
+  const { cartItems, clearCart, getTotalPrice } = useCart();
+  const { user } = useAuth();
+  const [isCheckingOut, setIsCheckingout] = useState(false)
 
-    if (!user) {
-        return (
-            <div className="container mx-auto px-4 py-12 text-center">
-                <ShoppingBag size={64} className="mx-auto text-gray-400 mb-4"/>
-                <h1 className="text-3xl font-bold text-gray-800 mb-4">Your cart is empty</h1>
-                <p className="text-gray-600 mb-8">Please log in to view your cart</p>
-                <Link
-                to="/auth?mode=login"
-                className="inline-block px-6 py-3 text-white rounded-lg hover:brightness-75 transition"
-                style={{ background: colors.primarycolor}}
-                >
-                    Go to Login
-                </Link>
-            </div>
-        )
+  if (!user) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <ShoppingBag size={64} className="mx-auto text-gray-400 mb-4" />
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">Your cart is empty</h1>
+        <p className="text-gray-600 mb-8">Please log in to view your cart</p>
+        <Link
+          to="/auth?mode=login"
+          className="inline-block px-6 py-3 text-white rounded-lg hover:brightness-75 transition"
+          style={{ background: colors.primarycolor }}
+        >
+          Go to Login
+        </Link>
+      </div>
+    )
+  }
+  if (cartItems.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <ShoppingBag size={64} className="mx-auto text-gray-400 mb-4" />
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">Your cart is empty</h1>
+        <p className="text-gray-600 mb-8">Add some products to get started!</p>
+        <Link
+          to="/home"
+          className="inline-block px-6 py-3 text-white rounded-lg hover:brightness-75 transition"
+          style={{ background: colors.primarycolor }}
+        >
+          Back to Home Page
+        </Link>
+      </div>
+    )
+  }
+
+  const handleCheckout = async () => {
+    if (cartItems.length === 0) {
+      toast.error("Your cart is empty");
+      return;
     }
-    if (items.length === 0) {
-        return (
-            <div className="container mx-auto px-4 py-12 text-center">
-                <ShoppingBag size={64} className="mx-auto text-gray-400 mb-4"/>
-                <h1 className="text-3xl font-bold text-gray-800 mb-4">Your cart is empty</h1>
-                <p className="text-gray-600 mb-8">Add some products to get started!</p>
-                <Link
-                to="/home"
-                className="inline-block px-6 py-3 text-white rounded-lg hover:brightness-75 transition"
-                style={{ background: colors.primarycolor}}
-                >
-                    Back to Home Page
-                </Link>
-            </div>
-        )
+
+    setIsCheckingout(true);
+    try {
+
+      toast.success("Proceeding to checkout...");
+      setTimeout(() => {
+        navigate("/checkout");
+      }, 1000);
+    } catch (error) {
+      toast.error("Checkout failed. Please try again.");
+      console.error("Checkout error: ", error);
+    } finally {
+      setIsCheckingout(false);
     }
+  };
 
-    const handleRemove = (productId: number, productName: string) => {
-        removeFromCart(productId);
-        toast.success(`${productName} removed from cart`);
-    };
-
-    const handleQuantityChange = (productId: number, newQuantity: number) => {
-        if (newQuantity <= 0) {
-            return;
-        }
-        updateQuantity(productId, newQuantity)
-    };
-
-    const handleCheckout = async () => {
-        if (items.length === 0) {
-            toast.error("Your cart is empty");
-            return;
-        }
-
-        setIsCheckingout(true);
-        try {
-
-            toast.success("Proceeding to checkout...");
-            setTimeout(() => {
-                navigate("/checkout");
-            }, 1000);
-        } catch (error) {
-            toast.error("Checkout failed. Please try again.");
-            console.error("Checkout error: ", error);
-        } finally {
-            setIsCheckingout(false);
-        }
-    };
-    
-    const totalPrice = getTotalPrice();
+  const totalPrice = getTotalPrice();
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      {/* Header */}
-      <h1 className="text-4xl font-bold mb-8" style={{ color: colors.primarycolor }}>
-        Shopping Cart
-      </h1>
+    <div className="container mx-auto px-4 py-4 max-w-6xl rounded-2xl bg-gray-50">
+
+      {/* Cart Actions */}
+      <div className="flex items-center justify-between pb-6">
+        {/* Header */}
+        <h1 className="text-3xl font-bold" style={{ color: colors.primarycolor }}>
+          Shopping Cart
+        </h1>
+
+        <button
+          onClick={() => {
+            if (
+              window.confirm(
+                "Are you sure you want to clear your cart?"
+              )
+            ) {
+              clearCart();
+              toast.success("Cart cleared");
+            }
+          }}
+          className="px-6 py-2 border-2 border-red-600 text-red-600 rounded-lg hover:bg-red-200 transition font-semibold"
+        >
+          Clear All Cart Items
+        </button>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Cart Items */}
@@ -94,117 +103,9 @@ export default function Cart() {
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             {/* Cart Items List */}
             <div className="divide-y">
-              {items.map((item) => (
-                <div
-                  key={item.id}
-                  className="p-6 hover:bg-gray-50 transition flex gap-6"
-                >
-                  {/* Product Image */}
-                  <Link
-                    to={`/product/${item.slug}`}
-                    className="shrink-0"
-                  >
-                    <img
-                      src={item.image || "https://via.placeholder.com/150?text=No+Image"}
-                      alt={item.name}
-                      className="w-32 h-32 object-cover rounded-lg hover:opacity-80 transition"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = "https://via.placeholder.com/150?text=No+Image";
-                      }}
-                    />
-                  </Link>
-
-                  {/* Product Details */}
-                  <div className="flex-1">
-                    <Link
-                      to={`/product/${item.slug}`}
-                      className="text-xl font-bold hover:underline"
-                      style={{ color: colors.primarycolor }}
-                    >
-                      {item.name}
-                    </Link>
-
-                    {/* Options */}
-                    {item.option && item.option.length > 0 && (
-                      <div className="mt-2 space-y-1">
-                        {item.option.map((opt, index) => (
-                          <p key={index} className="text-sm text-gray-600">
-                            <strong>{opt.optionName}:</strong> {opt.value}
-                          </p>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Price */}
-                    <p className="text-lg font-bold mt-3" style={{ color: colors.primarycolor }}>
-                      {item.price.toLocaleString()} VND
-                    </p>
-
-                    {/* Quantity Control */}
-                    <div className="flex items-center gap-4 mt-4">
-                      <div className="flex items-center border rounded-lg">
-                        <button
-                          onClick={() =>
-                            handleQuantityChange(item.id, item.quantity - 1)
-                          }
-                          className="p-2 hover:bg-gray-100 transition"
-                          disabled={item.quantity <= 1}
-                        >
-                          <Minus size={18} />
-                        </button>
-                        <span className="px-4 py-2 font-semibold">
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() =>
-                            handleQuantityChange(item.id, item.quantity + 1)
-                          }
-                          className="p-2 hover:bg-gray-100 transition"
-                        >
-                          <Plus size={18} />
-                        </button>
-                      </div>
-
-                      {/* Remove Button */}
-                      <button
-                        onClick={() => handleRemove(item.id, item.name)}
-                        className="ml-auto p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
-                        title="Remove from cart"
-                      >
-                        <Trash2 size={20} />
-                      </button>
-                    </div>
-
-                    {/* Subtotal */}
-                    <p className="text-right text-gray-600 mt-3">
-                      Subtotal:{" "}
-                      <span className="font-bold" style={{ color: colors.primarycolor }}>
-                        {(item.price * item.quantity).toLocaleString()} VND
-                      </span>
-                    </p>
-                  </div>
-                </div>
+              {cartItems.map((cartItem) => (
+                <CartItemCard {...cartItem} />
               ))}
-            </div>
-
-            {/* Cart Actions */}
-            <div className="p-6 bg-gray-50 flex gap-4">
-              <button
-                onClick={() => {
-                  if (
-                    window.confirm(
-                      "Are you sure you want to clear your cart?"
-                    )
-                  ) {
-                    clearCart();
-                    toast.success("Cart cleared");
-                  }
-                }}
-                className="px-6 py-2 border-2 border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition font-semibold"
-              >
-                Clear Cart
-              </button>
             </div>
           </div>
         </div>
@@ -218,8 +119,8 @@ export default function Cart() {
 
             {/* Summary Details */}
             <div className="space-y-4 mb-6">
-              <div className="flex justify-between text-gray-700">
-                <span>Subtotal ({items.length} items):</span>
+              <div className="flex justify-between">
+                <span>Subtotal ({cartItems.length} items):</span>
                 <span className="font-semibold">
                   {totalPrice.toLocaleString()} VND
                 </span>
@@ -237,7 +138,7 @@ export default function Cart() {
 
               <div className="border-t pt-4 flex justify-between text-xl font-bold">
                 <span>Total:</span>
-                <span style={{ color: colors.primarycolor }}>
+                <span style={{ color: colors.pricecolor }}>
                   {totalPrice.toLocaleString()} VND
                 </span>
               </div>
@@ -246,7 +147,7 @@ export default function Cart() {
             {/* Checkout Button */}
             <button
               onClick={handleCheckout}
-              disabled={isCheckingOut || items.length === 0}
+              disabled={isCheckingOut || cartItems.length === 0}
               className="w-full py-3 text-white font-bold rounded-lg hover:brightness-75 transition disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ background: colors.primarycolor }}
             >
@@ -262,7 +163,7 @@ export default function Cart() {
               Continue Shopping
             </Link>
 
-            {/* Promo Code (Optional) */}
+            {/* Promo Code (Optional)
             <div className="mt-6 pt-6 border-t">
               <p className="text-sm text-gray-600 mb-3">Have a promo code?</p>
               <div className="flex gap-2">
@@ -282,7 +183,7 @@ export default function Cart() {
               <p className="text-xs text-gray-500 mt-2">
                 Promo code feature coming soon
               </p>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

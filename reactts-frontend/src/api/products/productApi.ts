@@ -28,7 +28,7 @@ export const productApi = {
     return res.data;
   },
 
-  // GET: /api/products/slug/{slug} - Get all data of a product by slug
+  // GET: /api/products/{slug} - Get all data of a product by slug
   async getProductBySlug(slug: string) {
     const res = await apiClient.get(`/products/${slug}`);
     return res.data;

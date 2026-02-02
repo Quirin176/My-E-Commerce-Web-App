@@ -208,7 +208,7 @@ export default function Category() {
     <div className="container mx-auto">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">{formattedName}</h1>
+        <h1 className="text-3xl font-bold mb-2">{formattedName}</h1>
         {products.length > 0 && (
           <p className="text-gray-600">
             Showing {startIndex} to {endIndex} of {totalCount} product{totalCount !== 1 ? "s" : ""}

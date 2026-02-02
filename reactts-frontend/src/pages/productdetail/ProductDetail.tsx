@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import { useParams, Link } from "react-router-dom";
 import { productApi } from "../../api/products/productApi";
 import { useAuth } from "../../hooks/useAuth";
-// import { useCart } from "../../context/CartContext";
+import { useCart } from "../../hooks/useCart";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import type { Product } from "../../types/models/products/Product";
 
@@ -17,9 +17,9 @@ export default function ProductDetails() {
   const [thumbStyle, setThumbStyle] = useState<'vertical' | 'horizontal'>('horizontal');
 
   const { user } = useAuth();
-//   const { addToCart } = useCart();
+  const { addToCart } = useCart();
 
-  const handleAdd = () => {
+  const handleAddToCart = () => {
     if (!product) {
       toast.error("Product not found.");
       return;
@@ -33,13 +33,14 @@ export default function ProductDetails() {
     const item = {
       id: product.id,
       name: product.name,
+      slug: product.slug,
       price: product.price,
       image: product.images[0] || product.imageUrl || "https://via.placeholder.com/400",
       options: product.options || [],
     };
 
     try {
-    //   addToCart(item, 1);
+      addToCart(item, 1);
       toast.success(`${item.name} added to cart!`);
     } catch (error) {
       toast.error(`Failed to add ${item.name} to cart.`);
@@ -56,7 +57,7 @@ export default function ProductDetails() {
       }
 
       try {
-        const data = await productApi.getById(id);
+        const data = await productApi.getProductById(id);
         setProduct(data);
         console.log("Product loaded:", data);
       } catch (error) {
@@ -238,7 +239,7 @@ const images: string[] = product.images && product.images.length > 0
 
           {/* Add to Cart Button */}
           <button
-            onClick={handleAdd}
+            onClick={handleAddToCart}
             className="mt-4 w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-semibold mb-6"
           >
             Add to Cart

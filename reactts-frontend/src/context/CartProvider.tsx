@@ -8,7 +8,7 @@ interface CartProviderProps {
 }
 
 export const CartProvider = ({ children }: CartProviderProps) => {
-  const [items, setItems] = useState<CartItem[]>(() => {
+  const [cartItems, setItems] = useState<CartItem[]>(() => {
     // Load cart from localStorage on mount
     if (typeof window !== 'undefined') {
       const storedCart = localStorage.getItem('cart');
@@ -46,7 +46,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     });
   }, []);
 
-  const removeFromCart = useCallback((productId: number) => {
+  const removeFromCart = useCallback((productId: number | string) => {
     setItems((prevItems) => {
       const updatedItems = prevItems.filter((item) => item.id !== productId);
       saveCart(updatedItems);
@@ -54,7 +54,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     });
   }, []);
 
-  const updateQuantity = useCallback((productId: number, quantity: number) => {
+  const updateQuantity = useCallback((productId: number | string, quantity: number) => {
     setItems((prevItems) => {
       if (quantity <= 0) {
         // Remove item if quantity is 0 or less
@@ -76,15 +76,15 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   }, []);
 
   const getTotalPrice = useCallback(() => {
-    return items.reduce((total, item) => total + item.price * item.quantity, 0);
-  }, [items]);
+    return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+  }, [cartItems]);
 
   const getTotalItems = useCallback(() => {
-    return items.reduce((total, item) => total + item.quantity, 0);
-  }, [items]);
+    return cartItems.reduce((total, item) => total + item.quantity, 0);
+  }, [cartItems]);
 
   const value: CartContextType = {
-    items,
+    cartItems,
     addToCart,
     removeFromCart,
     updateQuantity,

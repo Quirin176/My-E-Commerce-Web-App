@@ -53,16 +53,16 @@ export const adminOrdersApi = {
     }
   },
 
-  // UPDATE entire order
-  async updateOrder(orderId: number, orderData) {
-    try {
-      const res = await apiClient.put(`/AdminOrders/${orderId}`, orderData);
-      return res.data;
-    } catch (error) {
-      console.error(`Error updating order:`, error);
-      throw error;
-    }
-  },
+  // // UPDATE entire order
+  // async updateOrder(orderId: number, orderData) {
+  //   try {
+  //     const res = await apiClient.put(`/AdminOrders/${orderId}`, orderData);
+  //     return res.data;
+  //   } catch (error) {
+  //     console.error(`Error updating order:`, error);
+  //     throw error;
+  //   }
+  // },
 
   // DELETE order
   async deleteOrder(orderId: number) {
