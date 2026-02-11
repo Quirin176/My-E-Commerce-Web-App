@@ -26,4 +26,17 @@ export const siteConfig = {
     { "label": "Manage Products", "link": "/admin/products" },
     { "label": "User Management", "link": "/admin/users" }
   ],
+
+      // Order's Status Options
+    ORDER_STATUS_OPTIONS: [
+        { value: "all", label: "All", color: "black" },
+        { value: "pending", label: "Pending", color: "yellow" },
+        { value: "confirmed", label: "Confirmed", color: "blue" },
+        { value: "processing", label: "Processing", color: "purple" },
+        { value: "shipping", label: "Shipping", color: "purple" },
+        { value: "delivered", label: "Delivered", color: "green" },
+        { value: "cancelled", label: "Cancelled", color: "red" },
+        { value: "refunded", label: "Refunded", color: "gray" },
+    ],
+
 }

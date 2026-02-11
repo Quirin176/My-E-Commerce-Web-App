@@ -72,7 +72,7 @@ export default function DynamicFilters({
 
             <div className="flex flex-wrap gap-2 items-center">
                 <select
-                disabled={isLoading}
+                    disabled={isLoading}
                     onChange={(e) => onCategoryChange(e.target.value ? e.target.value : "")}
                     className="text-xs font-semibold text-gray-700 border rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition"
                 >
@@ -84,9 +84,9 @@ export default function DynamicFilters({
                     ))}
                 </select>
 
-{isLoading && (
-  <div className="ml-2 text-xs text-gray-500">Loading options…</div>
-)}
+                {isLoading && (
+                    <div className="ml-2 text-xs text-gray-500">Loading options…</div>
+                )}
 
                 {/* Dynamic Option Dropdowns*/}
                 {options.length > 0 && (
@@ -178,32 +178,32 @@ export default function DynamicFilters({
                         <option value="ascending">Low → High</option>
                         <option value="descending">High → Low</option>
                     </select>
-                    
-                {/* <button
-                disabled={isLoading}
-                    className="border p-1.5 rounded-lg text-xs min-w-32 bg-blue-600 text-white hover:bg-blue-700 transition"
-                    onClick={() => {
-                        // sanitize price inputs
-                        const cleanedMin = minPrice === "" ? 0 : Number(minPrice);
-                        const cleanedMax =
-                            maxPrice === "" ? Number.MAX_SAFE_INTEGER : Number(maxPrice);
 
-                        if (cleanedMin < 0 || cleanedMax < 0) {
-                            alert("Price cannot be negative.");
-                            return;
-                        }
+                    <button
+                        disabled={isLoading}
+                        className="border p-1.5 rounded-lg text-xs min-w-32 bg-blue-600 text-white hover:bg-blue-700 transition"
+                        onClick={() => {
+                            // sanitize price inputs
+                            const cleanedMin = minPrice === "" ? 0 : Number(minPrice);
+                            const cleanedMax =
+                                maxPrice === "" ? Number.MAX_SAFE_INTEGER : Number(maxPrice);
 
-                        if (cleanedMin > cleanedMax) {
-                            alert("Min price cannot be greater than max price.");
-                            return;
-                        }
+                            if (cleanedMin < 0 || cleanedMax < 0) {
+                                alert("Price cannot be negative.");
+                                return;
+                            }
 
-                        // Trigger parent refresh
-                        onApplyFilters();
-                    }}
-                >
-                    Apply Filters
-                </button> */}
+                            if (cleanedMin > cleanedMax) {
+                                alert("Min price cannot be greater than max price.");
+                                return;
+                            }
+
+                            // Trigger parent refresh
+                            onApplyFilters();
+                        }}
+                    >
+                        Apply Filters
+                    </button>
                 </div>
             </div>
 

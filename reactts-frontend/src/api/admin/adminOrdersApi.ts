@@ -1,25 +1,30 @@
 import { apiClient } from "../apiClient";
 
-export interface AdminOrdersFilters {
-  status: string,
-  minDate: string,
-  maxDate: string,
-  sortBy: string,
-  sortOrder: string
-}
+// export interface AdminOrdersFilters {
+//   status: string,
+//   minDate: string,
+//   maxDate: string,
+//   sortBy: string,
+//   sortOrder: string
+// }
 
 export const adminOrdersApi = {
   // GET /api/AdminOrders - Get all orders with filters
-  async getAllOrders(filters: AdminOrdersFilters) {
+  async getAllOrders(
+    status: string,
+    minDate: string,
+    maxDate: string,
+    sortBy: string,
+    sortOrder: string) {
     try {
       // Use the existing /orders endpoint with filters
       const params = new URLSearchParams();
-      
-      if (filters.status) params.append('status', filters.status);
-      if (filters.minDate) params.append('minDate', filters.minDate);
-      if (filters.maxDate) params.append('maxDate', filters.maxDate);
-      if (filters.sortBy) params.append('sortBy', filters.sortBy);
-      if (filters.sortOrder) params.append('sortOrder', filters.sortOrder);
+
+      if (status) params.append('status', status);
+      if (minDate) params.append('minDate', minDate);
+      if (maxDate) params.append('maxDate', maxDate);
+      if (sortBy) params.append('sortBy', sortBy);
+      if (sortOrder) params.append('sortOrder', sortOrder);
 
       const res = await apiClient.get(`/orders/admin/all-orders?${params.toString()}`);
       return res.data;
@@ -41,7 +46,7 @@ export const adminOrdersApi = {
   },
 
   // UPDATE order status
-  async updateOrderStatus(orderId: number, status: string) {
+  async updateOrderStatus(orderId: number | string, status: string) {
     try {
       const res = await apiClient.put(`/AdminOrders/${orderId}/status`, {
         status: status,
@@ -65,7 +70,7 @@ export const adminOrdersApi = {
   // },
 
   // DELETE order
-  async deleteOrder(orderId: number) {
+  async deleteOrder(orderId: number | string) {
     try {
       const res = await apiClient.delete(`/AdminOrders/${orderId}`);
       return res.data;

@@ -28,7 +28,7 @@ export const useAdminProductsPaginated = (
 
       try {
         // console.log(`[useAdminProductsPaginated] Fetching page ${page}, search: "${search}", filters:`, filters);
-        console.log("[useAdminProductsPaginated] Recent filters category: ", selectedCategory, ", minPrice: ", minPrice, ", maxPrice: ", maxPrice, ", sortOrder: ", sortOrder);
+        // console.log("[useAdminProductsPaginated] Recent filters category: ", selectedCategory, ", minPrice: ", minPrice, ", maxPrice: ", maxPrice, ", sortOrder: ", sortOrder);
         
         const filters = {
         category: selectedCategory || undefined,

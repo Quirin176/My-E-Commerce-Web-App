@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ShoppingBag } from "lucide-react";
 import toast from "react-hot-toast";
-import CartItemCard from "../../components/Cart/CartItemCard";
+import CartItemCard from "../../components/User/CartItemCard";
 import { useAuth } from "../../hooks/useAuth";
 import { useCart } from "../../hooks/useCart";
 import { siteConfig } from "../../config/siteConfig"
@@ -13,6 +13,33 @@ export default function Cart() {
   const { cartItems, clearCart, getTotalPrice } = useCart();
   const { user } = useAuth();
   const [isCheckingOut, setIsCheckingout] = useState(false)
+
+  const handleCheckout = async () => {
+    if (cartItems.length === 0) {
+      toast.error("Your cart is empty");
+      return;
+    }
+    if (!user) {
+      toast.error("Please log in to proceed to checkout");
+      navigate("/auth?mode=login");
+      return;
+    }
+
+    setIsCheckingout(true);
+    try {
+      toast.success("Proceeding to checkout...");
+      setTimeout(() => {
+        navigate("/checkout");
+      }, 1000);
+    } catch (error) {
+      toast.error("Checkout failed. Please try again.");
+      console.error("Checkout error: ", error);
+    } finally {
+      setIsCheckingout(false);
+    }
+  };
+
+  const totalPrice = getTotalPrice();
 
   if (!user) {
     return (
@@ -35,7 +62,7 @@ export default function Cart() {
       <div className="container mx-auto px-4 py-12 text-center">
         <ShoppingBag size={64} className="mx-auto text-gray-400 mb-4" />
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Your cart is empty</h1>
-        <p className="text-gray-600 mb-8">Add some products to get started!</p>
+        <p className="text-xl text-gray-600 mb-8">Add some products to get started!</p>
         <Link
           to="/home"
           className="inline-block px-6 py-3 text-white rounded-lg hover:brightness-75 transition"
@@ -47,31 +74,8 @@ export default function Cart() {
     )
   }
 
-  const handleCheckout = async () => {
-    if (cartItems.length === 0) {
-      toast.error("Your cart is empty");
-      return;
-    }
-
-    setIsCheckingout(true);
-    try {
-
-      toast.success("Proceeding to checkout...");
-      setTimeout(() => {
-        navigate("/checkout");
-      }, 1000);
-    } catch (error) {
-      toast.error("Checkout failed. Please try again.");
-      console.error("Checkout error: ", error);
-    } finally {
-      setIsCheckingout(false);
-    }
-  };
-
-  const totalPrice = getTotalPrice();
-
   return (
-    <div className="container mx-auto px-4 py-4 max-w-6xl rounded-2xl bg-gray-50">
+    <div className="container mx-auto px-4 py-4 max-w-6xl rounded-2xl bg-gray-100">
 
       {/* Cart Actions */}
       <div className="flex items-center justify-between pb-6">

@@ -1,5 +1,6 @@
 import "./App.css";
 import { Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import MainLayout from "./layouts/MainLayout";
 
 import Home from "./pages/home/Home";
@@ -15,9 +16,11 @@ import Cart from "./pages/user/Cart"
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
 import Auth from "./pages/auth/Auth";
+
 import Profile from "./pages/user/Profile";
-// import Orders from "./pages/user/Orders";
-// import OrderDetail from "./pages/user/OrderDetail";
+import Orders from "./pages/user/UserOrders";
+import OrderDetail from "./pages/user/OrderDetail";
+import Checkout from "./pages/user/Checkout";
 
 import Test from "./pages/test/Test";
 
@@ -33,41 +36,60 @@ interface ProtectedProps {
 // Protected Route Component
 function Protected({ children }: ProtectedProps) {
   const { user } = useAuth();
-  return user ? children : <Navigate to="/" replace />; 
+  return user ? children : <Navigate to="/" replace />;
 }
 
 export default function App() {
   return (
-    <Routes>
-      <Route element={<MainLayout />}>
-        <Route path="/home" element={<Home />} />
-        <Route path="/" element={<Navigate to="/home" replace />} />
-        <Route path="/category/:selectedCategory" element={<CategoryProducts />} />
-        <Route path="/product/:id" element={<ProductDetail />} />
-        
-        <Route path="/admin/products" element={<AdminProducts />} />
-        <Route path="/admin/orders" element={<AdminOrders />} />
+    <>
+      <Toaster
+        toastOptions={{
+          style: {
+            textAlign: "center",
+          },
+        }}
+        containerStyle={{
+          position: "fixed",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          pointerEvents: "none",
+        }}
+      />
 
-        <Route path="/about" element={<About />} />
-        <Route path="/cart" element={<Cart />} />
+      <Routes>
+        <Route element={<MainLayout />}>
+          {/* Customer Pages */}
+          <Route path="/home" element={<Home />} />
+          <Route path="/" element={<Navigate to="/home" replace />} />
+          <Route path="/category/:selectedCategory" element={<CategoryProducts />} /> // Use selectedCategory param to fetch products
+          <Route path="/product/:id" element={<ProductDetail />} /> // Use id param to fetch product details
 
-        {/* User Account Pages */}
-        <Route path="/profile" element={<Protected><Profile /></Protected>} />
-        {/* <Route path="/orders" element={<Protected><Orders /></Protected>} />
-        <Route path="/order/:orderId" element={<Protected><OrderDetail /></Protected>} /> */}
-        {/* <Route path="/checkout" element={<Protected><Checkout /></Protected>} /> */}
-      </Route>
+          {/* Admin Pages */}
+          <Route path="/admin/products" element={<AdminProducts />} />
+          <Route path="/admin/orders" element={<AdminOrders />} />
 
-      {/* Auth pages use AuthLayout (no nav/footer) */}
-      <Route path="/auth" element={<Auth />} >
-        <Route path="login" element={<Login />} />
-        <Route path="signup" element={<Signup />} />
-      </Route>
+          <Route path="/about" element={<About />} />
+          <Route path="/cart" element={<Cart />} />
 
-      {/* Catch all - redirect to home */}
-      <Route path="*" element={<Navigate to="/home" replace />} />
-      
-      <Route path="/test" element={<Test />} />
-    </Routes>
+          {/* User Account Pages */}
+          <Route path="/profile" element={<Protected><Profile /></Protected>} />
+          <Route path="/orders" element={<Protected><Orders /></Protected>} />
+          <Route path="/order/:orderId" element={<Protected><OrderDetail /></Protected>} /> // Use orderId param to fetch order details
+          <Route path="/checkout" element={<Protected><Checkout /></Protected>} />
+        </Route>
+
+        {/* Auth pages use AuthLayout (no nav/footer) */}
+        <Route path="/auth" element={<Auth />} >
+          <Route path="login" element={<Login />} />
+          <Route path="signup" element={<Signup />} />
+        </Route>
+
+        {/* Catch all - redirect to home */}
+        <Route path="*" element={<Navigate to="/home" replace />} />
+
+        <Route path="/test" element={<Test />} />
+      </Routes>
+    </>
   );
 }

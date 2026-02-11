@@ -1,15 +1,16 @@
-import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { checkoutApi } from "../../api/checkoutApi";
-import { useAuth } from "../../hooks/useAuth";
+import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { ArrowLeft, Download, Printer } from "lucide-react";
+import { checkoutApi } from "../../api/checkoutApi";
+import { useAuth } from "../../hooks/useAuth";
+import type { OrderResponseModel } from "../../types/models/order/OrderResponseModel";
 
 export default function OrderDetail() {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [order, setOrder] = useState(null);
+  const [order, setOrder] = useState<OrderResponseModel | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,7 +22,7 @@ export default function OrderDetail() {
 
       setLoading(true);
       try {
-        const data = await checkoutApi.getOrder(parseInt(orderId));
+        const data = await checkoutApi.getOrder(orderId);
         setOrder(data);
       } catch (error) {
         console.error("Error loading order:", error);
@@ -37,7 +38,7 @@ export default function OrderDetail() {
     }
   }, [orderId, user, navigate]);
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     const statusLower = status.toLowerCase();
     switch (statusLower) {
       case "pending":
@@ -55,7 +56,7 @@ export default function OrderDetail() {
     }
   };
 
-  const getStatusTimeline = (status) => {
+  const getStatusTimeline = (status: string) => {
     const statuses = ["pending", "confirmed", "shipped", "delivered"];
     const currentIndex = statuses.indexOf(status.toLowerCase());
     
@@ -185,7 +186,7 @@ export default function OrderDetail() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* Shipping Information */}
         <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="font-bold text-lg text-gray-800 mb-4">Shipping Address</h3>
+          <h3 className="font-bold text-lg text-gray-800 mb-4">Shipping Information</h3>
           <div className="space-y-2 text-gray-700">
             <p><strong>{order.customerName}</strong></p>
             <p>{order.shippingAddress}</p>
@@ -200,7 +201,7 @@ export default function OrderDetail() {
           <div className="space-y-3 text-gray-700">
             <div className="flex justify-between">
               <span>Payment Method:</span>
-              <strong className="capitalize">{order.paymentMethod}</strong>
+              <strong>{order.paymentMethod}</strong>
             </div>
             <div className="flex justify-between">
               <span>Order Date:</span>
@@ -219,18 +220,14 @@ export default function OrderDetail() {
         <div className="bg-white p-6 rounded-lg shadow mb-6">
           <h3 className="font-bold text-lg text-gray-800 mb-4">Order Items</h3>
           <div className="space-y-3">
-            {order.items.map((item, index) => (
-              <div key={index} className="flex justify-between items-center p-4 bg-gray-50 rounded border border-gray-200">
+            {order.items.map(item => (
+              <div key={item.productId} className="flex justify-between items-center p-4 bg-gray-50 rounded border border-gray-200">
                 <div className="flex-1">
                   <h4 className="font-semibold text-gray-800">{item.productName}</h4>
-                  <p className="text-sm text-gray-600">
-                    Quantity: {item.quantity} × {item.unitPrice.toLocaleString()} VND
-                  </p>
+                  <p className="text-sm text-gray-600">Quantity: {item.quantity} × {item.unitPrice.toLocaleString()} VND</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-gray-800">
-                    {item.totalPrice.toLocaleString()} VND
-                  </p>
+                  <p className="font-bold text-gray-800">{item.totalPrice.toLocaleString()} VND</p>
                 </div>
               </div>
             ))}

@@ -1,8 +1,9 @@
 import { apiClient } from "./apiClient";
+import type { OrderRequestModel } from "../types/models/order/OrderRequestModel";
 
 export const checkoutApi = {
   // Create an order
-  createOrder: async (orderData) => {
+  async createOrder(orderData: OrderRequestModel) {
     try {
       const res = await apiClient.post("/orders", orderData);
       return res.data;
@@ -12,36 +13,8 @@ export const checkoutApi = {
     }
   },
 
-  // Create a payment intent with Stripe
-  createPaymentIntent: async (amount, orderId) => {
-    try {
-      const res = await apiClient.post("/payments/create-intent", {
-        amount: amount,
-        orderId: orderId
-      });
-      return res.data;
-    } catch (error) {
-      console.error("Payment intent error:", error);
-      throw error;
-    }
-  },
-
-  // Confirm payment
-  confirmPayment: async (paymentIntentId, paymentMethodId) => {
-    try {
-      const res = await apiClient.post("/payments/confirm", {
-        paymentIntentId: paymentIntentId,
-        paymentMethodId: paymentMethodId
-      });
-      return res.data;
-    } catch (error) {
-      console.error("Payment confirmation error:", error);
-      throw error;
-    }
-  },
-
   // Get order by ID
-  getOrder: async (orderId) => {
+  async getOrder(orderId: number | string | undefined) {
     try {
       const res = await apiClient.get(`/orders/${orderId}`);
       return res.data;
@@ -52,7 +25,7 @@ export const checkoutApi = {
   },
 
   // Get user's orders
-  getUserOrders: async () => {
+  async getUserOrders() {
     try {
       const res = await apiClient.get("/orders/user/my-orders");
       return res.data;

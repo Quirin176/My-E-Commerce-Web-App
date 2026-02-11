@@ -3,7 +3,7 @@ import { Search } from "lucide-react";
 import { searchApi } from "../../api/products/searchApi";
 import { siteConfig } from "../../config/siteConfig";
 import { useAuth } from "../../hooks/useAuth";
-import UserDropDown from "../User/UserDropDown";
+import UserDropDown from "./UserDropDown";
 import CategoriesDropdown from "./CategoriesDropdown";
 
 const colors = siteConfig.colors;
@@ -30,6 +30,7 @@ export default function Header() {
           {/* SEARCH BAR */}
           <div className="bg-white rounded-2xl pl-4 pr-2">
             <div className="flex gap-4 py-2 items-center">
+              <Search size={20} />
               <input
                 className="text-lg"
                 style={{ width: 500 }}
@@ -40,7 +41,7 @@ export default function Header() {
                 className="px-4 py-2 rounded-2xl text-white hover:text-gray-600 cursor-pointer"
                 style={{ background: colors.primarycolor }}
               >
-                <Search size={20} />
+                Search
               </button>
             </div>
           </div>
