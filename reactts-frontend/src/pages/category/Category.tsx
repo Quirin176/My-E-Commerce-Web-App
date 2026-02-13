@@ -17,32 +17,61 @@ export default function Category() {
   const navigate = useNavigate();
   const abortControllerRef = useRef<AbortController | null>(null);
 
+  // Converts a comma-separated string into an array - "75, 80, abc, 100" → [75, 80, "abc", 100]
+  const parseOptionsParam = (param?: string | null) =>
+    param
+      ? param
+        .split(",")
+        .map((v) => v.trim())
+        .filter(Boolean)
+        .map((v) => (v === "" ? v : isNaN(Number(v)) ? v : Number(v)))
+      : [];
+
   // Pagination State
-  const [currentPage, setCurrentPage] = useState<number>(parseInt(searchParams.get("page") || "1"));
+  const [currentPage, setCurrentPage] = useState<number>(() => parseInt(searchParams.get("page") || "1", 10));
   const [totalCount, setTotalCount] = useState<number>(0);
 
   // Products State - current page's products
   const [products, setProducts] = useState<Product[]>([]);
 
   // Dynamic filter states
-  const [minPrice, setMinPrice] = useState<string | number>("0");
-  const [maxPrice, setMaxPrice] = useState<string | number>("100000000");
-  const [sortOrder, setSortOrder] = useState<string>(searchParams.get("sort") || "newest");
+  const [minPrice, setMinPrice] = useState<string | number>(() => searchParams.get("minPrice") ?? "0");
+  const [maxPrice, setMaxPrice] = useState<string | number>(() => searchParams.get("maxPrice") ?? "100000000");
+  const [sortOrder, setSortOrder] = useState<string>(() => searchParams.get("sort") || "newest");
   const [loadedOptions, setLoadedOptions] = useState<ProductOption[]>([]);
-  const [selectedOptions, setSelectedOptions] = useState<(string | number)[]>([]);
+  const [selectedOptions, setSelectedOptions] = useState<(string | number)[]>(() =>
+    parseOptionsParam(searchParams.get("options") || searchParams.get("filter")));
 
+  // Page Stastus
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   // Format category name from slug
-  const formattedName = selectedCategory ? selectedCategory.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ") : "Products";
+  const formattedName = selectedCategory ?
+    selectedCategory.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ") : "Products";
 
   // Calculate pagination info
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE + 1;
   const endIndex = Math.min(currentPage * ITEMS_PER_PAGE, totalCount);
 
-  // API Load products with all filters applied - wrap in useCallback to avoid dependency issues
+  // Centralized URL updater (keeps options/min/max/sort/page in sync)
+  const updateUrlParams = useCallback(
+    (page: number, sort: string, options?: (string | number)[], min?: string | number, max?: string | number) => {
+      const params = new URLSearchParams();
+      if (page > 1) params.set("page", String(page));
+      if (sort && sort !== "newest") params.set("sort", sort);
+      if (options && options.length > 0) params.set("options", options.map(String).join(","));
+      if (min !== undefined && String(min) !== "0") params.set("minPrice", String(min));
+      if (max !== undefined && String(max) !== "100000000") params.set("maxPrice", String(max));
+
+      const search = params.toString();
+      navigate({ search: search ? `?${search}` : "" }, { replace: true });
+    },
+    [navigate]
+  );
+
+  // API Load products with all filters applied
   const loadProducts = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -55,18 +84,23 @@ export default function Category() {
     try {
       if (!selectedCategory) {
         setProducts([]);
+        setTotalCount(0);
+        setLoading(false);
         return;
       }
 
       // Prepare filter options - ensure they're strings for API consistency
-      const optionsString = selectedOptions.length > 0 ? selectedOptions.map(String).join(",") : null;
+      const optionsString = selectedOptions.length > 0 ? selectedOptions.map(String).join(",") : "";
 
-      const data = await productApi.getByFilters(selectedCategory, {
-        minPrice: Number(minPrice) || 0,
-        maxPrice: Number(maxPrice) || 100000000,
-        sortOrder,
-        options: optionsString,
-      });
+      const data = await productApi.getProductsByFilters(
+        selectedCategory,
+        {
+          minPrice: Number(minPrice) || 0,
+          maxPrice: Number(maxPrice) || 100000000,
+          sortOrder,
+          options: optionsString,
+        },
+      );
 
       // Standardize response handling
       const allProducts = Array.isArray(data) ? data : (data?.products || data?.data || []);
@@ -96,6 +130,28 @@ export default function Category() {
     }
   }, [selectedCategory, minPrice, maxPrice, sortOrder, selectedOptions, currentPage]);
 
+  // Sync component state with URL params when the user navigates (back/forward / refresh)
+  useEffect(() => {
+    const pageParam = parseInt(searchParams.get("page") || "1", 10) || 1;
+    if (pageParam !== currentPage) setCurrentPage(pageParam);
+
+    const sortParam = searchParams.get("sort") || "newest";
+    if (sortParam !== sortOrder) setSortOrder(sortParam);
+
+    const minParam = searchParams.get("minPrice") ?? "0";
+    if (String(minParam) !== String(minPrice)) setMinPrice(minParam);
+
+    const maxParam = searchParams.get("maxPrice") ?? "100000000";
+    if (String(maxParam) !== String(maxPrice)) setMaxPrice(maxParam);
+
+    const optParam = searchParams.get("options") || searchParams.get("filter");
+    const parsed = parseOptionsParam(optParam);
+    const equal =
+      parsed.length === selectedOptions.length &&
+      parsed.map(String).sort().join(",") === selectedOptions.map(String).sort().join(",");
+    if (!equal) setSelectedOptions(parsed);
+  }, [searchParams]);
+
   // Load products when any filter or page changes
   useEffect(() => {
     loadProducts();
@@ -123,60 +179,13 @@ export default function Category() {
     loadFilters();
   }, [selectedCategory]);
 
-  // Handle URL filter parameter from dropdown/header navigation
-  useEffect(() => {
-    const filterParam = searchParams.get("filter");
-
-    if (filterParam) {
-      // Validate the parameter is a valid number
-      const parsedValue = parseInt(filterParam, 10);
-      if (isNaN(parsedValue)) {
-        console.warn("Invalid filter parameter in URL:", filterParam);
-        return;
-      }
-
-      // Check if this option value exists in the filters
-      const exists = loadedOptions.some(option => option.optionValues?.some(val => String(val.optionValueId) === String(parsedValue)));
-
-      if (exists && !selectedOptions.map(String).includes(String(parsedValue))) {
-        setSelectedOptions([parsedValue]);
-        setCurrentPage(1);
-
-        // Clean up URL parameter after setting filter
-        const newParams = new URLSearchParams(searchParams);
-        newParams.delete("filter");
-        navigate(
-          {
-            search: newParams.toString() ? `?${newParams.toString()}` : "",
-          },
-          { replace: true }
-        );
-      }
-    }
-  }, [searchParams, loadedOptions, selectedOptions, navigate]);
-
-  // Update URL when pagination or sort changes
-  const updateUrlParams = useCallback((page: number, sort: string) => {
-    const params = new URLSearchParams();
-    if (page > 1) params.append("page", String(page));
-    if (sort !== "newest") params.append("sort", sort);
-
-    const search = params.toString();
-    navigate(
-      {
-        search: search ? `?${search}` : "",
-      },
-      { replace: true }
-    );
-  }, [navigate]);
-
   // Handle page change
   const handlePageChange = (newPage: number) => {
     const maxPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
     if (newPage < 1 || newPage > maxPages) return;
 
     setCurrentPage(newPage);
-    updateUrlParams(newPage, sortOrder);
+    updateUrlParams(newPage, sortOrder, selectedOptions, minPrice, maxPrice);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -184,15 +193,21 @@ export default function Category() {
   const handleSortChange = (newSort: string) => {
     setSortOrder(newSort);
     setCurrentPage(1);
-    updateUrlParams(1, newSort);
+    updateUrlParams(1, newSort, selectedOptions, minPrice, maxPrice);
   };
 
   // Handle filter change: Set selected options, reset page and update URL
   const handleFilterChange = (newOptions: (string | number)[]) => {
     setSelectedOptions(newOptions);
     setCurrentPage(1);
-    updateUrlParams(1, sortOrder);
+    updateUrlParams(1, sortOrder, newOptions, minPrice, maxPrice);
   };
+
+  // Keep price changes in sync with URL
+  useEffect(() => {
+    updateUrlParams(1, sortOrder, selectedOptions, minPrice, maxPrice);
+    setCurrentPage(1);
+  }, [minPrice, maxPrice]);
 
   // Guard against invalid slug
   if (!selectedCategory) {
@@ -289,11 +304,10 @@ export default function Category() {
                 {/* First page */}
                 <button
                   onClick={() => handlePageChange(1)}
-                  className={`px-3 py-2 rounded-lg font-semibold transition ${
-                    currentPage === 1
-                      ? "bg-blue-600 text-white"
-                      : "border border-gray-300 hover:bg-gray-50"
-                  }`}
+                  className={`px-3 py-2 rounded-lg font-semibold transition ${currentPage === 1
+                    ? "bg-blue-600 text-white"
+                    : "border border-gray-300 hover:bg-gray-50"
+                    }`}
                 >
                   1
                 </button>
@@ -315,11 +329,10 @@ export default function Category() {
                     <button
                       key={page}
                       onClick={() => handlePageChange(page)}
-                      className={`px-3 py-2 rounded-lg font-semibold transition ${
-                        currentPage === page
-                          ? "bg-blue-600 text-white"
-                          : "border border-gray-300 hover:bg-gray-50"
-                      }`}
+                      className={`px-3 py-2 rounded-lg font-semibold transition ${currentPage === page
+                        ? "bg-blue-600 text-white"
+                        : "border border-gray-300 hover:bg-gray-50"
+                        }`}
                     >
                       {page}
                     </button>
@@ -334,11 +347,10 @@ export default function Category() {
                 {totalPages > 1 && (
                   <button
                     onClick={() => handlePageChange(totalPages)}
-                    className={`px-3 py-2 rounded-lg font-semibold transition ${
-                      currentPage === totalPages
-                        ? "bg-blue-600 text-white"
-                        : "border border-gray-300 hover:bg-gray-50"
-                    }`}
+                    className={`px-3 py-2 rounded-lg font-semibold transition ${currentPage === totalPages
+                      ? "bg-blue-600 text-white"
+                      : "border border-gray-300 hover:bg-gray-50"
+                      }`}
                   >
                     {totalPages}
                   </button>

@@ -1,35 +1,48 @@
 import { apiClient } from "../apiClient";
 
+interface Filters {
+  minPrice: number,
+  maxPrice: number,
+  sortOrder: string,
+  options: string,
+};
+
 export const productApi = {
 
-  // GET: /api/products
+  // GET: /api/products - Get all products
   async getProductsAll() {
     const res = await apiClient.get("/products");
     return res.data;
   },
 
+  // GET: api/products/categories/${categorySlug} - Get all products in a Category
+  async getProductsByCategory(categorySlug: string) {
+    const res = await apiClient.get(`/products/categories/${categorySlug}`);
+    return res.data;
+  },
+
   // GET: /api/products with filters
-  async getByFilters(category: string, filters = {}) {
+  async getProductsByFilters(category: string, filters: Filters) {
     const params = {
       category: category,
       minPrice: filters.minPrice,
       maxPrice: filters.maxPrice,
-      priceOrder: filters.priceOrder,
+      sortOrder: filters.sortOrder,
       options: filters.options,
     };
 
-    const res = await apiClient.get("/products", { params });
+    const res = await apiClient.get("/products/filter", { params });
     return res.data;
   },
 
   // GET: /api/products/{id} - Get all data of a product by id
-  async getProductById(id: number | string) {
+  async getProductsById(id: number | string) {
     const res = await apiClient.get(`/products/${id}`);
     return res.data;
   },
 
   // GET: /api/products/{slug} - Get all data of a product by slug
-  async getProductBySlug(slug: string) {
+  async getProductsBySlug(slug: string) {
     const res = await apiClient.get(`/products/${slug}`);
     return res.data;
   }

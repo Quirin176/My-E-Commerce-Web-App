@@ -12,7 +12,7 @@ namespace WebApp_API.Controllers
         private readonly AppDbContext _db;
         public CategoriesController(AppDbContext db) => _db = db;
 
-        // GET api/categories - get all categories information (id, name, slug)
+        // GET: api/categories - get all categories information (id, name, slug)
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -20,7 +20,7 @@ namespace WebApp_API.Controllers
             return Ok(categories);
         }
 
-        // GET api/categories/{id} - get information from a category (id, name, slug) by id
+        // GET: api/categories/{id} - get information from a category (id, name, slug) by id
         [HttpGet("{id:int}")]
         public async Task<IActionResult> Get(int id)
         {
@@ -29,7 +29,7 @@ namespace WebApp_API.Controllers
             return Ok(category);
         }
 
-        // GET api/categories/{slug} - get information from a category (id, name, slug) by slug
+        // GET: api/categories/{slug} - get information from a category (id, name, slug) by slug
         [HttpGet("{slug}")]
         public async Task<IActionResult> GetBySlug(string slug)
         {

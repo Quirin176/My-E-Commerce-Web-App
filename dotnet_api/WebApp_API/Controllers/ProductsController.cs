@@ -219,24 +219,19 @@ namespace WebApp_API.Controllers
             return Ok(response);
         }
 
-        // GET: /api/products/categories/{categorySlug}/brands
-        [HttpGet("categories/{categorySlug}/brands")]
-        public async Task<IActionResult> GetBrandsByCategory(string categorySlug)
+        // GET: /api/products/categories/{categorySlug}
+        [HttpGet("categories/{categorySlug}")]
+        public async Task<IActionResult> GetByCategory(string categorySlug)
         {
             var category = await _db.Categories.FirstOrDefaultAsync(c => c.Slug == categorySlug);
-            if (category == null)
-                return NotFound(new { message = "Category not found" });
+            if (category == null) return Ok(new List<Product>());
+            
+            IQueryable<Product> query = _db.Products
+            .Where(p => p.CategoryId == category.Id)
+            .Include(p => p.Category)
+            .OrderByDescending(p => p.Id);
 
-            var brands = await _db.ProductOptionValues
-                .Where(pov => _db.ProductOptions
-                    .Where(po => po.CategoryId == category.Id && po.Name == "Brand")
-                    .Select(po => po.Id)
-                    .Contains(pov.ProductOptionId))
-                .Select(pov => pov.Value)
-                .Distinct()
-                .ToListAsync();
-
-            return Ok(brands);
+            return Ok(query);
         }
 
         // GET: /api/products/filter - Filter products by category, price, brand, and dynamic options
@@ -265,7 +260,7 @@ namespace WebApp_API.Controllers
             if (maxPrice < decimal.MaxValue)
                 query = query.Where(p => p.Price <= maxPrice);
 
-            // NEW: Improved filter logic with OR within option and AND between options
+            // Improved filter logic with OR within option and AND between options
             if (!string.IsNullOrWhiteSpace(options))
             {
                 var selectedOptionIds = options.Split(',')

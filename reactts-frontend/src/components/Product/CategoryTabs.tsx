@@ -22,6 +22,7 @@ const CategoryTabs = () => {
   const [pageIndex, setPageIndex] = useState(0);
 
   const ITEMS_PER_PAGE = 5;
+  const ITEMS_PER_TAB = 20;
 
   // Load categories on mount
   useEffect(() => {
@@ -63,7 +64,7 @@ const CategoryTabs = () => {
       setProductsLoading(true);
 
       try {
-        const res = await productApi.getByFilters(activeTab);
+        const res = await productApi.getProductsByCategory(activeTab);
         const list = res?.data?.products || res?.data || res;
 
         if (!list || !Array.isArray(list)) {
@@ -73,7 +74,7 @@ const CategoryTabs = () => {
         }
 
         const sorted = list.sort((a, b) => b.id - a.id);
-        setItems(sorted);
+        setItems(sorted.slice(0, ITEMS_PER_TAB));
         setPageIndex(0);
       } catch (error) {
         console.error("Error loading products:", error);
