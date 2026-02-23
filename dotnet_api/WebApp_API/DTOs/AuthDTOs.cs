@@ -2,21 +2,24 @@
 {
     public class AuthDTOs
     {
+        // Received data for signup from client
         public class SignupRequest
         {
             public required string Username { get; set; }
             public required string Email { get; set; }
             public required string Phone { get; set; }
             public required string Password { get; set; }
-            public required string Role { get; set; } = "Customer";
+            // Default role is "Customer", so no need to include it in the request
         }
 
+        // Received data for login from client
         public class LoginRequest
         {
             public required string Email { get; set; }
             public required string Password { get; set; }
         }
 
+        // Data sent back to client after successful login
         public class AuthResponse
         {
             public string Token { get; set; }

@@ -62,7 +62,7 @@ export default function UserOrderCard(order: UserOrderCardProps) {
 
     const handleCancelOrder = async () => {
         try {
-            await adminOrdersApi.deleteOrder(order.id);
+            await adminOrdersApi.updateOrderStatus(order.id, "cancelled");
 
             toast.success("Successfully Cancel Order");
 

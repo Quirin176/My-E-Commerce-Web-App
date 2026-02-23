@@ -40,11 +40,12 @@ apiClient.interceptors.response.use(
     
     // If 401, token might be expired
     if (error.response?.status === 401) {
-      console.warn("[API Client] 401 Unauthorized - Token may be expired or invalid");
+      // console.warn("[API Client] 401 Unauthorized - Token may be expired or invalid");
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      // Optionally redirect to login
-      // window.location.href = "/auth/login";
+
+      // Redirect to login
+      window.location.href = "/auth?mode=login";
     }
     
     return Promise.reject(error);

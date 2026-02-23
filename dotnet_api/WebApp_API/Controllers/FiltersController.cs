@@ -20,33 +20,33 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                Console.WriteLine($"[DEBUG] GetFiltersByCategory called with slug: {categorySlug}");
+                Console.WriteLine($"[Filters] GetFiltersByCategory called with slug: {categorySlug}");
 
                 if (string.IsNullOrWhiteSpace(categorySlug))
                     return BadRequest(new { message = "Category slug is required" });
 
                 var category = await _db.Categories.FirstOrDefaultAsync(c => c.Slug == categorySlug);
-                Console.WriteLine($"[DEBUG] Category found: {(category != null ? category.Name : "NULL")}");
+                Console.WriteLine($"[Filters] Category found: {(category != null ? category.Name : "NULL")}");
 
                 if (category == null)
                 {
-                    Console.WriteLine($"[DEBUG] Category with slug '{categorySlug}' not found. Returning empty list.");
+                    Console.WriteLine($"[Filters] Category with slug '{categorySlug}' not found. Returning empty list.");
                     return Ok(new List<object>());
                 }
 
-                Console.WriteLine($"[DEBUG] Category ID: {category.Id}");
+                Console.WriteLine($"[Filters] Category ID: {category.Id}");
 
                 var productOptions = await _db.ProductOptions
                     .Where(o => o.CategoryId == category.Id)
                     .ToListAsync();
 
-                Console.WriteLine($"[DEBUG] Found {productOptions.Count} ProductOptions");
+                Console.WriteLine($"[Filters] Found {productOptions.Count} ProductOptions");
 
                 var result = new List<object>();
 
                 foreach (var option in productOptions)
                 {
-                    Console.WriteLine($"[DEBUG] Processing option: {option.Name} (ID: {option.Id})");
+                    Console.WriteLine($"[Filters] Processing option: {option.Name} (ID: {option.Id})");
 
                     var optionValues = await _db.ProductOptionValues
                         .Where(ov => ov.ProductOptionId == option.Id)
@@ -58,7 +58,7 @@ namespace WebApp_API.Controllers
                         })
                         .ToListAsync();
 
-                    Console.WriteLine($"[DEBUG] Option {option.Name} has {optionValues.Count} values");
+                    Console.WriteLine($"[Filters] Option {option.Name} has {optionValues.Count} values");
 
                     result.Add(new
                     {
@@ -68,7 +68,7 @@ namespace WebApp_API.Controllers
                     });
                 }
 
-                Console.WriteLine($"[DEBUG] Returning {result.Count} options with their values");
+                Console.WriteLine($"[Filters] Returning {result.Count} options with their values");
                 return Ok(result);
             }
             catch (Exception ex)
@@ -88,13 +88,13 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                Console.WriteLine($"[DEBUG] GetFiltersByCategoryId called with ID: {categoryId}");
+                Console.WriteLine($"[Filters] GetFiltersByCategoryId called with ID: {categoryId}");
 
                 if (categoryId <= 0)
                     return BadRequest(new { message = "Valid category ID is required" });
 
                 var category = await _db.Categories.FirstOrDefaultAsync(c => c.Id == categoryId);
-                Console.WriteLine($"[DEBUG] Category found: {(category != null ? category.Name : "NULL")}");
+                Console.WriteLine($"[Filters] Category found: {(category != null ? category.Name : "NULL")}");
 
                 if (category == null)
                     return Ok(new List<object>());
@@ -103,7 +103,7 @@ namespace WebApp_API.Controllers
                     .Where(o => o.CategoryId == categoryId)
                     .ToListAsync();
 
-                Console.WriteLine($"[DEBUG] Found {productOptions.Count} ProductOptions");
+                Console.WriteLine($"[Filters] Found {productOptions.Count} ProductOptions");
 
                 var result = new List<object>();
 

@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Eye, EyeClosed } from "lucide-react";
 import toast from "react-hot-toast";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import type { AxiosError } from "axios";
 import { useAuth } from "../../hooks/useAuth";
 import type { SignupRequest } from "../../types/dto/SignupRequest";
 
@@ -14,9 +15,9 @@ export default function Auth() {
   const [loginEmail, setLoginEmail] = useState<string>("");
   const [loginPassword, setLoginPassword] = useState<string>("");
   const [showLoginPassword, setShowLoginPassword] = useState<boolean>(false);
-  
+
   // Signup form state
-  const [signupForm, setSignupForm] = useState<SignupRequest>({username: "", email: "", phone: "", password: "",});
+  const [signupForm, setSignupForm] = useState<SignupRequest>({ username: "", email: "", phone: "", password: "", });
   const [confirmPassword, setConfirmPassword] = useState<string>("");
 
   const [error, setError] = useState<string>("");
@@ -25,7 +26,7 @@ export default function Auth() {
   const navigate = useNavigate();
   const { login, signup } = useAuth();
 
-  {/* ========== LOGIN HANDLER ========== */}
+  {/* ========== LOGIN HANDLER ========== */ }
   const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
@@ -35,16 +36,34 @@ export default function Auth() {
       await login(loginEmail, loginPassword);
       toast.success("Login successful!");
       navigate("/");
-    } catch (err) {
-      setError("Login Failed");
-      console.error("Login Failed: ", err)
-      toast.error("ERROR: Login Failed");
+    } catch (err: unknown) {
+      console.error("Login error:", err);
+
+      const axiosErr = err as AxiosError;
+
+      const status = axiosErr?.response?.status;
+      const retryAfter = axiosErr?.response?.headers?.["retry-after"];
+
+      if (status === 429) {
+        const waitSec = retryAfter ? Number(retryAfter) : 60;
+
+        setError(`Too many login attempts. Please wait ${waitSec} seconds.`);
+        toast.error(`Too many attempts. Try again in ${waitSec} seconds.`);
+      }
+      else if (status === 401) {
+        setError("Invalid email or password.");
+        toast.error("Invalid email or password.");
+      }
+      else {
+        setError("Login failed. Please try again later.");
+        toast.error("Login failed.");
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
-  {/* ========== SIGNUP HANDLER ========== */}
+  {/* ========== SIGNUP HANDLER ========== */ }
   const handleSignupSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
@@ -72,16 +91,20 @@ export default function Auth() {
         toast.success("Signup successful!");
         navigate("/auth?mode=login");
       }
-    } catch (err: any) {
-      const errorMsg = "Signup failed: " + (err?.message || "Unknown error");
+    } catch (err: unknown) {
+      console.error("Signup error:", err);
+
+      const axiosErr = err as AxiosError;
+
+      const errorMsg = "Signup failed: " + (axiosErr?.message || "Unknown error");
       setError(errorMsg);
       toast.error(errorMsg);
     } finally {
       setIsLoading(false);
     }
   };
-  
-  {/* ========== TOGGLE BETWEEN LOGIN/SIGNUP ========== */}
+
+  {/* ========== TOGGLE BETWEEN LOGIN/SIGNUP ========== */ }
   const toggleAuth = () => {
     setError("");
     setLoginEmail("");
@@ -96,7 +119,7 @@ export default function Auth() {
     setIsLogin(!isLogin);
   };
 
-  {/* ========== HANDLE SIGNUP FORM CHANGE ========== */}
+  {/* ========== HANDLE SIGNUP FORM CHANGE ========== */ }
   const handleSignupChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setSignupForm(prev => ({
@@ -222,20 +245,20 @@ export default function Auth() {
 
                 <div className="relative">
                   <input
-                  type={showLoginPassword ? "text" : "password"}
-                  placeholder="Password"
-                  value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
-                  className="w-full px-4 py-3 text-lg bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none transition"
-                  required
-                />
-                <button
-                type="button"
-                onClick={() => setShowLoginPassword(!showLoginPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 cursor-pointer"
-                >
-                  {showLoginPassword ? (<Eye size={24}/>) : (<EyeClosed size={24}/>)}
-                </button>
+                    type={showLoginPassword ? "text" : "password"}
+                    placeholder="Password"
+                    value={loginPassword}
+                    onChange={(e) => setLoginPassword(e.target.value)}
+                    className="w-full px-4 py-3 text-lg bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none transition"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowLoginPassword(!showLoginPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 cursor-pointer"
+                  >
+                    {showLoginPassword ? (<Eye size={24} />) : (<EyeClosed size={24} />)}
+                  </button>
                 </div>
 
                 <button className="text-sm text-gray-500 hover:underline block hover:text-gray-700 transition">

@@ -36,7 +36,14 @@ interface ProtectedProps {
 // Protected Route Component
 function Protected({ children }: ProtectedProps) {
   const { user } = useAuth();
-  return user ? children : <Navigate to="/" replace />;
+  return user ? children : <Navigate to="/home" replace />;
+}
+
+function AdminProtected({ children }: ProtectedProps) {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/auth?mode=login" replace />;
+  if (user.role !== "Admin") return <Navigate to="/home" replace />;
+  return children;
 }
 
 export default function App() {
@@ -66,8 +73,8 @@ export default function App() {
           <Route path="/product/:id" element={<ProductDetail />} /> // Use id param to fetch product details
 
           {/* Admin Pages */}
-          <Route path="/admin/products" element={<AdminProducts />} />
-          <Route path="/admin/orders" element={<AdminOrders />} />
+          <Route path="/admin/products" element={<AdminProtected><AdminProducts /></AdminProtected>} />
+          <Route path="/admin/orders" element={<AdminProtected><AdminOrders /></AdminProtected>} />
 
           <Route path="/about" element={<About />} />
           <Route path="/cart" element={<Cart />} />

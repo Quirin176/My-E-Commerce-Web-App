@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -50,7 +51,7 @@ namespace WebApp_API.Controllers
                     Email = req.Email,
                     PasswordHash = hash,
                     CreatedAt = DateTime.UtcNow,
-                    Role = req.Role ?? "Customer",
+                    Role = "Customer",
                     Phone = req.Phone,
                 };
 
@@ -70,6 +71,7 @@ namespace WebApp_API.Controllers
 
         // -------------------- LOGIN --------------------
         [HttpPost("login")]
+        [EnableRateLimiting("auth")]
         public async Task<IActionResult> Login([FromBody] AuthDTOs.LoginRequest req)
         {
             try

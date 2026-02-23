@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using WebApp_API.Data;
 using WebApp_API.DTOs;
 using WebApp_API.Models;
@@ -108,7 +109,7 @@ namespace WebApp_API.Controllers
 
                 // Check if user is authorized to view this order
                 var userId = User.FindFirst("id")?.Value;
-                var userRole = User.FindFirst("role")?.Value;
+                var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
                 if (userRole != "Admin" && order.UserId != int.Parse(userId))
                     return Forbid();
