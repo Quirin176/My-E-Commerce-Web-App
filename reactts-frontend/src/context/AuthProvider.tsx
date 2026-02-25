@@ -2,9 +2,23 @@ import { useState, useCallback } from "react";
 import { authApi } from "../api/auth/authApi";
 import { AuthContext } from "./AuthContext";
 import type { User } from "../types/models/auth/User";
-import type { SignupRequest } from "../types/dto/SignupRequest";
-import type { AuthContextType } from "../types/context/AuthContextType";
 import type { UserDto } from "../types/dto/UserDto";
+import type { SignupRequest } from "../types/dto/SignupRequest";
+
+export interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  error: string | null;
+  login: (email: string, password: string) => Promise<User>;
+  signup: (data: {
+    username: string;
+    email: string;
+    phone: string;
+    password: string;
+  }) => Promise<boolean>;
+  logout: () => void;
+  clearError: () => void;
+}
 
 interface AuthProviderProps {
     children: React.ReactNode;
@@ -36,9 +50,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         };
     };
 
-    {
-        /* LOGIN */
-    }
+    {/* LOGIN */}
     const login = useCallback(
         async (email: string, password: string): Promise<User> => {
             setLoading(true);
@@ -58,7 +70,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             } catch (err: unknown) {
                 const errorMessage = err instanceof Error ? err.message : "Login failed";
                 setError(errorMessage);
-                throw new Error(errorMessage);
+                throw err;
             } finally {
                 setLoading(false);
             }
@@ -66,9 +78,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         []
     );
 
-    {
-        /* SIGNUP */
-    }
+    {/* SIGNUP */}
     const signup = useCallback(
         async (userData: SignupRequest): Promise<boolean> => {
             setLoading(true);
@@ -89,7 +99,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             } catch (err: unknown) {
                 const errorMessage = err instanceof Error ? err.message : "Signup failed";
                 setError(errorMessage);
-                throw new Error(errorMessage);
+                throw err;
             } finally {
                 setLoading(false);
             }
@@ -97,9 +107,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         []
     );
 
-    {
-        /* LOGOUT */
-    }
+    {/* LOGOUT */}
     const logout = useCallback(() => {
         localStorage.removeItem("user");
         localStorage.removeItem("token");

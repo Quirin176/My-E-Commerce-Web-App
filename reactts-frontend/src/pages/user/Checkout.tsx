@@ -119,7 +119,7 @@ export default function Checkout() {
                             <label className="text-lg font-semibold col-span-1">Full Name</label>
                             <input
                                 type="text"
-                                name="fullname"
+                                name="fullName"
                                 value={checkoutFormInformation.fullName}
                                 onChange={handleInformationChange}
                                 className="col-span-4 border-2 p-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-600 text-lg"

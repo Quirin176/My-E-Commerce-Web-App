@@ -35,17 +35,23 @@ apiClient.interceptors.response.use(
     // console.log("[API Client] Response success:", response.status);
     return response;
   },
+
   (error) => {
-    console.error("[API Client] Response error:", error.response?.status, error.message);
+    // console.error("[API Client] Response error:", error.response?.status, error.message);
     
-    // If 401, token might be expired
     if (error.response?.status === 401) {
       // console.warn("[API Client] 401 Unauthorized - Token may be expired or invalid");
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      const token = localStorage.getItem("token");
 
-      // Redirect to login
-      window.location.href = "/auth?mode=login";
+      // Only redirect if the user was already logged in (token existed)
+      // If no token, this is just a failed login attempt — let the component handle it
+      if (token) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        // Redirect to login
+        window.location.href = "/auth?mode=login";
+      }      
     }
     
     return Promise.reject(error);

@@ -1,7 +1,16 @@
 import React, { useCallback, useState } from "react";
 import { CartContext } from "./CartContext";
 import type { CartItem } from "../types/models/cart/CartItem";
-import type { CartContextType } from "../types/context/CartContextType";
+
+export interface CartContextType {
+  cartItems: CartItem[];
+  addToCart: (item: Omit<CartItem, 'quantity'>, quantity: number) => void;
+  removeFromCart: (productId: number | string) => void;
+  updateQuantity: (productId: number | string, quantity: number) => void;
+  clearCart: () => void;
+  getTotalPrice: () => number;
+  getTotalItems: () => number;
+}
 
 interface CartProviderProps {
   children: React.ReactNode;

@@ -42,9 +42,11 @@ export default function Auth() {
       const axiosErr = err as AxiosError;
 
       const status = axiosErr?.response?.status;
-      const retryAfter = axiosErr?.response?.headers?.["retry-after"];
+
+      // console.log("Login error status:", status);
 
       if (status === 429) {
+        const retryAfter = axiosErr?.response?.headers?.["retry-after"];
         const waitSec = retryAfter ? Number(retryAfter) : 60;
 
         setError(`Too many login attempts. Please wait ${waitSec} seconds.`);

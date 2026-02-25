@@ -105,7 +105,7 @@ namespace WebApp_API.Controllers
                 var key = Encoding.UTF8.GetBytes(jwtSection.GetValue<string>("Key"));
                 var issuer = jwtSection.GetValue<string>("Issuer");
                 var audience = jwtSection.GetValue<string>("Audience");
-                var expiresInMinutes = jwtSection.GetValue<int>("ExpireMinutes");
+                var expiresInMinutes = jwtSection.GetValue<int>("ExpiresInMinutes");
 
                 Console.WriteLine($"[JWT] Generating token for user: {user.Username}");
                 Console.WriteLine($"[JWT] ExpiresInMinutes from config: {expiresInMinutes}");
