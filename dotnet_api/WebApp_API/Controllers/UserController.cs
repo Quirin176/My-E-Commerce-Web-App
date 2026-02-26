@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebApp_API.Data;
 using WebApp_API.DTOs;
 using WebApp_API.Models;
@@ -19,6 +20,7 @@ namespace WebApp_API.Controllers
 
         // GET /api/user/profile
         [HttpGet("profile")]
+        [Authorize]
         public async Task<IActionResult> GetProfile()
         {
             var userId = User.FindFirst("id")?.Value;
@@ -38,6 +40,7 @@ namespace WebApp_API.Controllers
 
         // PUT /api/user/profile
         [HttpPut("profile")]
+        [Authorize]
         public async Task<IActionResult> UpdateProfile([FromBody] ProfileRequest req)
         {
             var userId = User.FindFirst("id")?.Value;

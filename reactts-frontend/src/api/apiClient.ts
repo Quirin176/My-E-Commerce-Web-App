@@ -1,8 +1,9 @@
 import axios from "axios";
-import { siteConfig } from "../config/siteConfig";
+// import { siteConfig } from "../config/siteConfig";
+import { API_URL } from "../config/siteConfig";
 
 export const apiClient = axios.create({
-  baseURL: siteConfig.API_URL,
+  baseURL: API_URL,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -37,8 +38,6 @@ apiClient.interceptors.response.use(
   },
 
   (error) => {
-    // console.error("[API Client] Response error:", error.response?.status, error.message);
-    
     if (error.response?.status === 401) {
       // console.warn("[API Client] 401 Unauthorized - Token may be expired or invalid");
       const token = localStorage.getItem("token");

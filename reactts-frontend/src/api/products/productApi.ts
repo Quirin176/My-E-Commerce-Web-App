@@ -21,7 +21,7 @@ export const productApi = {
     return res.data;
   },
 
-  // GET: /api/products with filters
+  // GET: /api/products/filter with filters
   async getProductsByFilters(category: string, filters: Filters) {
     const params = {
       category: category,

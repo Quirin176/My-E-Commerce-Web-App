@@ -64,7 +64,16 @@ const CategoryTabs = () => {
       setProductsLoading(true);
 
       try {
-        const res = await productApi.getProductsByCategory(activeTab);
+        const res = await productApi.getProductsByFilters(
+        activeTab,
+        {
+          minPrice: 0,
+          maxPrice: 100000000,
+          sortOrder: "newest",
+          options: "",
+        },
+      );
+
         const list = res?.data?.products || res?.data || res;
 
         if (!list || !Array.isArray(list)) {

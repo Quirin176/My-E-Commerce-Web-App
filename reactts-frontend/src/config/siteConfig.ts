@@ -1,9 +1,11 @@
 import { Laptop, Monitor, Keyboard, Mouse } from "lucide-react";
 
+// export const API_URL = import.meta.env.VITE_API_URL;
+export const API_URL = "http://localhost:5159/api";
+
 export const siteConfig = {
   webName: "E-Commerce",
 
-  API_URL: "http://localhost:5159/api",
 
   colors: {
     primarycolor: "black",

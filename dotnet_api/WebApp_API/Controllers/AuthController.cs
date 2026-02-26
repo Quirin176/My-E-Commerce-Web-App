@@ -114,8 +114,8 @@ namespace WebApp_API.Controllers
                 {
                     new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                     new Claim("id", user.Id.ToString()),
-                    new Claim("username", user.Username),
-                    new Claim("email", user.Email),
+                    // new Claim("username", user.Username),
+                    // new Claim("email", user.Email),
                     new Claim(ClaimTypes.Role, user.Role)
                 };
 
