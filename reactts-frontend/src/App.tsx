@@ -70,7 +70,7 @@ export default function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="/category/:selectedCategory" element={<CategoryProducts />} /> // Use selectedCategory param to fetch products
-          <Route path="/product/:id" element={<ProductDetail />} /> // Use id param to fetch product details
+          <Route path="/product/:slug" element={<ProductDetail />} /> // Use slug param to fetch product details
 
           {/* Admin Pages */}
           <Route path="/admin/products" element={<AdminProtected><AdminProducts /></AdminProtected>} />

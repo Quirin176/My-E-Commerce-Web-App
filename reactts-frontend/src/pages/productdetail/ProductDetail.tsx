@@ -8,13 +8,13 @@ import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import type { Product } from "../../types/models/products/Product";
 
 export default function ProductDetails() {
-  const { id } = useParams();
+  const { slug } = useParams();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showImageModal, setShowImageModal] = useState(false);
   const [modalImageIndex, setModalImageIndex] = useState(0);
-  const [thumbStyle, setThumbStyle] = useState<'vertical' | 'horizontal'>('horizontal');
+  const [thumbStyle] = useState<'vertical' | 'horizontal'>('horizontal');
 
   const { user } = useAuth();
   const { addToCart } = useCart();
@@ -51,15 +51,15 @@ export default function ProductDetails() {
   // Fetch product by ID
   useEffect(() => {
     const loadProduct = async () => {
-      if (!id) {
+      if (!slug) {
         setLoading(true);
         return;
       }
 
       try {
-        const data = await productApi.getProductById(id);
+        const data = await productApi.getProductBySlug(slug);
         setProduct(data);
-        console.log("Product loaded:", data);
+        // console.log("Product loaded:", data);
       } catch (error) {
         console.error("Error loading product:", error);
         toast.error("Failed to load product details");
@@ -69,7 +69,7 @@ export default function ProductDetails() {
     };
 
     loadProduct();
-  }, [id]);
+  }, [slug]);
 
   // Handle click outside modal to close
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {

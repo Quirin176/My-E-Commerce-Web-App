@@ -219,7 +219,7 @@ namespace WebApp_API.Controllers
             return Ok(response);
         }
 
-        // GET: /api/products/categories/{categorySlug}
+        // GET: /api/products/categories/{categorySlug} - Get all products in a category by category slug
         [HttpGet("categories/{categorySlug}")]
         public async Task<IActionResult> GetByCategory(string categorySlug)
         {
@@ -234,7 +234,7 @@ namespace WebApp_API.Controllers
             return Ok(query);
         }
 
-        // GET: /api/products/filter - Filter products by category, price, brand, and dynamic options
+        // GET: /api/products/filter?category=slug&minPrice=minValue&maxPrice=maxValue&options=1,2,3&sortOrder=newest - Filter products by category, minprice, maxprice, sort order, and options (option value IDs)
         [HttpGet("filter")]
         public async Task<IActionResult> FilterProducts(
             [FromQuery] string category,
@@ -318,6 +318,7 @@ namespace WebApp_API.Controllers
             {
                 p.Id,
                 p.Name,
+                p.Slug,
                 p.Price,
                 p.ImageUrl,
                 p.ShortDescription,
@@ -334,7 +335,7 @@ namespace WebApp_API.Controllers
             return Ok(products);
         }
 
-        // GET: /api/products/admin/paginated - Admin endpoint for paginated products with search and sorting
+        // GET: /api/products/admin/paginated - Admin endpoint - Get paginated products with advanced filtering and sorting
         [HttpGet("admin/paginated")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetProductsPaginated(

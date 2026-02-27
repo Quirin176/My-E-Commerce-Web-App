@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\voqua\\My-E-Commerce-Web-App\\dotnet_api\\WebApp_API\\WebApp_API.csproj": {}
+    "D:\\WORK\\My-E-Commerce-Web-App\\dotnet_api\\WebApp_API\\WebApp_API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\voqua\\My-E-Commerce-Web-App\\dotnet_api\\WebApp_API\\WebApp_API.csproj": {
+    "D:\\WORK\\My-E-Commerce-Web-App\\dotnet_api\\WebApp_API\\WebApp_API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\dotnet_api\\WebApp_API\\WebApp_API.csproj",
+        "projectUniqueName": "D:\\WORK\\My-E-Commerce-Web-App\\dotnet_api\\WebApp_API\\WebApp_API.csproj",
         "projectName": "WebApp_API",
-        "projectPath": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\dotnet_api\\WebApp_API\\WebApp_API.csproj",
+        "projectPath": "D:\\WORK\\My-E-Commerce-Web-App\\dotnet_api\\WebApp_API\\WebApp_API.csproj",
         "packagesPath": "C:\\Users\\voqua\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\voqua\\My-E-Commerce-Web-App\\dotnet_api\\WebApp_API\\obj\\",
+        "outputPath": "D:\\WORK\\My-E-Commerce-Web-App\\dotnet_api\\WebApp_API\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "D:\\Visual_Studio\\Visual_Studio\\Shared\\NuGetPackages"
