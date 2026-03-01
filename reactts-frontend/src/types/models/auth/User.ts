@@ -5,5 +5,4 @@ export interface User {
   phone: string;
   role: string;
   createdAt: string;
-  token: string;
 }

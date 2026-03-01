@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Package } from "lucide-react";
 import { adminOrdersApi } from "../../api/admin/adminOrdersApi";
@@ -14,7 +14,7 @@ export default function AdminOrders() {
     const [loading, setLoading] = useState(false);
 
     //Filter states
-    const [status, setStatus] = useState("");
+    const [status, setStatus] = useState("all");
     const [minDate, setMinDate] = useState("");
     const [maxDate, setMaxDate] = useState("");
     const [sortBy, setSortBy] = useState("");
@@ -24,7 +24,7 @@ export default function AdminOrders() {
     useEffect(() => {
         loadOrders();
         // loadStats();
-    }, [status, minDate, maxDate]);
+    }, [status, minDate, maxDate, sortBy, sortOrder]);
 
     const loadOrders = async () => {
         setLoading(true);
@@ -36,7 +36,6 @@ export default function AdminOrders() {
                 sortBy,
                 sortOrder,
             );
-            console.log(response);
 
             setOrders(Array.isArray(response) ? response : []);
         } catch (error) {
@@ -50,27 +49,73 @@ export default function AdminOrders() {
 
 
     return (
-        <div>
-            <h1 className="text-2xl font-bold mb-4">Orders Management</h1>
-            {/* Status Filter */}
-            <div className="mb-6 flex flex-wrap gap-2">
-                {orderStatus.map((option) => (
-                    <button
-                        key={option.value}
-                        onClick={() => setSortBy(option.value.toLowerCase())}
-                        className={`px-4 py-2 rounded-full font-semibold transition ${sortBy === option.value
-                            ? "bg-blue-600 text-white shadow-lg"
-                            : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                            }`}
-                    >
-                        {option.label}
-                        <span className="ml-2 text-sm">
-                            {option.value.toLowerCase() === "all"
-                                ? `(${orders.length})`
-                                : `(${orders.filter((o) => o.status.toLowerCase() === option.value.toLowerCase()).length})`}
-                        </span>
-                    </button>
-                ))}
+        <div className="flex flex-col gap-y-2">
+            {/* Title */}
+
+            <div className="flex justify-between">
+                <h1 className="text-2xl font-bold">Admin Orders Management</h1>
+
+                <div className="flex flex-row gap-10">
+                    <div className="flex flex-row items-center gap-4">
+                        <label className="font-bold w-full">Select Start Date</label>
+                        <input
+                            type="date"
+                            value={minDate}
+                            onChange={(e) => setMinDate(e.target.value)}
+                            className="border-2 rounded-xl px-2 py-1 w-full max-w-xs"
+                        />
+                    </div>
+
+                    <div className="flex flex-row items-center gap-4">
+                        <label className="font-bold w-full">Select End Date</label>
+                        <input
+                            type="date"
+                            value={maxDate}
+                            onChange={(e) => setMaxDate(e.target.value)}
+                            className="border-2 rounded-xl px-2 py-1 w-full max-w-xs"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="flex justify-between items-center mb-4">
+                {/* Status Filter */}
+                <div className="flex flex-wrap gap-2">
+                    {orderStatus.map((option) => (
+                        <button
+                            key={option.value}
+                            onClick={() => {
+                                if (option.value.toLowerCase() === "all") {
+                                    setStatus("");
+                                } else {
+                                setStatus(option.value.toLowerCase());
+                            }}}
+                            className={`px-4 py-2 rounded-full font-semibold transition ${status === option.value
+                                ? "bg-blue-600 text-white shadow-lg"
+                                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                                }`}
+                        >
+                            {option.label}
+                            <span className="ml-2 text-sm">
+                                {option.value.toLowerCase() === "all"
+                                    ? `(${orders.length})`
+                                    : `(${orders.filter((o) => o.status.toLowerCase() === option.value.toLowerCase()).length})`}
+                            </span>
+                        </button>
+                    ))}
+                </div>
+
+                {/* Clear Filters Button */}
+                <a
+                    onClick={() => {
+                        setStatus("");
+                        setMinDate("");
+                        setMaxDate("");
+                    }}
+                    className="px-4 py-2 text-red-500 font-semibold hover:underline cursor-pointer transition"
+                >
+                    Clear Filters
+                </a>
             </div>
 
             {/* Loading State */}
@@ -92,9 +137,9 @@ export default function AdminOrders() {
                 <div className="space-y-4">
                     {orders.map((order) => (
                         <UserOrderCard
-                        key={order.id}
-                        {...order}
-                        onDeleteSuccess={(id) => setOrders(prev => prev.filter(o => o.id !== id))} />
+                            key={order.id}
+                            {...order}
+                            onCancelSuccess={(id) => setOrders(prev => prev.filter(o => o.id !== id))} />
                     ))}
                 </div>
             )}

@@ -10,7 +10,7 @@ namespace WebApp_API.Controllers
     // Route: api/products
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductsController : ControllerBase
+    public class ProductsController : ControllerBase // API URL: /api/products
     {
         private readonly AppDbContext _db;
         public ProductsController(AppDbContext db) => _db = db;

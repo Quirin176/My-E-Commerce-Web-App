@@ -26,21 +26,25 @@ namespace WebApp_API.Data
                 builder.Entity<Product>()
                 .HasIndex(p => p.Slug)
                 .IsUnique();
+
             builder.Entity<ProductFilter>()
                 .HasOne(pf => pf.Product)
                 .WithMany()
                 .HasForeignKey(pf => pf.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
+
             builder.Entity<ProductFilter>()
                 .HasOne(pf => pf.OptionValue)
                 .WithMany()
                 .HasForeignKey(pf => pf.OptionValueId)
                 .OnDelete(DeleteBehavior.Cascade);
+
             builder.Entity<ProductOptionValue>()
                 .HasOne(v => v.ProductOption)
                 .WithMany()
                 .HasForeignKey(v => v.ProductOptionId)
                 .OnDelete(DeleteBehavior.Cascade);
+                
             builder.Entity<ProductImage>()
                 .HasOne(pi => pi.Product)
                 .WithMany()

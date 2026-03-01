@@ -9,7 +9,7 @@ import { apiClient } from "../apiClient";
 // }
 
 export const adminOrdersApi = {
-  // GET /api/AdminOrders - Get all orders with filters
+  // GET /api/adminorders?status=&minDate=&maxDate=&sortBy=&sortOrder= - Get all orders with filters
   async getAllOrders(
     status: string,
     minDate: string,
@@ -26,7 +26,7 @@ export const adminOrdersApi = {
       if (sortBy) params.append('sortBy', sortBy);
       if (sortOrder) params.append('sortOrder', sortOrder);
 
-      const res = await apiClient.get(`/orders/admin/all-orders?${params.toString()}`);
+      const res = await apiClient.get(`/adminorders?${params.toString()}`);
       return res.data;
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -34,10 +34,10 @@ export const adminOrdersApi = {
     }
   },
 
-  // GET order detail by ID
+  // GET /api/adminorders/{id} - Get order detail by ID
   async getOrderDetail(orderId: number) {
     try {
-      const res = await apiClient.get(`/AdminOrders/${orderId}`);
+      const res = await apiClient.get(`/adminorders/${orderId}`);
       return res.data;
     } catch (error) {
       console.error(`Error fetching order ${orderId}:`, error);
@@ -48,7 +48,7 @@ export const adminOrdersApi = {
   // UPDATE order status
   async updateOrderStatus(orderId: number | string, status: string) {
     try {
-      const res = await apiClient.put(`/AdminOrders/${orderId}/status`, {
+      const res = await apiClient.put(`/adminorders/${orderId}/status`, {
         status: status,
       });
       return res.data;
@@ -61,7 +61,7 @@ export const adminOrdersApi = {
   // // UPDATE entire order
   // async updateOrder(orderId: number, orderData) {
   //   try {
-  //     const res = await apiClient.put(`/AdminOrders/${orderId}`, orderData);
+  //     const res = await apiClient.put(`/adminorders/${orderId}`, orderData);
   //     return res.data;
   //   } catch (error) {
   //     console.error(`Error updating order:`, error);
@@ -72,7 +72,7 @@ export const adminOrdersApi = {
   // DELETE order
   async deleteOrder(orderId: number | string) {
     try {
-      const res = await apiClient.delete(`/AdminOrders/${orderId}`);
+      const res = await apiClient.delete(`/adminorders/${orderId}`);
       return res.data;
     } catch (error) {
       console.error(`Error deleting order:`, error);
@@ -87,7 +87,7 @@ export const adminOrdersApi = {
         status: status || null,
       };
 
-      const res = await apiClient.get("/AdminOrders/export", {
+      const res = await apiClient.get("/adminorders/export", {
         params,
         responseType: "blob",
       });
@@ -101,7 +101,7 @@ export const adminOrdersApi = {
   // GET order statistics
   async getOrderStats() {
     try {
-      const res = await apiClient.get("/AdminOrders/stats");
+      const res = await apiClient.get("/adminorders/stats");
       return res.data;
     } catch (error) {
       console.error("Error fetching order statistics:", error);
@@ -112,7 +112,7 @@ export const adminOrdersApi = {
   // SEND confirmation email
   async sendConfirmationEmail(orderId: number) {
     try {
-      const res = await apiClient.post(`/AdminOrders/${orderId}/send-email`);
+      const res = await apiClient.post(`/adminorders/${orderId}/send-email`);
       return res.data;
     } catch (error) {
       console.error("Error sending confirmation email:", error);

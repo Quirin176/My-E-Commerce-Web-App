@@ -11,94 +11,74 @@ namespace WebApp_API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Admin")]
-    public class AdminOrdersController : ControllerBase
+    public class AdminOrdersController : ControllerBase // API URL: /api/adminorders
     {
         private readonly AppDbContext _db;
         public AdminOrdersController(AppDbContext db) => _db = db;
 
-        // GET: /api/admin-orders - Get all orders with filters
+        // GET: /api/adminorders - Get all orders with filters
         [HttpGet]
-        public async Task<IActionResult> GetAllOrders(
-            [FromQuery] string status = null,
-            [FromQuery] string minDate = null,
-            [FromQuery] string maxDate = null,
-            [FromQuery] string sortBy = "orderDate",
-            [FromQuery] string sortOrder = "desc")
+        public async Task<IActionResult> GetAllOrders([FromQuery] OrderDTOs.OrderFilterParameters filterParams)
         {
             try
             {
-                Console.WriteLine("[ADMIN-ORDERS] GetAllOrders called");
-                Console.WriteLine($"[ADMIN-ORDERS] Filters - Status: {status}, MinDate: {minDate}, MaxDate: {maxDate}");
-                Console.WriteLine($"[ADMIN-ORDERS] Sort - By: {sortBy}, Order: {sortOrder}");
-
                 IQueryable<Order> query = _db.Orders
                     .Include(o => o.User)
                     .Include(o => o.OrderItems);
 
                 // Filter by status
-                if (!string.IsNullOrWhiteSpace(status))
-                {
-                    query = query.Where(o => o.Status == status);
-                    Console.WriteLine($"[ADMIN-ORDERS] Filtering by status: {status}");
-                }
+                if (!string.IsNullOrWhiteSpace(filterParams.Status))
+                    query = query.Where(o => o.Status == filterParams.Status);
 
                 // Filter by date range
-                if (!string.IsNullOrWhiteSpace(minDate) && DateTime.TryParse(minDate, out var min))
-                {
+                if (!string.IsNullOrWhiteSpace(filterParams.MinDate) && DateTime.TryParse(filterParams.MinDate, out var min))
                     query = query.Where(o => o.OrderDate >= min);
-                    Console.WriteLine($"[ADMIN-ORDERS] Min date filter: {min:O}");
-                }
 
-                if (!string.IsNullOrWhiteSpace(maxDate) && DateTime.TryParse(maxDate, out var max))
+                if (!string.IsNullOrWhiteSpace(filterParams.MaxDate) && DateTime.TryParse(filterParams.MaxDate, out var max))
                 {
                     // Include entire day
                     var maxWithTime = max.AddDays(1).AddSeconds(-1);
                     query = query.Where(o => o.OrderDate <= maxWithTime);
-                    Console.WriteLine($"[ADMIN-ORDERS] Max date filter: {maxWithTime:O}");
                 }
 
                 // Apply sorting
-                query = sortBy switch
+                query = filterParams.SortBy switch
                 {
-                    "customerName" => sortOrder == "asc"
+                    "customerName" => filterParams.SortOrder == "asc"
                         ? query.OrderBy(o => o.CustomerName)
                         : query.OrderByDescending(o => o.CustomerName),
-                    "totalAmount" => sortOrder == "asc"
+                    "totalAmount" => filterParams.SortOrder == "asc"
                         ? query.OrderBy(o => o.TotalAmount)
                         : query.OrderByDescending(o => o.TotalAmount),
-                    "status" => sortOrder == "asc"
-                        ? query.OrderBy(o => o.Status)
-                        : query.OrderByDescending(o => o.Status),
-                    "orderDate" or _ => sortOrder == "asc"
+                    "orderDate" or _ => filterParams.SortOrder == "asc"
                         ? query.OrderBy(o => o.OrderDate)
                         : query.OrderByDescending(o => o.OrderDate)
                 };
 
                 var orders = await query.ToListAsync();
-                Console.WriteLine($"[ADMIN-ORDERS] Found {orders.Count} orders");
 
                 // Map to response DTO
-                var response = orders.Select(o => new
+                var response = orders.Select(order => new OrderDTOs.OrderResponse
                 {
-                    o.Id,
-                    o.CustomerName,
-                    o.CustomerEmail,
-                    o.CustomerPhone,
-                    o.ShippingAddress,
-                    o.City,
-                    o.TotalAmount,
-                    o.PaymentMethod,
-                    o.Status,
-                    o.OrderDate,
-                    o.Notes,
-                    ItemCount = o.OrderItems.Count,
-                    Items = o.OrderItems.Select(oi => new
+                    Id = order.Id,
+                    CustomerName = order.CustomerName,
+                    CustomerEmail = order.CustomerEmail,
+                    CustomerPhone = order.CustomerPhone,
+                    ShippingAddress = order.ShippingAddress,
+                    City = order.City,
+                    TotalAmount = order.TotalAmount,
+                    PaymentMethod = order.PaymentMethod,
+                    Status = order.Status,
+                    OrderDate = order.OrderDate,
+                    Notes = order.Notes,
+                    ItemCount = order.OrderItems.Count,
+                    Items = order.OrderItems.Select(orderitem => new OrderDTOs.OrderItemResponse
                     {
-                        oi.ProductId,
-                        oi.ProductName,
-                        oi.Quantity,
-                        oi.UnitPrice,
-                        oi.TotalPrice
+                        ProductId = orderitem.ProductId,
+                        ProductName = orderitem.ProductName,
+                        Quantity = orderitem.Quantity,
+                        UnitPrice = orderitem.UnitPrice,
+                        TotalPrice = orderitem.TotalPrice
                     }).ToList()
                 }).ToList();
 
@@ -112,7 +92,91 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // GET: /api/admin-orders/{id} - Get order detail
+        // // GET: /api/adminorders/status - Get all orders with filters
+        // [HttpGet("{status}")]
+        // public async Task<IActionResult> GetByStatus(
+        //     [FromQuery] string status = null,
+        //     [FromQuery] string minDate = null,
+        //     [FromQuery] string maxDate = null,
+        //     [FromQuery] string sortBy = "orderDate",
+        //     [FromQuery] string sortOrder = "desc")
+        // {
+        //     try
+        //     {
+        //         IQueryable<Order> query = _db.Orders
+        //             .Include(o => o.User)
+        //             .Include(o => o.OrderItems);
+
+        //         // Filter by status
+        //         if (!string.IsNullOrWhiteSpace(status))
+        //             query = query.Where(o => o.Status == status);
+
+        //         // Filter by date range
+        //         if (!string.IsNullOrWhiteSpace(minDate) && DateTime.TryParse(minDate, out var min))
+        //             query = query.Where(o => o.OrderDate >= min);
+
+        //         if (!string.IsNullOrWhiteSpace(maxDate) && DateTime.TryParse(maxDate, out var max))
+        //         {
+        //             // Include entire day
+        //             var maxWithTime = max.AddDays(1).AddSeconds(-1);
+        //             query = query.Where(o => o.OrderDate <= maxWithTime);
+        //         }
+
+        //         // Apply sorting
+        //         query = sortBy switch
+        //         {
+        //             "customerName" => sortOrder == "asc"
+        //                 ? query.OrderBy(o => o.CustomerName)
+        //                 : query.OrderByDescending(o => o.CustomerName),
+        //             "totalAmount" => sortOrder == "asc"
+        //                 ? query.OrderBy(o => o.TotalAmount)
+        //                 : query.OrderByDescending(o => o.TotalAmount),
+        //             "status" => sortOrder == "asc"
+        //                 ? query.OrderBy(o => o.Status)
+        //                 : query.OrderByDescending(o => o.Status),
+        //             "orderDate" or _ => sortOrder == "asc"
+        //                 ? query.OrderBy(o => o.OrderDate)
+        //                 : query.OrderByDescending(o => o.OrderDate)
+        //         };
+
+        //         var orders = await query.ToListAsync();
+
+        //         // Map to response DTO
+        //         var response = orders.Select(o => new OrderDTOs.OrderResponse
+        //         {
+        //             Id = o.Id,
+        //             CustomerName = o.CustomerName,
+        //             CustomerEmail = o.CustomerEmail,
+        //             CustomerPhone = o.CustomerPhone,
+        //             ShippingAddress = o.ShippingAddress,
+        //             City = o.City,
+        //             TotalAmount = o.TotalAmount,
+        //             PaymentMethod = o.PaymentMethod,
+        //             Status = o.Status,
+        //             OrderDate = o.OrderDate,
+        //             Notes = o.Notes,
+        //             ItemCount = o.OrderItems.Count,
+        //             Items = o.OrderItems.Select(oi => new OrderDTOs.OrderItemResponse
+        //             {
+        //                 ProductId = oi.ProductId,
+        //                 ProductName = oi.ProductName,
+        //                 Quantity = oi.Quantity,
+        //                 UnitPrice = oi.UnitPrice,
+        //                 TotalPrice = oi.TotalPrice
+        //             }).ToList()
+        //         }).ToList();
+
+        //         return Ok(response);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         Console.WriteLine($"[ADMIN-ORDERS] Error in GetAllOrders: {ex.Message}");
+        //         Console.WriteLine($"[ADMIN-ORDERS] Stack trace: {ex.StackTrace}");
+        //         return StatusCode(500, new { message = "Error fetching orders", error = ex.Message });
+        //     }
+        // }
+
+        // GET: /api/adminorders/{id} - Get order detail
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetOrderDetail(int id)
         {
@@ -165,15 +229,12 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // PUT: /api/admin-orders/{id}/status - Update order status
+        // PUT: /api/adminorders/{id}/status - Update order status
         [HttpPut("{id:int}/status")]
-        public async Task<IActionResult> UpdateOrderStatus(int id, [FromBody] UpdateOrderStatusRequest request)
+        public async Task<IActionResult> UpdateOrderStatus(int id, [FromBody] OrderDTOs.UpdateOrderStatusRequest request)
         {
             try
             {
-                Console.WriteLine($"[ADMIN-ORDERS] UpdateOrderStatus called for order: {id}");
-                Console.WriteLine($"[ADMIN-ORDERS] New status: {request.Status}");
-
                 if (string.IsNullOrWhiteSpace(request.Status))
                     return BadRequest(new { message = "Status is required" });
 
@@ -192,14 +253,11 @@ namespace WebApp_API.Controllers
                 _db.Orders.Update(order);
                 await _db.SaveChangesAsync();
 
-                Console.WriteLine($"[ADMIN-ORDERS] Order {id} status updated to: {request.Status}");
-
                 return Ok(new
                 {
                     message = "Order status updated successfully",
-                    order.Id,
-                    order.Status,
-                    order.UpdatedAt
+                    status = order.Status,
+                    // order.UpdatedAt
                 });
             }
             catch (Exception ex)
@@ -209,9 +267,9 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // PUT: /api/admin-orders/{id} - Update entire order
+        // PUT: /api/adminorders/{id} - Update entire order
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateOrder(int id, [FromBody] UpdateOrderRequest request)
+        public async Task<IActionResult> UpdateOrder(int id, [FromBody] OrderDTOs.UpdateOrderRequest request)
         {
             try
             {
@@ -259,7 +317,7 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // DELETE: /api/admin-orders/{id} - Delete order
+        // DELETE: /api/adminorders/{id} - Delete order
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteOrder(int id)
         {
@@ -287,7 +345,7 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // GET: /api/admin-orders/export - Export orders as CSV
+        // GET: /api/adminorders/export - Export orders as CSV
         [HttpGet("export")]
         public async Task<IActionResult> ExportOrders([FromQuery] string status = null)
         {
@@ -332,7 +390,7 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // GET: /api/admin-orders/stats - Get order statistics
+        // GET: /api/adminorders/stats - Get order statistics
         [HttpGet("stats")]
         public async Task<IActionResult> GetOrderStats()
         {
@@ -372,7 +430,7 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // POST: /api/admin-orders/{id}/send-email - Send confirmation email
+        // POST: /api/adminorders/{id}/send-email - Send confirmation email
         [HttpPost("{id:int}/send-email")]
         public async Task<IActionResult> SendConfirmationEmail(int id)
         {
@@ -401,22 +459,5 @@ namespace WebApp_API.Controllers
                 return StatusCode(500, new { message = "Error sending email", error = ex.Message });
             }
         }
-    }
-
-    // DTOs for requests
-    public class UpdateOrderStatusRequest
-    {
-        public string Status { get; set; }
-    }
-
-    public class UpdateOrderRequest
-    {
-        public string CustomerName { get; set; }
-        public string CustomerEmail { get; set; }
-        public string CustomerPhone { get; set; }
-        public string ShippingAddress { get; set; }
-        public string City { get; set; }
-        public string Status { get; set; }
-        public string Notes { get; set; }
     }
 }

@@ -9,7 +9,7 @@ import UpdateOrderStatusForm from "../Admin/UpdateOrderStatusForm";
 
 // Extend Model
 interface UserOrderCardProps extends OrderResponseModel {
-  onDeleteSuccess?: (id: number | string) => void;
+  onCancelSuccess?: (id: number | string) => void;
 }
 
 export default function UserOrderCard(order: UserOrderCardProps) {
@@ -66,7 +66,7 @@ export default function UserOrderCard(order: UserOrderCardProps) {
 
             toast.success("Successfully Cancel Order");
 
-            order.onDeleteSuccess?.(order.id);
+            order.onCancelSuccess?.(order.id);
 
         } catch (error) {
             console.error("Error updating order status:", error);

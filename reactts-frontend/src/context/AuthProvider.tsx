@@ -46,7 +46,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             phone: response.phone,
             role: response.role || "user",
             createdAt: response.createdAt,
-            token: response.token,
         };
     };
 
@@ -62,8 +61,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 const userData = normalizeUserData(response);
 
                 // Store in localStorage
+                localStorage.setItem("token", response.token);
                 localStorage.setItem("user", JSON.stringify(userData));
-                localStorage.setItem("token", userData.token);
 
                 setUser(userData);
                 return userData;
@@ -91,8 +90,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                 const user = normalizeUserData(response);
 
                 // Store in localStorage
+                localStorage.setItem("token", response.token);
                 localStorage.setItem("user", JSON.stringify(user));
-                localStorage.setItem("token", user.token);
 
                 setUser(user);
                 return true;

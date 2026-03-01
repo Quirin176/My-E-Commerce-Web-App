@@ -114,7 +114,7 @@ export default function UserOrders() {
             <UserOrderCard
             key={order.id}
             {...order}
-            onDeleteSuccess={(id) => setOrders(prev => prev.filter(o => o.id !== id))} />
+            onCancelSuccess={(id) => setOrders(prev => prev.filter(o => o.id !== id))} />
           ))}
         </div>
       )}
