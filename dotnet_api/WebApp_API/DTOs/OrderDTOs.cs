@@ -100,6 +100,33 @@ namespace WebApp_API.DTOs
             public string Status { get; set; }
             public string Notes { get; set; }
         }
+        
+        //////////////////// Order Stats DTOs for admin dashboard ////////////////////
+        // DTO for a single status group count
+        public class OrderStatusCountDto
+        {
+            public string Status { get; set; }
+            public int Count { get; set; }
+        }
 
+        // DTO for a single payment method group count
+        public class OrderPaymentMethodCountDto
+        {
+            public string Method { get; set; }
+            public int Count { get; set; }
+        }
+
+        // DTO returned by GET /api/adminorders/stats
+        public class OrderStatsResponse
+        {
+            public int TotalOrders { get; set; }
+            public decimal TotalRevenue { get; set; }
+            public int TotalItems { get; set; }
+            public decimal AverageOrderValue { get; set; }
+            public List<OrderStatusCountDto> ByStatus { get; set; } = new();
+            public List<OrderPaymentMethodCountDto> ByPaymentMethod { get; set; } = new();
+            public decimal Last30DaysRevenue { get; set; }
+            public int Last30DaysOrders { get; set; }
+        }
     }
 }

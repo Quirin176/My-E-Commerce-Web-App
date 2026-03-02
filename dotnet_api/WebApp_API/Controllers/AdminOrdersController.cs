@@ -28,10 +28,10 @@ namespace WebApp_API.Controllers
 
                 // Filter by status
                 if (!string.IsNullOrWhiteSpace(filterParams.Status))
-                if (string.Equals(filterParams.Status, "all"))
-                    query = query.Where(o => o.Status != null); // Include all orders regardless of status
-                else
-                    query = query.Where(o => o.Status == filterParams.Status);
+                    if (string.Equals(filterParams.Status, "all"))
+                        query = query.Where(o => o.Status != null); // Include all orders regardless of status
+                    else
+                        query = query.Where(o => o.Status == filterParams.Status);
 
                 // Filter by date range
                 if (!string.IsNullOrWhiteSpace(filterParams.MinDate) && DateTime.TryParse(filterParams.MinDate, out var min))
@@ -309,35 +309,41 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // GET: /api/adminorders/stats - Get order statistics
+        // GET: /api/adminorders/stats - Get summary statistics of all orders
         [HttpGet("stats")]
         public async Task<IActionResult> GetOrderStats()
         {
             try
             {
-                Console.WriteLine("[ADMIN-ORDERS] GetOrderStats called");
-
                 var orders = await _db.Orders
                     .Include(o => o.OrderItems)
                     .ToListAsync();
 
-                var stats = new
+                var stats = new OrderDTOs.OrderStatsResponse
                 {
-                    totalOrders = orders.Count,
-                    totalRevenue = orders.Sum(o => o.TotalAmount),
-                    totalItems = orders.Sum(o => o.OrderItems.Count),
-                    averageOrderValue = orders.Count > 0 ? orders.Average(o => o.TotalAmount) : 0,
-                    byStatus = orders.GroupBy(o => o.Status)
-                        .Select(g => new { status = g.Key, count = g.Count() })
+                    TotalOrders = orders.Count,                                                       // Total number of orders from the database
+                    TotalRevenue = orders.Sum(or => or.TotalAmount),                                  // Total revenue from all orders
+                    TotalItems = orders.Sum(or => or.OrderItems.Count),                               // Total number of items sold across all orders
+                    AverageOrderValue = orders.Count > 0 ? orders.Average(or => or.TotalAmount) : 0,  // Average order value (AOV) = Total Revenue / Total Orders
+                    ByStatus = orders.GroupBy(or => or.Status)                                        // Count number of orders in each status -> Return List of { status, count }
+                        .Select(g => new OrderDTOs.OrderStatusCountDto
+                        {
+                            Status = g.Key,
+                            Count = g.Count()
+                        })
                         .ToList(),
-                    byPaymentMethod = orders.GroupBy(o => o.PaymentMethod)
-                        .Select(g => new { method = g.Key, count = g.Count() })
+                    ByPaymentMethod = orders.GroupBy(or => or.PaymentMethod)                          // Count number of orders in each payment method -> Return List of { method, count }
+                        .Select(g => new OrderDTOs.OrderPaymentMethodCountDto
+                        {
+                            Method = g.Key,
+                            Count = g.Count()
+                        })
                         .ToList(),
-                    last30DaysRevenue = orders
-                        .Where(o => o.OrderDate >= DateTime.UtcNow.AddDays(-30))
+                    Last30DaysRevenue = orders
+                        .Where(or => or.OrderDate >= DateTime.UtcNow.AddDays(-30))
                         .Sum(o => o.TotalAmount),
-                    last30DaysOrders = orders
-                        .Count(o => o.OrderDate >= DateTime.UtcNow.AddDays(-30))
+                    Last30DaysOrders = orders
+                        .Count(or => or.OrderDate >= DateTime.UtcNow.AddDays(-30))
                 };
 
                 return Ok(stats);

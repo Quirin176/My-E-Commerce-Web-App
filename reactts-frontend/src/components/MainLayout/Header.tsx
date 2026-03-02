@@ -28,7 +28,7 @@ export default function Header() {
           </div>
 
           {/* SEARCH BAR */}
-          <div className="bg-white rounded-2xl pl-4 pr-2">
+          <div className="bg-white rounded-4xl pl-4 pr-2">
             <div className="flex gap-4 py-2 items-center">
               <Search size={20} />
               <input
@@ -38,7 +38,7 @@ export default function Header() {
                 placeholder="Search For Products"
               />
               <button
-                className="px-4 py-2 rounded-2xl text-white hover:text-gray-600 cursor-pointer"
+                className="px-4 py-2 rounded-4xl text-white hover:text-gray-600 cursor-pointer"
                 style={{ background: colors.primarycolor }}
               >
                 Search

@@ -1,10 +1,16 @@
 import { Outlet } from "react-router-dom";
 import Header from "../components/MainLayout/Header";
 import Footer from "../components/MainLayout/Footer";
+import { siteConfig } from "../config/siteConfig";
 
 export default function MainLayout() {
+  const { colors } = siteConfig;
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div
+    className="min-h-screen flex flex-col"
+    style={{ backgroundColor: colors.backgroundcolor }}
+    >
 
       <Header/>
 

@@ -6,10 +6,20 @@ import UserOrderCard from "../../components/User/UserOrderCard";
 import type { OrderResponseModel } from "../../types/models/order/OrderResponseModel";
 import { siteConfig } from "../../config/siteConfig";
 
+interface orderStatusCount {
+    status: string;
+    count: number;
+}
+
 export default function AdminOrders() {
     // Status options
     const orderStatus = siteConfig.ORDER_STATUS_OPTIONS;
 
+    // Order stats
+    const [orderStatusCount, setOrderStatusCount] = useState<orderStatusCount[]>([]);
+    const [orderAllCount, setOrderAllCount] = useState(0);
+
+    // Display orders in admin order management page
     const [orders, setOrders] = useState<OrderResponseModel[]>([]);
     const [loading, setLoading] = useState(false);
 
@@ -20,10 +30,24 @@ export default function AdminOrders() {
     const [sortBy, setSortBy] = useState("");
     const [sortOrder, setSortOrder] = useState("");
 
+    useEffect(() => {
+        loadStats();
+    }, []);
+
+    const loadStats = async () => {
+        try {
+            const stats = await adminOrdersApi.getOrderStats();
+            setOrderStatusCount(stats.byStatus ?? []);
+            setOrderAllCount(stats.totalOrders ?? 0);
+        } catch (error) {
+            console.error("Error loading order stats:", error);
+            toast.error("Failed to load order statistics");
+        }
+    };
+
     // Load orders
     useEffect(() => {
         loadOrders();
-        // loadStats();
     }, [status, minDate, maxDate, sortBy, sortOrder]);
 
     const loadOrders = async () => {
@@ -76,6 +100,23 @@ export default function AdminOrders() {
                         />
                     </div>
                 </div>
+
+                <select name="sort" id="sort" value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="border-2 rounded-xl px-2 py-1">
+                    <option value="" onClick={() => setSortBy("")}
+                    >Sort By</option>
+                    <option value="customerName" onClick={() => setSortBy("customerName")}  // Must match the sortBy value ("customerName") in backend controller
+                    >Customer Name</option>
+                    <option value="totalAmount" onClick={() => setSortBy("totalAmount")}    // Must match the sortBy value ("totalAmount") in backend controller
+                    >Total Amount</option>
+                    <option value="orderDate" onClick={() => setSortBy("orderDate")}        // Must match the sortBy value ("orderDate") in backend controller
+                    >Order Date</option>
+                </select>
+
+                <select name="sortOrder" id="sortOrder" value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} className="border-2 rounded-xl px-2 py-1">
+                    <option value="" onClick={() => setSortOrder("")}>Sort Order</option>
+                    <option value="asc" onClick={() => setSortOrder("asc")}>Ascending</option>
+                    <option value="desc" onClick={() => setSortOrder("desc")}>Descending</option>
+                </select>
             </div>
 
             <div className="flex justify-between items-center mb-4">
@@ -95,8 +136,8 @@ export default function AdminOrders() {
                             {option.label}
                             <span className="ml-2 text-sm">
                                 {option.value.toLowerCase() === "all"
-                                    ? `(${orders.length})`
-                                    : `(${orders.filter((o) => o.status.toLowerCase() === option.value.toLowerCase()).length})`}
+                                    ? `(${orderAllCount})`
+                                    : `(${orderStatusCount.find(s => s.status.toLowerCase() === option.value.toLowerCase())?.count || 0})`}
                             </span>
                         </button>
                     ))}
@@ -108,6 +149,8 @@ export default function AdminOrders() {
                         setStatus("all");
                         setMinDate("");
                         setMaxDate("");
+                        setSortBy("");
+                        setSortOrder("");
                     }}
                     className="px-4 py-2 text-red-500 font-semibold hover:underline cursor-pointer transition"
                 >

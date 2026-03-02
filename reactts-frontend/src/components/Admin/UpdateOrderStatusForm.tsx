@@ -3,6 +3,7 @@ import { X, Send, Loader } from "lucide-react";
 import toast from "react-hot-toast";
 import { adminOrdersApi } from "../../api/admin/adminOrdersApi";
 import type { OrderResponseModel } from "../../types/models/order/OrderResponseModel";
+import { siteConfig } from "../../config/siteConfig";
 
 interface UpdateOrderStatusFormProps {
     showForm: boolean;
@@ -23,7 +24,9 @@ export default function UpdateOrderStatusForm({
 
     if (!showForm) return null;
 
-    const statuses = ["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"];
+    const statuses = siteConfig.ORDER_STATUS_OPTIONS.filter(
+        (o) => o.value.toLowerCase() !== "all"
+    );
 
     const getStatusColor = (status: string) => {
         const statusLower = status.toLowerCase();
@@ -38,6 +41,8 @@ export default function UpdateOrderStatusForm({
                 return "bg-green-50 border-green-300 text-green-900";
             case "cancelled":
                 return "bg-red-50 border-red-300 text-red-900";
+            case "refunded":
+                return "bg-orange-50 border-orange-300 text-orange-900";
             default:
                 return "bg-gray-50 border-gray-300 text-gray-900";
         }
@@ -72,14 +77,14 @@ export default function UpdateOrderStatusForm({
         setLoading(true);
         try {
             await adminOrdersApi.updateOrderStatus(order.id, selectedStatus);
-            
+
             toast.success(
                 `Order status updated to ${selectedStatus}`,
                 {
                     duration: 4000,
                 }
             );
-            
+
             onUpdateSuccess?.();
             setShowForm(false);
         } catch (error) {
@@ -108,7 +113,7 @@ export default function UpdateOrderStatusForm({
                             <h2 className="text-2xl font-bold text-gray-800">Update Order Status</h2>
                             <p className="text-sm text-gray-600 mt-1">Order ID: #{order.id}</p>
                         </div>
-                        
+
                         <button
                             onClick={() => !loading && setShowForm(false)}
                             disabled={loading}
@@ -158,24 +163,23 @@ export default function UpdateOrderStatusForm({
                             <div className="space-y-2">
                                 {statuses.map((status) => (
                                     <label
-                                        key={status}
-                                        className={`flex items-center p-3 rounded-lg border-2 cursor-pointer transition ${
-                                            selectedStatus === status
-                                                ? `${getStatusColor(status)} border-2 border-gray-400 shadow-md`
-                                                : "bg-white border-gray-200 hover:bg-gray-50"
-                                        }`}
+                                        key={status.value}
+                                        className={`flex items-center p-3 rounded-lg border-2 cursor-pointer transition ${selectedStatus === status.label
+                                            ? `${getStatusColor(status.label)} border-2 border-gray-400 shadow-md`
+                                            : "bg-white border-gray-200 hover:bg-gray-50"
+                                            }`}
                                     >
                                         <input
                                             type="radio"
                                             name="status"
-                                            value={status}
-                                            checked={selectedStatus === status}
+                                            value={status.label}
+                                            checked={selectedStatus === status.label}
                                             onChange={(e) => setSelectedStatus(e.target.value)}
                                             disabled={loading}
                                             className="w-4 h-4 cursor-pointer"
                                         />
-                                        <span className="ml-3 font-medium">{status}</span>
-                                        {status === order.status && (
+                                        <span className="ml-3 font-medium">{status.label}</span>
+                                        {status.label === order.status && (
                                             <span className="ml-auto text-xs bg-gray-400 text-white px-2 py-1 rounded">
                                                 Current
                                             </span>
