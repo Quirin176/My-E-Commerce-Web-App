@@ -2,6 +2,7 @@ namespace WebApp_API.DTOs
 {
     public class OrderDTOs
     {
+        //////////////////// Order Creation DTOs for client/frontend creating a new order ////////////////////
         // DTO used for creating a new order from the client/frontend
         public class CreateOrderRequest
         {
@@ -26,6 +27,7 @@ namespace WebApp_API.DTOs
             public decimal TotalPrice { get; set; }
         }
 
+        //////////////////// Order Details DTOs to return to client/frontend and admin users ////////////////////
         // DTO used for returning order details in responses to the client/frontend
         public class OrderResponse
         {
@@ -43,6 +45,24 @@ namespace WebApp_API.DTOs
             public int ItemCount { get; set; }
             public List<OrderItemResponse> Items { get; set; } = new();
         }
+        // DTO used for returning order details to admin client/frontend
+        public class AdminOrderResponse
+        {
+            public int Id { get; set; }
+            public string CustomerName { get; set; }
+            public string CustomerEmail { get; set; }
+            public string CustomerPhone { get; set; }
+            public string ShippingAddress { get; set; }
+            public string City { get; set; }
+            public decimal TotalAmount { get; set; }
+            public string PaymentMethod { get; set; }
+            public string Status { get; set; }
+            public DateTime OrderDate { get; set; }
+            public string? Notes { get; set; }
+            public int? UserId { get; set; }        // Admin-specific
+            public string? UserName { get; set; }   // Admin-specific
+            public List<OrderItemResponse> Items { get; set; } = new();
+        }
         // DTO for each item in the order response to the client/frontend
         public class OrderItemResponse
         {
@@ -53,7 +73,7 @@ namespace WebApp_API.DTOs
             public decimal TotalPrice { get; set; }
         }
 
-        
+        // DTO used for filtering and sorting orders in admin order listing
         public class OrderFilterParameters
         {
             public string? Status { get; set; }

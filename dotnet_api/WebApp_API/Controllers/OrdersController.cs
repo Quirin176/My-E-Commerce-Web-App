@@ -159,27 +159,27 @@ namespace WebApp_API.Controllers
                     .ToListAsync();
 
                 // Return with full item details
-                var response = orders.Select(o => new
+                var response = orders.Select(o => new OrderDTOs.OrderResponse
                 {
-                    o.Id,
-                    o.CustomerName,
-                    o.CustomerEmail,
-                    o.CustomerPhone,
-                    o.ShippingAddress,
-                    o.City,
-                    o.TotalAmount,
-                    o.Status,
-                    o.PaymentMethod,
-                    o.OrderDate,
-                    o.Notes,
+                    Id = o.Id,
+                    CustomerName = o.CustomerName,
+                    CustomerEmail = o.CustomerEmail,
+                    CustomerPhone = o.CustomerPhone,
+                    ShippingAddress = o.ShippingAddress,
+                    City = o.City,
+                    TotalAmount = o.TotalAmount,
+                    Status = o.Status,
+                    PaymentMethod = o.PaymentMethod,
+                    OrderDate = o.OrderDate,
+                    Notes = o.Notes,
                     ItemCount = o.OrderItems.Count,
-                    Items = o.OrderItems.Select(oi => new
+                    Items = o.OrderItems.Select(oi => new OrderDTOs.OrderItemResponse
                     {
-                        oi.ProductId,
-                        oi.ProductName,
-                        oi.Quantity,
-                        oi.UnitPrice,
-                        oi.TotalPrice
+                        ProductId = oi.ProductId,
+                        ProductName = oi.ProductName,
+                        Quantity = oi.Quantity,
+                        UnitPrice = oi.UnitPrice,
+                        TotalPrice = oi.TotalPrice
                     }).ToList()
                 }).ToList();
 

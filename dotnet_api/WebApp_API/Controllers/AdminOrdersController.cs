@@ -28,6 +28,9 @@ namespace WebApp_API.Controllers
 
                 // Filter by status
                 if (!string.IsNullOrWhiteSpace(filterParams.Status))
+                if (string.Equals(filterParams.Status, "all"))
+                    query = query.Where(o => o.Status != null); // Include all orders regardless of status
+                else
                     query = query.Where(o => o.Status == filterParams.Status);
 
                 // Filter by date range
@@ -92,90 +95,6 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // // GET: /api/adminorders/status - Get all orders with filters
-        // [HttpGet("{status}")]
-        // public async Task<IActionResult> GetByStatus(
-        //     [FromQuery] string status = null,
-        //     [FromQuery] string minDate = null,
-        //     [FromQuery] string maxDate = null,
-        //     [FromQuery] string sortBy = "orderDate",
-        //     [FromQuery] string sortOrder = "desc")
-        // {
-        //     try
-        //     {
-        //         IQueryable<Order> query = _db.Orders
-        //             .Include(o => o.User)
-        //             .Include(o => o.OrderItems);
-
-        //         // Filter by status
-        //         if (!string.IsNullOrWhiteSpace(status))
-        //             query = query.Where(o => o.Status == status);
-
-        //         // Filter by date range
-        //         if (!string.IsNullOrWhiteSpace(minDate) && DateTime.TryParse(minDate, out var min))
-        //             query = query.Where(o => o.OrderDate >= min);
-
-        //         if (!string.IsNullOrWhiteSpace(maxDate) && DateTime.TryParse(maxDate, out var max))
-        //         {
-        //             // Include entire day
-        //             var maxWithTime = max.AddDays(1).AddSeconds(-1);
-        //             query = query.Where(o => o.OrderDate <= maxWithTime);
-        //         }
-
-        //         // Apply sorting
-        //         query = sortBy switch
-        //         {
-        //             "customerName" => sortOrder == "asc"
-        //                 ? query.OrderBy(o => o.CustomerName)
-        //                 : query.OrderByDescending(o => o.CustomerName),
-        //             "totalAmount" => sortOrder == "asc"
-        //                 ? query.OrderBy(o => o.TotalAmount)
-        //                 : query.OrderByDescending(o => o.TotalAmount),
-        //             "status" => sortOrder == "asc"
-        //                 ? query.OrderBy(o => o.Status)
-        //                 : query.OrderByDescending(o => o.Status),
-        //             "orderDate" or _ => sortOrder == "asc"
-        //                 ? query.OrderBy(o => o.OrderDate)
-        //                 : query.OrderByDescending(o => o.OrderDate)
-        //         };
-
-        //         var orders = await query.ToListAsync();
-
-        //         // Map to response DTO
-        //         var response = orders.Select(o => new OrderDTOs.OrderResponse
-        //         {
-        //             Id = o.Id,
-        //             CustomerName = o.CustomerName,
-        //             CustomerEmail = o.CustomerEmail,
-        //             CustomerPhone = o.CustomerPhone,
-        //             ShippingAddress = o.ShippingAddress,
-        //             City = o.City,
-        //             TotalAmount = o.TotalAmount,
-        //             PaymentMethod = o.PaymentMethod,
-        //             Status = o.Status,
-        //             OrderDate = o.OrderDate,
-        //             Notes = o.Notes,
-        //             ItemCount = o.OrderItems.Count,
-        //             Items = o.OrderItems.Select(oi => new OrderDTOs.OrderItemResponse
-        //             {
-        //                 ProductId = oi.ProductId,
-        //                 ProductName = oi.ProductName,
-        //                 Quantity = oi.Quantity,
-        //                 UnitPrice = oi.UnitPrice,
-        //                 TotalPrice = oi.TotalPrice
-        //             }).ToList()
-        //         }).ToList();
-
-        //         return Ok(response);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         Console.WriteLine($"[ADMIN-ORDERS] Error in GetAllOrders: {ex.Message}");
-        //         Console.WriteLine($"[ADMIN-ORDERS] Stack trace: {ex.StackTrace}");
-        //         return StatusCode(500, new { message = "Error fetching orders", error = ex.Message });
-        //     }
-        // }
-
         // GET: /api/adminorders/{id} - Get order detail
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetOrderDetail(int id)
@@ -195,28 +114,28 @@ namespace WebApp_API.Controllers
                     return NotFound(new { message = "Order not found" });
                 }
 
-                var response = new
+                var response = new OrderDTOs.AdminOrderResponse
                 {
-                    order.Id,
-                    order.CustomerName,
-                    order.CustomerEmail,
-                    order.CustomerPhone,
-                    order.ShippingAddress,
-                    order.City,
-                    order.TotalAmount,
-                    order.PaymentMethod,
-                    order.Status,
-                    order.OrderDate,
-                    order.Notes,
+                    Id = order.Id,
+                    CustomerName = order.CustomerName,
+                    CustomerEmail = order.CustomerEmail,
+                    CustomerPhone = order.CustomerPhone,
+                    ShippingAddress = order.ShippingAddress,
+                    City = order.City,
+                    TotalAmount = order.TotalAmount,
+                    PaymentMethod = order.PaymentMethod,
+                    Status = order.Status,
+                    OrderDate = order.OrderDate,
+                    Notes = order.Notes,
                     UserId = order.User?.Id,
                     UserName = order.User?.Username,
-                    Items = order.OrderItems.Select(oi => new
+                    Items = order.OrderItems.Select(oi => new OrderDTOs.OrderItemResponse
                     {
-                        oi.ProductId,
-                        oi.ProductName,
-                        oi.Quantity,
-                        oi.UnitPrice,
-                        oi.TotalPrice
+                        ProductId = oi.ProductId,
+                        ProductName = oi.ProductName,
+                        Quantity = oi.Quantity,
+                        UnitPrice = oi.UnitPrice,
+                        TotalPrice = oi.TotalPrice
                     }).ToList()
                 };
 

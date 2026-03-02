@@ -85,11 +85,8 @@ export default function AdminOrders() {
                         <button
                             key={option.value}
                             onClick={() => {
-                                if (option.value.toLowerCase() === "all") {
-                                    setStatus("");
-                                } else {
                                 setStatus(option.value.toLowerCase());
-                            }}}
+                            }}
                             className={`px-4 py-2 rounded-full font-semibold transition ${status === option.value
                                 ? "bg-blue-600 text-white shadow-lg"
                                 : "bg-gray-200 text-gray-800 hover:bg-gray-300"
@@ -108,7 +105,7 @@ export default function AdminOrders() {
                 {/* Clear Filters Button */}
                 <a
                     onClick={() => {
-                        setStatus("");
+                        setStatus("all");
                         setMinDate("");
                         setMaxDate("");
                     }}
