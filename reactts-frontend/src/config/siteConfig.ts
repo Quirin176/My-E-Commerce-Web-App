@@ -10,7 +10,7 @@ export const siteConfig = {
   colors: {
     primarycolor: "black",
     pricecolor: "red",
-    backgroundcolor: "gray",
+    backgroundcolor: "GhostWhite",
   },
 
   categories: [
