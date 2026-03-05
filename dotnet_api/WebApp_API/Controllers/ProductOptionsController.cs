@@ -22,8 +22,8 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                Console.WriteLine($"[ProductOptions] CreateProductOption called");
-                Console.WriteLine($"[ProductOptions] Name: {req.Name}, CategoryId: {req.CategoryId}");
+                // Console.WriteLine($"[ProductOptions] CreateProductOption called");
+                // Console.WriteLine($"[ProductOptions] Name: {req.Name}, CategoryId: {req.CategoryId}");
 
                 if (string.IsNullOrWhiteSpace(req.Name))
                     return BadRequest(new { message = "Option name is required" });
@@ -52,7 +52,7 @@ namespace WebApp_API.Controllers
                 _db.ProductOptions.Add(newOption);
                 await _db.SaveChangesAsync();
 
-                Console.WriteLine($"[ProductOptions] Created new option: {newOption.Name} (ID: {newOption.Id})");
+                // Console.WriteLine($"[ProductOptions] Created new option: {newOption.Name} (ID: {newOption.Id})");
 
                 return CreatedAtAction(nameof(GetProductOption), new { id = newOption.Id }, new
                 {
@@ -64,7 +64,7 @@ namespace WebApp_API.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ProductOptions] Error in CreateProductOption: {ex.Message}");
+                // Console.WriteLine($"[ProductOptions] Error in CreateProductOption: {ex.Message}");
                 return StatusCode(500, new { message = "Error creating product option", error = ex.Message });
             }
         }
@@ -75,18 +75,18 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                Console.WriteLine($"[ProductOptions] GetProductOption called with id: {id}");
+                // Console.WriteLine($"[ProductOptions] GetProductOption called with id: {id}");
 
                 var option = await _db.ProductOptions
                     .FirstOrDefaultAsync(po => po.Id == id);
 
                 if (option == null)
                 {
-                    Console.WriteLine($"[ProductOptions] Option not found: {id}");
+                    // Console.WriteLine($"[ProductOptions] Option not found: {id}");
                     return NotFound(new { message = "Product option not found" });
                 }
 
-                Console.WriteLine($"[ProductOptions] Found option: {option.Name}");
+                // Console.WriteLine($"[ProductOptions] Found option: {option.Name}");
 
                 // Query option values directly
                 var optionValues = await _db.ProductOptionValues
@@ -108,7 +108,7 @@ namespace WebApp_API.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ProductOptions] Error in GetProductOption: {ex.Message}");
+                // Console.WriteLine($"[ProductOptions] Error in GetProductOption: {ex.Message}");
                 return StatusCode(500, new { message = "Error retrieving product option", error = ex.Message });
             }
         }
@@ -120,8 +120,8 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                Console.WriteLine($"[ProductOptions] CreateOptionValue called");
-                Console.WriteLine($"[ProductOptions] OptionId: {optionId}, Value: {req.Value}");
+                // Console.WriteLine($"[ProductOptions] CreateOptionValue called");
+                // Console.WriteLine($"[ProductOptions] OptionId: {optionId}, Value: {req.Value}");
 
                 if (string.IsNullOrWhiteSpace(req.Value))
                     return BadRequest(new { message = "Option value is required" });
@@ -130,11 +130,11 @@ namespace WebApp_API.Controllers
                 var option = await _db.ProductOptions.FirstOrDefaultAsync(po => po.Id == optionId);
                 if (option == null)
                 {
-                    Console.WriteLine($"[ProductOptions] Option not found: {optionId}");
+                    // Console.WriteLine($"[ProductOptions] Option not found: {optionId}");
                     return NotFound(new { message = "Product option not found" });
                 }
 
-                Console.WriteLine($"[ProductOptions] Found option: {option.Name}");
+                // Console.WriteLine($"[ProductOptions] Found option: {option.Name}");
 
                 // Check if value already exists for this option
                 var existingValue = await _db.ProductOptionValues
@@ -142,7 +142,7 @@ namespace WebApp_API.Controllers
 
                 if (existingValue != null)
                 {
-                    Console.WriteLine($"[ProductOptions] Value already exists: {req.Value}");
+                    // Console.WriteLine($"[ProductOptions] Value already exists: {req.Value}");
                     return BadRequest(new { message = $"Value '{req.Value}' already exists for this option" });
                 }
 
@@ -155,7 +155,7 @@ namespace WebApp_API.Controllers
                 _db.ProductOptionValues.Add(newValue);
                 await _db.SaveChangesAsync();
 
-                Console.WriteLine($"[ProductOptions] Created new value: {newValue.Value} (ID: {newValue.Id}) for option {optionId}");
+                // Console.WriteLine($"[ProductOptions] Created new value: {newValue.Value} (ID: {newValue.Id}) for option {optionId}");
 
                 return CreatedAtAction(nameof(GetProductOption), new { id = optionId }, new
                 {
@@ -166,8 +166,8 @@ namespace WebApp_API.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ProductOptions] Error in CreateOptionValue: {ex.Message}");
-                Console.WriteLine($"[ProductOptions] Stack Trace: {ex.StackTrace}");
+                // Console.WriteLine($"[ProductOptions] Error in CreateOptionValue: {ex.Message}");
+                // Console.WriteLine($"[ProductOptions] Stack Trace: {ex.StackTrace}");
                 return StatusCode(500, new { message = "Error creating option value", error = ex.Message });
             }
         }

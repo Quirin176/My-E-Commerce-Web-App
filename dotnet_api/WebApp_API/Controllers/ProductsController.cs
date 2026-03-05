@@ -24,6 +24,7 @@ namespace WebApp_API.Controllers
             [FromQuery] string options = null,
             [FromQuery] string priceOrder = "newest")
         {
+            // First - Filter by category
             IQueryable<Product> query = _db.Products.Include(p => p.Category);
 
             if (!string.IsNullOrWhiteSpace(category))
@@ -40,9 +41,10 @@ namespace WebApp_API.Controllers
             if (maxPrice < decimal.MaxValue)
                 query = query.Where(p => p.Price <= maxPrice);
 
-            // NEW: Improved filter logic with OR within option and AND between options
+            // Options filter
             if (!string.IsNullOrWhiteSpace(options))
             {
+                // Raw data processing - Split the optionvalues string request from frontend into a list of optionvalue IDs
                 var selectedOptionIds = options.Split(',')
                     .Select(s => int.TryParse(s.Trim(), out var id) ? (int?)id : null)
                     .Where(id => id.HasValue)
@@ -350,7 +352,7 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                Console.WriteLine($"[PRODUCTS] GetProductsPaginated - Page: {page}, Size: {pageSize}, Search: {search}");
+                // Console.WriteLine($"[PRODUCTS] GetProductsPaginated - Page: {page}, Size: {pageSize}, Search: {search}");
 
                 // Validate parameters
                 if (page < 1) page = 1;
@@ -367,7 +369,7 @@ namespace WebApp_API.Controllers
                         p.Name.ToLower().Contains(searchTerm) ||
                         p.Slug.ToLower().Contains(searchTerm)
                     );
-                    Console.WriteLine($"[PRODUCTS] Search filter applied: {searchTerm}");
+                    // Console.WriteLine($"[PRODUCTS] Search filter applied: {searchTerm}");
                 }
 
                 if (!string.IsNullOrWhiteSpace(category))
@@ -434,7 +436,7 @@ namespace WebApp_API.Controllers
 
                 // Get total count BEFORE pagination
                 var totalCount = await query.CountAsync();
-                Console.WriteLine($"[PRODUCTS] Total count after search: {totalCount}");
+                // Console.WriteLine($"[PRODUCTS] Total count after search: {totalCount}");
 
                 // Calculate pagination
                 var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
@@ -491,8 +493,8 @@ namespace WebApp_API.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[PRODUCTS] Error in GetProductsPaginated: {ex.Message}");
-                Console.WriteLine($"[PRODUCTS] Stack trace: {ex.StackTrace}");
+                // Console.WriteLine($"[PRODUCTS] Error in GetProductsPaginated: {ex.Message}");
+                // Console.WriteLine($"[PRODUCTS] Stack trace: {ex.StackTrace}");
                 return StatusCode(500, new { message = "Error fetching products", error = ex.Message });
             }
         }
@@ -835,7 +837,7 @@ namespace WebApp_API.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[SEARCH] Error: {ex.Message}");
+                // Console.WriteLine($"[SEARCH] Error: {ex.Message}");
                 return StatusCode(500, new { message = "Search error", error = ex.Message });
             }
         }
@@ -862,7 +864,7 @@ namespace WebApp_API.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[SUGGESTIONS] Error: {ex.Message}");
+                // Console.WriteLine($"[SUGGESTIONS] Error: {ex.Message}");
                 return StatusCode(500, new { message = "Error fetching suggestions", error = ex.Message });
             }
         }

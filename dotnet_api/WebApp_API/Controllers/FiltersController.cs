@@ -20,33 +20,33 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                Console.WriteLine($"[Filters] GetFiltersByCategory called with slug: {categorySlug}");
+                // Console.WriteLine($"[Filters] GetFiltersByCategory called with slug: {categorySlug}");
 
                 if (string.IsNullOrWhiteSpace(categorySlug))
                     return BadRequest(new { message = "Category slug is required" });
 
                 var category = await _db.Categories.FirstOrDefaultAsync(c => c.Slug == categorySlug);
-                Console.WriteLine($"[Filters] Category found: {(category != null ? category.Name : "NULL")}");
+                // Console.WriteLine($"[Filters] Category found: {(category != null ? category.Name : "NULL")}");
 
                 if (category == null)
                 {
-                    Console.WriteLine($"[Filters] Category with slug '{categorySlug}' not found. Returning empty list.");
+                    // Console.WriteLine($"[Filters] Category with slug '{categorySlug}' not found. Returning empty list.");
                     return Ok(new List<object>());
                 }
 
-                Console.WriteLine($"[Filters] Category ID: {category.Id}");
+                // Console.WriteLine($"[Filters] Category ID: {category.Id}");
 
                 var productOptions = await _db.ProductOptions
                     .Where(o => o.CategoryId == category.Id)
                     .ToListAsync();
 
-                Console.WriteLine($"[Filters] Found {productOptions.Count} ProductOptions");
+                // Console.WriteLine($"[Filters] Found {productOptions.Count} ProductOptions");
 
                 var result = new List<object>();
 
                 foreach (var option in productOptions)
                 {
-                    Console.WriteLine($"[Filters] Processing option: {option.Name} (ID: {option.Id})");
+                    // Console.WriteLine($"[Filters] Processing option: {option.Name} (ID: {option.Id})");
 
                     var optionValues = await _db.ProductOptionValues
                         .Where(ov => ov.ProductOptionId == option.Id)
@@ -58,7 +58,7 @@ namespace WebApp_API.Controllers
                         })
                         .ToListAsync();
 
-                    Console.WriteLine($"[Filters] Option {option.Name} has {optionValues.Count} values");
+                    // Console.WriteLine($"[Filters] Option {option.Name} has {optionValues.Count} values");
 
                     result.Add(new
                     {
@@ -68,13 +68,13 @@ namespace WebApp_API.Controllers
                     });
                 }
 
-                Console.WriteLine($"[Filters] Returning {result.Count} options with their values");
+                // Console.WriteLine($"[Filters] Returning {result.Count} options with their values");
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ERROR] GetFiltersByCategory exception: {ex.Message}");
-                Console.WriteLine($"[ERROR] Stack Trace: {ex.StackTrace}");
+                // Console.WriteLine($"[ERROR] GetFiltersByCategory exception: {ex.Message}");
+                // Console.WriteLine($"[ERROR] Stack Trace: {ex.StackTrace}");
                 if (ex.InnerException != null)
                     Console.WriteLine($"[ERROR] Inner Exception: {ex.InnerException.Message}");
 
@@ -88,13 +88,13 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                Console.WriteLine($"[Filters] GetFiltersByCategoryId called with ID: {categoryId}");
+                // Console.WriteLine($"[Filters] GetFiltersByCategoryId called with ID: {categoryId}");
 
                 if (categoryId <= 0)
                     return BadRequest(new { message = "Valid category ID is required" });
 
                 var category = await _db.Categories.FirstOrDefaultAsync(c => c.Id == categoryId);
-                Console.WriteLine($"[Filters] Category found: {(category != null ? category.Name : "NULL")}");
+                // Console.WriteLine($"[Filters] Category found: {(category != null ? category.Name : "NULL")}");
 
                 if (category == null)
                     return Ok(new List<object>());
@@ -103,7 +103,7 @@ namespace WebApp_API.Controllers
                     .Where(o => o.CategoryId == categoryId)
                     .ToListAsync();
 
-                Console.WriteLine($"[Filters] Found {productOptions.Count} ProductOptions");
+                // Console.WriteLine($"[Filters] Found {productOptions.Count} ProductOptions");
 
                 var result = new List<object>();
 
@@ -131,8 +131,8 @@ namespace WebApp_API.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ERROR] GetFiltersByCategoryId exception: {ex.Message}");
-                Console.WriteLine($"[ERROR] Stack Trace: {ex.StackTrace}");
+                // Console.WriteLine($"[ERROR] GetFiltersByCategoryId exception: {ex.Message}");
+                // Console.WriteLine($"[ERROR] Stack Trace: {ex.StackTrace}");
                 if (ex.InnerException != null)
                     Console.WriteLine($"[ERROR] Inner Exception: {ex.InnerException.Message}");
 
@@ -147,8 +147,8 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                Console.WriteLine($"[OPTION] CreateOptionValue called");
-                Console.WriteLine($"[OPTION] OptionId: {req.OptionId}, Value: {req.Value}");
+                // Console.WriteLine($"[OPTION] CreateOptionValue called");
+                // Console.WriteLine($"[OPTION] OptionId: {req.OptionId}, Value: {req.Value}");
 
                 if (req.OptionId <= 0)
                     return BadRequest(new { message = "Valid option ID is required" });
@@ -160,11 +160,11 @@ namespace WebApp_API.Controllers
                 var option = await _db.ProductOptions.FirstOrDefaultAsync(po => po.Id == req.OptionId);
                 if (option == null)
                 {
-                    Console.WriteLine($"[OPTION] Option not found: {req.OptionId}");
+                    // Console.WriteLine($"[OPTION] Option not found: {req.OptionId}");
                     return NotFound(new { message = "Product option not found" });
                 }
 
-                Console.WriteLine($"[OPTION] Found option: {option.Name}");
+                // Console.WriteLine($"[OPTION] Found option: {option.Name}");
 
                 // Check if value already exists for this option
                 var existingValue = await _db.ProductOptionValues
@@ -172,7 +172,7 @@ namespace WebApp_API.Controllers
 
                 if (existingValue != null)
                 {
-                    Console.WriteLine($"[OPTION] Value already exists: {req.Value}");
+                    // Console.WriteLine($"[OPTION] Value already exists: {req.Value}");
                     return BadRequest(new { message = $"Value '{req.Value}' already exists for this option" });
                 }
 
@@ -185,7 +185,7 @@ namespace WebApp_API.Controllers
                 _db.ProductOptionValues.Add(newValue);
                 await _db.SaveChangesAsync();
 
-                Console.WriteLine($"[OPTION] Created new value: {newValue.Value} (ID: {newValue.Id})");
+                // Console.WriteLine($"[OPTION] Created new value: {newValue.Value} (ID: {newValue.Id})");
 
                 return Ok(new
                 {
@@ -196,8 +196,8 @@ namespace WebApp_API.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[OPTION] Error: {ex.Message}");
-                Console.WriteLine($"[OPTION] Stack Trace: {ex.StackTrace}");
+                // Console.WriteLine($"[OPTION] Error: {ex.Message}");
+                // Console.WriteLine($"[OPTION] Stack Trace: {ex.StackTrace}");
                 return StatusCode(500, new { message = "Error creating option value", error = ex.Message });
             }
         }
@@ -209,8 +209,8 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                Console.WriteLine($"[OPTION] UpdateOptionValue called with id: {id}");
-                Console.WriteLine($"[OPTION] New value: {req.Value}");
+                // Console.WriteLine($"[OPTION] UpdateOptionValue called with id: {id}");
+                // Console.WriteLine($"[OPTION] New value: {req.Value}");
 
                 if (string.IsNullOrWhiteSpace(req.Value))
                     return BadRequest(new { message = "Option value is required" });
@@ -220,11 +220,11 @@ namespace WebApp_API.Controllers
 
                 if (optionValue == null)
                 {
-                    Console.WriteLine($"[OPTION] Option value not found: {id}");
+                    // Console.WriteLine($"[OPTION] Option value not found: {id}");
                     return NotFound(new { message = "Option value not found" });
                 }
 
-                Console.WriteLine($"[OPTION] Found option value: {optionValue.Value}");
+                // Console.WriteLine($"[OPTION] Found option value: {optionValue.Value}");
 
                 // Check if another value with the same name already exists for this option
                 var existingValue = await _db.ProductOptionValues
@@ -234,7 +234,7 @@ namespace WebApp_API.Controllers
 
                 if (existingValue != null)
                 {
-                    Console.WriteLine($"[OPTION] Value already exists: {req.Value}");
+                    // Console.WriteLine($"[OPTION] Value already exists: {req.Value}");
                     return BadRequest(new { message = $"Value '{req.Value}' already exists for this option" });
                 }
 
@@ -244,7 +244,7 @@ namespace WebApp_API.Controllers
                 _db.ProductOptionValues.Update(optionValue);
                 await _db.SaveChangesAsync();
 
-                Console.WriteLine($"[OPTION] Successfully updated option value to: {optionValue.Value}");
+                // Console.WriteLine($"[OPTION] Successfully updated option value to: {optionValue.Value}");
 
                 return Ok(new 
                 { 
@@ -256,8 +256,8 @@ namespace WebApp_API.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[OPTION] Error updating option value: {ex.Message}");
-                Console.WriteLine($"[OPTION] Stack Trace: {ex.StackTrace}");
+                // Console.WriteLine($"[OPTION] Error updating option value: {ex.Message}");
+                // Console.WriteLine($"[OPTION] Stack Trace: {ex.StackTrace}");
                 return StatusCode(500, new { message = "Error updating option value", error = ex.Message });
             }
         }
@@ -269,18 +269,18 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                Console.WriteLine($"[OPTION] DeleteOptionValue called with id: {id}");
+                // Console.WriteLine($"[OPTION] DeleteOptionValue called with id: {id}");
 
                 // Find the option value
                 var optionValue = await _db.ProductOptionValues.FirstOrDefaultAsync(pov => pov.Id == id);
 
                 if (optionValue == null)
                 {
-                    Console.WriteLine($"[OPTION] Option value not found: {id}");
+                    // Console.WriteLine($"[OPTION] Option value not found: {id}");
                     return NotFound(new { message = "Option value not found" });
                 }
 
-                Console.WriteLine($"[OPTION] Found option value: {optionValue.Value}");
+                // Console.WriteLine($"[OPTION] Found option value: {optionValue.Value}");
 
                 // Check if this option value is used by any products
                 var productCount = await _db.ProductFilters
@@ -288,7 +288,7 @@ namespace WebApp_API.Controllers
 
                 if (productCount > 0)
                 {
-                    Console.WriteLine($"[OPTION] Cannot delete - used by {productCount} product(s)");
+                    // Console.WriteLine($"[OPTION] Cannot delete - used by {productCount} product(s)");
                     return BadRequest(new { message = $"Cannot delete this option value - it is used by {productCount} product(s)" });
                 }
 
@@ -296,14 +296,14 @@ namespace WebApp_API.Controllers
                 _db.ProductOptionValues.Remove(optionValue);
                 await _db.SaveChangesAsync();
 
-                Console.WriteLine($"[OPTION] Successfully deleted option value: {optionValue.Value}");
+                // Console.WriteLine($"[OPTION] Successfully deleted option value: {optionValue.Value}");
 
                 return Ok(new { message = $"Option value '{optionValue.Value}' deleted successfully" });
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[OPTION] Error deleting option value: {ex.Message}");
-                Console.WriteLine($"[OPTION] Stack Trace: {ex.StackTrace}");
+                // Console.WriteLine($"[OPTION] Error deleting option value: {ex.Message}");
+                // Console.WriteLine($"[OPTION] Stack Trace: {ex.StackTrace}");
                 return StatusCode(500, new { message = "Error deleting option value", error = ex.Message });
             }
         }

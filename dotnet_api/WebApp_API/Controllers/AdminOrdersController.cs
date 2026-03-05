@@ -89,8 +89,8 @@ namespace WebApp_API.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ADMIN-ORDERS] Error in GetAllOrders: {ex.Message}");
-                Console.WriteLine($"[ADMIN-ORDERS] Stack trace: {ex.StackTrace}");
+                // Console.WriteLine($"[ADMIN-ORDERS] Error in GetAllOrders: {ex.Message}");
+                // Console.WriteLine($"[ADMIN-ORDERS] Stack trace: {ex.StackTrace}");
                 return StatusCode(500, new { message = "Error fetching orders", error = ex.Message });
             }
         }
@@ -101,7 +101,7 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                Console.WriteLine($"[ADMIN-ORDERS] GetOrderDetail called for order: {id}");
+                // Console.WriteLine($"[ADMIN-ORDERS] GetOrderDetail called for order: {id}");
 
                 var order = await _db.Orders
                     .Include(o => o.User)
@@ -110,7 +110,7 @@ namespace WebApp_API.Controllers
 
                 if (order == null)
                 {
-                    Console.WriteLine($"[ADMIN-ORDERS] Order not found: {id}");
+                    // Console.WriteLine($"[ADMIN-ORDERS] Order not found: {id}");
                     return NotFound(new { message = "Order not found" });
                 }
 
@@ -181,7 +181,7 @@ namespace WebApp_API.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ADMIN-ORDERS] Error in UpdateOrderStatus: {ex.Message}");
+                // Console.WriteLine($"[ADMIN-ORDERS] Error in UpdateOrderStatus: {ex.Message}");
                 return StatusCode(500, new { message = "Error updating order status", error = ex.Message });
             }
         }
@@ -192,7 +192,7 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                Console.WriteLine($"[ADMIN-ORDERS] UpdateOrder called for order: {id}");
+                // Console.WriteLine($"[ADMIN-ORDERS] UpdateOrder called for order: {id}");
 
                 var order = await _db.Orders.FindAsync(id);
                 if (order == null)
@@ -225,13 +225,13 @@ namespace WebApp_API.Controllers
                 _db.Orders.Update(order);
                 await _db.SaveChangesAsync();
 
-                Console.WriteLine($"[ADMIN-ORDERS] Order {id} updated successfully");
+                // Console.WriteLine($"[ADMIN-ORDERS] Order {id} updated successfully");
 
                 return Ok(new { message = "Order updated successfully", order.Id });
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ADMIN-ORDERS] Error in UpdateOrder: {ex.Message}");
+                // Console.WriteLine($"[ADMIN-ORDERS] Error in UpdateOrder: {ex.Message}");
                 return StatusCode(500, new { message = "Error updating order", error = ex.Message });
             }
         }
@@ -242,7 +242,7 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                Console.WriteLine($"[ADMIN-ORDERS] DeleteOrder called for order: {id}");
+                // Console.WriteLine($"[ADMIN-ORDERS] DeleteOrder called for order: {id}");
 
                 var order = await _db.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.Id == id);
                 if (order == null)
@@ -253,13 +253,13 @@ namespace WebApp_API.Controllers
                 _db.Orders.Remove(order);
                 await _db.SaveChangesAsync();
 
-                Console.WriteLine($"[ADMIN-ORDERS] Order {id} deleted successfully");
+                // Console.WriteLine($"[ADMIN-ORDERS] Order {id} deleted successfully");
 
                 return Ok(new { message = "Order deleted successfully" });
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ADMIN-ORDERS] Error in DeleteOrder: {ex.Message}");
+                // Console.WriteLine($"[ADMIN-ORDERS] Error in DeleteOrder: {ex.Message}");
                 return StatusCode(500, new { message = "Error deleting order", error = ex.Message });
             }
         }
@@ -270,7 +270,7 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                Console.WriteLine("[ADMIN-ORDERS] ExportOrders called");
+                // Console.WriteLine("[ADMIN-ORDERS] ExportOrders called");
 
                 IQueryable<Order> query = _db.Orders
                     .Include(o => o.OrderItems)
@@ -280,7 +280,7 @@ namespace WebApp_API.Controllers
                     query = query.Where(o => o.Status == status);
 
                 var orders = await query.ToListAsync();
-                Console.WriteLine($"[ADMIN-ORDERS] Exporting {orders.Count} orders");
+                // Console.WriteLine($"[ADMIN-ORDERS] Exporting {orders.Count} orders");
 
                 // Create CSV content
                 var csv = new System.Text.StringBuilder();
@@ -304,7 +304,7 @@ namespace WebApp_API.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ADMIN-ORDERS] Error in ExportOrders: {ex.Message}");
+                // Console.WriteLine($"[ADMIN-ORDERS] Error in ExportOrders: {ex.Message}");
                 return StatusCode(500, new { message = "Error exporting orders", error = ex.Message });
             }
         }
@@ -350,7 +350,7 @@ namespace WebApp_API.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ADMIN-ORDERS] Error in GetOrderStats: {ex.Message}");
+                // Console.WriteLine($"[ADMIN-ORDERS] Error in GetOrderStats: {ex.Message}");
                 return StatusCode(500, new { message = "Error fetching statistics", error = ex.Message });
             }
         }
@@ -361,7 +361,7 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                Console.WriteLine($"[ADMIN-ORDERS] SendConfirmationEmail called for order: {id}");
+                // Console.WriteLine($"[ADMIN-ORDERS] SendConfirmationEmail called for order: {id}");
 
                 var order = await _db.Orders.FindAsync(id);
                 if (order == null)
@@ -369,7 +369,7 @@ namespace WebApp_API.Controllers
 
                 // TODO: Implement email sending logic using SMTP
                 // For now, just log and return success
-                Console.WriteLine($"[ADMIN-ORDERS] Email would be sent to: {order.CustomerEmail}");
+                // Console.WriteLine($"[ADMIN-ORDERS] Email would be sent to: {order.CustomerEmail}");
 
                 return Ok(new
                 {
@@ -380,7 +380,7 @@ namespace WebApp_API.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ADMIN-ORDERS] Error in SendConfirmationEmail: {ex.Message}");
+                // Console.WriteLine($"[ADMIN-ORDERS] Error in SendConfirmationEmail: {ex.Message}");
                 return StatusCode(500, new { message = "Error sending email", error = ex.Message });
             }
         }

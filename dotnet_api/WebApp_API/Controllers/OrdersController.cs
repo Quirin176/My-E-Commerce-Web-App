@@ -74,7 +74,7 @@ namespace WebApp_API.Controllers
 
                 await _db.SaveChangesAsync();
 
-                Console.WriteLine($"[ORDER] Order created: {order.Id} for user {userId}");
+                // Console.WriteLine($"[ORDER] Order created: {order.Id} for user {userId}");
 
                 return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, new
                 {
@@ -87,7 +87,7 @@ namespace WebApp_API.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ORDER] Error creating order: {ex.Message}");
+                // Console.WriteLine($"[ORDER] Error creating order: {ex.Message}");
                 return StatusCode(500, new { message = "Error creating order", error = ex.Message });
             }
         }
@@ -137,7 +137,7 @@ namespace WebApp_API.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ORDER] Error fetching order: {ex.Message}");
+                // Console.WriteLine($"[ORDER] Error fetching order: {ex.Message}");
                 return StatusCode(500, new { message = "Error fetching order", error = ex.Message });
             }
         }
@@ -187,7 +187,7 @@ namespace WebApp_API.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ORDER] Error fetching user orders: {ex.Message}");
+                // Console.WriteLine($"[ORDER] Error fetching user orders: {ex.Message}");
                 return StatusCode(500, new { message = "Error fetching orders", error = ex.Message });
             }
         }
