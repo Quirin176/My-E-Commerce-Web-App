@@ -109,6 +109,9 @@ namespace WebApp_API.Controllers
                 var userId = User.FindFirst("id")?.Value;
                 var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized();
+
                 if (userRole != "Admin" && order.UserId != int.Parse(userId))
                     return Forbid();
 

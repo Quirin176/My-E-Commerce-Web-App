@@ -18,10 +18,10 @@ namespace WebApp_API.Controllers
         // GET: /api/products - Get all products with optional filters
         [HttpGet]
         public async Task<IActionResult> GetAll(
-            [FromQuery] string category = null,
+            [FromQuery] string? category = null,
             [FromQuery] decimal minPrice = 0,
             [FromQuery] decimal maxPrice = decimal.MaxValue,
-            [FromQuery] string options = null,
+            [FromQuery] string? options = null,
             [FromQuery] string priceOrder = "newest")
         {
             // First - Filter by category
@@ -48,7 +48,7 @@ namespace WebApp_API.Controllers
                 var selectedOptionIds = options.Split(',')
                     .Select(s => int.TryParse(s.Trim(), out var id) ? (int?)id : null)
                     .Where(id => id.HasValue)
-                    .Select(id => id.Value)
+                    .Select(id => id!.Value)
                     .ToList();
 
                 if (selectedOptionIds.Count > 0)
@@ -242,7 +242,7 @@ namespace WebApp_API.Controllers
             [FromQuery] string category,
             [FromQuery] decimal minPrice = 0,
             [FromQuery] decimal maxPrice = decimal.MaxValue,
-            [FromQuery] string options = null,
+            [FromQuery] string? options = null,
             [FromQuery] string sortOrder = "newest")
         {
             if (string.IsNullOrWhiteSpace(category))
@@ -268,7 +268,7 @@ namespace WebApp_API.Controllers
                 var selectedOptionIds = options.Split(',')
                     .Select(s => int.TryParse(s.Trim(), out var id) ? (int?)id : null)
                     .Where(id => id.HasValue)
-                    .Select(id => id.Value)
+                    .Select(id => id!.Value)
                     .ToList();
 
                 if (selectedOptionIds.Count > 0)
@@ -337,17 +337,18 @@ namespace WebApp_API.Controllers
             return Ok(products);
         }
 
+        //////////////////// ADMIN ENDPOINTS ////////////////////
         // GET: /api/products/admin/paginated - Admin endpoint - Get paginated products with advanced filtering and sorting
         [HttpGet("admin/paginated")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetProductsPaginated(
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10,
-            [FromQuery] string search = null,
-            [FromQuery] string category = null,
+            [FromQuery] string? search = null,
+            [FromQuery] string? category = null,
             [FromQuery] decimal minPrice = 0,
             [FromQuery] decimal maxPrice = decimal.MaxValue,
-            [FromQuery] string options = null,
+            [FromQuery] string? options = null,
             [FromQuery] string sortOrder = "newest")
         {
             try
@@ -388,7 +389,7 @@ namespace WebApp_API.Controllers
                     var selectedOptionIds = options.Split(',')
                         .Select(s => int.TryParse(s.Trim(), out var id) ? (int?)id : null)
                         .Where(id => id.HasValue)
-                        .Select(id => id.Value)
+                        .Select(id => id!.Value)
                         .ToList();
 
                     if (selectedOptionIds.Count > 0)
@@ -513,7 +514,7 @@ namespace WebApp_API.Controllers
             if (request.Price <= 0)
                 return BadRequest(new { message = "Price must be greater than 0" });
 
-            if (!request.CategoryId.HasValue || request.CategoryId <= 0)
+            if (request.CategoryId <= 0)
                 return BadRequest(new { message = "Category is required" });
 
             // Check if slug exists
@@ -522,14 +523,14 @@ namespace WebApp_API.Controllers
                 return BadRequest(new { message = $"A product with slug '{request.Slug}' already exists" });
 
             // Check if category exists
-            var categoryExists = await _db.Categories.AnyAsync(c => c.Id == request.CategoryId.Value);
+            var categoryExists = await _db.Categories.AnyAsync(c => c.Id == request.CategoryId);
             if (!categoryExists)
                 return BadRequest(new { message = $"Category with ID {request.CategoryId} does not exist" });
 
             // Check if selected option values exist and belong to this category
             if (request.SelectedOptionValueIds != null && request.SelectedOptionValueIds.Count > 0)
             {
-                var categoryId = request.CategoryId.Value;
+                var categoryId = request.CategoryId;
                 var validOptionIds = await _db.ProductOptionValues
                     .Where(pov => _db.ProductOptions
                         .Where(po => po.CategoryId == categoryId)
@@ -556,7 +557,8 @@ namespace WebApp_API.Controllers
                     Description = request.Description,
                     Price = request.Price,
                     ImageUrl = request.ImageUrl,
-                    CategoryId = request.CategoryId.Value
+                    CategoryId = request.CategoryId,
+                    Category = await _db.Categories.FindAsync(request.CategoryId)
                 };
 
                 _db.Products.Add(product);
@@ -761,8 +763,8 @@ namespace WebApp_API.Controllers
                     .Include(p => p.Category)
                     .Where(p =>
                         p.Name.ToLower().Contains(query) ||
-                        p.ShortDescription.ToLower().Contains(query) ||
-                        p.Description.ToLower().Contains(query) ||
+                        (p.ShortDescription != null && p.ShortDescription.ToLower().Contains(query)) ||
+                        (p.Description != null && p.Description.ToLower().Contains(query)) ||
                         p.Category.Name.ToLower().Contains(query)
                     );
 

@@ -11,7 +11,7 @@ namespace WebApp_API.DTOs
             public decimal Price { get; set; }
             public string? ImageUrl { get; set; }
             public List<string> ImageUrls { get; set; } = new();
-            public int? CategoryId { get; set; }
+            public required int CategoryId { get; set; }
             public List<int> SelectedOptionValueIds { get; set; } = new();
         }
 
