@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using WebApp_API.Data;
 using WebApp_API.DTOs;
 using WebApp_API.Models;
@@ -43,11 +44,25 @@ namespace WebApp_API.Controllers
         [Authorize]
         public async Task<IActionResult> UpdateProfile([FromBody] UserDTOs.ProfileUpdateRequest req)
         {
-            var userId = User.FindFirst("id")?.Value;
-            if (userId == null) return Unauthorized();
+            var userIdClaim = User.FindFirst("id")?.Value;
+            if (userIdClaim == null) return Unauthorized();
 
-            var user = await _db.Users.FindAsync(int.Parse(userId));
+            int userId = int.Parse(userIdClaim);
+
+            var user = await _db.Users.FindAsync(userId);
             if (user == null) return NotFound();
+
+            bool emailTaken = await _db.Users
+                .AnyAsync(u => u.Email == req.Email && u.Id != userId);
+
+            bool phoneTaken = await _db.Users
+                .AnyAsync(u => u.Phone == req.Phone && u.Id != userId);
+
+            if (emailTaken)
+                return Conflict(new { message = "Email already in use" });
+
+            if (phoneTaken)
+                return Conflict(new { message = "Phone number already in use" });
 
             user.Username = req.Username;
             user.Email = req.Email;

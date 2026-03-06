@@ -13,6 +13,6 @@ namespace WebApp_API.Models
         [Column(TypeName = "decimal(18,2)")] public decimal Price { get; set; }
         [MaxLength(1000)] public string? ImageUrl { get; set; }
         public required int CategoryId { get; set; }
-        [ForeignKey("CategoryId")] public required Category Category { get; set; }
+        [ForeignKey("CategoryId")] public Category? Category { get; set; }
     }
 }

@@ -66,10 +66,7 @@ namespace WebApp_API.Controllers
 
                     // For each option group, get products that match ANY value in that group (OR)
                     // Then apply AND between groups
-                    var productIds = await _db.Products
-                        .Where(p => p.CategoryId == query.Select(x => x.CategoryId).FirstOrDefault() || true)
-                        .Select(p => p.Id)
-                        .ToListAsync();
+                    var productIds = await query.Select(p => p.Id).ToListAsync();
 
                     foreach (var group in optionGroups)
                     {
@@ -227,7 +224,7 @@ namespace WebApp_API.Controllers
         {
             var category = await _db.Categories.FirstOrDefaultAsync(c => c.Slug == categorySlug);
             if (category == null) return Ok(new List<Product>());
-            
+
             IQueryable<Product> query = _db.Products
             .Where(p => p.CategoryId == category.Id)
             .Include(p => p.Category)
