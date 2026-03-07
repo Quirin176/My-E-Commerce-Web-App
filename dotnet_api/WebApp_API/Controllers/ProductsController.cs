@@ -153,7 +153,7 @@ namespace WebApp_API.Controllers
                 product.Description,
                 product.Slug,
                 product.CategoryId,
-                Category = new
+                Category = product.Category == null ? null : new
                 {
                     product.Category.Id,
                     product.Category.Name,
@@ -205,7 +205,7 @@ namespace WebApp_API.Controllers
                 product.Description,
                 product.Slug,
                 product.CategoryId,
-                Category = new
+                Category = product.Category == null ? null : new
                 {
                     product.Category.Id,
                     product.Category.Name,
@@ -454,7 +454,7 @@ namespace WebApp_API.Controllers
                         p.ShortDescription,
                         p.Description,
                         p.CategoryId,
-                        Category = new { p.Category.Id, p.Category.Name },
+                        Category = p.Category == null ? null : new { p.Category.Id, p.Category.Name },
                         Images = _db.ProductImages
                             .Where(pi => pi.ProductId == p.Id)
                             .OrderBy(pi => pi.DisplayOrder)
@@ -471,7 +471,7 @@ namespace WebApp_API.Controllers
                     })
                     .ToListAsync();
 
-                Console.WriteLine($"[PRODUCTS] Fetched {products.Count} products for page {page}");
+                // Console.WriteLine($"[PRODUCTS] Fetched {products.Count} products for page {page}");
 
                 // Return paginated response
                 return Ok(new
@@ -735,6 +735,7 @@ namespace WebApp_API.Controllers
             }
         }
 
+        // GET: /api/products/search?q=searchTerm&page=1&pageSize=10&minPrice=0&maxPrice=1000&sortBy=relevance - Search products with pagination, price filtering, and sorting
         [HttpGet("search")]
         public async Task<IActionResult> SearchProducts(
             [FromQuery] string q,
@@ -762,7 +763,7 @@ namespace WebApp_API.Controllers
                         p.Name.ToLower().Contains(query) ||
                         (p.ShortDescription != null && p.ShortDescription.ToLower().Contains(query)) ||
                         (p.Description != null && p.Description.ToLower().Contains(query)) ||
-                        p.Category.Name.ToLower().Contains(query)
+                        (p.Category != null && p.Category.Name.ToLower().Contains(query))
                     );
 
                 // Apply price filter
@@ -802,7 +803,7 @@ namespace WebApp_API.Controllers
                         p.ShortDescription,
                         p.Slug,
                         p.CategoryId,
-                        Category = new
+                        Category = p.Category == null ? null : new
                         {
                             p.Category.Id,
                             p.Category.Name,

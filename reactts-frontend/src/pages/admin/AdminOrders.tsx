@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Package } from "lucide-react";
+import { Package, Download, Loader } from "lucide-react";
 import { adminOrdersApi } from "../../api/admin/adminOrdersApi";
 import UserOrderCard from "../../components/User/UserOrderCard";
 import type { OrderResponseModel } from "../../types/models/order/OrderResponseModel";
@@ -22,6 +22,7 @@ export default function AdminOrders() {
     // Display orders in admin order management page
     const [orders, setOrders] = useState<OrderResponseModel[]>([]);
     const [loading, setLoading] = useState(false);
+    const [exporting, setExporting] = useState(false);
 
     //Filter states
     const [status, setStatus] = useState("all");
@@ -71,6 +72,39 @@ export default function AdminOrders() {
         }
     };
 
+    // ========== CSV EXPORT ==========
+    const handleExportCSV = async () => {
+        setExporting(true);
+        try {
+            // Pass the current status filter (null means all)
+            const exportStatus = status === "all" ? "" : status;
+            const blob = await adminOrdersApi.exportOrders(exportStatus, minDate, maxDate, sortBy, sortOrder);
+
+            // Create a download link and trigger it
+            const url = window.URL.createObjectURL(new Blob([blob], { type: "text/csv" }));
+            const link = document.createElement("a");
+            link.href = url;
+
+            // Build filename with current filter info and timestamp
+            const dateStr = new Date().toISOString().slice(0, 10);
+            const statusSuffix = status === "all" ? "all" : status;
+            link.setAttribute("download", `orders_${statusSuffix}_${dateStr}.csv`);
+
+            document.body.appendChild(link);
+            link.click();
+
+            // Cleanup
+            link.parentNode?.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            toast.success(`Exported ${orders.length} orders to CSV`);
+        } catch (error) {
+            console.error("Error exporting orders:", error);
+            toast.error("Failed to export orders");
+        } finally {
+            setExporting(false);
+        }
+    };
 
     return (
         <div className="flex flex-col gap-y-2">
@@ -183,6 +217,13 @@ export default function AdminOrders() {
                     ))}
                 </div>
             )}
+
+            <button
+                className="ml-auto w-xs border rounded-lg cursor-pointer bg-green-500 hover:bg-green-700 font-bold text-white py-2 transition"
+                onClick={handleExportCSV}
+            >
+                Export All Orders
+            </button>
         </div>
     );
 }

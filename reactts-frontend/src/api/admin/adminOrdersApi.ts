@@ -17,7 +17,6 @@ export const adminOrdersApi = {
     sortBy: string,
     sortOrder: string) {
     try {
-      // Use the existing /orders endpoint with filters
       const params = new URLSearchParams();
 
       if (status) params.append('status', status);
@@ -81,11 +80,19 @@ export const adminOrdersApi = {
   },
 
   // EXPORT orders as CSV
-  async exportOrders(status = null) {
+  async exportOrders(
+    status: string,
+    minDate: string,
+    maxDate: string,
+    sortBy: string,
+    sortOrder: string) {
     try {
-      const params = {
-        status: status || null,
-      };
+      const params = new URLSearchParams();
+      if (status) params.append('status', status);
+      if (minDate) params.append('minDate', minDate);
+      if (maxDate) params.append('maxDate', maxDate);
+      if (sortBy) params.append('sortBy', sortBy);
+      if (sortOrder) params.append('sortOrder', sortOrder);
 
       const res = await apiClient.get("/adminorders/export", {
         params,

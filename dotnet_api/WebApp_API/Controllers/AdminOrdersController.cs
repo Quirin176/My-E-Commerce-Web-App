@@ -39,8 +39,7 @@ namespace WebApp_API.Controllers
 
                 if (!string.IsNullOrWhiteSpace(filterParams.MaxDate) && DateTime.TryParse(filterParams.MaxDate, out var max))
                 {
-                    // Include entire day
-                    var maxWithTime = max.AddDays(1).AddSeconds(-1);
+                    var maxWithTime = max.AddDays(1).AddSeconds(-1); // Include entire day
                     query = query.Where(o => o.OrderDate <= maxWithTime);
                 }
 
@@ -266,41 +265,69 @@ namespace WebApp_API.Controllers
 
         // GET: /api/adminorders/export - Export orders as CSV
         [HttpGet("export")]
-        public async Task<IActionResult> ExportOrders([FromQuery] string status = null)
+        public async Task<IActionResult> ExportOrders([FromQuery] OrderDTOs.OrderFilterParameters filterParams)
         {
             try
             {
                 // Console.WriteLine("[ADMIN-ORDERS] ExportOrders called");
-
+                // Get orders with status filter
                 IQueryable<Order> query = _db.Orders
                     .Include(o => o.OrderItems)
                     .OrderByDescending(o => o.OrderDate);
 
-                if (!string.IsNullOrWhiteSpace(status))
-                    query = query.Where(o => o.Status == status);
+                if (!string.IsNullOrWhiteSpace(filterParams.Status))
+                    query = query.Where(o => o.Status == filterParams.Status);
+
+                if (!string.IsNullOrWhiteSpace(filterParams.MinDate) && DateTime.TryParse(filterParams.MinDate, out var min))
+                    query = query.Where(o => o.OrderDate >= min);
+
+                if (!string.IsNullOrWhiteSpace(filterParams.MaxDate) && DateTime.TryParse(filterParams.MaxDate, out var max))
+                {
+                    var maxWithTime = max.AddDays(1).AddSeconds(-1); // Include entire day
+                    query = query.Where(o => o.OrderDate <= maxWithTime);
+                }
+
+                query = filterParams.SortBy switch
+                {
+                    "customerName" => filterParams.SortOrder == "asc"
+                        ? query.OrderBy(o => o.CustomerName)
+                        : query.OrderByDescending(o => o.CustomerName),
+                    "totalAmount" => filterParams.SortOrder == "asc"
+                        ? query.OrderBy(o => o.TotalAmount)
+                        : query.OrderByDescending(o => o.TotalAmount),
+                    "orderDate" or _ => filterParams.SortOrder == "asc"
+                        ? query.OrderBy(o => o.OrderDate)
+                        : query.OrderByDescending(o => o.OrderDate)
+                };
 
                 var orders = await query.ToListAsync();
                 // Console.WriteLine($"[ADMIN-ORDERS] Exporting {orders.Count} orders");
 
                 // Create CSV content
                 var csv = new System.Text.StringBuilder();
-                csv.AppendLine("Order ID,Order Number,Customer Name,Email,Phone,Address,City,Status,Total Amount (VND),Items Count,Payment Method,Order Date");
+                csv.AppendLine(                 // Header row - Column names
+                    "Order ID,Order Number,Customer Name,Email,Phone,Address,City," +
+                    "Status,Total Amount (VND),Items Count,Payment Method," +
+                    "Order Date,Products (Name x Quantity)"
+                    );
 
-                foreach (var order in orders)
+                foreach (var order in orders)   // Content in each row
                 {
-                    var escapedAddress = order.ShippingAddress?.Replace("\"", "\"\"") ?? "";
-                    var escapedCity = order.City?.Replace("\"", "\"\"") ?? "";
+                    var itemsCount = order.OrderItems != null ? order.OrderItems.Count : 0;
+                    var itemsSummary = order.OrderItems != null && order.OrderItems.Count > 0
+                    ? string.Join(" | ", order.OrderItems.Select(i => $"{i.ProductName} x{i.Quantity}")) : "";
+
                     csv.AppendLine(
-                        $"\"{order.Id}\",\"ORD-{order.Id}\",\"{order.CustomerName}\"," +
-                        $"\"{order.CustomerEmail}\",\"{order.CustomerPhone}\"," +
-                        $"\"{escapedAddress}\",\"{escapedCity}\",\"{order.Status}\"," +
-                        $"\"{order.TotalAmount}\",\"{order.OrderItems.Count}\",\"{order.PaymentMethod}\"," +
-                        $"\"{order.OrderDate:yyyy-MM-dd HH:mm:ss}\""
+                        $"\"{order.Id}\",\"ORDER-{order.Id}\",\"{order.CustomerName}\",\"{order.CustomerEmail}\",\"{order.CustomerPhone}\",\"{order.ShippingAddress}\",\"{order.City}\"," +
+                        $"\"{order.Status}\",\"{order.TotalAmount}\",\"{itemsCount}\",\"{order.PaymentMethod}\"," +
+                        $"\"{order.OrderDate:yyyy-MM-dd HH:mm:ss}\",\"{itemsSummary}\""
                     );
                 }
 
-                var bytes = System.Text.Encoding.UTF8.GetBytes(csv.ToString());
-                return File(bytes, "text/csv", $"orders_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.csv");
+                var bytes = System.Text.Encoding.UTF8.GetPreamble()
+                .Concat(System.Text.Encoding.UTF8.GetBytes(csv.ToString()))
+                .ToArray();
+                return File(bytes, "text/csv; charset=utf-8", $"orders_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.csv");
             }
             catch (Exception ex)
             {
