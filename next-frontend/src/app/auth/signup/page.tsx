@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { authAPI } from '@/lib/api';
-import { useAuthStore } from '@/lib/store';
+import { authAPI } from '@/src/lib/api';
+import { useAuthStore } from '@/src/lib/store';
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({

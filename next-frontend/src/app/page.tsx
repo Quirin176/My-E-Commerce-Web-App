@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useTheme } from "next-themes";
-import { siteConfig } from "@/lib/config";
+import { siteConfig } from "@/src/lib/config";
 
 export default function Home() {
   const colors = siteConfig.colors;

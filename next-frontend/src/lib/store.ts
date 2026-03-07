@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import Cookies from 'js-cookie';
-import { User, CartItem, AuthResponse } from '@/types';
+import { User, CartItem, AuthResponse } from '@/src/types';
 
 interface AuthStore {
   user: User | null;

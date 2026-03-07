@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { productsAPI, categoriesAPI, filtersAPI } from '@/lib/api';
-import { Product, Category } from '@/types';
+import { productsAPI, categoriesAPI, filtersAPI } from '@/src/lib/api';
+import { Product, Category } from '@/src/types';
 import toast from 'react-hot-toast';
 
 export default function ProductsPage() {
