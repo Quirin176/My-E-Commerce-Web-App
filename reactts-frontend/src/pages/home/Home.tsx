@@ -62,14 +62,14 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col items-center w-full">
-      <div className="w-full flex" style={{ height: 500 }}>
+    <div className="flex flex-col items-center w-full gap-4">
+      <div className="w-full flex gap-4" style={{ height: 500 }}>
         {/* LEFT SIDE: CATEGORIES PANEL */}
         <div 
-          className="w-1/6 bg-white border-r border-gray-200 overflow-y-auto"
+          className="w-1/6 bg-white border-r border-gray-200 overflow-y-auto rounded-2xl"
           // onMouseLeave={handlePanelLeave}
         >
-          <div className="p-4">            
+          <div className="p-4">
             {categories.map((item) => (
               <button
                 key={item.id}
@@ -107,7 +107,7 @@ export default function Home() {
         </div>
 
         {/* CENTER SIDE: DYNAMIC CONTENT OR WARNING PANEL */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto rounded-2xl bg-white">
           {selectedCategory ? (
             // Show Filters when category is hovered
             <div onMouseLeave={handlePanelLeave}>
@@ -203,7 +203,7 @@ export default function Home() {
         </div>
 
         {/* RIGHT PANEL FOR ADVERTISING*/}
-        <div className="w-1/6 bg-gray-100 border-l border-gray-200 overflow-y-auto">
+        <div className="w-1/6 bg-gray-100 border-l border-gray-200 overflow-y-auto rounded-2xl">
           <div className="p-4">
             <div className="text-center">
               <h3 className="text-lg font-bold mb-4">Special Offer!</h3>
@@ -219,10 +219,10 @@ export default function Home() {
       </div>
 
       {/* CATEGORY TABS SECTION BELOW */}
-      <section className="w-full py-12 px-4 bg-white">
+      <section className="w-full py-6 bg-white rounded-2xl">
         <div className="max-w-7xl mx-auto">
-          <h2 
-            className="text-4xl font-bold mb-10 text-center"
+          <h2
+            className="text-4xl font-bold mb-6 text-center"
             style={{ color: colors.primarycolor }}
           >
             Featured Products
