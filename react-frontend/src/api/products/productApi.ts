@@ -60,8 +60,8 @@ export const productApi = {
         q: query,
         page: page,
         pageSize: pageSize,
-        minPrice: filters.minPrice || 0,
-        maxPrice: filters.maxPrice || 9999999,
+        minPrice: filters.minPrice,
+        maxPrice: filters.maxPrice,
         sortOrder: filters.sortOrder,
       };
 

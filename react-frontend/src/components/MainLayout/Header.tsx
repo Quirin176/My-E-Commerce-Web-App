@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import { siteConfig } from "../../config/siteConfig";
 import { useAuth } from "../../hooks/useAuth";
@@ -8,11 +8,21 @@ import CategoriesDropdown from "./CategoriesDropdown";
 
 export default function Header() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   const handleSearchSubmit = () => {
-    console.log("Search submitted:", searchQuery);
-  }
+    if (searchQuery.trim()) {
+      navigate(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearchSubmit();
+    }
+  };
+
   return (
     <header
       className="fixed top-0 left-0 w-full z-50 shadow-md px-8"
@@ -41,15 +51,15 @@ export default function Header() {
                 placeholder="Search For Products"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
               />
-              <Link
-                to={`/search:${searchQuery}`}
+              <button
                 onClick={handleSearchSubmit}
                 className="px-4 py-2 rounded-4xl text-white hover:text-gray-600 cursor-pointer"
                 style={{ background: siteConfig.colors.primarycolor }}
               >
                 Search
-              </Link>
+              </button>
             </div>
           </div>
 
