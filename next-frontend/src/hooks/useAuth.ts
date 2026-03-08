@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
-import { useAuthStore } from '@/lib/store';
+import { useAuthStore } from '@/src/lib/store';
 import Cookies from 'js-cookie';
-import { User } from '@/types';
+import { User } from '@/src/types/models/auth/User';
 
 export const useAuth = () => {
   const { user, token, login, logout, setUser } = useAuthStore();

@@ -743,7 +743,7 @@ namespace WebApp_API.Controllers
             [FromQuery] int pageSize = 10,
             [FromQuery] decimal minPrice = 0,
             [FromQuery] decimal maxPrice = decimal.MaxValue,
-            [FromQuery] string sortBy = "relevance")
+            [FromQuery] string sortOrder = "relevance")
         {
             try
             {
@@ -774,7 +774,7 @@ namespace WebApp_API.Controllers
                     searchQuery = searchQuery.Where(p => p.Price <= maxPrice);
 
                 // Apply sorting
-                searchQuery = sortBy switch
+                searchQuery = sortOrder switch
                 {
                     "price_asc" => searchQuery.OrderBy(p => p.Price),
                     "price_desc" => searchQuery.OrderByDescending(p => p.Price),
