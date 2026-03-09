@@ -3,6 +3,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './api/auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -37,6 +39,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
       }),
     }),
+    
+    AuthModule,
+    UsersModule,
   ],
 
   controllers: [AppController],
