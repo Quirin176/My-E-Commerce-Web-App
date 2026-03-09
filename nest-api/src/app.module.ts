@@ -9,11 +9,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     ConfigModule.forRoot({
       isGlobal: true  // Every module can access environment variables
     }),
-    
+
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        type: config.get<'mssql' | 'postgres'>('DB_TYPE'),
+        // Database connection configuration using environment variables (.env file)
+        type: 'mssql',
 
         host: config.get<string>('DB_HOST'),
         port: config.get<number>('DB_PORT'),
@@ -23,13 +24,17 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         database: config.get<string>('DB_NAME'),
 
         autoLoadEntities: true,
-
         synchronize: true,
 
         options: {
           encrypt: false,
           trustServerCertificate: true,
         },
+
+        extra: {
+          instanceName: config.get<string>('DB_INSTANCE'),
+        },
+
       }),
     }),
   ],
@@ -37,4 +42,5 @@ import { TypeOrmModule } from '@nestjs/typeorm';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+
+export class AppModule { }
