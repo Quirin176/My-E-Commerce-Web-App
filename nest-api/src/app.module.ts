@@ -17,29 +17,21 @@ import { UsersModule } from './users/users.module';
       useFactory: (config: ConfigService) => ({
         // Database connection configuration using environment variables (.env file)
         type: 'mssql',
-
-        host: config.get<string>('DB_HOST'),
-        port: config.get<number>('DB_PORT'),
-
-        username: config.get<string>('DB_USERNAME'),
-        password: config.get<string>('DB_PASSWORD'),
-        database: config.get<string>('DB_NAME'),
-
-        autoLoadEntities: true,
-        synchronize: true,
-
+        host: config.get('DB_HOST'),
+        port: Number(config.get('DB_PORT')),
+        username: config.get('DB_USERNAME'),
+        password: config.get('DB_PASSWORD'),
+        database: config.get('DB_NAME'),
         options: {
           encrypt: false,
           trustServerCertificate: true,
+          instanceName: config.get('DB_INSTANCE'),
         },
-
-        extra: {
-          instanceName: config.get<string>('DB_INSTANCE'),
-        },
-
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: true, // Turn off in production
       }),
     }),
-    
+
     AuthModule,
     UsersModule,
   ],

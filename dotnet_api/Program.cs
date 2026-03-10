@@ -1,11 +1,9 @@
 using System.Text;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using WebApp_API.Data;
-using WebApp_API.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 

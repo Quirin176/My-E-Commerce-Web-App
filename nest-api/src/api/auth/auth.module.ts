@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from '../../routes/jwt.strategy';
+import { JwtAuthGuard } from './jwt-auth.guard';
 import { User } from '../../users/users.entity';
 
 @Module({
@@ -16,18 +17,16 @@ import { User } from '../../users/users.entity';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        secret: config.get<string>('JWT_SECRET'),
+        secret: config.get<string>('JWT_SECRET'), // Get from .env
         signOptions: {
-          expiresIn: config.get<string>('JWT_EXPIRES_IN', '7d'),
+          expiresIn: Number(config.get<string>('JWT_EXPIRES_IN', '604800')), // default 604800s = 7 days
         },
       }),
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, JwtAuthGuard],
   exports: [JwtAuthGuard, JwtModule, PassportModule],
 })
-export class AuthModule {}
 
-// Re-export guard so other modules can import it without circular deps
-import { JwtAuthGuard } from './jwt-auth.guard';
+export class AuthModule {}
