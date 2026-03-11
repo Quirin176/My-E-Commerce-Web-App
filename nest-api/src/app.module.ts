@@ -32,8 +32,8 @@ import { UsersModule } from './modules/users/users.module';
       }),
     }),
 
-    // AuthModule,
-    // UsersModule,
+    AuthModule,
+    UsersModule,
   ],
 
   controllers: [AppController],

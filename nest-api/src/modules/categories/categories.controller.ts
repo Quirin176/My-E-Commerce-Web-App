@@ -1,41 +1,27 @@
-import { Controller, Get, Req } from '@nestjs/common';
-import { Category } from './entities/category.entity';
+import { Controller, Get, Param, Req } from '@nestjs/common';
+import { CategoriesService } from './categories.service';
 
-@Controller('categories') // API endpoint: /categories
+@Controller('categories') // API endpoint: /api/categories
 export class CategoriesController {
+  constructor(private readonly categoriesService: CategoriesService) { }
+
   // GET /categories
   @Get()
-  getAll(@Req() req: { categories: Category[] }) {
-    const categories = req.categories;
-    
-    return categories.map((category) => ({
-      id: category.id,
-      name: category.name,
-      slug: category.slug,
-    }));
+  getAll() {
+    console.log('CategoriesController: getAll called');
+    return this.categoriesService.findAll();
   }
 
   // GET /categories/:id
   @Get(':id')
-  getById(@Req() req: { category: Category }) {
-    const category = req.category;
-    return {
-      id: category.id,
-      name: category.name,
-      slug: category.slug,
-    };
+  getById(@Param('id') id: number) {
+    return this.categoriesService.findById(id);
   }
 
   // GET /categories/:slug
   @Get(':slug')
-  getBySlug(@Req() req: { category: Category }) {
-    const category = req.category;
-    
-    return {
-      id: category.id,
-      name: category.name,
-      slug: category.slug,
-    };
+  getBySlug(@Param('slug') slug: string) {
+    return this.categoriesService.findBySlug(slug);
   }
 
   // // GET /filters/category/:slug
