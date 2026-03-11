@@ -241,7 +241,7 @@ export default function Auth() {
                   placeholder="Email"
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
-                  className="w-full px-4 py-3 text-lg bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none transition"
+                  className="w-full px-4 py-3 text-lg bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
                   required
                 />
 
@@ -251,7 +251,7 @@ export default function Auth() {
                     placeholder="Password"
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
-                    className="w-full px-4 py-3 text-lg bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none transition"
+                    className="w-full px-4 py-3 text-lg bg-gray-100 border-none rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
                     required
                   />
                   <button
@@ -270,7 +270,7 @@ export default function Auth() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-teal-600 text-white py-3 rounded-lg font-medium hover:bg-teal-700 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? "Signing in..." : "SIGN IN"}
                 </button>
@@ -278,7 +278,7 @@ export default function Auth() {
             </div>
 
             {/* LOGIN RIGHT */}
-            <div className="w-1/2 flex flex-col items-center justify-center text-white p-12 bg-linear-to-br from-cyan-600 to-teal-500 rounded-l-[3rem]">
+            <div className="w-1/2 flex flex-col items-center justify-center text-white p-12 bg-linear-to-br from-blue-600 to-blue-500 rounded-l-[3rem]">
               <h2 className="text-4xl font-bold mb-6">Hello, Friend!</h2>
               <p className="text-center text-lg mb-8 opacity-90">
                 Don't have an account yet? Register with your personal details
@@ -286,7 +286,7 @@ export default function Auth() {
 
               <button
                 onClick={toggleAuth}
-                className="border-2 border-white px-8 py-3 rounded-full font-medium hover:bg-white hover:text-cyan-600 active:scale-95 transition duration-300"
+                className="border-2 border-white px-8 py-3 rounded-full font-medium hover:bg-white hover:text-blue-600 active:scale-95 transition duration-300"
               >
                 SIGN UP
               </button>
@@ -298,7 +298,7 @@ export default function Auth() {
         <div className={`card ${!isLogin ? 'signup-card' : 'signup-card exit'}`}>
           <div className="flex h-full">
             {/* SIGNUP LEFT */}
-            <div className="w-1/2 flex flex-col items-center justify-center text-white p-12 bg-linear-to-br from-cyan-600 to-teal-500 rounded-r-[3rem]">
+            <div className="w-1/2 flex flex-col items-center justify-center text-white p-12 bg-linear-to-br from-blue-600 to-blue-500 rounded-r-[3rem]">
               <h2 className="text-4xl font-bold mb-6">Welcome Back!</h2>
               <p className="text-center text-lg mb-8 opacity-90">
                 Already have an account? Sign in to continue
@@ -306,7 +306,7 @@ export default function Auth() {
 
               <button
                 onClick={toggleAuth}
-                className="border-2 border-white px-8 py-3 rounded-full font-medium hover:bg-white hover:text-cyan-600 active:scale-95 transition duration-300"
+                className="border-2 border-white px-8 py-3 rounded-full font-medium hover:bg-white hover:text-blue-600 active:scale-95 transition duration-300"
               >
                 LOGIN
               </button>
@@ -334,7 +334,7 @@ export default function Auth() {
                     name="username"
                     value={signupForm.username}
                     onChange={handleSignupChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                     placeholder="Enter your full name"
                     required
                   />
@@ -349,7 +349,7 @@ export default function Auth() {
                     name="email"
                     value={signupForm.email}
                     onChange={handleSignupChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                     placeholder="Enter your email"
                     required
                   />
@@ -364,7 +364,7 @@ export default function Auth() {
                     name="phone"
                     value={signupForm.phone}
                     onChange={handleSignupChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                     placeholder="Enter your phone number"
                     required
                   />
@@ -379,7 +379,7 @@ export default function Auth() {
                     name="password"
                     value={signupForm.password}
                     onChange={handleSignupChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                     placeholder="Create a password"
                     required
                   />
@@ -393,7 +393,7 @@ export default function Auth() {
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                     placeholder="Confirm your password"
                     required
                   />
@@ -402,7 +402,7 @@ export default function Auth() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-teal-600 text-white py-3 rounded-lg font-medium hover:bg-teal-700 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? "Creating account..." : "Sign Up"}
                 </button>

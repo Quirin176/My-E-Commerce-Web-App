@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { User } from '../../users/users.entity';
+import { User } from '../../modules/users/entities/users.entity';
 import { LoginDto } from './dto/login.dto';
 import { SignupDto } from './dto/signup.dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
@@ -24,6 +24,7 @@ export class AuthService {
   async signup(dto: SignupDto) {
     // Check for duplicate email
     const existing = await this.userRepo.findOne({ where: { email: dto.email } });
+
     if (existing) {
       throw new ConflictException('Email is already registered');
     }
@@ -36,7 +37,7 @@ export class AuthService {
       username: dto.username,
       email: dto.email,
       phone: dto.phone,
-      password: hashedPassword,
+      passwordHash: hashedPassword,
       role: 'Customer',
     });
 
@@ -52,7 +53,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const passwordMatch = await bcrypt.compare(dto.password, user.password);
+    const passwordMatch = await bcrypt.compare(dto.password, user.passwordHash);
     if (!passwordMatch) {
       throw new UnauthorizedException('Invalid email or password');
     }

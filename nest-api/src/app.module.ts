@@ -3,8 +3,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthModule } from './api/auth/auth.module';
-import { UsersModule } from './users/users.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -28,12 +28,12 @@ import { UsersModule } from './users/users.module';
           instanceName: config.get('DB_INSTANCE'),
         },
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: true, // Turn off in production
+        synchronize: false, // Turn off in production
       }),
     }),
 
-    AuthModule,
-    UsersModule,
+    // AuthModule,
+    // UsersModule,
   ],
 
   controllers: [AppController],

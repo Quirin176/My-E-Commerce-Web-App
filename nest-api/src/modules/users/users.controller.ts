@@ -1,6 +1,6 @@
 import { Controller, Get, UseGuards, Req } from '@nestjs/common';
-import { JwtAuthGuard } from '../api/auth/jwt-auth.guard';
-import { User } from './users.entity';
+import { JwtAuthGuard } from '../../modules/auth/guards/jwt-auth.guard';
+import { User } from './entities/users.entity';
 
 @Controller('user')
 export class UserController {
@@ -13,6 +13,7 @@ export class UserController {
   @Get('profile')
   getProfile(@Req() req: { user: User }) {
     const user = req.user;
+    
     // Never return password
     return {
       id: user.id,

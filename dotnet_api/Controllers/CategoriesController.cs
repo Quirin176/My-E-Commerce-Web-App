@@ -7,7 +7,7 @@ namespace WebApp_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoriesController : ControllerBase
+    public class CategoriesController : ControllerBase  // API endpoint: /api/categories
     {
         private readonly AppDbContext _db;
         public CategoriesController(AppDbContext db) => _db = db;

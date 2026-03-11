@@ -5,7 +5,7 @@ import {
   CreateDateColumn,
 } from 'typeorm';
 
-@Entity()
+@Entity('Users')
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
@@ -16,16 +16,12 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column()
-  password: string;
-
   @Column({ default: '' })
   phone: string;
 
-  /**
-   * Roles: 'Customer' | 'Admin' | 'VIP'
-   * Matches the role checks in the React frontend (user.role === "Admin", etc.)
-   */
+  @Column()
+  passwordHash: string;
+
   @Column({ default: 'Customer' })
   role: string;
 
