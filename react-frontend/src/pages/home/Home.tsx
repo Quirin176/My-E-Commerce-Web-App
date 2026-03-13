@@ -34,7 +34,7 @@ export default function Home() {
 
     setLoadingFilters(prev => ({ ...prev, [categoryLink]: true }));
     try {
-      const filters = await categoryApi.getFiltersBySlug(categoryLink);
+      const filters = await categoryApi.getAllChildDataByCategorySlug(categoryLink);
       setCategoryFilters(prev => ({
         ...prev,
         [categoryLink]: filters || []

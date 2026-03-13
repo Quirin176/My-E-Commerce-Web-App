@@ -5,12 +5,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
+import { CategoriesModule } from './modules/categories/categories.module';
+import { OptionsModule } from './modules/product-options/options.module';
+import { OptionValuesModule } from './modules/product-option-values/option-values.module';
+import { ProductsModule } from './modules/products/products.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true  // Every module can access environment variables
-    }),
+    ConfigModule.forRoot({isGlobal: true}), // Load .env file and make environment variables available globally
 
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
@@ -33,7 +35,13 @@ import { UsersModule } from './modules/users/users.module';
     }),
 
     AuthModule,
+
     UsersModule,
+
+    CategoriesModule,
+    OptionsModule,
+    OptionValuesModule,
+    ProductsModule,
   ],
 
   controllers: [AppController],

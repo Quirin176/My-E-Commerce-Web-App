@@ -32,7 +32,7 @@ export default function CategoriesDropdown({ categories = siteConfig.categories 
 
     setLoadingFilters(prev => ({ ...prev, [categoryLink]: true }));
     try {
-      const filters = await categoryApi.getFiltersBySlug(categoryLink);
+      const filters = await categoryApi.getAllChildDataByCategorySlug(categoryLink);
       setCategoryFilters(prev => ({
         ...prev,
         [categoryLink]: filters || []

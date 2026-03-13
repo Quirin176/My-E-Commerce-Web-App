@@ -20,8 +20,8 @@ namespace WebApp_API.Controllers
             return Ok(categories);
         }
 
-        // GET: api/categories/{id} - get information from a category (id, name, slug) by id
-        [HttpGet("{id:int}")]
+        // GET: api/categories/id/{id} - get information from a category (id, name, slug) by id
+        [HttpGet("id/{id:int}")]
         public async Task<IActionResult> Get(int id)
         {
             var category = await _db.Categories.FirstOrDefaultAsync(c => c.Id == id);
@@ -29,8 +29,8 @@ namespace WebApp_API.Controllers
             return Ok(category);
         }
 
-        // GET: api/categories/{slug} - get information from a category (id, name, slug) by slug
-        [HttpGet("{slug}")]
+        // GET: api/categories/slug/{slug} - get information from a category (id, name, slug) by slug
+        [HttpGet("slug/{slug}")]
         public async Task<IActionResult> GetBySlug(string slug)
         {
             var category = await _db.Categories.FirstOrDefaultAsync(c => c.Slug == slug);

@@ -12,20 +12,31 @@ export class CategoriesService {
   ) { }
 
   // Get all categories data
-  async findAll() {
-    return this.categoryRepo.find();
+  async getAll() {
+    const categories = await this.categoryRepo.find();
+    return categories;
   }
 
   // Get a category's data by ID
-  async findById(id: number) {
+  async getById(id: number) {
     const category = await this.categoryRepo.findOne({ where: { id } });
     if (!category) throw new NotFoundException('Category not found');
     return category;
   }
 
   // Get a category's data by slug
-  async findBySlug(slug: string) {
+  async getBySlug(slug: string) {
     const category = await this.categoryRepo.findOne({ where: { slug } });
+    if (!category) throw new NotFoundException('Category not found');
+    return category;
+  }
+
+  // Get all options and all their optionvalues for a category by slug
+  async getFiltersBySlug(slug: string) {
+    const category = await this.categoryRepo.findOne({
+      where: { slug },
+      relations: ['options', 'options.optionValues'], // Assuming relations are set up
+    });
     if (!category) throw new NotFoundException('Category not found');
     return category;
   }

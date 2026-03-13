@@ -233,8 +233,8 @@ namespace WebApp_API.Controllers
             return Ok(query);
         }
 
-        // GET: /api/products/filter?category=slug&minPrice=minValue&maxPrice=maxValue&options=1,2,3&sortOrder=newest - Filter products by category, minprice, maxprice, sort order, and options (option value IDs)
-        [HttpGet("filter")]
+        // GET: /api/products/filters?category=slug&minPrice=minValue&maxPrice=maxValue&options=1,2,3&sortOrder=newest - Filter products by category, minprice, maxprice, sort order, and options (option value IDs)
+        [HttpGet("filters")]
         public async Task<IActionResult> FilterProducts(
             [FromQuery] string category,
             [FromQuery] decimal minPrice = 0,
@@ -258,6 +258,15 @@ namespace WebApp_API.Controllers
 
             if (maxPrice < decimal.MaxValue)
                 query = query.Where(p => p.Price <= maxPrice);
+
+            // Apply sorting
+            query = sortOrder switch
+            {
+                "ascending" => query.OrderBy(p => p.Price),
+                "descending" => query.OrderByDescending(p => p.Price),
+                "oldest" => query.OrderBy(p => p.Id),
+                _ => query.OrderByDescending(p => p.Id) // newest (default)
+            };
 
             // Improved filter logic with OR within option and AND between options
             if (!string.IsNullOrWhiteSpace(options))
@@ -303,15 +312,6 @@ namespace WebApp_API.Controllers
                     query = query.Where(p => productIds.Contains(p.Id));
                 }
             }
-
-            // Apply sorting
-            query = sortOrder switch
-            {
-                "ascending" => query.OrderBy(p => p.Price),
-                "descending" => query.OrderByDescending(p => p.Price),
-                "oldest" => query.OrderBy(p => p.Id),
-                _ => query.OrderByDescending(p => p.Id) // newest (default)
-            };
 
             var products = await query.Select(p => new
             {

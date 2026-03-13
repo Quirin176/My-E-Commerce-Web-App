@@ -2,7 +2,7 @@ import { apiClient } from "../apiClient";
 
 export const categoryApi = {
 
-  // Get data (id, name, slug) of each category
+  // GET: api/categories - Get data (id, name, slug) of each category
   async getAll() {
     try {
       const res = await apiClient.get("/categories");
@@ -13,10 +13,10 @@ export const categoryApi = {
     }
   },
 
-  // Get category data by ID - id, name, slug
+  // GET: api/categories/id/:id - Get category data by ID - id, name, slug
   async getById(id: number) {
     try {
-      const res = await apiClient.get(`/categories/${id}`);
+      const res = await apiClient.get(`/categories/id/${id}`);
       return res.data;
     } catch (error) {
       console.error("Error loading filters:", error);
@@ -24,10 +24,10 @@ export const categoryApi = {
     }
   },
 
-  // Get category data by Slug - id, name, slug
+  // GET: api/categories/slug/:slug - Get category data by Slug - id, name, slug
   async getBySlug(slug: string) {
     try {
-      const res = await apiClient.get(`/categories/${slug}`);
+      const res = await apiClient.get(`/categories/slug/${slug}`);
       return res.data;
     } catch (error) {
       console.error("Error loading filters:", error);
@@ -35,10 +35,10 @@ export const categoryApi = {
     }
   },
 
-  // Get all options and all their optionvalues for a category by slug
-  async getFiltersBySlug(slug: string) {
+  // GET: api/productoptions/category/slug/:slug - Get all options and all their optionvalues for a category by slug
+  async getAllChildDataByCategorySlug(slug: string) {
     try {
-      const res = await apiClient.get(`/filters/category/${slug}`);
+      const res = await apiClient.get(`/productoptions/category/slug/${slug}`);
       return res.data;
     } catch (error) {
       console.error("Error loading filters:", error);
@@ -46,10 +46,10 @@ export const categoryApi = {
     }
   },
 
-  // Get all options and all their optionvalues for a category by ID
-  async getFiltersById(id: number) {
+  // GET: api/productoptions/category/id/:id - Get all options and all their optionvalues for a category by ID
+  async getFiltersByCategoryId(id: number) {
     try {
-      const res = await apiClient.get(`/filters/category-id/${id}`);
+      const res = await apiClient.get(`/productoptions/category/id/${id}`);
       return res.data;
     } catch (error) {
       console.error("Error loading filters:", error);

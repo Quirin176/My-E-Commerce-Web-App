@@ -9,13 +9,139 @@ namespace WebApp_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductOptionsController : ControllerBase
+    public class ProductOptionsController : ControllerBase  // API Endpoint: /api/productoptions
     {
         private readonly AppDbContext _db;
 
         public ProductOptionsController(AppDbContext db) => _db = db;
 
-        // POST: /api/product-options - Create a new ProductOption
+        // GET: api/productoptions/category/slug/{categorySlug} - Get all options and all their optionvalues for a category by slug
+        [HttpGet("category/slug/{categorySlug}")]
+        public async Task<IActionResult> GetFiltersByCategory(string categorySlug)
+        {
+            try
+            {
+                // Console.WriteLine($"[Filters] GetFiltersByCategory called with slug: {categorySlug}");
+
+                if (string.IsNullOrWhiteSpace(categorySlug))
+                    return BadRequest(new { message = "Category slug is required" });
+
+                var category = await _db.Categories.FirstOrDefaultAsync(c => c.Slug == categorySlug);
+                // Console.WriteLine($"[Filters] Category found: {(category != null ? category.Name : "NULL")}");
+
+                if (category == null)
+                {
+                    // Console.WriteLine($"[Filters] Category with slug '{categorySlug}' not found. Returning empty list.");
+                    return Ok(new List<object>());
+                }
+
+                // Console.WriteLine($"[Filters] Category ID: {category.Id}");
+
+                var productOptions = await _db.ProductOptions
+                    .Where(o => o.CategoryId == category.Id)
+                    .ToListAsync();
+
+                // Console.WriteLine($"[Filters] Found {productOptions.Count} ProductOptions");
+
+                var result = new List<object>();
+
+                foreach (var option in productOptions)
+                {
+                    // Console.WriteLine($"[Filters] Processing option: {option.Name} (ID: {option.Id})");
+
+                    var optionValues = await _db.ProductOptionValues
+                        .Where(ov => ov.ProductOptionId == option.Id)
+                        .OrderBy(ov => ov.Value)
+                        .Select(ov => new
+                        {
+                            optionValueId = ov.Id,
+                            value = ov.Value
+                        })
+                        .ToListAsync();
+
+                    // Console.WriteLine($"[Filters] Option {option.Name} has {optionValues.Count} values");
+
+                    result.Add(new
+                    {
+                        optionId = option.Id,
+                        name = option.Name,
+                        optionValues = optionValues
+                    });
+                }
+
+                // Console.WriteLine($"[Filters] Returning {result.Count} options with their values");
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                // Console.WriteLine($"[ERROR] GetFiltersByCategory exception: {ex.Message}");
+                // Console.WriteLine($"[ERROR] Stack Trace: {ex.StackTrace}");
+                if (ex.InnerException != null)
+                    Console.WriteLine($"[ERROR] Inner Exception: {ex.InnerException.Message}");
+
+                return StatusCode(500, new { message = "Error loading filters", error = ex.Message });
+            }
+        }
+
+        // GET: api/productoptions/category/id/{categoryId} - Get all options and all their optionvalues for a category by ID
+        [HttpGet("category/id/{categoryId}")]
+        public async Task<IActionResult> GetFiltersByCategoryId(int categoryId)
+        {
+            try
+            {
+                // Console.WriteLine($"[Filters] GetFiltersByCategoryId called with ID: {categoryId}");
+
+                if (categoryId <= 0)
+                    return BadRequest(new { message = "Valid category ID is required" });
+
+                var category = await _db.Categories.FirstOrDefaultAsync(c => c.Id == categoryId);
+                // Console.WriteLine($"[Filters] Category found: {(category != null ? category.Name : "NULL")}");
+
+                if (category == null)
+                    return Ok(new List<object>());
+
+                var productOptions = await _db.ProductOptions
+                    .Where(o => o.CategoryId == categoryId)
+                    .ToListAsync();
+
+                // Console.WriteLine($"[Filters] Found {productOptions.Count} ProductOptions");
+
+                var result = new List<object>();
+
+                foreach (var option in productOptions)
+                {
+                    var optionValues = await _db.ProductOptionValues
+                        .Where(ov => ov.ProductOptionId == option.Id)
+                        .OrderBy(ov => ov.Value)
+                        .Select(ov => new
+                        {
+                            optionValueId = ov.Id,
+                            value = ov.Value
+                        })
+                        .ToListAsync();
+
+                    result.Add(new
+                    {
+                        optionId = option.Id,
+                        name = option.Name,
+                        optionValues = optionValues
+                    });
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                // Console.WriteLine($"[ERROR] GetFiltersByCategoryId exception: {ex.Message}");
+                // Console.WriteLine($"[ERROR] Stack Trace: {ex.StackTrace}");
+                if (ex.InnerException != null)
+                    Console.WriteLine($"[ERROR] Inner Exception: {ex.InnerException.Message}");
+
+                return StatusCode(500, new { message = "Error loading filters", error = ex.Message });
+            }
+        }
+        
+        // POST: /api/productoptions - Create a new ProductOption
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateProductOption([FromBody] ProductOptionDTOs.CreateProductOptionRequest req)
@@ -69,7 +195,7 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // GET: /api/product-options/{id} - Get a specific ProductOption with its values
+        // GET: /api/productoptions/{id} - Get a specific ProductOption with its values
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetProductOption(int id)
         {
@@ -113,7 +239,7 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // POST: /api/product-options/{optionId}/values - Add a new value to an existing ProductOption
+        // POST: /api/productoptions/{optionId}/values - Add a new value to an existing ProductOption
         [HttpPost("{optionId:int}/values")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateOptionValue(int optionId, [FromBody] ProductOptionDTOs.CreateOptionValueRequest req)

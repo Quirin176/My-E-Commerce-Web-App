@@ -165,7 +165,7 @@ export default function Category() {
       }
 
       try {
-        const filters = await categoryApi.getFiltersBySlug(selectedCategory);
+        const filters = await categoryApi.getAllChildDataByCategorySlug(selectedCategory);
         const filterList = Array.isArray(filters) ? filters : [];
         setLoadedOptions(filterList);
       } catch (err) {

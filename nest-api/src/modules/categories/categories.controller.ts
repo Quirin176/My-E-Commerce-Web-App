@@ -8,31 +8,24 @@ export class CategoriesController {
   // GET /categories
   @Get()
   getAll() {
-    console.log('CategoriesController: getAll called');
-    return this.categoriesService.findAll();
+    return this.categoriesService.getAll();
   }
 
-  // GET /categories/:id
-  @Get(':id')
+  // GET /categories/id/:id
+  @Get('id/:id')
   getById(@Param('id') id: number) {
-    return this.categoriesService.findById(id);
+    return this.categoriesService.getById(id);
   }
 
-  // GET /categories/:slug
-  @Get(':slug')
+  // GET /categories/slug/:slug
+  @Get('slug/:slug')
   getBySlug(@Param('slug') slug: string) {
-    return this.categoriesService.findBySlug(slug);
+    return this.categoriesService.getBySlug(slug);
   }
 
-  // // GET /filters/category/:slug
-  // @Get('/filters/category/:slug')
-  // getFiltersBySlug(@Req() req: { category: Category }) {
-  //   const category = req.category;
-  //   return {
-  //     id: category.id,
-  //     name: category.name,
-  //     slug: category.slug,
-  //     options: category.options, // Assuming category has an 'options' relation
-  //   };
-  // }
+  // GET /filters/category/slug/:slug
+  @Get('/filters/category/slug/:slug')
+  getFiltersBySlug(@Param('slug') slug: string) {
+    return this.categoriesService.getFiltersBySlug(slug);
+  }
 }

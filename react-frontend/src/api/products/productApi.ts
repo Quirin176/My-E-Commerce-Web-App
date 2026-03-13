@@ -27,7 +27,7 @@ export const productApi = {
     return res.data;
   },
 
-  // GET: /api/products/filter with filters
+  // GET: /api/products/filters with filters
   async getProductsByFilters(category: string, filters: Filters) {
     const params = {
       category: category,
@@ -37,19 +37,19 @@ export const productApi = {
       options: filters.options,
     };
 
-    const res = await apiClient.get("/products/filter", { params });
+    const res = await apiClient.get("/products/filters", { params });
     return res.data;
   },
 
   // GET: /api/products/{id} - Get all data of a product by id
   async getProductById(id: number | string) {
-    const res = await apiClient.get(`/products/${id}`);
+    const res = await apiClient.get(`/products/id/${id}`);
     return res.data;
   },
 
   // GET: /api/products/{slug} - Get all data of a product by slug
   async getProductBySlug(slug: string) {
-    const res = await apiClient.get(`/products/${slug}`);
+    const res = await apiClient.get(`/products/slug/${slug}`);
     return res.data;
   },
 
