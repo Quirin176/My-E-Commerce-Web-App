@@ -1,6 +1,6 @@
 export interface ProductOption {
   optionId: number;
-  name: string;
+  optionName: string;
   optionValues: Array<{
     optionValueId: number;
     value: string;

@@ -43,12 +43,40 @@ export class OptionsService {
     // console.log("Options for category slug", categorySlug, ":", options);
 
     const optionsWithValues = await Promise.all(options.map(async (option) => {
-      const optionValues = await this.optionValuesService.getByOptionIds(option.id);
-      return { ...option, optionValues: optionValues };
+      const rawoptionValues = await this.optionValuesService.getByOptionIds(option.id);
+      return {
+          optionId: option.id,
+          optionName: option.name,
+          optionValues: rawoptionValues.map((v) => ({
+            optionValueId: v.id,
+            value: v.value,
+          })),
+        };
     }));
     // console.log(optionsWithValues);
 
     return optionsWithValues;
   }
-  
+
+  // // Get all options and optionvalues data from a category slug
+  // async getAllDataByCategoryId(categoryId: number) {
+  //   const options = await this.optionRepo.find({ where: { categoryId: categoryId } });
+  //   // console.log("Options for category slug", categorySlug, ":", options);
+
+  //   const optionsWithValues = await Promise.all(options.map(async (option) => {
+  //     const rawoptionValues = await this.optionValuesService.getByOptionIds(option.id);
+  //     return {
+  //         optionId: option.id,
+  //         optionName: option.name,
+  //         optionValues: rawoptionValues.map((v) => ({
+  //           optionValueId: v.id,
+  //           value: v.value,
+  //         })),
+  //       };
+  //   }));
+  //   // console.log(optionsWithValues);
+
+  //   return optionsWithValues;
+  // }
+
 }

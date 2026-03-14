@@ -47,7 +47,7 @@ export const categoryApi = {
   },
 
   // GET: api/productoptions/category/id/:id - Get all options and all their optionvalues for a category by ID
-  async getFiltersByCategoryId(id: number) {
+  async getAllChildDataByCategoryId(id: number) {
     try {
       const res = await apiClient.get(`/productoptions/category/id/${id}`);
       return res.data;

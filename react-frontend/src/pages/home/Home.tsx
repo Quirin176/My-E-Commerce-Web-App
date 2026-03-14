@@ -127,7 +127,7 @@ export default function Home() {
                       <div key={option.optionId}>
                         {/* OPTION NAME */}
                         <h4 className="text-sm font-bold text-gray-800 mb-1 tracking-wide">
-                          {option.name}
+                          {option.optionName}
                         </h4>
 
                         {/* OPTION VALUES */}

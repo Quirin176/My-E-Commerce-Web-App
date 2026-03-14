@@ -3,6 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Product } from "./entities/product.entity";
 import { CategoriesService } from "../categories/categories.service";
+import { ProductFiltersService } from "../product-filters/product-filters.service";
 
 export interface Filters {
   minPrice: number,
@@ -18,6 +19,7 @@ export class ProductsService {
     @InjectRepository(Product)
     private readonly productRepo: Repository<Product>,
     private readonly categoriesService: CategoriesService,
+    private readonly productFiltersService: ProductFiltersService,
   ) { }
 
   // Get all products data
@@ -100,6 +102,28 @@ export class ProductsService {
       }
     }
     query.orderBy(sortField, sortDirection);
+
+    // ── Option values filter ──────────────────────────────────────────────────
+    // The frontend sends a comma-separated string of optionValueIds, e.g. "3,7,12"
+    if (filters.options && filters.options.trim() !== '') {
+      const optionValueIds = filters.options
+        .split(',')
+        .map((v) => parseInt(v.trim(), 10))
+        .filter((n) => !isNaN(n));
+ 
+      if (optionValueIds.length > 0) {
+        // Ask ProductFiltersService for the matching product IDs
+        const matchingProductIds =
+          await this.productFiltersService.getProductIdsByOptionValueIds(optionValueIds);
+ 
+        if (matchingProductIds.length === 0) {
+          // No products match the selected options — return empty early
+          return [];
+        }
+ 
+        query.andWhere('product.id IN (:...matchingProductIds)', { matchingProductIds });
+      }
+    }
 
     // Return products matching the filters
     return query.getMany();

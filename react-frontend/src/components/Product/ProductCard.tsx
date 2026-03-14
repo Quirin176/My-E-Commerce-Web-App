@@ -38,7 +38,8 @@ export default function ProductCard({ product }: { product: Product }) {
 
   return (
     <div className="border rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 bg-white flex flex-col">
-      <Link to={`/product/${product.slug}`} className="block">
+      <Link to={`/product/${product.slug}`} className="block"
+        onClick={() => console.log(product.options)}>
         <div className="flex justify-center pt-2">
           <img
             src={
@@ -63,11 +64,8 @@ export default function ProductCard({ product }: { product: Product }) {
 
           <div className="h-40 mt-2 overflow-y-auto bg-gray-100 rounded-xl p-2 text-sm text-left">
             {product.options && product.options.length > 0 ? (
-              product.options.map((opt, index) => (
-                // console.log("Product option:", opt) ||
-                <p key={index} className="text-gray-700">
-                  <strong>{opt.optionName}:</strong> {opt.value}
-                </p>
+              product.options.map((opt) => (
+                <p key={opt.optionId}><strong>{opt.optionName}:</strong> {opt.optionValues.map((v) => v.value).join(", ")}</p>
               ))
             ) : (
               <p>No option data available</p>

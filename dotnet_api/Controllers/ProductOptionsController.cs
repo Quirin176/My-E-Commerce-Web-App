@@ -64,7 +64,7 @@ namespace WebApp_API.Controllers
                     result.Add(new
                     {
                         optionId = option.Id,
-                        name = option.Name,
+                        optionName = option.Name,
                         optionValues = optionValues
                     });
                 }
@@ -123,7 +123,7 @@ namespace WebApp_API.Controllers
                     result.Add(new
                     {
                         optionId = option.Id,
-                        name = option.Name,
+                        optionName = option.Name,
                         optionValues = optionValues
                     });
                 }

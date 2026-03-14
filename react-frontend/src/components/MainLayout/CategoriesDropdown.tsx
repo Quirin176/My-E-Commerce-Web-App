@@ -164,7 +164,7 @@ export default function CategoriesDropdown({ categories = siteConfig.categories 
                         <div key={option.optionId}>
                           {/* OPTION NAME */}
                           <h4 className="text-sm font-bold text-gray-800 mb-4 uppercase tracking-wide">
-                            {option.name}
+                            {option.optionName}
                           </h4>
 
                           {/* OPTION VALUES */}

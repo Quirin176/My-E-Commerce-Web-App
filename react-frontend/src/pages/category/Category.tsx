@@ -117,6 +117,7 @@ export default function Category() {
       const paginatedProducts = allProducts.slice(startIndex, endIndex);
 
       setProducts(paginatedProducts);
+      console.log(allProducts)
       setError(null);
     } catch (error) {
       console.error("Error loading products:", error);
