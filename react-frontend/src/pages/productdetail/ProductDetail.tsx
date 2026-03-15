@@ -225,7 +225,7 @@ const images: string[] = product.images && product.images.length > 0
                 {product.options.map((opt, index) => (
                   <div key={index} className="text-gray-700">
                     <span className="font-semibold text-gray-800">{opt.optionName}:</span>
-                    <span className="ml-2 text-gray-600">{opt.value}</span>
+                    <span className="ml-2 text-gray-600">{opt.optionValues.map((v) => v.value).join(", ")}</span>
                   </div>
                 ))}
               </div>

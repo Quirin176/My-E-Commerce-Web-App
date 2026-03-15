@@ -9,7 +9,7 @@ import { categoryApi } from "../../api/products/categoryApi";
 import type { Product } from "../../types/models/products/Product";
 import type { ProductOption } from "../../types/models/products/ProductOption";
 
-const ITEMS_PER_PAGE = 15;
+const ITEMS_PER_PAGE = 10;
 
 export default function Category() {
   const { selectedCategory } = useParams<{ selectedCategory: string }>();

@@ -321,12 +321,20 @@ namespace WebApp_API.Controllers
                 p.Price,
                 p.ImageUrl,
                 p.ShortDescription,
+                p.Description,
                 Options = _db.ProductFilters
                         .Where(f => f.ProductId == p.Id)
                         .Select(f => new
                         {
+                            optionId = f.OptionValue.ProductOption.Id,
                             optionName = f.OptionValue.ProductOption.Name,
-                            value = f.OptionValue.Value
+                            optionValues = _db.ProductOptionValues
+                            .Where(optval => optval.ProductOptionId == f.OptionValue.ProductOption.Id)
+                            .Select(optval => new
+                            {
+                                optionValueId = optval.Id,
+                                value = optval.Value,
+                            })
                         }).ToList()
             })
                 .ToListAsync();

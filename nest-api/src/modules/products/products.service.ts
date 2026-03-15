@@ -1,7 +1,10 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { Product } from "./entities/product.entity";
+import { ProductOption } from "../product-options/entities/option.entity";
+import { ProductOptionValue } from "../product-option-values/entities/option-value.entity";
+import { ProductFilter } from "../product-filters/entities/product-filter.entity";
 import { CategoriesService } from "../categories/categories.service";
 import { ProductFiltersService } from "../product-filters/product-filters.service";
 
@@ -12,15 +15,105 @@ export interface Filters {
   options: string,
 }
 
+export interface EnrichedOption {
+  optionId: number;
+  optionName: string;
+  optionValues: { optionValueId: number; value: string }[];
+}
+
 @Injectable()
 export class ProductsService {
 
   constructor(
     @InjectRepository(Product)
     private readonly productRepo: Repository<Product>,
+
+    @InjectRepository(ProductFilter)
+    private readonly productFilterRepo: Repository<ProductFilter>,
+
+    @InjectRepository(ProductOptionValue)
+    private readonly optionValueRepo: Repository<ProductOptionValue>,
+
+    @InjectRepository(ProductOption)
+    private readonly optionRepo: Repository<ProductOption>,
+
     private readonly categoriesService: CategoriesService,
     private readonly productFiltersService: ProductFiltersService,
   ) { }
+
+  private async enrichWithOptions(products: Product[]): Promise<(Product & { options: EnrichedOption[] })[]> {
+    if (!products.length) return [];
+
+    const productIds = products.map((p) => p.id);
+
+    // Get all product option values from product Id
+    const filters = await this.productFilterRepo.find({
+      where: { productId: In(productIds) },
+    });
+
+    if (!filters.length) {
+      return products.map((p) => ({ ...p, options: [] }));
+    }
+
+    // Get all product option Id 
+    const optionValueIds = [...new Set(filters.map((f) => f.optionValueId))];
+    const optionValues = await this.optionValueRepo.find({
+      where: { id: In(optionValueIds) },
+    });
+
+    // 3. Fetch all relevant ProductOptions (the "group", e.g. "RAM", "CPU")
+    const optionIds = [...new Set(optionValues.map((v) => v.productOptionId))];
+    const options = await this.optionRepo.find({
+      where: { id: In(optionIds) },
+    });
+
+    // 4. Build lookup maps for O(1) access
+    const optionValueMap = new Map(optionValues.map((v) => [v.id, v]));
+    const optionMap = new Map(options.map((o) => [o.id, o]));
+
+    // 5. Group filters by productId
+    const filtersByProduct = new Map<number, ProductFilter[]>();
+    for (const f of filters) {
+      if (!filtersByProduct.has(f.productId)) {
+        filtersByProduct.set(f.productId, []);
+      }
+      filtersByProduct.get(f.productId)!.push(f);
+    }
+
+    // 6. Assemble enriched products
+    return products.map((product) => {
+      const productFilters = filtersByProduct.get(product.id) ?? [];
+
+      // Group option values under their parent option
+      const optionGroupMap = new Map<number, EnrichedOption>();
+
+      for (const pf of productFilters) {
+        const ov = optionValueMap.get(pf.optionValueId);
+        if (!ov) continue;
+
+        const opt = optionMap.get(ov.productOptionId);
+        if (!opt) continue;
+
+        if (!optionGroupMap.has(opt.id)) {
+          optionGroupMap.set(opt.id, {
+            optionId: opt.id,
+            optionName: opt.name,
+            optionValues: [],
+          });
+        }
+
+        optionGroupMap.get(opt.id)!.optionValues.push({
+          optionValueId: ov.id,
+          value: ov.value,
+        });
+      }
+
+      return {
+        ...product,
+        options: [...optionGroupMap.values()],
+      };
+    });
+  }
 
   // Get all products data
   async getAll() {
@@ -110,22 +203,23 @@ export class ProductsService {
         .split(',')
         .map((v) => parseInt(v.trim(), 10))
         .filter((n) => !isNaN(n));
- 
+
       if (optionValueIds.length > 0) {
         // Ask ProductFiltersService for the matching product IDs
         const matchingProductIds =
           await this.productFiltersService.getProductIdsByOptionValueIds(optionValueIds);
- 
+
         if (matchingProductIds.length === 0) {
           // No products match the selected options — return empty early
           return [];
         }
- 
+
         query.andWhere('product.id IN (:...matchingProductIds)', { matchingProductIds });
       }
     }
 
     // Return products matching the filters
-    return query.getMany();
+    const products = await query.getMany();
+    return this.enrichWithOptions(products);
   }
 }
