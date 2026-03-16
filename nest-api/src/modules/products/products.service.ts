@@ -41,12 +41,13 @@ export class ProductsService {
     private readonly productFiltersService: ProductFiltersService,
   ) { }
 
+  // Enrich Products with Options Data
   private async enrichWithOptions(products: Product[]): Promise<(Product & { options: EnrichedOption[] })[]> {
     if (!products.length) return [];
 
     const productIds = products.map((p) => p.id);
 
-    // Get all product option values from product Id
+    // Fetch all ProductFilter rows for products
     const filters = await this.productFilterRepo.find({
       where: { productId: In(productIds) },
     });
@@ -55,23 +56,23 @@ export class ProductsService {
       return products.map((p) => ({ ...p, options: [] }));
     }
 
-    // Get all product option Id 
+    // Fetch all ProductOptionValues used by these filters
     const optionValueIds = [...new Set(filters.map((f) => f.optionValueId))];
     const optionValues = await this.optionValueRepo.find({
       where: { id: In(optionValueIds) },
     });
 
-    // 3. Fetch all relevant ProductOptions (the "group", e.g. "RAM", "CPU")
+    // Fetch all relevant ProductOptions
     const optionIds = [...new Set(optionValues.map((v) => v.productOptionId))];
     const options = await this.optionRepo.find({
       where: { id: In(optionIds) },
     });
 
-    // 4. Build lookup maps for O(1) access
+    // Build lookup maps for O(1) access
     const optionValueMap = new Map(optionValues.map((v) => [v.id, v]));
     const optionMap = new Map(options.map((o) => [o.id, o]));
 
-    // 5. Group filters by productId
+    // Group filters by productId
     const filtersByProduct = new Map<number, ProductFilter[]>();
     for (const f of filters) {
       if (!filtersByProduct.has(f.productId)) {
@@ -80,7 +81,7 @@ export class ProductsService {
       filtersByProduct.get(f.productId)!.push(f);
     }
 
-    // 6. Assemble enriched products
+    // Assemble enriched products
     return products.map((product) => {
       const productFilters = filtersByProduct.get(product.id) ?? [];
 
@@ -146,7 +147,11 @@ export class ProductsService {
   async getBySlug(slug: string) {
     const product = await this.productRepo.findOne({ where: { slug } });
     if (!product) throw new NotFoundException('Product not found');
-    return product;
+
+    const enriched = await this.enrichWithOptions([product]);
+
+    // return the first element from enriched
+    return enriched[0];
   }
 
   // Get products by filters (category, minPrice, maxPrice, sortOrder, options)
@@ -168,6 +173,28 @@ export class ProductsService {
 
     if (filters.maxPrice) {
       query.andWhere('product.price <= :maxPrice', { maxPrice: filters.maxPrice });
+    }
+
+    // ── Option values filter ──────────────────────────────────────────────────
+    // The frontend sends a comma-separated string of optionValueIds, e.g. "3,7,12"
+    if (filters.options && filters.options.trim() !== '') {
+      const optionValueIds = filters.options
+        .split(',')
+        .map((v) => parseInt(v.trim(), 10))
+        .filter((n) => !isNaN(n));
+
+      if (optionValueIds.length > 0) {
+        // Ask ProductFiltersService for the matching product IDs
+        const matchingProductIds =
+          await this.productFiltersService.getProductIdsByOptionValueIds(optionValueIds);
+
+        if (matchingProductIds.length === 0) {
+          // No products match the selected options — return empty early
+          return [];
+        }
+
+        query.andWhere('product.id IN (:...matchingProductIds)', { matchingProductIds });
+      }
     }
 
     // Filter products by sort order
@@ -195,28 +222,6 @@ export class ProductsService {
       }
     }
     query.orderBy(sortField, sortDirection);
-
-    // ── Option values filter ──────────────────────────────────────────────────
-    // The frontend sends a comma-separated string of optionValueIds, e.g. "3,7,12"
-    if (filters.options && filters.options.trim() !== '') {
-      const optionValueIds = filters.options
-        .split(',')
-        .map((v) => parseInt(v.trim(), 10))
-        .filter((n) => !isNaN(n));
-
-      if (optionValueIds.length > 0) {
-        // Ask ProductFiltersService for the matching product IDs
-        const matchingProductIds =
-          await this.productFiltersService.getProductIdsByOptionValueIds(optionValueIds);
-
-        if (matchingProductIds.length === 0) {
-          // No products match the selected options — return empty early
-          return [];
-        }
-
-        query.andWhere('product.id IN (:...matchingProductIds)', { matchingProductIds });
-      }
-    }
 
     // Return products matching the filters
     const products = await query.getMany();

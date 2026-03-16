@@ -115,7 +115,7 @@ namespace WebApp_API.Controllers
         }
 
         // GET: /api/products/{id} - Get product by ID with all images
-        [HttpGet("{id:int}")]
+        [HttpGet("id:{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
             var product = await _db.Products
@@ -167,7 +167,7 @@ namespace WebApp_API.Controllers
         }
 
         // GET: /api/products/{slug} - Get product by Slug with all images
-        [HttpGet("{slug}")]
+        [HttpGet("slug/{slug}")]
         public async Task<IActionResult> GetBySlug(string slug)
         {
             var product = await _db.Products
@@ -184,15 +184,31 @@ namespace WebApp_API.Controllers
                 .Select(pi => pi.ImageUrl)
                 .ToListAsync();
 
-            // Get all product options (attributes) for this product
-            var options = await _db.ProductFilters
+            // Get all product options for this product
+            var rawOptions = await _db.ProductFilters
                 .Where(pf => pf.ProductId == product.Id)
                 .Select(pf => new
                 {
+                    optionId = pf.OptionValue.ProductOption.Id,
                     optionName = pf.OptionValue.ProductOption.Name,
-                    value = pf.OptionValue.Value
+                    optionValueId = pf.OptionValue.Id,
+                    optionValue = pf.OptionValue.Value,
                 })
                 .ToListAsync();
+
+            //
+            var options = rawOptions
+            .GroupBy(o => new { o.optionId, o.optionName })
+            .Select(g => new
+            {
+                optionId = g.Key.optionId,
+                optionName = g.Key.optionName,
+                optionValues = g.Select(v => new
+                {
+                    optionValueId = v.optionValueId,
+                    value = v.optionValue
+                }).ToList()
+            });
 
             // Return product with images and options
             var response = new
@@ -290,10 +306,7 @@ namespace WebApp_API.Controllers
                         })
                         .ToListAsync();
 
-                    var productIds = await _db.Products
-                        .Where(p => p.CategoryId == categoryEntity.Id)
-                        .Select(p => p.Id)
-                        .ToListAsync();
+                    var productIds = await query.Select(p => p.Id).ToListAsync();
 
                     // Apply AND logic between option groups
                     foreach (var group in optionGroups)
@@ -313,7 +326,7 @@ namespace WebApp_API.Controllers
                 }
             }
 
-            var products = await query.Select(p => new
+            var rawProducts = await query.Select(p => new
             {
                 p.Id,
                 p.Name,
@@ -328,16 +341,35 @@ namespace WebApp_API.Controllers
                         {
                             optionId = f.OptionValue.ProductOption.Id,
                             optionName = f.OptionValue.ProductOption.Name,
-                            optionValues = _db.ProductOptionValues
-                            .Where(optval => optval.ProductOptionId == f.OptionValue.ProductOption.Id)
-                            .Select(optval => new
-                            {
-                                optionValueId = optval.Id,
-                                value = optval.Value,
-                            })
+                            optionValueId = f.OptionValue.Id,
+                            value = f.OptionValue.Value
                         }).ToList()
             })
                 .ToListAsync();
+
+            // Enrich rawProducts with optionValues data
+            var products = rawProducts.Select(p => new
+            {
+                p.Id,
+                p.Name,
+                p.Slug,
+                p.Price,
+                p.ImageUrl,
+                p.ShortDescription,
+                p.Description,
+                Options = p.Options
+                .GroupBy(o => new { o.optionId, o.optionName })
+                .Select(g => new
+                {
+                    optionId = g.Key.optionId,
+                    optionName = g.Key.optionName,
+                    optionValues = g.Select(o => new
+                    {
+                        optionValueId = o.optionValueId,
+                        value = o.value
+                    }).ToList()
+                }).ToList()
+            });
 
             return Ok(products);
         }

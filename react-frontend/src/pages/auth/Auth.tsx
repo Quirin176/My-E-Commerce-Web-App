@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import type { AxiosError } from "axios";
 import { useAuth } from "../../hooks/useAuth";
 import type { SignupRequest } from "../../types/dto/SignupRequest";
+import { siteConfig } from "../../config/siteConfig";
 
 export default function Auth() {
   const [searchParams] = useSearchParams();
@@ -270,7 +271,8 @@ export default function Auth() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full text-white py-3 rounded-lg font-medium hover:bg-blue-700 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  style={{background: siteConfig.colors.primarycolor}}
                 >
                   {isLoading ? "Signing in..." : "SIGN IN"}
                 </button>
@@ -278,7 +280,10 @@ export default function Auth() {
             </div>
 
             {/* LOGIN RIGHT */}
-            <div className="w-1/2 flex flex-col items-center justify-center text-white p-12 bg-linear-to-br from-blue-600 to-blue-500 rounded-l-[3rem]">
+            <div
+              className="w-1/2 flex flex-col items-center justify-center text-white p-12 rounded-l-[3rem]"
+              style={{ background: siteConfig.colors.primarycolor }}
+            >
               <h2 className="text-4xl font-bold mb-6">Hello, Friend!</h2>
               <p className="text-center text-lg mb-8 opacity-90">
                 Don't have an account yet? Register with your personal details
@@ -288,7 +293,7 @@ export default function Auth() {
                 onClick={toggleAuth}
                 className="border-2 border-white px-8 py-3 rounded-full font-medium hover:bg-white hover:text-blue-600 active:scale-95 transition duration-300"
               >
-                SIGN UP
+                REGISTER
               </button>
             </div>
           </div>
@@ -298,7 +303,10 @@ export default function Auth() {
         <div className={`card ${!isLogin ? 'signup-card' : 'signup-card exit'}`}>
           <div className="flex h-full">
             {/* SIGNUP LEFT */}
-            <div className="w-1/2 flex flex-col items-center justify-center text-white p-12 bg-linear-to-br from-blue-600 to-blue-500 rounded-r-[3rem]">
+            <div
+              className="w-1/2 flex flex-col items-center justify-center text-white p-12 rounded-r-[3rem]"
+              style={{ background: siteConfig.colors.primarycolor }}
+            >
               <h2 className="text-4xl font-bold mb-6">Welcome Back!</h2>
               <p className="text-center text-lg mb-8 opacity-90">
                 Already have an account? Sign in to continue
@@ -308,7 +316,7 @@ export default function Auth() {
                 onClick={toggleAuth}
                 className="border-2 border-white px-8 py-3 rounded-full font-medium hover:bg-white hover:text-blue-600 active:scale-95 transition duration-300"
               >
-                LOGIN
+                SIGN IN
               </button>
             </div>
 
@@ -402,9 +410,10 @@ export default function Auth() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full text-white py-3 rounded-lg font-medium hover:bg-blue-700 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  style={{ background: siteConfig.colors.primarycolor}}
                 >
-                  {isLoading ? "Creating account..." : "Sign Up"}
+                  {isLoading ? "Creating account..." : "Register"}
                 </button>
               </form>
             </div>

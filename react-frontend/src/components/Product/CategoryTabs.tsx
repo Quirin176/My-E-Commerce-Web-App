@@ -84,7 +84,6 @@ const CategoryTabs = () => {
 
         const sorted = list.sort((a, b) => b.id - a.id);
         setItems(sorted.slice(0, ITEMS_PER_TAB));
-        console.log(sorted.slice(0, ITEMS_PER_TAB))
         setPageIndex(0);
       } catch (error) {
         console.error("Error loading products:", error);

@@ -7,7 +7,7 @@ export const siteConfig = {
   webName: "E-Commerce",
 
   colors: {
-    primarycolor: "black",
+    primarycolor: "#4169E1",
     pricecolor: "red",
     backgroundcolor: "GhostWhite",
   },

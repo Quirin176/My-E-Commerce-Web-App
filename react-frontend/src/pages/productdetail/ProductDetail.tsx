@@ -59,7 +59,7 @@ export default function ProductDetails() {
       try {
         const data = await productApi.getProductBySlug(slug);
         setProduct(data);
-        // console.log("Product loaded:", data);
+        console.log("Product loaded:", data);
       } catch (error) {
         console.error("Error loading product:", error);
         toast.error("Failed to load product details");
