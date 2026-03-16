@@ -501,13 +501,19 @@ namespace WebApp_API.Controllers
                             .Select(pi => pi.ImageUrl)
                             .ToList(),
                         Options = _db.ProductFilters
-                            .Where(pf => pf.ProductId == p.Id)
-                            .Select(pf => new
+                        .Where(pf => pf.ProductId == p.Id)
+                        .GroupBy(pf => new { pf.OptionValue.ProductOption.Id, pf.OptionValue.ProductOption.Name })
+                        .Select(g => new
+                        {
+                            optionId = g.Key.Id,
+                            optionName = g.Key.Name,
+                            optionValues = g.Select(pf => new
                             {
-                                optionName = pf.OptionValue.ProductOption.Name,
+                                optionValueId = pf.OptionValue.Id,
                                 value = pf.OptionValue.Value
-                            })
-                            .ToList()
+                            }).ToList()
+                        })
+                        .ToList()
                     })
                     .ToListAsync();
 

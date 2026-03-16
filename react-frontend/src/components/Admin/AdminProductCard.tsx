@@ -107,11 +107,13 @@ export default function AdminProductCard({
         const selectedIds: number[] = [];
         if (productData.options && Array.isArray(productData.options)) {
           productData.options.forEach((opt) => {
-            loadedFilters.forEach((filter) => {
-              filter.optionValues?.forEach((optionValue) => {
-                if (optionValue.value === opt.value) {
-                  selectedIds.push(optionValue.optionValueId);
-                }
+            opt.optionValues?.forEach((optVal) => {         // iterate the nested optionValues array
+              loadedFilters.forEach((filter) => {
+                filter.optionValues?.forEach((filterValue) => {
+                  if (filterValue.value === optVal.value) {  // ✅ matches ProductOption interface
+                    selectedIds.push(filterValue.optionValueId);
+                  }
+                });
               });
             });
           });
@@ -172,11 +174,13 @@ export default function AdminProductCard({
         const selectedIds: number[] = [];
         if (productData.options && Array.isArray(productData.options)) {
           productData.options.forEach((opt) => {
-            loadedFilters.forEach((filter) => {
-              filter.optionValues?.forEach((value) => {
-                if (value.value === opt.value) {
-                  selectedIds.push(value.optionValueId);
-                }
+            opt.optionValues?.forEach((optVal) => {         // iterate the nested optionValues array
+              loadedFilters.forEach((filter) => {
+                filter.optionValues?.forEach((filterValue) => {
+                  if (filterValue.value === optVal.value) {  // ✅ matches ProductOption interface
+                    selectedIds.push(filterValue.optionValueId);
+                  }
+                });
               });
             });
           });
