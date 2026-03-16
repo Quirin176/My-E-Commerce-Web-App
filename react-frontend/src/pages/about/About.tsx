@@ -15,7 +15,7 @@ export default function About() {
                 <br />
                 Email: voquangqui176@gmail.com
                 <br />
-                Contact: 0798259608
+                Contact: 0938259213
                 <br />
                 Address: Thoai Ngoc Hau street, Phu Thanh Ward, Ho Chi Minh city
             </p>

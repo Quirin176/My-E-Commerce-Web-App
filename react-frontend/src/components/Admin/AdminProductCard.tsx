@@ -1,6 +1,5 @@
 // THIS IS A COMPONENT FOR DISPLAYING A PRODUCT CARD IN THE ADMIN DASHBOARD WITH OPTIONS TO VIEW, EDIT, OR DELETE THE PRODUCT
 
-import { useState } from "react";
 import { Edit2, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAdminProductsPaginated } from "../../hooks/admin/useAdminProductsPaginated";
@@ -72,7 +71,7 @@ export default function AdminProductCard({
   const handleEdit = async (productData: Product) => {
     setIsLoadingModalData(true);
     try {
-      console.log("[handleEdit] Starting edit for product:", productData.id);
+      // console.log("[handleEdit] Starting edit for product:", productData.id);
 
       // Get images
       const images: string[] =
@@ -96,28 +95,29 @@ export default function AdminProductCard({
         selectedOptionValueIds: [],
       });
 
-      console.log("[handleEdit] Form data set, loading options...");
+      // console.log("[handleEdit] Form data set, loading options...");
 
       // Wait for options to load
       if (productData.categoryId) {
         const loadedFilters = await loadOptionsForCategory(Number(productData.categoryId));
         console.log("[handleEdit] Filters loaded:", loadedFilters);
+        console.log("[handleEdit] Product Options loaded:", productData.options);
 
         // Map product options to selected option value IDs
         const selectedIds: number[] = [];
         if (productData.options && Array.isArray(productData.options)) {
           productData.options.forEach((opt) => {
             loadedFilters.forEach((filter) => {
-              filter.optionValues?.forEach((value) => {
-                if (value.value === opt.value) {
-                  selectedIds.push(value.optionValueId);
+              filter.optionValues?.forEach((optionValue) => {
+                if (optionValue.value === opt.value) {
+                  selectedIds.push(optionValue.optionValueId);
                 }
               });
             });
           });
         }
 
-        console.log("[handleEdit] Selected option IDs:", selectedIds);
+        // console.log("[handleEdit] Selected option IDs:", selectedIds);
 
         // Update form with selected options
         updateField("selectedOptionValueIds", selectedIds);

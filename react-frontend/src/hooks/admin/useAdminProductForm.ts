@@ -61,19 +61,20 @@ export const useAdminProductForm = (): UseAdminProductFormReturn => {
       setFiltersLoading(true);
 
       try {
-        console.log("[useProductModal] Loading options for category:", categoryId);
-        const data = await categoryApi.getFiltersById(categoryId);
+        // console.log("[useProductModal] Loading options for category:", categoryId);
+        const data = await categoryApi.getAllChildDataByCategoryId(categoryId);
         const filters = Array.isArray(data) ? data : (data?.data || []);
+        // console.log("[useProductModal] Loaded filters: ", filters)
         
         // Validate filter structure
         const validFilters = filters.filter(
           (o: ProductOption) =>
             o.optionId &&
-            o.name &&
+            o.optionName &&
             Array.isArray(o.optionValues)
         );
 
-        console.log("[useProductModal] Loaded filters:", validFilters);
+        // console.log("[useProductModal] Loaded filters:", validFilters);
         setCurrentCategoryFilters(validFilters);
         return validFilters;
       } catch (error) {

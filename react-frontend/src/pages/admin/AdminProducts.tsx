@@ -87,7 +87,7 @@ export default function AdminProducts() {
 
     setLoadingFilters(true);
     try {
-      const filters = await categoryApi.getFiltersBySlug(slug);
+      const filters = await categoryApi.getAllChildDataByCategorySlug(slug);
       const filterList = Array.isArray(filters) ? filters : (filters?.data || []);
       setLoadedOptions(filterList);
     } catch (error) {
