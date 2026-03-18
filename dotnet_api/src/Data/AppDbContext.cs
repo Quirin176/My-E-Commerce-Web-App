@@ -20,10 +20,14 @@ namespace WebApp_API.Data
         {
             base.OnModelCreating(builder);
 
+            // builder.Entity<User>()
+            //     .HasIndex(u => u.Phone)
+            //     .IsUnique();
+
             builder.Entity<Category>()
                 .HasIndex(c => c.Slug)
                 .IsUnique();
-                builder.Entity<Product>()
+            builder.Entity<Product>()
                 .HasIndex(p => p.Slug)
                 .IsUnique();
 
@@ -44,7 +48,7 @@ namespace WebApp_API.Data
                 .WithMany()
                 .HasForeignKey(v => v.ProductOptionId)
                 .OnDelete(DeleteBehavior.Cascade);
-                
+
             builder.Entity<ProductImage>()
                 .HasOne(pi => pi.Product)
                 .WithMany()
@@ -56,13 +60,13 @@ namespace WebApp_API.Data
                 .WithMany()
                 .HasForeignKey(o => o.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
-                
+
             builder.Entity<OrderItem>()
                 .HasOne(oi => oi.Order)
                 .WithMany(o => o.OrderItems)
                 .HasForeignKey(oi => oi.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
-            
+
             // Create index for faster queries
             builder.Entity<Order>().HasIndex(o => o.UserId);
             builder.Entity<Order>().HasIndex(o => o.OrderDate);

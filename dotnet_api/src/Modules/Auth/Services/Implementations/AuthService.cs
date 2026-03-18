@@ -17,8 +17,11 @@ namespace WebApp_API.Services
 
         public async Task<AuthDTOs.AuthResponse> RegisterAsync(AuthDTOs.SignupRequest signupRequest)
         {
-            var existing = await _repo.GetByEmailAsync(signupRequest.Email);
-            if (existing != null) throw new Exception("User Already Exists");
+            if (await _repo.GetByEmailAsync(signupRequest.Email) != null)
+                throw new InvalidOperationException("Email already registered.");
+
+            if (await _repo.GetByPhoneAsync(signupRequest.Phone) != null)
+                throw new InvalidOperationException("Phone number already registered.");
 
             var user = new User
             {
@@ -46,20 +49,19 @@ namespace WebApp_API.Services
 
         public async Task<AuthDTOs.AuthResponse> LoginAsync(AuthDTOs.LoginRequest loginRequest)
         {
-            var existing = await _repo.GetByEmailAsync(loginRequest.Email);
-            if (existing == null) throw new Exception("Invalid Email");
-            
-            if (!BCrypt.Net.BCrypt.Verify(loginRequest.Password, existing.PasswordHash)) throw new Exception("Invalid Password");
+            var user = await _repo.GetByEmailAsync(loginRequest.Email);
+            if (user == null || !BCrypt.Net.BCrypt.Verify(loginRequest.Password, user.PasswordHash))
+                throw new UnauthorizedAccessException("Invalid credentials.");
 
-            var token = _jwtService.GenerateToken(existing);
+            var token = _jwtService.GenerateToken(user);
 
             return new AuthDTOs.AuthResponse
             {
                 Token = token,
-                Id = existing.Id,
-                Username = existing.Username,
-                Email = existing.Email,
-                Role = existing.Role
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                Role = user.Role
             };
         }
     }

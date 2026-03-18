@@ -10,14 +10,19 @@ namespace WebApp_API.Repositories
         public UserRepository(AppDbContext db) => _db = db;
 
         // ────────────────────────────────────────────────── Single product lookups ──────────────────────────────────────────────────
+        public async Task<User> GetByIdAsync(int id)
+        {
+            return await _db.Users.FindAsync(id);
+        }
+
         public async Task<User> GetByEmailAsync(string email)
         {
             return await _db.Users.FirstOrDefaultAsync(x => x.Email == email);
         }
 
-        public async Task<User> GetByIdAsync(int id)
+        public async Task<User> GetByPhoneAsync(string phone)
         {
-            return await _db.Users.FindAsync(id);
+            return await _db.Users.FirstOrDefaultAsync(x => x.Phone == phone);
         }
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────

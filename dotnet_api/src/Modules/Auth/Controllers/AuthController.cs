@@ -120,7 +120,7 @@
 //                 };
 
 //                 var creds = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
-                
+
 //                 var expiration = DateTime.UtcNow.AddMinutes(expiresInMinutes);
 //                 Console.WriteLine($"[JWT] Token created: {DateTime.UtcNow:O}");
 //                 Console.WriteLine($"[JWT] Token expires: {expiration:O}");
@@ -167,16 +167,38 @@ namespace WebApp_API.Controllers
         [HttpPost("signup")]
         public async Task<IActionResult> Register(AuthDTOs.SignupRequest dto)
         {
-            var result = await _authService.RegisterAsync(dto);
-            return Ok(result);
+            try
+            {
+                var result = await _authService.RegisterAsync(dto);
+                return CreatedAtAction(nameof(Login), result);
+            }
+            catch (InvalidOperationException ex) // duplicate email/phone
+            {
+                return Conflict(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Server error", error = ex.Message });
+            }
         }
 
         [HttpPost("login")]
         [EnableRateLimiting("auth")]
         public async Task<IActionResult> Login(AuthDTOs.LoginRequest dto)
         {
-            var result = await _authService.LoginAsync(dto);
-            return Ok(result);
+            try
+            {
+                var result = await _authService.LoginAsync(dto);
+                return Ok(result);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Server error", error = ex.Message });
+            }
         }
     }
 }

@@ -5,8 +5,9 @@ namespace WebApp_API.Repositories
     public interface IUserRepository
     {
         // ────────────────────────────────────────────────── Single user lookups ──────────────────────────────────────────────────
-        Task<User> GetByEmailAsync(string email);
         Task<User> GetByIdAsync(int id);
+        Task<User> GetByEmailAsync(string email);
+        Task<User> GetByPhoneAsync(string phone);
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
         Task CreateAsync(User user);

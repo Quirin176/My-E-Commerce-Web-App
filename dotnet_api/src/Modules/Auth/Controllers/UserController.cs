@@ -73,6 +73,7 @@
 //         }
 //     }
 // }
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApp_API.DTOs;
 using WebApp_API.Services;
@@ -91,6 +92,7 @@ namespace WebApp_API.Controllers
         }
 
         [HttpGet("profile")]
+        [Authorize]
         public async Task<IActionResult> GetProfile()
         {
             var userId = int.Parse(User.FindFirst("id").Value);
@@ -99,6 +101,7 @@ namespace WebApp_API.Controllers
         }
 
         [HttpPut("profile")]
+        [Authorize]
         public async Task<IActionResult> UpdateProfile(UserDTOs.ProfileUpdateRequest dto)
         {
             var userId = int.Parse(User.FindFirst("id").Value);
