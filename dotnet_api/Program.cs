@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using WebApp_API.Data;
+using WebApp_API.Repositories;
+using WebApp_API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,6 +69,14 @@ builder.Services.AddRateLimiter(options =>
         );
     });
 });
+
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductService, ProductService>();
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
 
 // JWT auth
 var jwtKey = builder.Configuration["Jwt:Key"];

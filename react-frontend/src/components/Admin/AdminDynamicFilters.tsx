@@ -103,7 +103,7 @@ export default function DynamicFilters({
                                         className="flex items-center justify-between border rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition min-w-28"
                                     >
                                         <span className="font-semibold text-gray-700 truncate text-xs">
-                                            {option.name}
+                                            {option.optionName}
                                             {selectedInCategory.length > 0 && (
                                                 <span
                                                     className="ml-1 text-xs text-white px-1.5 py-0.5 rounded inline-block"

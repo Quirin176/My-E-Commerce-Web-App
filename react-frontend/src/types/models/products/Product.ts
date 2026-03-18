@@ -1,5 +1,6 @@
 import type { Category } from "./Category";
-import type { ProductOption } from "./ProductOption";
+import type { ProductOption, ProductOptionFlat } from "./ProductOption";
+
 export interface Product {
   id: number | string;
   name: string;
@@ -11,6 +12,6 @@ export interface Product {
   images: string[];
   categoryId?: number | string;
   category?: Category;
-  options?: Array<ProductOption>;
-  selectedOptionValueIds?: Array<number>;
+  options?: ProductOption[] | ProductOptionFlat[];
+  selectedOptionValueIds?: number[];
 }

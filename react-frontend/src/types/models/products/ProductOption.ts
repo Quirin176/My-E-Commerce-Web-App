@@ -3,3 +3,8 @@ export interface ProductOption {
   optionName: string;
   optionValues: Array<{ optionValueId: number; value: string; }>;
 }
+
+export interface ProductOptionFlat {
+  optionName: string;
+  value: string;
+}

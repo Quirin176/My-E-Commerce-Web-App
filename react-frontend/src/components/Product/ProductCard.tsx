@@ -24,7 +24,11 @@ export default function ProductCard({ product }: { product: Product }) {
       slug: product.slug,
       price: product.price,
       image: product.imageUrl || product.images[0] || "https://via.placeholder.com/200x150?text=No+Image",
-      options: product.options || [],
+      option: (product.options || []).map(opt =>
+        'optionValues' in opt
+          ? opt.optionValues.map(v => ({ optionName: opt.optionName, value: v.value }))
+          : [{ optionName: opt.optionName, value: opt.value }]
+      ).flat(),
     };
 
     try {
@@ -64,9 +68,12 @@ export default function ProductCard({ product }: { product: Product }) {
 
           <div className="h-40 mt-2 overflow-y-auto bg-gray-100 rounded-xl p-2 text-sm text-left">
             {product.options && product.options.length > 0 ? (
-              product.options.map((opt) => (
-                <p key={opt.optionId}><strong>{opt.optionName}:</strong> {opt.optionValues.map((v) => v.value).join(", ")}</p>
-              ))
+              product.options.map((opt, i) => {
+                if ('optionValues' in opt) {
+                  return <p key={opt.optionId}><strong>{opt.optionName}:</strong> {opt.optionValues.map(v => v.value).join(", ")}</p>;
+                }
+                return <p key={i}><strong>{opt.optionName}:</strong> {opt.value}</p>;
+              })
             ) : (
               <p>No option data available</p>
             )}
