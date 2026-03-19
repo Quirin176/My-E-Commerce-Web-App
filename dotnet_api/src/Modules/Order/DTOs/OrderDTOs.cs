@@ -15,16 +15,7 @@ namespace WebApp_API.DTOs
             public string PaymentMethod { get; set; } = "Card";
             public string Status { get; set; }
             public string Notes { get; set; }
-            public List<OrderItemRequest> OrderItems { get; set; } = new();
-        }
-        // DTO for each item in the order request from the client/frontend
-        public class OrderItemRequest
-        {
-            public int ProductId { get; set; }
-            public string ProductName { get; set; }
-            public int Quantity { get; set; }
-            public decimal UnitPrice { get; set; }
-            public decimal TotalPrice { get; set; }
+            public List<OrderItemDTOs.OrderItemRequest> OrderItems { get; set; } = new();
         }
 
         //////////////////// Order Details DTOs to return to client/frontend and admin users ////////////////////
@@ -43,7 +34,7 @@ namespace WebApp_API.DTOs
             public DateTime OrderDate { get; set; }
             public string? Notes { get; set; }
             public int ItemCount { get; set; }
-            public List<OrderItemResponse> Items { get; set; } = new();
+            public List<OrderItemDTOs.OrderItemResponse> Items { get; set; } = new();
         }
         // DTO used for returning order details to admin client/frontend
         public class AdminOrderResponse
@@ -61,26 +52,7 @@ namespace WebApp_API.DTOs
             public string? Notes { get; set; }
             public int? UserId { get; set; }        // Admin-specific
             public string? UserName { get; set; }   // Admin-specific
-            public List<OrderItemResponse> Items { get; set; } = new();
-        }
-        // DTO for each item in the order response to the client/frontend
-        public class OrderItemResponse
-        {
-            public int ProductId { get; set; }
-            public string ProductName { get; set; }
-            public int Quantity { get; set; }
-            public decimal UnitPrice { get; set; }
-            public decimal TotalPrice { get; set; }
-        }
-
-        // DTO used for filtering and sorting orders in admin order listing
-        public class OrderFilterParameters
-        {
-            public string? Status { get; set; }
-            public string? MinDate { get; set; }
-            public string? MaxDate { get; set; }
-            public string SortBy { get; set; } = "orderDate";
-            public string SortOrder { get; set; } = "desc";
+            public List<OrderItemDTOs.OrderItemResponse> Items { get; set; } = new();
         }
 
         // DTO used for updating order status from the client/frontend

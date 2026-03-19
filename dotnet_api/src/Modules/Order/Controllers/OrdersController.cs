@@ -128,7 +128,7 @@ namespace WebApp_API.Controllers
                     Status = order.Status,
                     OrderDate = order.OrderDate,
                     Notes = order.Notes,
-                    Items = order.OrderItems.Select(orderitem => new OrderDTOs.OrderItemResponse
+                    Items = order.OrderItems.Select(orderitem => new OrderItemDTOs.OrderItemResponse
                     {
                         ProductId = orderitem.ProductId,
                         ProductName = orderitem.ProductName,
@@ -176,7 +176,7 @@ namespace WebApp_API.Controllers
                     OrderDate = o.OrderDate,
                     Notes = o.Notes,
                     ItemCount = o.OrderItems.Count,
-                    Items = o.OrderItems.Select(oi => new OrderDTOs.OrderItemResponse
+                    Items = o.OrderItems.Select(oi => new OrderItemDTOs.OrderItemResponse
                     {
                         ProductId = oi.ProductId,
                         ProductName = oi.ProductName,

@@ -24,10 +24,15 @@ namespace WebApp_API.Controllers
             if (userIdClaim == null) return Unauthorized();
             var userId = int.Parse(userIdClaim);
 
-            var profile = await _userService.GetByIdAsync(userId);
-            if (profile is null) return NotFound();
-
-            return Ok(profile);
+            try
+            {
+                var profile = await _userService.GetByIdAsync(userId);
+                return Ok(profile);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
         }
 
         [HttpPut("profile")]
@@ -39,7 +44,7 @@ namespace WebApp_API.Controllers
             var userId = int.Parse(userIdClaim);
 
             await _userService.UpdateAsync(userId, dto);
-            
+
             return Ok(new { message = "Profile updated" });
         }
     }

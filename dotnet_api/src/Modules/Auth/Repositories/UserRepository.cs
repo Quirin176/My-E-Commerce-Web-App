@@ -12,17 +12,17 @@ namespace WebApp_API.Repositories
         // ────────────────────────────────────────────────── Single product lookups ──────────────────────────────────────────────────
         public async Task<User> GetByIdAsync(int id)
         {
-            return await _db.Users.FindAsync(id);
+            return await _db.Users.FindAsync(id) ?? throw new KeyNotFoundException($"User with ID {id} not found.");
         }
 
         public async Task<User> GetByEmailAsync(string email)
         {
-            return await _db.Users.FirstOrDefaultAsync(x => x.Email == email);
+            return await _db.Users.FirstOrDefaultAsync(x => x.Email == email) ?? throw new KeyNotFoundException($"User with Email {email} not found.");
         }
 
         public async Task<User> GetByPhoneAsync(string phone)
         {
-            return await _db.Users.FirstOrDefaultAsync(x => x.Phone == phone);
+            return await _db.Users.FirstOrDefaultAsync(x => x.Phone == phone) ?? throw new KeyNotFoundException($"User with Phone {phone} not found.");
         }
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
