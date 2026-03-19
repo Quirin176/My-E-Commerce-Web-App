@@ -22,24 +22,11 @@
         // Data sent back to client after successful login
         public class AuthResponse
         {
-            public string Token { get; set; }
+            public string Token { get; set; } = string.Empty;
             public int Id { get; set; }
-            public string Username { get; set; }
-            public string Email { get; set; }
-            // public string Phone { get; set; }
-            public string Role { get; set; }
-            // public DateTime CreatedAt { get; set; }
-
-            // public AuthResponse(string token, int id, string username, string email, string phone, string role, DateTime createdAt)
-            // {
-            //     Token = token;
-            //     Id = id;
-            //     Username = username;
-            //     Email = email;
-            //     Phone = phone;
-            //     Role = role;
-            //     CreatedAt = createdAt;
-            // }
+            public string Username { get; set; } = string.Empty;
+            public string Email { get; set; } = string.Empty;
+            public string Role { get; set; } = string.Empty;
         }
     }
 }

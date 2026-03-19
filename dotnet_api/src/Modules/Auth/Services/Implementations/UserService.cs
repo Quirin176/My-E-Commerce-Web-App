@@ -29,6 +29,7 @@ namespace WebApp_API.Services
         public async Task UpdateAsync(int id, UserDTOs.ProfileUpdateRequest request)
         {
             var user = await _repo.GetByIdAsync(id);
+            if (user is null) throw new KeyNotFoundException("User not found.");
 
             if (!string.IsNullOrWhiteSpace(request.Username)) user.Username = request.Username;
             if (!string.IsNullOrWhiteSpace(request.Email)) user.Email = request.Email;
