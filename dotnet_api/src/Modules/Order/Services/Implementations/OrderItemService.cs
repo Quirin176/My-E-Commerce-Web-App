@@ -8,9 +8,7 @@ namespace WebApp_API.Services
         private readonly IOrderItemRepository _repo;
         public OrderItemService(IOrderItemRepository repo) => _repo = repo;
 
-        public async Task AddOrderItemAsync(OrderItem orderItem)
-        {
-            await _repo.
-        }
+        public async Task<OrderItem?> GetOrderItemByIdAsync(int id) =>
+            await _repo.GetOrderItemByIdAsync(id);
     }
 }

@@ -4,6 +4,6 @@ namespace WebApp_API.Services
 {
     public interface IOrderItemService
     {
-        Task AddOrderItemAsync(OrderItem item);
+        Task<OrderItem?> GetOrderItemByIdAsync(int id);
     }
 }

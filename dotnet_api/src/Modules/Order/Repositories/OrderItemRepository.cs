@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using WebApp_API.Data;
 using WebApp_API.Entities;
 
@@ -7,9 +8,16 @@ namespace WebApp_API.Repositories
     {
         private readonly AppDbContext _db;
         public OrderItemRepository(AppDbContext db) => _db = db;
-        public async Task<OrderItem> GetOrderItemByIdAsync(int id)
+        public async Task<OrderItem?> GetOrderItemByIdAsync(int id) =>
+            await _db.OrderItems.FindAsync(id);
+ 
+        public async Task AddRangeAsync(IEnumerable<OrderItem> items) =>
+            await _db.OrderItems.AddRangeAsync(items);
+ 
+        public async Task RemoveRangeByOrderIdAsync(int orderId)
         {
-            return await _db.OrderItems.FindAsync(id) ?? throw new KeyNotFoundException($"Order Item with ID {id} not found.");
+            var items = await _db.OrderItems.Where(oi => oi.OrderId == orderId).ToListAsync();
+            _db.OrderItems.RemoveRange(items);
         }
     }
 }

@@ -1,5 +1,3 @@
-using WebApp_API.DTOs;
-using WebApp_API.Entities;
 
 namespace WebApp_API.Specifications
 {
