@@ -10,14 +10,18 @@ namespace WebApp_API.Repositories
         public OrderItemRepository(AppDbContext db) => _db = db;
         public async Task<OrderItem?> GetOrderItemByIdAsync(int id) =>
             await _db.OrderItems.FindAsync(id);
- 
-        public async Task AddRangeAsync(IEnumerable<OrderItem> items) =>
+
+        public async Task AddRangeAsync(IEnumerable<OrderItem> items)
+        {
             await _db.OrderItems.AddRangeAsync(items);
- 
+            await _db.SaveChangesAsync();
+        }
+
         public async Task RemoveRangeByOrderIdAsync(int orderId)
         {
             var items = await _db.OrderItems.Where(oi => oi.OrderId == orderId).ToListAsync();
             _db.OrderItems.RemoveRange(items);
+            await _db.SaveChangesAsync();
         }
     }
 }

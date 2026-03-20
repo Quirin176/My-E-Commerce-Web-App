@@ -43,16 +43,16 @@ namespace WebApp_API.Repositories
             // Filtered By Order's Status
             if (!string.IsNullOrWhiteSpace(filterParams.Status))
             {
-                if (!string.Equals(filterParams.Status, "all", StringComparison.OrdinalIgnoreCase))
+                if (!filterParams.Status.ToLower().Equals("all", StringComparison.OrdinalIgnoreCase))
                     query = query.Where(o => o.Status == filterParams.Status);
             }
 
             // Filtered By Min Date and Max Date
             if (!string.IsNullOrWhiteSpace(filterParams.MinDate))
-                query = query.Where(o => o.CreatedAt >= DateTime.Parse(filterParams.MinDate));
+                query = query.Where(o => o.OrderDate >= DateTime.Parse(filterParams.MinDate));
 
             if (!string.IsNullOrWhiteSpace(filterParams.MaxDate))
-                query = query.Where(o => o.CreatedAt <= DateTime.Parse(filterParams.MaxDate).AddDays(1).AddSeconds(-1));
+                query = query.Where(o => o.OrderDate <= DateTime.Parse(filterParams.MaxDate).AddDays(1).AddSeconds(-1));
 
             // Apply Sorting
             query = filterParams.SortBy switch
