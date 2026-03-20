@@ -55,6 +55,8 @@ namespace WebApp_API.Services
 
             var token = _jwtService.GenerateToken(user);
 
+            Console.WriteLine($"[TOKEN FOR TESTING]: {token}");
+
             return new AuthDTOs.AuthResponse
             {
                 Token = token,
