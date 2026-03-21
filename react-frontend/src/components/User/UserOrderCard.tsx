@@ -1,7 +1,7 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "../../hooks/useAuth";
-import { Clock, CheckCircle, ChevronDown, Eye, Truck, Package } from "lucide-react";
+import { Clock, CheckCircle, Eye, RefreshCw, Truck, Package, X } from "lucide-react";
 import { adminOrdersApi } from "../../api/admin/adminOrdersApi";
 import type { OrderResponseModel } from "../../types/models/order/OrderResponseModel";
 import UseOrderDetailForm from "./UserOrderDetailForm";
@@ -9,7 +9,7 @@ import UpdateOrderStatusForm from "../Admin/UpdateOrderStatusForm";
 
 // Extend Model
 interface UserOrderCardProps extends OrderResponseModel {
-  onCancelSuccess?: (id: number | string) => void;
+    onCancelSuccess?: (id: number | string) => void;
 }
 
 export default function UserOrderCard(order: UserOrderCardProps) {
@@ -128,108 +128,48 @@ export default function UserOrderCard(order: UserOrderCardProps) {
                             </p>
                         </div>
 
-                        {/* Expand Arrow */}
-                        <div className="flex justify-end md:justify-center">
-                            <ChevronDown
-                                size={24}
-                                className={`text-gray-600 transition ${open ? "rotate-180" : ""}`}
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Order Details - Expandable */}
-                {open && (
-                    <div className="border-t p-6 bg-gray-50">
-                        {/* Customer Info */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                            <div>
-                                <h4 className="font-bold text-gray-800 mb-3">Shipping Information</h4>
-                                <div className="space-y-2 text-sm text-gray-700">
-                                    <div className="flex flex-row gap-20">
-                                        <p><strong>Email:</strong> {order.customerEmail}</p>
-                                        <p><strong>Phone:</strong> {order.customerPhone}</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div>
-                                <h4 className="font-bold text-gray-800 mb-3">Payment Information</h4>
-                                <div className="flex flex-row gap-20 text-sm text-gray-700">
-                                    <p><strong>Method:</strong> <span className="capitalize">{order.paymentMethod}</span></p>
-                                    <p><strong>Date:</strong> {new Date(order.orderDate).toLocaleDateString()}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Order Items - Only show if we have item details */}
-                        {order.items && order.items.length > 0 && (
-                            <div className="mb-6">
-                                <h4 className="font-bold text-gray-800 mb-3">Order Items</h4>
-                                <div className="space-y-2 bg-white rounded p-4">
-                                    {order.items.map((item, index) => (
-                                        <div key={index} className="grid grid-cols-1 md:grid-cols-4 justify-between items-center text-sm pb-2 border-b last:border-b-0">
-                                            <p className="font-semibold text-gray-800">{item.productName}</p>
-                                            <p className="font-semibold text-gray-800 text-right">{item.unitPrice.toLocaleString()} VND</p>
-                                            <p className="font-semibold text-gray-800 text-right">Quantity: {item.quantity}</p>
-                                            <p className="font-semibold text-gray-800 text-right">{item.totalPrice.toLocaleString()} VND</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
                         {/* Action Buttons */}
-                        <div className="flex justify-end gap-3">
+                        <div className="flex flex-row gap-2">
                             <button
                                 onClick={() => setShowForm(true)}
-                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition cursor-pointer"
+                                title="View Order Detail"
+                                className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded hover:text-white hover:bg-blue-600 border-2 transition cursor-pointer"
                             >
                                 <Eye size={18} />
-                                View Details
                             </button>
+
+                            {user?.role === "Admin" && (
+                                <button
+                                    onClick={() => setShowUpdateForm(true)}
+                                    title="Update Order"
+                                    className="flex items-center gap-2 px-4 py-2 bg-white text-green-600 rounded hover:text-white hover:bg-green-600 border-2 transition cursor-pointer"
+                                >
+                                    <RefreshCw size={18} />
+                                </button>
+                            )}
 
                             {order.status.toLowerCase() === "shipped" && (
                                 <button
                                     onClick={() => handleTrackShipment()}
-                                    className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition cursor-pointer"
+                                    title="Track Shipment"
+                                    className="flex items-center gap-2 px-4 py-2 bg-white text-purple-600 rounded hover:text-white hover:bg-purple-600 border-2 transition cursor-pointer"
                                 >
                                     <Truck size={18} />
-                                    Track Shipment
                                 </button>
                             )}
 
-                            {user?.role === "Admin" && (
-                                <>
-                                    <button
-                                        onClick={() => setShowUpdateForm(true)}
-                                        className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition cursor-pointer"
-                                    >
-                                        Update Status
-                                    </button>
-
-                                    <button
-                                        onClick={() => handleCancelOrder()}
-                                        className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition cursor-pointer"
-                                    >
-                                        Cancel Order
-                                    </button>
-
-                                </>
-
-                            )}
-
-                            {user?.role === "Customer" && order.status.toLowerCase() === "pending" && (
+                            {order.status.toLowerCase() === "pending" && (
                                 <button
                                     onClick={() => handleCancelOrder()}
-                                    className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition cursor-pointer"
+                                    title="Cancel Order"
+                                    className="flex items-center gap-2 px-4 py-2 bg-white text-red-600 rounded hover:text-white hover:bg-red-600 border-2 transition cursor-pointer"
                                 >
-                                    Cancel Order
+                                    <X size={18} />
                                 </button>
                             )}
                         </div>
                     </div>
-                )}
+                </div>
             </div>
             {showForm && (
                 <UseOrderDetailForm

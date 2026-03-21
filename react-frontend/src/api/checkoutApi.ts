@@ -2,6 +2,7 @@ import { apiClient } from "./apiClient";
 import type { OrderRequestModel } from "../types/models/order/OrderRequestModel";
 
 export const checkoutApi = {
+  
   // Create an order
   async createOrder(orderData: OrderRequestModel) {
     try {
