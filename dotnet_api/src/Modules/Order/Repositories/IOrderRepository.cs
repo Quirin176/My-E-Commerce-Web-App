@@ -12,13 +12,12 @@ namespace WebApp_API.Repositories
         // ────────────────────────────── List of Orders Lookups ──────────────────────────────
         Task<List<Order>> GetOrdersByUserIdAsync(int userId);
         Task<List<Order>> GetFilteredOrdersAsync(OrderFilterParameters filterParams);
+        Task<List<Order>> GetAllOrdersWithItemsAsync();     // Admin
 
         // ────────────────────────────── Write Operations ──────────────────────────────
-        Task<Order> CreateOrderAsync(Order order, List<OrderItem> items);
-        Task UpdateOrderAsync(Order order);
-        Task UpdateOrderStatusAsync(Order order);    // Admin
-        Task DeleteOrderAsync(Order order);
-
-        Task<List<Order>> GetAllOrdersWithItemsAsync();
+        Task<Order> CreateOrderAsync(Order order, List<OrderItem> items);   // Customer
+        Task UpdateOrderAsync(Order order);                 // Admin
+        Task UpdateOrderStatusAsync(Order order);           // Admin
+        Task DeleteOrderAsync(Order order);                 // Admin
     }
 }

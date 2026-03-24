@@ -68,6 +68,11 @@ namespace WebApp_API.Repositories
             return await query.ToListAsync();
         }
 
+        public async Task<List<Order>> GetAllOrdersWithItemsAsync()
+        {
+            return await _db.Orders.Include(o => o.OrderItems).ToListAsync();
+        }
+
         // ────────────────────────────── Write Operations ──────────────────────────────
         public async Task<Order> CreateOrderAsync(Order order, List<OrderItem> orderItems)
         {
@@ -83,6 +88,7 @@ namespace WebApp_API.Repositories
 
             return order;
         }
+
         public async Task UpdateOrderAsync(Order order)
         {
             order.UpdatedAt = DateTime.UtcNow;
@@ -106,11 +112,6 @@ namespace WebApp_API.Repositories
             _db.Orders.Remove(order);
 
             await _db.SaveChangesAsync();
-        }
-
-        public async Task<List<Order>> GetAllOrdersWithItemsAsync()
-        {
-            return await _db.Orders.Include(o => o.OrderItems).ToListAsync();
         }
     }
 }

@@ -1,7 +1,14 @@
 {
   "ExpandedNodes": [
+    "",
+    "\\src",
     "\\src\\Modules",
-    "\\src\\Modules\\Product"
+    "\\src\\Modules\\Order",
+    "\\src\\Modules\\Order\\DTOs",
+    "\\src\\Modules\\Product",
+    "\\src\\Modules\\Product\\Repositories",
+    "\\src\\Modules\\Product\\Services"
   ],
+  "SelectedNode": "\\src\\Modules\\Product\\Services\\ProductService.cs",
   "PreviewInSolutionExplorer": false
 }

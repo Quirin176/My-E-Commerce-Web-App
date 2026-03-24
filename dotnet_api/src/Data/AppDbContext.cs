@@ -20,13 +20,29 @@ namespace WebApp_API.Data
         {
             base.OnModelCreating(builder);
 
-            // builder.Entity<User>()
-            //     .HasIndex(u => u.Phone)
-            //     .IsUnique();
+            // Defines the EF Core model
+            // User Model
+            builder.Entity<User>()
+                .Property(u => u.Email)
+                .IsRequired();
 
+            builder.Entity<User>()
+                .Property(u => u.Phone)
+                .IsRequired();
+
+            builder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
+
+            builder.Entity<User>()
+                .HasIndex(u => u.Phone)
+                .IsUnique();
+
+            // Category Model
             builder.Entity<Category>()
                 .HasIndex(c => c.Slug)
                 .IsUnique();
+
             builder.Entity<Product>()
                 .HasIndex(p => p.Slug)
                 .IsUnique();

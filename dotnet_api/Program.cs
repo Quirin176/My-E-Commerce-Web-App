@@ -142,9 +142,10 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
+// Enable Swagger only in Development
 if (app.Environment.IsDevelopment())
 {
+    // Swagger JSON is available at http://localhost:5159/swagger/v1/swagger.json
     app.UseSwagger();
     app.UseSwaggerUI();
 }
@@ -156,8 +157,6 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
-
 // app.Use(async (context, next) => {
 //     context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
 //     context.Response.Headers.Add("X-Frame-Options", "DENY");
@@ -166,6 +165,8 @@ app.MapControllers();
 //     context.Response.Headers.Remove("Server"); // Don't expose server info
 //     await next();
 // });
+
+app.MapControllers();
 
 // Log startup info
 Console.WriteLine("Starting WebApp API...");
