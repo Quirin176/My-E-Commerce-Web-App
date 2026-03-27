@@ -76,6 +76,11 @@ export default function Header() {
                 className="font-semibold text-white">
                 Orders
               </Link>
+              <Link
+                to="/admin/attributes"
+                className="font-semibold text-white">
+                Attributes
+              </Link>
             </div>
           )}
           {user?.role !== "Admin" && (

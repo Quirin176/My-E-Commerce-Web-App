@@ -1,3 +1,4 @@
+import type { CreateCategoryRequest } from "../../types/models/products/Category";
 import { apiClient } from "../apiClient";
 
 export const categoryApi = {
@@ -56,4 +57,14 @@ export const categoryApi = {
       return [];
     }
   },
+
+  async createCategory(data: CreateCategoryRequest) {
+    try {
+      const res = await apiClient.post("/categories", data);
+      return res.data;
+    } catch (error) {
+      console.error("Error loading filters:", error);
+      return [];
+    }
+  }
 };

@@ -63,11 +63,11 @@ export default function CategoriesDropdown({ categories = siteConfig.categories 
 
   return (
     <div className="relative inline-block font-semibold">
-      <button 
-        className="flex items-center gap-2 px-4 py-2 border-2 rounded-4xl font-semibold hover:shadow-md transition" 
+      <button
+        className="flex items-center gap-2 px-4 py-2 border-2 rounded-4xl font-semibold hover:shadow-md transition"
         style={{ color: "White" }}
         onClick={() => setOpen(!open)}
-        >
+      >
         <LayoutGrid size={18} />
         <span className="text-base pr-20">All Categories</span>
         <ChevronDown size={18} className={`${open ? "rotate-180" : ""} transition`} />
@@ -75,7 +75,7 @@ export default function CategoriesDropdown({ categories = siteConfig.categories 
 
       {/* DARK OVERLAY */}
       {open && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/30 z-40"
           onClick={handleClose}
         />
@@ -83,7 +83,7 @@ export default function CategoriesDropdown({ categories = siteConfig.categories 
 
       {/* DROPDOWN PANEL - HORIZONTALLY CENTERED, VERTICALLY CENTERED ON PAGE */}
       {open && (
-        <div 
+        <div
           className="fixed left-1/2 transform -translate-x-1/2 bg-white border-0 rounded-xl shadow-2xl z-50 flex overflow-hidden"
           style={{ width: "1500px", height: "700px" }}
           onMouseLeave={handleClose}
@@ -91,12 +91,12 @@ export default function CategoriesDropdown({ categories = siteConfig.categories 
           {/* LEFT SIDE: CATEGORIES LIST */}
           <div className={`${selectedCategory ? "w-1/5" : "w-full"} border-r border-gray-200 overflow-y-auto bg-white transition-all duration-300`}>
             <div
-            className="sticky bg-linear-to-b text-white pl-4 py-2"
-            style={{ background: colors.primarycolor}}
+              className="sticky bg-linear-to-b text-white pl-4 py-2"
+              style={{ background: colors.primarycolor }}
             >
               <h3 className="text-lg font-bold">Categories</h3>
             </div>
-            
+
             <div className="p-2 space-y-2">
               {categories.map((item) => (
                 <button
@@ -115,21 +115,21 @@ export default function CategoriesDropdown({ categories = siteConfig.categories 
 
                   {/* ICON BOX */}
                   <div
-                  className="flex items-center justify-center w-8 h-8 rounded-md border-2 transition"
-                  style={{ background: selectedCategory === item.slug ? colors.primarycolor : "#F9FAFB", borderColor: selectedCategory === item.slug ? "white" : "#E5E7EB"}}
+                    className="flex items-center justify-center w-8 h-8 rounded-md border-2 transition"
+                    style={{ background: selectedCategory === item.slug ? colors.primarycolor : "#F9FAFB", borderColor: selectedCategory === item.slug ? "white" : "#E5E7EB" }}
                   >
                     <div className={selectedCategory === item.slug ? "text-white" : "text-gray-700"}>
                       {getCategoryIcon(item.name)}
                     </div>
                   </div>
-                  
+
                   {/* LABEL */}
                   <div className="flex-1 text-left">
                     <span className="font-semibold text-base block">{item.name}</span>
                   </div>
                   {/* ARROW */}
-                  <ChevronDown 
-                    size={20} 
+                  <ChevronDown
+                    size={20}
                     className={`transition ${selectedCategory === item.slug ? "rotate-180" : ""}`}
                   />
                 </button>
@@ -141,79 +141,81 @@ export default function CategoriesDropdown({ categories = siteConfig.categories 
           {selectedCategory && (
             <div className="w-4/5 overflow-y-auto bg-white">
 
-                {/* HEADER */}
-                <div
-                  className="sticky bg-linear-to-r border-b border-gray-200 pl-4 py-2"
-                  style={{ background: colors.primarycolor}}
-                >
-                  <p className="text-lg font-bold text-white">Filters</p>
-                </div>
+              {/* HEADER */}
+              <div
+                className="sticky bg-linear-to-r border-b border-gray-200 pl-4 py-2"
+                style={{ background: colors.primarycolor }}
+              >
+                <p className="text-lg font-bold text-white">Filters</p>
+              </div>
 
-                {/* CONTENT */}
-                <div className="p-4">
-                  {loadingFilters[selectedCategory] ? (
-                    <div className="text-center py-12">
-                      <div className="inline-block">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                      </div>
-                      <p className="text-gray-500 text-sm mt-4">Loading filters...</p>
+              {/* CONTENT */}
+              <div className="p-4">
+                
+                {/* LOADING OVERLAY */}
+                {loadingFilters[selectedCategory] ? (
+                  <div className="text-center py-12">
+                    <div className="inline-block">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                     </div>
-                  ) : categoryFilters[selectedCategory]?.length > 0 ? (
-                    <div className="space-y-4">
-                      {categoryFilters[selectedCategory].map((option) => (
-                        <div key={option.optionId}>
-                          {/* OPTION NAME */}
-                          <h4 className="text-sm font-bold text-gray-800 mb-4 uppercase tracking-wide">
-                            {option.optionName}
-                          </h4>
+                    <p className="text-gray-500 text-sm mt-4">Loading filters...</p>
+                  </div>
+                ) : categoryFilters[selectedCategory]?.length > 0 ? (
+                  <div className="space-y-4">
+                    {categoryFilters[selectedCategory].map((option) => (
+                      <div key={option.optionId}>
+                        {/* OPTION NAME */}
+                        <h4 className="text-sm font-bold text-gray-800 mb-4 uppercase tracking-wide">
+                          {option.optionName}
+                        </h4>
 
-                          {/* OPTION VALUES */}
-                          <div className="flex flex-wrap gap-2">
-                            {option.optionValues.map((value) => (
-                              <button
-                                key={value.optionValueId}
-                                onClick={() => handleFilterClick(selectedCategory, value.optionValueId)}
-                                className="px-4 py-2 bg-white hover:bg-gray-700 text-gray-700 hover:text-white text-sm rounded-lg hover:shadow-md transition duration-200 font-medium border border-gray-300"
-                              >
-                                {value.value}
-                              </button>
-                            ))}
-                          </div>
+                        {/* OPTION VALUES */}
+                        <div className="flex flex-wrap gap-2">
+                          {option.optionValues.map((value) => (
+                            <button
+                              key={value.optionValueId}
+                              onClick={() => handleFilterClick(selectedCategory, value.optionValueId)}
+                              className="px-4 py-2 bg-white hover:bg-gray-700 text-gray-700 hover:text-white text-sm rounded-lg hover:shadow-md transition duration-200 font-medium border border-gray-300"
+                            >
+                              {value.value}
+                            </button>
+                          ))}
                         </div>
-                      ))}
-
-                      {/* DIVIDER */}
-                      <div className="border-t border-gray-200 pt-4">
-                        {/* VIEW ALL BUTTON */}
-                        <button
-                          onClick={() => {
-                            handleClose();
-                            navigate(`/category/${encodeURIComponent(selectedCategory)}`);
-                          }}
-                          className="w-full px-6 py-3 bg-linear-to-r text-white text-sm font-bold rounded-lg hover:shadow-lg transition duration-200 hover:brightness-75"
-                          style={{ background: colors.primarycolor}}
-                        >
-                          View All Products in {categories.find(c => c.slug === selectedCategory)?.name}
-                        </button>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <p className="text-gray-500 text-sm mb-6">No filters available for this category</p>
+                    ))}
+
+                    {/* DIVIDER */}
+                    <div className="border-t border-gray-200 pt-4">
+                      {/* VIEW ALL BUTTON */}
                       <button
                         onClick={() => {
                           handleClose();
                           navigate(`/category/${encodeURIComponent(selectedCategory)}`);
                         }}
-                        className="px-6 py-3 text-white text-sm font-bold rounded-lg hover:brightness-75 transition duration-200"
-                        style={{ background: colors.primarycolor}}
+                        className="w-full px-6 py-3 bg-linear-to-r text-white text-sm font-bold rounded-lg hover:shadow-lg transition duration-200 hover:brightness-75"
+                        style={{ background: colors.primarycolor }}
                       >
-                        View Products
+                        View All Products in {categories.find(c => c.slug === selectedCategory)?.name}
                       </button>
                     </div>
-                  )}
-                </div>
-              </div>)}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <p className="text-gray-500 text-sm mb-6">No filters available for this category</p>
+                    <button
+                      onClick={() => {
+                        handleClose();
+                        navigate(`/category/${encodeURIComponent(selectedCategory)}`);
+                      }}
+                      className="px-6 py-3 text-white text-sm font-bold rounded-lg hover:brightness-75 transition duration-200"
+                      style={{ background: colors.primarycolor }}
+                    >
+                      View Products
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>)}
         </div>
       )}
     </div>

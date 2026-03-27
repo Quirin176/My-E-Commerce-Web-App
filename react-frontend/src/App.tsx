@@ -10,6 +10,7 @@ import Search from "./pages/search/Search";
 
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminOrders from "./pages/admin/AdminOrders";
+import AdminAttributes from "./pages/admin/AdminAttributes"
 
 import About from "./pages/about/About";
 import Cart from "./pages/user/Cart"
@@ -77,6 +78,7 @@ export default function App() {
           {/* Admin Pages */}
           <Route path="/admin/products" element={<AdminProtected><AdminProducts /></AdminProtected>} />
           <Route path="/admin/orders" element={<AdminProtected><AdminOrders /></AdminProtected>} />
+          <Route path="/admin/attributes" element={<AdminProtected><AdminAttributes /></AdminProtected>} />
 
           <Route path="/about" element={<About />} />
           <Route path="/cart" element={<Cart />} />

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Package, Download, Loader } from "lucide-react";
+import { Package, Download } from "lucide-react";
 import { adminOrdersApi } from "../../api/admin/adminOrdersApi";
 import UserOrderCard from "../../components/User/UserOrderCard";
 import type { OrderResponseModel } from "../../types/models/order/OrderResponseModel";
@@ -108,8 +108,18 @@ export default function AdminOrders() {
 
     return (
         <div className="flex flex-col gap-y-2">
-            {/* Title */}
 
+            {/* EXPORT OVERLAY */}
+            {exporting && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 backdrop-blur-sm flex flex-col items-center justify-center z-50">
+                    <div className="bg-white px-6 py-4 rounded-xl shadow-lg flex flex-col items-center gap-4">
+                        <div className="animate-spin rounded-full h-10 w-10 border-4 border-green-500 border-t-transparent"></div>
+                        <p className="font-semibold text-black">Exporting orders...</p>
+                    </div>
+                </div>
+            )}
+
+            {/* Title */}
             <div className="flex justify-between">
                 <h1 className="text-2xl font-bold">Admin Orders Management</h1>
 
@@ -219,10 +229,11 @@ export default function AdminOrders() {
             )}
 
             <button
-                className="ml-auto w-xs border rounded-lg cursor-pointer bg-green-500 hover:bg-green-700 font-bold text-white py-2 transition"
+                className="flex items-center justify-center gap-2 ml-auto w-xs border rounded-lg cursor-pointer bg-green-500 hover:bg-green-700 font-bold text-white py-2 transition"
                 onClick={handleExportCSV}
             >
-                Export All Orders
+                <Download size={18} className="text-white" />
+                Export Selected Orders
             </button>
         </div>
     );

@@ -200,333 +200,333 @@ export default function AdminProducts() {
     setSearchParams({ page: "1", sortOrder: value });
   };
 
-const applyFilters = () => {
-  // Normalize / validate price inputs
-  const cleanedMin = minPrice === "" ? 0 : Number(minPrice);
-  const cleanedMax =
-    maxPrice === "" ? Number.MAX_SAFE_INTEGER : Number(maxPrice);
+  const applyFilters = () => {
+    // Normalize / validate price inputs
+    const cleanedMin = minPrice === "" ? 0 : Number(minPrice);
+    const cleanedMax =
+      maxPrice === "" ? Number.MAX_SAFE_INTEGER : Number(maxPrice);
 
-  if (cleanedMin < 0 || cleanedMax < 0) {
-    toast.error("Price cannot be negative.");
-    return;
-  }
+    if (cleanedMin < 0 || cleanedMax < 0) {
+      toast.error("Price cannot be negative.");
+      return;
+    }
 
-  if (cleanedMin > cleanedMax) {
-    toast.error("Min price cannot be greater than max price.");
-    return;
-  }
+    if (cleanedMin > cleanedMax) {
+      toast.error("Min price cannot be greater than max price.");
+      return;
+    }
 
-  // Build URL params
-  const params: Record<string, string> = {
-    page: "1",
+    // Build URL params
+    const params: Record<string, string> = {
+      page: "1",
+    };
+
+    if (selectedCategory) params.category = selectedCategory;
+    if (cleanedMin > 0) params.minPrice = cleanedMin.toString();
+    if (cleanedMax < Number.MAX_SAFE_INTEGER) params.max = cleanedMax.toString();
+    if (sortOrder) params.sort = sortOrder;
+    if (selectedOptions.length > 0) params.options = selectedOptions.join(",");
+
+    // Update URL
+    setSearchParams(params);
+
+    // goToPage(1); // Reset pagination in hook
+    // searchProducts(searchTerm); // Trigger search with existing API logic
+
+    fetchProducts(1, searchTerm);
   };
-
-  if (selectedCategory) params.category = selectedCategory;
-  if (cleanedMin > 0) params.minPrice = cleanedMin.toString();
-  if (cleanedMax < Number.MAX_SAFE_INTEGER) params.max = cleanedMax.toString();
-  if (sortOrder) params.sort = sortOrder;
-  if (selectedOptions.length > 0) params.options = selectedOptions.join(",");
-
-  // Update URL
-  setSearchParams(params);
-  
-  // goToPage(1); // Reset pagination in hook
-  // searchProducts(searchTerm); // Trigger search with existing API logic
-
-  fetchProducts(1, searchTerm);
-};
 
   // Calculate start and end indices for display
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE + 1;
   const endIndex = Math.min(currentPage * ITEMS_PER_PAGE, totalCount);
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        {/* ========== HEADER ========== */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-          <div>
-            <h1 className="text-3xl font-bold">
-              Products Management
-            </h1>
-            <p className="text-gray-600 mt-1">
-              {totalCount > 0
-                ? `${totalCount} total products`
-                : "No products found"}
-            </p>
-          </div>
-          <button
-            onClick={handleCreateNew}
-            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold whitespace-nowrap cursor-pointer"
-          >
-            <Plus size={20} />
-            Add Product
-          </button>
+    <div className="flex flex-col gap-y-2">
+
+      {/* ========== HEADER ========== */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">
+            Products Management
+          </h1>
+          <p className="text-gray-600 mt-1">
+            {totalCount > 0
+              ? `${totalCount} total products`
+              : "No products found"}
+          </p>
         </div>
-
-        {/* ========== ERROR DISPLAY ========== */}
-        {productsError && (
-          <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center gap-3">
-            <AlertCircle size={20} />
-            <div>
-              <p className="font-semibold">Error Loading Products</p>
-              <p className="text-sm">{productsError}</p>
-            </div>
-          </div>
-        )}
-
-        {/* ========== MODAL DATA LOADING OVERLAY ========== */}
-        {isLoadingModalData && (
-          <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center pointer-events-none">
-            <div className="bg-white rounded-lg p-8 shadow-2xl text-center pointer-events-auto">
-              <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-700 font-semibold">Loading product details...</p>
-              <p className="text-gray-500 text-sm mt-2">Please wait while we fetch options and images</p>
-            </div>
-          </div>
-        )}
 
         {/* ========== SEARCH BAR ========== */}
-        <div className="mb-6">
-          <div className="relative">
-            <Search size={20} className="absolute left-3 top-3 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search by name or slug..."
-              value={searchTerm}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-            {searchTerm && (
-              <button
-                onClick={handleClearSearch}
-                className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-              >
-                ✕
-              </button>
-            )}
-          </div>
+        <div className="relative">
+          <Search size={20} className="absolute left-3 top-3 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search by name or slug..."
+            value={searchTerm}
+            onChange={(e) => handleSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+          />
+          {searchTerm && (
+            <button
+              onClick={handleClearSearch}
+              className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+            >
+              ✕
+            </button>
+          )}
         </div>
 
-        {/* Dynamic filters */}
-        <AdminDynamicFilters
-          loadedCategories={categories}
-          onCategoryChange={handleCategoryChange}
-          isLoading={loadingFilters}
-          loadedOptions={loadedOptions}
-          selectedOptions={selectedOptions}
-          setSelectedOptions={handleFilterChange}
-          minPrice={minPrice}
-          setMinPrice={handleMinPriceChange}
-          maxPrice={maxPrice}
-          setMaxPrice={handleMaxPriceChange}
-          sortOrder={sortOrder}
-          setSortOrder={handlePriceOrderChange}
-          onApplyFilters={applyFilters}
-        />
+        <button
+          onClick={handleCreateNew}
+          className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold whitespace-nowrap cursor-pointer"
+        >
+          <Plus size={20} />
+          Add Product
+        </button>
+      </div>
 
-        {/* ========== PRODUCTS LIST ========== */}
-        {productsLoading ? (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            <p className="text-gray-600 mt-4">Loading products...</p>
+      {/* ========== ERROR DISPLAY ========== */}
+      {productsError && (
+        <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center gap-3">
+          <AlertCircle size={20} />
+          <div>
+            <p className="font-semibold">Error Loading Products</p>
+            <p className="text-sm">{productsError}</p>
           </div>
-        ) : products.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg border-2 border-dashed border-gray-300">
-            <AlertCircle size={48} className="mx-auto text-gray-400 mb-4" />
-            <p className="text-gray-600 text-lg">
-              {searchTerm ? "No products match your search" : "No products found"}
-            </p>
-            {searchTerm && (
-              <button
-                onClick={handleClearSearch}
-                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              >
-                Clear Search
-              </button>
-            )}
-            {!searchTerm && (
-              <button
-                onClick={handleCreateNew}
-                className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-              >
-                Create First Product
-              </button>
-            )}
+        </div>
+      )}
+
+      {/* ========== MODAL DATA LOADING OVERLAY ========== */}
+      {isLoadingModalData && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center pointer-events-none">
+          <div className="bg-white rounded-lg p-8 shadow-2xl text-center pointer-events-auto">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-700 font-semibold">Loading product details...</p>
+            <p className="text-gray-500 text-sm mt-2">Please wait while we fetch options and images</p>
           </div>
-        ) : (
-          <>
-            {/* Products List */}
-            <div className="space-y-3 mb-6">
-              {products.map((product) => (
-                <div
-                  key={product.id}
-                  className="bg-white rounded-lg shadow hover:shadow-lg transition"
+        </div>
+      )}
+
+      {/* Dynamic filters */}
+      <AdminDynamicFilters
+        loadedCategories={categories}
+        onCategoryChange={handleCategoryChange}
+        isLoading={loadingFilters}
+        loadedOptions={loadedOptions}
+        selectedOptions={selectedOptions}
+        setSelectedOptions={handleFilterChange}
+        minPrice={minPrice}
+        setMinPrice={handleMinPriceChange}
+        maxPrice={maxPrice}
+        setMaxPrice={handleMaxPriceChange}
+        sortOrder={sortOrder}
+        setSortOrder={handlePriceOrderChange}
+        onApplyFilters={applyFilters}
+      />
+
+      {/* ========== PRODUCTS LIST ========== */}
+      {productsLoading ? (
+        <div className="text-center py-12">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <p className="text-gray-600 mt-4">Loading products...</p>
+        </div>
+      ) : products.length === 0 ? (
+        <div className="text-center py-12 bg-white rounded-lg border-2 border-dashed border-gray-300">
+          <AlertCircle size={48} className="mx-auto text-gray-400 mb-4" />
+          <p className="text-gray-600 text-lg">
+            {searchTerm ? "No products match your search" : "No products found"}
+          </p>
+          
+          {searchTerm && (
+            <button
+              onClick={handleClearSearch}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Clear Search
+            </button>
+          )}
+
+          {!searchTerm && (
+            <button
+              onClick={handleCreateNew}
+              className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+            >
+              Create First Product
+            </button>
+          )}
+        </div>
+      ) : (
+        <>
+          {/* Products List */}
+          <div className="space-y-3">
+            {products.map((product) => (
+              <div
+                key={product.id}
+                className="bg-white rounded-lg shadow hover:shadow-lg transition"
+              >
+                <AdminProductCard
+                  product={product}
+                  isLoading={isLoadingModalData}
+                  setIsLoadingModalData={setIsLoadingModalData}
+                  showForm={showForm}
+                  editingId={editingId}
+                  isViewMode={isViewMode}
+                  formData={formData}
+                  formErrors={formErrors}
+                  categories={categories}
+                  filters={currentCategoryFilters}
+                  filtersLoading={filtersLoading}
+                  submitting={submitting}
+                  onCloseForm={handleCloseForm}
+                  onSubmit={handleSubmit}
+                  updateField={(field: string, value: unknown) => updateField(field as keyof typeof formData, value)}
+                  addImageUrl={addImageUrl}
+                  removeImageUrl={removeImageUrl}
+                  handleOptionChange={handleOptionChange}
+                  autoGenerateSlug={autoGenerateSlug}
+                  onCategoryChange={handleModalCategoryChange}
+                  setFormData={setFormData}
+                  resetForm={resetForm}
+                  openEditForm={openEditForm}
+                  openViewForm={openViewForm}
+                  loadOptionsForCategory={loadOptionsForCategory}
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* ========== PAGINATION ========== */}
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between p-6 gap-4">
+              <div className="text-gray-600">
+                Showing <strong>{startIndex}</strong> to <strong>{endIndex}</strong> of <strong>{totalCount}</strong> products
+                {searchTerm && (
+                  <span className="ml-2 text-blue-600">
+                    (filtered)
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleGoToPage(currentPage - 1)}
+                  className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  title="Previous page"
                 >
-                  <AdminProductCard
-                    product={product}
-                    isLoading={isLoadingModalData}
-                    setIsLoadingModalData={setIsLoadingModalData}
-                    showForm={showForm}
-                    editingId={editingId}
-                    isViewMode={isViewMode}
-                    formData={formData}
-                    formErrors={formErrors}
-                    categories={categories}
-                    filters={currentCategoryFilters}
-                    filtersLoading={filtersLoading}
-                    submitting={submitting}
-                    onCloseForm={handleCloseForm}
-                    onSubmit={handleSubmit}
-                    updateField={(field: string, value: unknown) => updateField(field as keyof typeof formData, value)}
-                    addImageUrl={addImageUrl}
-                    removeImageUrl={removeImageUrl}
-                    handleOptionChange={handleOptionChange}
-                    autoGenerateSlug={autoGenerateSlug}
-                    onCategoryChange={handleModalCategoryChange}
-                    setFormData={setFormData}
-                    resetForm={resetForm}
-                    openEditForm={openEditForm}
-                    openViewForm={openViewForm}
-                    loadOptionsForCategory={loadOptionsForCategory}
-                  />
-                </div>
-              ))}
-            </div>
+                  <ChevronLeft size={20} />
+                </button>
 
-            {/* ========== PAGINATION ========== */}
-            {totalPages > 1 && (
-              <div className="bg-white rounded-lg shadow p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="text-gray-600 text-sm">
-                  Showing <strong>{startIndex}</strong> to <strong>{endIndex}</strong> of <strong>{totalCount}</strong> products
-                  {searchTerm && (
-                    <span className="ml-2 text-blue-600">
-                      (filtered)
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1">
                   <button
-                    onClick={() => handleGoToPage(currentPage - 1)}
-                    className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
-                    title="Previous page"
+                    onClick={() => handleGoToPage(1)}
+                    className={`px-3 py-2 rounded-lg font-semibold transition ${currentPage === 1
+                      ? "bg-blue-600 text-white"
+                      : "border border-gray-300 hover:bg-gray-50"
+                      }`}
                   >
-                    <ChevronLeft size={20} />
+                    1
                   </button>
 
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => handleGoToPage(1)}
-                      className={`px-3 py-2 rounded-lg font-semibold transition ${currentPage === 1
-                        ? "bg-blue-600 text-white"
-                        : "border border-gray-300 hover:bg-gray-50"
-                        }`}
-                    >
-                      1
-                    </button>
+                  {currentPage > 3 && (
+                    <span className="px-2 py-2 text-gray-400">...</span>
+                  )}
 
-                    {currentPage > 3 && (
-                      <span className="px-2 py-2 text-gray-400">...</span>
-                    )}
-
-                    {Array.from({ length: totalPages }, (_, i) => i + 1)
-                      .filter(
-                        (page) =>
-                          page > 1 &&
-                          page < totalPages &&
-                          Math.abs(page - currentPage) <= 1
-                      )
-                      .map((page) => (
-                        <button
-                          key={page}
-                          onClick={() => handleGoToPage(page)}
-                          className={`px-3 py-2 rounded-lg font-semibold transition ${currentPage === page
-                            ? "bg-blue-600 text-white"
-                            : "border border-gray-300 hover:bg-gray-50"
-                            }`}
-                        >
-                          {page}
-                        </button>
-                      ))}
-
-                    {currentPage < totalPages - 2 && (
-                      <span className="px-2 py-2 text-gray-400">...</span>
-                    )}
-
-                    {totalPages > 1 && (
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(
+                      (page) =>
+                        page > 1 &&
+                        page < totalPages &&
+                        Math.abs(page - currentPage) <= 1
+                    )
+                    .map((page) => (
                       <button
-                        onClick={() => handleGoToPage(totalPages)}
-                        className={`px-3 py-2 rounded-lg font-semibold transition ${currentPage === totalPages
+                        key={page}
+                        onClick={() => handleGoToPage(page)}
+                        className={`px-3 py-2 rounded-lg font-semibold transition ${currentPage === page
                           ? "bg-blue-600 text-white"
                           : "border border-gray-300 hover:bg-gray-50"
                           }`}
                       >
-                        {totalPages}
+                        {page}
                       </button>
-                    )}
-                  </div>
+                    ))}
 
-                  <button
-                    onClick={() => handleGoToPage(currentPage + 1)}
-                    className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
-                    title="Next page"
-                  >
-                    <ChevronRight size={20} />
-                  </button>
+                  {currentPage < totalPages - 2 && (
+                    <span className="px-2 py-2 text-gray-400">...</span>
+                  )}
+
+                  {totalPages > 1 && (
+                    <button
+                      onClick={() => handleGoToPage(totalPages)}
+                      className={`px-3 py-2 rounded-lg font-semibold transition ${currentPage === totalPages
+                        ? "bg-blue-600 text-white"
+                        : "border border-gray-300 hover:bg-gray-50"
+                        }`}
+                    >
+                      {totalPages}
+                    </button>
+                  )}
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <label htmlFor="pageInput" className="text-sm text-gray-600">
-                    Go to:
-                  </label>
-                  <input
-                    id="pageInput"
-                    type="number"
-                    min="1"
-                    max={totalPages}
-                    defaultValue={currentPage}
-                    onKeyPress={(e) => {
-                      if (e.key === "Enter") {
-                        const value = parseInt(
-                          (e.target as HTMLInputElement).value
-                        );
-                        if (!isNaN(value)) {
-                          handleGoToPage(value);
-                        }
-                      }
-                    }}
-                    className="w-16 px-2 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 outline-none"
-                  />
-                </div>
+                <button
+                  onClick={() => handleGoToPage(currentPage + 1)}
+                  className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  title="Next page"
+                >
+                  <ChevronRight size={20} />
+                </button>
               </div>
-            )}
-          </>
-        )}
 
-        {/* ========== CREATE NEW PRODUCT MODAL ========== */}
-        {showForm && editingId === null && (
-          <AdminProductForm
-            showForm={showForm}
-            editingId={editingId}
-            isViewMode={isViewMode}
-            formData={formData}
-            formErrors={formErrors}
-            categories={categories}
-            filters={currentCategoryFilters}
-            filtersLoading={filtersLoading}
-            submitting={submitting}
-            onClose={handleCloseForm}
-            onSubmit={handleSubmit}
-            updateField={(field: string, value: unknown) => updateField(field as keyof typeof formData, value)}
-            addImageUrl={addImageUrl}
-            removeImageUrl={removeImageUrl}
-            handleOptionChange={handleOptionChange}
-            autoGenerateSlug={autoGenerateSlug}
-            onCategoryChange={handleModalCategoryChange}
-          />
-        )}
-      </div>
+              <div className="flex items-center gap-2">
+                <label htmlFor="pageInput" className="text-gray-600">
+                  Go to:
+                </label>
+                <input
+                  id="pageInput"
+                  type="number"
+                  min="1"
+                  max={totalPages}
+                  defaultValue={currentPage}
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                      const value = parseInt(
+                        (e.target as HTMLInputElement).value
+                      );
+                      if (!isNaN(value)) {
+                        handleGoToPage(value);
+                      }
+                    }
+                  }}
+                  className="w-16 px-2 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ========== CREATE NEW PRODUCT MODAL ========== */}
+      {showForm && editingId === null && (
+        <AdminProductForm
+          showForm={showForm}
+          editingId={editingId}
+          isViewMode={isViewMode}
+          formData={formData}
+          formErrors={formErrors}
+          categories={categories}
+          filters={currentCategoryFilters}
+          filtersLoading={filtersLoading}
+          submitting={submitting}
+          onClose={handleCloseForm}
+          onSubmit={handleSubmit}
+          updateField={(field: string, value: unknown) => updateField(field as keyof typeof formData, value)}
+          addImageUrl={addImageUrl}
+          removeImageUrl={removeImageUrl}
+          handleOptionChange={handleOptionChange}
+          autoGenerateSlug={autoGenerateSlug}
+          onCategoryChange={handleModalCategoryChange}
+        />
+      )}
     </div>
   );
 }
