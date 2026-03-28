@@ -1,28 +1,34 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LayoutGrid } from "lucide-react";
 import { siteConfig } from "../../config/siteConfig";
+import { categoriesIcon } from "../../config/siteConfig";
 import { categoryApi } from "../../api/products/categoryApi";
+import type { Category } from "../../types/models/products/Category.ts";
 import type { ProductOption } from "../../types/models/products/ProductOption.ts";
-import CategoryTabs from "../../components/Product/CategoryTabs";
+import CategoryTabs from "../../components/MainLayout/Product/CategoryTabs";
 
 export default function Home() {
   const colors = siteConfig.colors;
-  const categories = siteConfig.categories;
 
+  const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [categoryFilters, setCategoryFilters] = useState<Record<string, ProductOption[]>>({});
   const [loadingFilters, setLoadingFilters] = useState<Record<string, boolean>>({});
   const navigate = useNavigate();
 
+  const loadCategories = async () => {
+    await categoryApi.getAll().then(setCategories);
+  };
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
   // Get icon component from category
-  const getCategoryIcon = (categoryName: string) => {
-    const category = categories.find(cat => cat.name === categoryName);
-    if (category && category.icon) {
-      const IconComponent = category.icon;
-      return <IconComponent size={20} />;
-    }
-    return <LayoutGrid size={20} />;
+  const getCategoryIcon = (categorySlug: string) => {
+    const IconComponent = categoriesIcon[categorySlug.toLowerCase()];
+    return IconComponent ? <IconComponent size={20} /> : <LayoutGrid size={20} />;
   };
 
   // Load filters when category is hovered

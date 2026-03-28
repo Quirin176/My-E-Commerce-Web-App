@@ -1,9 +1,10 @@
 import { apiClient } from "../apiClient";
 
 export const productoptionvalueApi = {
+
     // Create an option value
     async createOptionValue(optionId: number, value: string) {
-        const res = await apiClient.post(`/filters/option-values`, {
+        const res = await apiClient.post(`/productoptionvalues/optionvalues`, {
             optionId,
             value
         });
@@ -12,7 +13,7 @@ export const productoptionvalueApi = {
 
     // Update an option value
     async updateOptionValue(optionValueId: number, value: string) {
-        const res = await apiClient.put(`/filters/option-values/${optionValueId}`, {
+        const res = await apiClient.put(`/productoptionvalues/optionvalues/${optionValueId}`, {
             value
         });
         return res.data;
@@ -20,7 +21,7 @@ export const productoptionvalueApi = {
 
     // Delete an option value
     async deleteOptionValue(optionValueId: number) {
-        const res = await apiClient.delete(`/filters/option-values/${optionValueId}`);
+        const res = await apiClient.delete(`/productoptionvalues/optionvalues/${optionValueId}`);
         return res.data;
     },
 }

@@ -8,9 +8,9 @@ import CategoryProducts from "./pages/category/Category";
 import ProductDetail from "./pages/productdetail/ProductDetail";
 import Search from "./pages/search/Search";
 
-import AdminProducts from "./pages/admin/AdminProducts";
-import AdminOrders from "./pages/admin/AdminOrders";
-import AdminAttributes from "./pages/admin/AdminAttributes"
+import AdminProducts from "./pages/admin/Products/AdminProducts";
+import AdminOrders from "./pages/admin/Orders/AdminOrders";
+import AdminAttributes from "./pages/admin/Attributes/AdminAttributes"
 
 import About from "./pages/about/About";
 import Cart from "./pages/user/Cart"

@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { Plus, Search, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
-import { useAdminProductsPaginated } from "../../hooks/admin/useAdminProductsPaginated";
-import { useCategories } from "../../hooks/useCategories";
-import { useProductForm } from "../../hooks/admin/useProductForm";
-import { useAdminProductForm } from "../../hooks/admin/useAdminProductForm";
+import { useAdminProductsPaginated } from "../../../hooks/admin/useAdminProductsPaginated";
+import { useCategories } from "../../../hooks/useCategories";
+import { useProductForm } from "../../../hooks/admin/useProductForm";
+import { useAdminProductForm } from "../../../hooks/admin/useAdminProductForm";
 import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
-import AdminProductCard from "../../components/Admin/AdminProductCard";
-import AdminProductForm from "../../components/Admin/AdminProductForm";
-import AdminDynamicFilters from "../../components/Admin/AdminDynamicFilters";
-import { categoryApi } from "../../api/products/categoryApi";
-import type { ProductOption } from "../../types/models/products/ProductOption";
+import AdminProductCard from "../../../components/Admin/Products/AdminProductCard";
+import AdminProductForm from "../../../components/Admin/Products/AdminProductForm";
+import AdminDynamicFilters from "../../../components/Admin/Products/AdminDynamicFilters";
+import { categoryApi } from "../../../api/products/categoryApi";
+import type { ProductOption } from "../../../types/models/products/ProductOption";
 
 const ITEMS_PER_PAGE = 10;
 

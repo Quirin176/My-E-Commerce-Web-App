@@ -5,7 +5,7 @@ import { Package } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { checkoutApi } from "../../api/checkoutApi";
 import type { OrderResponseModel } from "../../types/models/order/OrderResponseModel";
-import UserOrderCard from "../../components/User/UserOrderCard";
+import UserOrderCard from "../../components/MainLayout/Orders/UserOrderCard";
 import { siteConfig } from "../../config/siteConfig";
 
 export default function UserOrders() {

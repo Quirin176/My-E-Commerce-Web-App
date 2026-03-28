@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { productApi } from "../../api/products/productApi";
-import ProductCard from "../../components/Product/ProductCard";
+import ProductCard from "../../components/MainLayout/Product/ProductCard";
 import type { Product } from "../../types/models/products/Product";
 
 export default function Search() {

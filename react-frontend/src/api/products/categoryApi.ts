@@ -58,6 +58,7 @@ export const categoryApi = {
     }
   },
 
+  // POST: api/categories - Create a category
   async createCategory(data: CreateCategoryRequest) {
     try {
       const res = await apiClient.post("/categories", data);

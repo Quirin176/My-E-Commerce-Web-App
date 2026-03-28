@@ -12,13 +12,4 @@ export const productoptionApi = {
     const res = await apiClient.post(`/productoptions`, { categoryId, name });
     return res.data;
   },
-
-  // POST: api/filters/option-values - Create a new option value for an option
-  createOptionValue: async (optionId: number | string, value: string) => {
-    const res = await apiClient.post(`/filters/optionvalues`, { 
-      optionId,
-      value
-    });
-    return res.data;
-  },
 };
