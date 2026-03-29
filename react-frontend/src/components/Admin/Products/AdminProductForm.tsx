@@ -1,9 +1,9 @@
 // THIS IS A MODAL COMPONENT FOR ADDING/EDITING/VIEWING PRODUCTS IN THE ADMIN DASHBOARD
 
 import { X, AlertCircle, Plus, Trash2 } from 'lucide-react';
-import type { Category } from '../../types/models/products/Category';
-import type { ProductFormData } from "../../hooks/admin/useProductForm";
-import type { ProductOption } from '../../types/models/products/ProductOption';
+import type { Category } from '../../../types/models/products/Category';
+import type { ProductFormData } from "../../../hooks/admin/useProductForm";
+import type { ProductOption } from '../../../types/models/products/ProductOption';
 
 interface AdminProductFormProps {
   showForm: boolean;
@@ -46,23 +46,9 @@ export default function AdminProductForm({
 }: AdminProductFormProps) {
   if (!showForm) return null;
 
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newName = e.target.value;
-    autoGenerateSlug(newName);
-  };
-
-  const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateField('imageUrl', e.target.value);
-  };
-
-  // Get display images - use the images array directly
-  const allImages = (formData.images && Array.isArray(formData.images))
-    ? formData.images
-    : [];
-
-  // Get selected option value IDs
+  const allImages = Array.isArray(formData.images) ? formData.images : [];
   const selectedIds = formData.selectedOptionValueIds ?? [];
-
+  
   return (
     <>
       {/* Backdrop Overlay */}
@@ -100,7 +86,7 @@ export default function AdminProductForm({
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={handleNameChange}
+                  onChange={(e) => autoGenerateSlug(e.target.value)}
                   disabled={isViewMode}
                   placeholder="Enter product name"
                   className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${formErrors.name ? 'border-red-500' : 'border-black'}`}
@@ -223,7 +209,7 @@ export default function AdminProductForm({
                     type="text"
                     disabled={isViewMode}
                     value={formData.imageUrl}
-                    onChange={handleImageUrlChange}
+                    onChange={(e) => updateField("imageUrl", e.target.value)}
                     placeholder="https://example.com/image.jpg"
                     className="flex-1 px-4 py-2 border-2 border-black rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                   />

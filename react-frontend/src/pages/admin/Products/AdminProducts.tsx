@@ -3,53 +3,21 @@ import { Plus, Search, AlertCircle, ChevronLeft, ChevronRight } from "lucide-rea
 import { useAdminProductsPaginated } from "../../../hooks/admin/useAdminProductsPaginated";
 import { useCategories } from "../../../hooks/useCategories";
 import { useProductForm } from "../../../hooks/admin/useProductForm";
-import { useAdminProductForm } from "../../../hooks/admin/useAdminProductForm";
+import { useAdminProductModal } from "../../../hooks/admin/useAdminProductModal";
 import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import AdminProductCard from "../../../components/Admin/Products/AdminProductCard";
 import AdminProductForm from "../../../components/Admin/Products/AdminProductForm";
 import AdminDynamicFilters from "../../../components/Admin/Products/AdminDynamicFilters";
 import { categoryApi } from "../../../api/products/categoryApi";
+import type { Product } from "../../../types/models/products/Product";
 import type { ProductOption } from "../../../types/models/products/ProductOption";
 
 const ITEMS_PER_PAGE = 10;
 
 export default function AdminProducts() {
   const [searchParams, setSearchParams] = useSearchParams();
-
   const { categories } = useCategories();
-
-  // const initialPage = parseInt(searchParams.get("page") || "1");
-
-  const {
-    formData,
-    formErrors,
-    validateForm,
-    addImageUrl,
-    removeImageUrl,
-    handleOptionChange,
-    updateField,
-    resetForm,
-    setFormData,
-    autoGenerateSlug,
-  } = useProductForm();
-
-  const {
-    showForm,
-    editingId,
-    isViewMode,
-    currentCategoryFilters,
-    filtersLoading,
-    openCreateForm,
-    openEditForm,
-    openViewForm,
-    closeForm,
-    loadOptionsForCategory,
-  } = useAdminProductForm();
-
-  const [submitting, setSubmitting] = useState<boolean>(false);
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [isLoadingModalData, setIsLoadingModalData] = useState<boolean>(false);
 
   // Dynamic filter states
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -59,6 +27,9 @@ export default function AdminProducts() {
   const [loadedOptions, setLoadedOptions] = useState<ProductOption[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<(string | number)[]>([]);
   const [loadingFilters, setLoadingFilters] = useState(false);
+
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   // Output Data from useAdminProductsPaginated
   const {
@@ -73,7 +44,37 @@ export default function AdminProducts() {
     searchProducts,
     createProduct,
     updateProduct,
-  } = useAdminProductsPaginated(ITEMS_PER_PAGE, minPrice, maxPrice, sortOrder, selectedCategory, selectedOptions);
+    deleteProduct,
+  } = useAdminProductsPaginated({ pageSize: ITEMS_PER_PAGE, minPrice, maxPrice, sortOrder, category: selectedCategory, options: selectedOptions });
+
+  // Form Data
+  const {
+    formData,
+    formErrors,
+    validateForm,
+    addImageUrl,
+    removeImageUrl,
+    handleOptionChange,
+    updateField,
+    resetForm,
+    setFormData,
+    autoGenerateSlug,
+  } = useProductForm();
+
+  // Modal state — edit/view/create logic lives here now
+  const {
+    showForm,
+    editingId,
+    isViewMode,
+    currentCategoryFilters,
+    filtersLoading,
+    isLoadingModalData,
+    openCreateForm,
+    openEditForm,
+    openViewForm,
+    closeForm,
+    loadOptionsForCategory,
+  } = useAdminProductModal();
 
   // ========== LOAD OPTIONS FOR SELECTED CATEGORY ==========
   const handleCategoryChange = async (slug: string) => {
@@ -86,12 +87,12 @@ export default function AdminProducts() {
     }
 
     setLoadingFilters(true);
+
     try {
       const filters = await categoryApi.getAllChildDataByCategorySlug(slug);
       const filterList = Array.isArray(filters) ? filters : (filters?.data || []);
       setLoadedOptions(filterList);
     } catch (error) {
-      console.error("Error loading filters for category:", error);
       toast.error("Failed to load category filters");
       setLoadedOptions([]);
     } finally {
@@ -100,16 +101,9 @@ export default function AdminProducts() {
   };
 
   // ========== HANDLE SEARCH ==========
-  const handleSearch = async (value: string) => {
+  const handleSearch = (value: string) => {
     setSearchTerm(value);
-    await searchProducts(value);
-    setSearchParams({ page: "1" });
-  };
-
-  const handleClearSearch = async () => {
-    setSearchTerm("");
-    await searchProducts("");
-    setSearchParams({ page: "1" });
+    searchProducts(value);
   };
 
   // ========== PAGE NAVIGATION ==========
@@ -128,6 +122,7 @@ export default function AdminProducts() {
     }
 
     setSubmitting(true);
+
     try {
       const payload = {
         name: formData.name.trim(),
@@ -150,7 +145,6 @@ export default function AdminProducts() {
       resetForm();
       closeForm();
     } catch (error) {
-      console.error("Error saving product:", error);
       const message = error instanceof Error ? error.message : "Failed to save product";
       toast.error(message);
     } finally {
@@ -170,6 +164,12 @@ export default function AdminProducts() {
     openCreateForm();
   };
 
+  // ========== DELETE ==========
+  const handleDelete = async (id: number | string) => {
+    if (!window.confirm("Delete this product? This cannot be undone.")) return;
+    try { await deleteProduct(Number(id)); } catch { /* toast shown in hook */ }
+  };
+
   // ========== CATEGORY CHANGE IN MODAL ==========
   const handleModalCategoryChange = (categoryId: number) => {
     updateField("categoryId", categoryId);
@@ -180,31 +180,30 @@ export default function AdminProducts() {
   };
 
   // ========== HANDLE FILTER CHANGES ==========
-  const handleFilterChange = (newOptions: (string | number)[]) => {
-    setSelectedOptions(newOptions);
-    setSearchParams({ page: "1" });
-  };
+  // const handleFilterChange = (newOptions: (string | number)[]) => {
+  //   setSelectedOptions(newOptions);
+  //   setSearchParams({ page: "1" });
+  // };
 
-  const handleMinPriceChange = (value: string | number) => {
-    setMinPrice(value);
-    setSearchParams({ page: "1" });
-  };
+  // const handleMinPriceChange = (value: string | number) => {
+  //   setMinPrice(value);
+  //   setSearchParams({ page: "1" });
+  // };
 
-  const handleMaxPriceChange = (value: string | number) => {
-    setMaxPrice(value);
-    setSearchParams({ page: "1" });
-  };
+  // const handleMaxPriceChange = (value: string | number) => {
+  //   setMaxPrice(value);
+  //   setSearchParams({ page: "1" });
+  // };
 
-  const handlePriceOrderChange = (value: string) => {
-    setSortOrder(value);
-    setSearchParams({ page: "1", sortOrder: value });
-  };
+  // const handlePriceOrderChange = (value: string) => {
+  //   setSortOrder(value);
+  //   setSearchParams({ page: "1", sortOrder: value });
+  // };
 
   const applyFilters = () => {
     // Normalize / validate price inputs
     const cleanedMin = minPrice === "" ? 0 : Number(minPrice);
-    const cleanedMax =
-      maxPrice === "" ? Number.MAX_SAFE_INTEGER : Number(maxPrice);
+    const cleanedMax = maxPrice === "" ? Number.MAX_SAFE_INTEGER : Number(maxPrice);
 
     if (cleanedMin < 0 || cleanedMax < 0) {
       toast.error("Price cannot be negative.");
@@ -216,23 +215,7 @@ export default function AdminProducts() {
       return;
     }
 
-    // Build URL params
-    const params: Record<string, string> = {
-      page: "1",
-    };
-
-    if (selectedCategory) params.category = selectedCategory;
-    if (cleanedMin > 0) params.minPrice = cleanedMin.toString();
-    if (cleanedMax < Number.MAX_SAFE_INTEGER) params.max = cleanedMax.toString();
-    if (sortOrder) params.sort = sortOrder;
-    if (selectedOptions.length > 0) params.options = selectedOptions.join(",");
-
-    // Update URL
-    setSearchParams(params);
-
-    // goToPage(1); // Reset pagination in hook
-    // searchProducts(searchTerm); // Trigger search with existing API logic
-
+    setSearchParams({ page: "1" });
     fetchProducts(1, searchTerm);
   };
 
@@ -268,7 +251,7 @@ export default function AdminProducts() {
           />
           {searchTerm && (
             <button
-              onClick={handleClearSearch}
+              onClick={() => handleSearch("")}
               className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
             >
               ✕
@@ -314,13 +297,13 @@ export default function AdminProducts() {
         isLoading={loadingFilters}
         loadedOptions={loadedOptions}
         selectedOptions={selectedOptions}
-        setSelectedOptions={handleFilterChange}
+        setSelectedOptions={setSelectedOptions}
         minPrice={minPrice}
-        setMinPrice={handleMinPriceChange}
+        setMinPrice={setMinPrice}
         maxPrice={maxPrice}
-        setMaxPrice={handleMaxPriceChange}
+        setMaxPrice={setMaxPrice}
         sortOrder={sortOrder}
-        setSortOrder={handlePriceOrderChange}
+        setSortOrder={setSortOrder}
         onApplyFilters={applyFilters}
       />
 
@@ -336,24 +319,13 @@ export default function AdminProducts() {
           <p className="text-gray-600 text-lg">
             {searchTerm ? "No products match your search" : "No products found"}
           </p>
-          
-          {searchTerm && (
-            <button
-              onClick={handleClearSearch}
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              Clear Search
-            </button>
-          )}
 
-          {!searchTerm && (
-            <button
-              onClick={handleCreateNew}
-              className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-            >
-              Create First Product
-            </button>
-          )}
+          <button
+            onClick={handleCreateNew}
+            className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+          >
+            {searchTerm ? "Clear Search" : "Create First Product"}
+          </button>
         </div>
       ) : (
         <>
@@ -367,29 +339,9 @@ export default function AdminProducts() {
                 <AdminProductCard
                   product={product}
                   isLoading={isLoadingModalData}
-                  setIsLoadingModalData={setIsLoadingModalData}
-                  showForm={showForm}
-                  editingId={editingId}
-                  isViewMode={isViewMode}
-                  formData={formData}
-                  formErrors={formErrors}
-                  categories={categories}
-                  filters={currentCategoryFilters}
-                  filtersLoading={filtersLoading}
-                  submitting={submitting}
-                  onCloseForm={handleCloseForm}
-                  onSubmit={handleSubmit}
-                  updateField={(field: string, value: unknown) => updateField(field as keyof typeof formData, value)}
-                  addImageUrl={addImageUrl}
-                  removeImageUrl={removeImageUrl}
-                  handleOptionChange={handleOptionChange}
-                  autoGenerateSlug={autoGenerateSlug}
-                  onCategoryChange={handleModalCategoryChange}
-                  setFormData={setFormData}
-                  resetForm={resetForm}
-                  openEditForm={openEditForm}
-                  openViewForm={openViewForm}
-                  loadOptionsForCategory={loadOptionsForCategory}
+                  onView={(p: Product) => openViewForm(p, setFormData, (f, v) => updateField(f as keyof typeof formData, v))}
+                  onEdit={(p: Product) => openEditForm(p, setFormData, (f, v) => updateField(f as keyof typeof formData, v))}
+                  onDelete={handleDelete}
                 />
               </div>
             ))}
@@ -506,27 +458,25 @@ export default function AdminProducts() {
       )}
 
       {/* ========== CREATE NEW PRODUCT MODAL ========== */}
-      {showForm && editingId === null && (
-        <AdminProductForm
-          showForm={showForm}
-          editingId={editingId}
-          isViewMode={isViewMode}
-          formData={formData}
-          formErrors={formErrors}
-          categories={categories}
-          filters={currentCategoryFilters}
-          filtersLoading={filtersLoading}
-          submitting={submitting}
-          onClose={handleCloseForm}
-          onSubmit={handleSubmit}
-          updateField={(field: string, value: unknown) => updateField(field as keyof typeof formData, value)}
-          addImageUrl={addImageUrl}
-          removeImageUrl={removeImageUrl}
-          handleOptionChange={handleOptionChange}
-          autoGenerateSlug={autoGenerateSlug}
-          onCategoryChange={handleModalCategoryChange}
-        />
-      )}
+      <AdminProductForm
+        showForm={showForm}
+        editingId={editingId}
+        isViewMode={isViewMode}
+        formData={formData}
+        formErrors={formErrors}
+        categories={categories}
+        filters={currentCategoryFilters}
+        filtersLoading={filtersLoading}
+        submitting={submitting}
+        onClose={handleCloseForm}
+        onSubmit={handleSubmit}
+        updateField={(field: string, value: unknown) => updateField(field as keyof typeof formData, value)}
+        addImageUrl={addImageUrl}
+        removeImageUrl={removeImageUrl}
+        handleOptionChange={handleOptionChange}
+        autoGenerateSlug={autoGenerateSlug}
+        onCategoryChange={handleModalCategoryChange}
+      />
     </div>
   );
 }
