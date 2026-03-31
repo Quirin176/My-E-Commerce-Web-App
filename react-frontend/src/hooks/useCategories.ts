@@ -20,15 +20,12 @@ export const useCategories = (): UseCategoriesReturn => {
         setError(null);
 
         try {
-            console.debug("[useCategories] Fetching categories");
-            const data = await categoryApi.getAll();
-            setCategories(Array.isArray(data) ? data : []);
-            console.debug("[useCategories] Categories loaded:", data);
+            const res = await categoryApi.getAll();
+            setCategories(Array.isArray(res) ? res : []);
         } catch (err: unknown) {
             const errorMessage = err instanceof Error ? err.message : "Failed to fetch categories";
             setError(errorMessage);
             toast.error(errorMessage);
-            console.error("[useCategories] Error:", err);
         } finally {
             setLoading(false);
         }

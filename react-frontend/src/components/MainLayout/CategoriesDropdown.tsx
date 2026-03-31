@@ -1,28 +1,20 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useCategories } from "../../hooks/useCategories";
 import { ChevronDown, LayoutGrid } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { categoryApi } from "../../api/products/categoryApi";
 import { siteConfig } from "../../config/siteConfig";
 import { categoriesIcon } from "../../config/siteConfig";
-import type { Category } from "../../types/models/products/Category";
 import type { ProductOption } from "../../types/models/products/ProductOption";
 
 export default function CategoriesDropdown() {
   const colors = siteConfig.colors;
   const [open, setOpen] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const { categories } = useCategories();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [categoryFilters, setCategoryFilters] = useState<Record<string, ProductOption[]>>({});
   const [loadingFilters, setLoadingFilters] = useState<Record<string, boolean>>({});
   const navigate = useNavigate();
-
-  const loadCategories = async () => {
-    await categoryApi.getAll().then(setCategories);
-  };
-
-  useEffect(() => {
-    loadCategories();
-  }, []);
 
   // Get icon component from category
   const getCategoryIcon = (categorySlug: string) => {
@@ -105,39 +97,39 @@ export default function CategoriesDropdown() {
             </div>
 
             <div className="p-2 space-y-2">
-              {categories.map((item) => (
+              {categories.map((cat) => (
                 <button
-                  key={item.id}
-                  onMouseEnter={() => handleCategoryHover(item.slug)}
+                  key={cat.id}
+                  onMouseEnter={() => handleCategoryHover(cat.slug)}
                   onClick={() => {
                     handleClose();
-                    navigate(`/category/${encodeURIComponent(item.slug)}`);
+                    navigate(`/category/${encodeURIComponent(cat.slug)}`);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition duration-200"
                   style={{
-                    backgroundColor: selectedCategory === item.slug ? colors.primarycolor : "White",
-                    color: selectedCategory === item.slug ? "White" : "Black"
+                    backgroundColor: selectedCategory === cat.slug ? colors.primarycolor : "White",
+                    color: selectedCategory === cat.slug ? "White" : "Black"
                   }}
                 >
 
                   {/* ICON BOX */}
                   <div
                     className="flex items-center justify-center w-8 h-8 rounded-md border-2 transition"
-                    style={{ background: selectedCategory === item.slug ? colors.primarycolor : "#F9FAFB", borderColor: selectedCategory === item.slug ? "white" : "#E5E7EB" }}
+                    style={{ background: selectedCategory === cat.slug ? colors.primarycolor : "#F9FAFB", borderColor: selectedCategory === cat.slug ? "white" : "#E5E7EB" }}
                   >
-                    <div className={selectedCategory === item.slug ? "text-white" : "text-gray-700"}>
-                      {getCategoryIcon(item.name)}
+                    <div className={selectedCategory === cat.slug ? "text-white" : "text-gray-700"}>
+                      {getCategoryIcon(cat.name)}
                     </div>
                   </div>
 
                   {/* LABEL */}
                   <div className="flex-1 text-left">
-                    <span className="font-semibold text-base block">{item.name}</span>
+                    <span className="font-semibold text-base block">{cat.name}</span>
                   </div>
                   {/* ARROW */}
                   <ChevronDown
                     size={20}
-                    className={`transition ${selectedCategory === item.slug ? "rotate-180" : ""}`}
+                    className={`transition ${selectedCategory === cat.slug ? "rotate-180" : ""}`}
                   />
                 </button>
               ))}

@@ -22,10 +22,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
         policy.WithOrigins("http://localhost:5173", "http://localhost:3000", "https://your-prod-frontend.com")
-            //   .WithHeaders("Authorization", "Content-Type")
+              //   .WithHeaders("Authorization", "Content-Type")
               .WithMethods("GET", "POST", "PUT", "DELETE")
               .AllowAnyHeader()
-            //   .AllowAnyMethod()
+              //   .AllowAnyMethod()
               .AllowCredentials());
 });
 
@@ -52,7 +52,7 @@ builder.Services.AddRateLimiter(options =>
             cancellationToken
         );
     };
-    
+
     options.AddPolicy("auth", httpContext =>
     {
         var ip = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown-ip";
@@ -70,6 +70,7 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 
+// Add DI for repositories and services
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
 
@@ -84,24 +85,11 @@ builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 builder.Services.AddScoped<IOrderItemService, OrderItemService>();
 
 // JWT auth
-var jwtKey = builder.Configuration["Jwt:Key"];
-var jwtIssuer = builder.Configuration["Jwt:Issuer"];
-var jwtAudience = builder.Configuration["Jwt:Audience"];
-var jwtExpiresInMinutes = builder.Configuration.GetValue<int>("Jwt:ExpiresInMinutes");
-
-Console.WriteLine("========== JWT Configuration ==========");
-Console.WriteLine($"Key exists: {!string.IsNullOrEmpty(jwtKey)}");
-Console.WriteLine($"Issuer: {jwtIssuer}");
-Console.WriteLine($"Audience: {jwtAudience}");
-Console.WriteLine($"ExpiresInMinutes: {jwtExpiresInMinutes}");
-Console.WriteLine("=======================================");
-
-if (string.IsNullOrEmpty(jwtKey))
+if (string.IsNullOrEmpty(builder.Configuration["Jwt:Key"]))
 {
     throw new InvalidOperationException("JWT Key is not configured in appsettings.json");
 }
 
-var key = Encoding.UTF8.GetBytes(jwtKey);
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -114,22 +102,34 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtIssuer,
-        ValidAudience = jwtAudience,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
     };
+
     options.Events = new JwtBearerEvents
     {
+        OnMessageReceived = context =>
+        {
+            var cookieToken = context.Request.Cookies["auth_token"];
+            if (!string.IsNullOrEmpty(cookieToken))
+            {
+                context.Token = cookieToken;    // Read token from HttpOnly cookie
+                // Console.WriteLine("[JWT] Token read from cookie: " + cookieToken);
+            }
+
+            return Task.CompletedTask;
+        },
         OnAuthenticationFailed = context =>
         {
-            Console.WriteLine($"[JWT] Authentication Failed: {context.Exception.Message}");
+            // Console.WriteLine($"[JWT] Authentication Failed: {context.Exception.Message}");
             return Task.CompletedTask;
         },
         OnTokenValidated = context =>
         {
-            Console.WriteLine("[JWT] Token Validated Successfully");
+            // Console.WriteLine("[JWT] Token Validated Successfully");
             return Task.CompletedTask;
         },
         OnChallenge = context =>

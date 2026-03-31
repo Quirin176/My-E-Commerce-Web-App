@@ -1,29 +1,21 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useCategories } from "../../hooks/useCategories.ts";
 import { LayoutGrid } from "lucide-react";
 import { siteConfig } from "../../config/siteConfig";
 import { categoriesIcon } from "../../config/siteConfig";
 import { categoryApi } from "../../api/products/categoryApi";
-import type { Category } from "../../types/models/products/Category.ts";
 import type { ProductOption } from "../../types/models/products/ProductOption.ts";
 import CategoryTabs from "../../components/MainLayout/Product/CategoryTabs";
 
 export default function Home() {
   const colors = siteConfig.colors;
 
-  const [categories, setCategories] = useState<Category[]>([]);
+  const { categories } = useCategories();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [categoryFilters, setCategoryFilters] = useState<Record<string, ProductOption[]>>({});
   const [loadingFilters, setLoadingFilters] = useState<Record<string, boolean>>({});
   const navigate = useNavigate();
-
-  const loadCategories = async () => {
-    await categoryApi.getAll().then(setCategories);
-  };
-
-  useEffect(() => {
-    loadCategories();
-  }, []);
 
   // Get icon component from category
   const getCategoryIcon = (categorySlug: string) => {

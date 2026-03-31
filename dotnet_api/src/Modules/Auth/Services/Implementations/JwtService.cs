@@ -13,7 +13,7 @@ namespace WebApp_API.Services
 
         public string GenerateToken(User user)
         {
-            var jwtSection = _config.GetSection("Jwt");
+            var jwtSection = _config.GetSection("Jwt"); // Get the "Jwt" section from appsettings.json
             var key = Encoding.UTF8.GetBytes(jwtSection["Key"]!);
             var issuer = jwtSection["Issuer"];
             var audience = jwtSection["Audience"];

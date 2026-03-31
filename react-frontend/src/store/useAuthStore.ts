@@ -33,8 +33,7 @@ export const useAuthStore = create<AuthState>()(
             role: response.role || "user",
             createdAt: response.createdAt,
           };
-          // Still store token separately for the axios interceptor
-          localStorage.setItem("token", response.token);
+          // localStorage.setItem("token", response.token);
           set({ user, loading: false });
           return user;
         } catch (err) {
@@ -56,7 +55,7 @@ export const useAuthStore = create<AuthState>()(
             role: response.role || "user",
             createdAt: response.createdAt,
           };
-          localStorage.setItem("token", response.token);
+          // localStorage.setItem("token", response.token);
           set({ user, loading: false });
           return true;
         } catch (err) {
@@ -66,8 +65,10 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      logout: () => {
-        localStorage.removeItem("token");
+      logout: async () => {
+        // localStorage.removeItem("token");
+        // localStorage.removeItem("auth");
+        await authApi.logout();
         set({ user: null, error: null });
       },
 

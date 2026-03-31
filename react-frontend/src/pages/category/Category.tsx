@@ -55,8 +55,7 @@ export default function Category() {
   const endIndex = Math.min(currentPage * ITEMS_PER_PAGE, totalCount);
 
   // Centralized URL updater (keeps options/min/max/sort/page in sync)
-  const updateUrlParams = useCallback(
-    (page: number, sort: string, options?: (string | number)[], min?: string | number, max?: string | number) => {
+  const updateUrlParams = useCallback((page: number, sort: string, options?: (string | number)[], min?: string | number, max?: string | number) => {
       const params = new URLSearchParams();
       if (page > 1) params.set("page", String(page));
       if (sort && sort !== "newest") params.set("sort", sort);
@@ -66,9 +65,7 @@ export default function Category() {
 
       const search = params.toString();
       navigate({ search: search ? `?${search}` : "" }, { replace: true });
-    },
-    [navigate]
-  );
+    }, [navigate]);
 
   // API Load products with all filters applied
   const loadProducts = useCallback(async () => {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
+import { useCategories } from "../../../hooks/useCategories";
 import toast from "react-hot-toast";
 import { Plus, SquarePen, X } from "lucide-react";
-import { categoryApi } from "../../../api/products/categoryApi";
 import { productoptionApi } from "../../../api/products/productoptionApi";
 import { productoptionvalueApi } from "../../../api/products/productoptionvalueApi";
 import type { Category } from "../../../types/models/products/Category";
@@ -13,18 +13,13 @@ import type { DeleteConfig } from "../../../components/Admin/Attributes/AdminAtt
 import AdminAttributesDeleteModal from "../../../components/Admin/Attributes/AdminAttributesDeleteForm";
 
 export default function AdminAttributes() {
-    const [categories, setCategories] = useState<Category[]>([]);
+    const { categories } = useCategories();;
     const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
     const [loadedOption, setLoadedOption] = useState<ProductOption[]>([]);
     const [selectedOptionId, setSelectedOptionId] = useState<number>(0);
 
     const [modalConfig, setModalConfig] = useState<ModalConfig | null>(null);
     const [deleteConfig, setDeleteConfig] = useState<DeleteConfig | null>(null);
-
-    // Load Categories
-    const loadCategories = () => {
-        categoryApi.getAll().then(setCategories);
-    };
 
     // Load Option of Selected Category
     const loadOptions = (categoryId: number) => {
@@ -33,16 +28,11 @@ export default function AdminAttributes() {
     };
 
     useEffect(() => {
-        loadCategories();
-    }, []);
-
-    useEffect(() => {
         if (!selectedCategory) return;
         loadOptions(selectedCategory.id);
     }, [selectedCategory]);
 
     const refresh = () => {
-        loadCategories();
         if (selectedCategory) loadOptions(selectedCategory.id);
     };
 
@@ -100,12 +90,11 @@ export default function AdminAttributes() {
         });
 
     // ── Delete handlers ──
-
     const confirmDeleteOption = (option: ProductOption) =>
         setDeleteConfig({
             label: option.optionName,
             onConfirm: async () => {
-                // await productoptionApi.deleteProductOption(option.optionId);
+                await productoptionApi.deleteProductOption(option.optionId);
                 toast.success("Attribute deleted!");
                 refresh();
             },
@@ -170,28 +159,35 @@ export default function AdminAttributes() {
                             <div key={option.optionId} className="flex flex-col gap-3">
 
                                 {/* Option Header */}
-                                <div
+                                <div className="flex justify-between items-center rounded-xl bg-blue-600 font-semibold px-4 py-2 shadow cursor-pointer group"
                                     onClick={() => {
                                         if (option.optionId === selectedOptionId) setSelectedOptionId(0)
                                         else setSelectedOptionId(option.optionId);
-                                    }}
-                                    className="flex justify-between items-center rounded-xl bg-blue-600 text-white font-semibold px-4 py-2 shadow cursor-pointer">
-                                    <span>{option.optionName}</span>
+                                    }}>
 
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex-1">
+                                        <span className="text-white transition group-hover:text-blue-200">
+                                            {option.optionName}
+                                        </span>
+                                    </div>
+
+                                    <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
                                         <button
                                             onClick={() => openAddValue(option.optionId)}
-                                            className="cursor-pointer hover:opacity-70 transition" title="Add Attribute Value">
+                                            className="text-white cursor-pointer hover:opacity-70 transition rounded-xl border-2 p-1"
+                                            title="Add Attribute Value">
                                             <Plus size={18} />
                                         </button>
                                         <button
                                             onClick={() => openEditOption(option)}
-                                            className="cursor-pointer hover:opacity-70 transition" title="Update Attribute">
+                                            className="text-white cursor-pointer hover:opacity-70 transition rounded-xl border-2 p-1"
+                                            title="Update Attribute">
                                             <SquarePen size={18} />
                                         </button>
                                         <button
                                             onClick={() => confirmDeleteOption(option)}
-                                            className="cursor-pointer hover:opacity-70 transition" title="Remove Attribute">
+                                            className="text-white cursor-pointer hover:opacity-70 transition rounded-xl border-2 p-1"
+                                            title="Remove Attribute">
                                             <X size={18} />
                                         </button>
                                     </div>
@@ -210,12 +206,14 @@ export default function AdminAttributes() {
                                                 <div className="flex items-center gap-3">
                                                     <button
                                                         onClick={() => openEditValue(value.optionValueId, value.value)}
-                                                        className="cursor-pointer hover:opacity-70 transition" title="Update Attribute Value">
+                                                        className="cursor-pointer hover:opacity-70 transition rounded-xl border-2 p-1"
+                                                        title="Update Attribute Value">
                                                         <SquarePen size={18} />
                                                     </button>
                                                     <button
                                                         onClick={() => confirmDeleteValue(value.optionValueId, value.value)}
-                                                        className="cursor-pointer hover:opacity-70 transition" title="Remove Attribute Value">
+                                                        className="cursor-pointer hover:opacity-70 transition rounded-xl border-2 p-1"
+                                                        title="Remove Attribute Value">
                                                         <X size={18} />
                                                     </button>
                                                 </div>

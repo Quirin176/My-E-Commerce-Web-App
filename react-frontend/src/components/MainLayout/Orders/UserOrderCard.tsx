@@ -69,7 +69,6 @@ export default function UserOrderCard(order: UserOrderCardProps) {
             order.onCancelSuccess?.(order.id);
 
         } catch (error) {
-            console.error("Error updating order status:", error);
             toast.error("Failed to update order status");
         }
     };

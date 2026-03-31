@@ -12,4 +12,10 @@ export const productoptionApi = {
     const res = await apiClient.post(`/productoptions`, { categoryId, name });
     return res.data;
   },
+
+  // DELETE: api/productoptions/:id - Delete a product option by ID
+  deleteProductOption: async (optionId: number | string) => {
+    const res = await apiClient.delete(`/productoptions/${optionId}`);
+    return res.data;
+  },
 };

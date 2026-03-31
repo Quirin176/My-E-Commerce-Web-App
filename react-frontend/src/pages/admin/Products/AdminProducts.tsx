@@ -179,27 +179,6 @@ export default function AdminProducts() {
     }
   };
 
-  // ========== HANDLE FILTER CHANGES ==========
-  // const handleFilterChange = (newOptions: (string | number)[]) => {
-  //   setSelectedOptions(newOptions);
-  //   setSearchParams({ page: "1" });
-  // };
-
-  // const handleMinPriceChange = (value: string | number) => {
-  //   setMinPrice(value);
-  //   setSearchParams({ page: "1" });
-  // };
-
-  // const handleMaxPriceChange = (value: string | number) => {
-  //   setMaxPrice(value);
-  //   setSearchParams({ page: "1" });
-  // };
-
-  // const handlePriceOrderChange = (value: string) => {
-  //   setSortOrder(value);
-  //   setSearchParams({ page: "1", sortOrder: value });
-  // };
-
   const applyFilters = () => {
     // Normalize / validate price inputs
     const cleanedMin = minPrice === "" ? 0 : Number(minPrice);
