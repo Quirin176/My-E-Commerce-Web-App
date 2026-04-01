@@ -14,7 +14,7 @@ export default function AdminLayout() {
       <AdminSidePanel />
 
       {/* Right Section */}
-      <div className="flex flex-col flex-1 ml-16 transition-all duration-300" style={{ backgroundColor: colors.backgroundcolor, paddingLeft: "4rem" }}>
+      <div className="flex flex-col flex-1 ml-16 transition-all duration-300" style={{ backgroundColor: colors.backgroundcolor }}>
         {/* Top Header */}
         <AdminHeader />
 

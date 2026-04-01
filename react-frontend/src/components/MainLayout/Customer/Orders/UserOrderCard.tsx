@@ -13,7 +13,6 @@ interface UserOrderCardProps extends OrderResponseModel {
 }
 
 export default function UserOrderCard(order: UserOrderCardProps) {
-    const [open, setOpen] = useState(false);
     const [showForm, setShowForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
     const { user } = useAuth();
@@ -76,72 +75,84 @@ export default function UserOrderCard(order: UserOrderCardProps) {
     return (
         <>
             <div key={order.id} className="bg-white rounded-lg shadow-lg hover:shadow-lg transition">
-                {/* Order Header - Always Visible */}
+
+                {/* Order Header */}
                 <div
-                    className="px-6 py-2 cursor-pointer hover:bg-gray-200 transition"
-                    onClick={() => setOpen(!open)}
+                    className="px-6 py-3 cursor-pointer hover:bg-gray-200 transition"
+                    onClick={() => setShowForm(true)}
                 >
-                    <div className="grid grid-cols-1 md:grid-cols-7 gap-4 items-center">
-                        {/* Order Number */}
-                        <div>
-                            <p className="text-sm text-gray-600">Order ID</p>
-                            <p className="text-lg font-bold text-gray-800">#{order.id}</p>
-                        </div>
+                    <div className="flex justify-between items-center gap-6">
 
-                        {/* Order Date */}
-                        <div>
-                            <p className="text-sm text-gray-600">Date</p>
-                            <p className="text-lg font-bold text-gray-800">{new Date(order.orderDate).toLocaleDateString()}</p>
-                        </div>
+                        {/* LEFT: ORDER DATA */}
+                        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 flex-1">
 
-                        {/* Customer */}
-                        <div>
-                            <p className="text-sm text-gray-600">Customer</p>
-                            <p className="text-lg font-bold text-gray-800">{order.customerName}</p>
-                        </div>
-
-                        {/* Status */}
-                        <div>
-                            <p className="text-sm text-gray-600 mb-2">Status</p>
-                            <div className={`flex items-center gap-2 px-3 py-1 rounded-full w-fit ${getStatusColor(order.status)}`}>
-                                {getStatusIcon(order.status)}
-                                <span className="font-semibold text-base capitalize">
-                                    {order.status}
-                                </span>
+                            {/* Order ID */}
+                            <div className="flex flex-col items-center">
+                                <p className="text-sm text-gray-600">Order ID</p>
+                                <p className="text-lg font-bold text-gray-800">#{order.id}</p>
                             </div>
+
+                            {/* Date */}
+                            <div className="flex flex-col items-center">
+                                <p className="text-sm text-gray-600">Date</p>
+                                <p className="text-lg font-bold text-gray-800">
+                                    {new Date(order.orderDate).toLocaleDateString()}
+                                </p>
+                            </div>
+
+                            {/* Customer */}
+                            <div className="flex flex-col items-center">
+                                <p className="text-sm text-gray-600">Customer</p>
+                                <p className="text-lg font-bold text-gray-800">
+                                    {order.customerName}
+                                </p>
+                            </div>
+
+                            {/* Status */}
+                            <div className="flex flex-col items-center">
+                                <p className="text-sm text-gray-600 mb-1">Status</p>
+                                <div className={`flex items-center gap-2 px-3 py-1 rounded-full w-fit ${getStatusColor(order.status)}`}>
+                                    {getStatusIcon(order.status)}
+                                    <span className="font-semibold text-base capitalize">
+                                        {order.status}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Items */}
+                            <div className="flex flex-col items-center">
+                                <p className="text-sm text-gray-600">Items</p>
+                                <p className="text-lg font-bold text-gray-800">
+                                    {order.itemCount}
+                                </p>
+                            </div>
+
+                            {/* Total */}
+                            <div className="flex flex-col items-center">
+                                <p className="text-sm text-gray-600">Total</p>
+                                <p className="text-lg font-bold text-blue-600">
+                                    {order.totalAmount.toLocaleString()} VND
+                                </p>
+                            </div>
+
                         </div>
 
-                        {/* Items Count */}
-                        <div>
-                            <p className="text-sm text-gray-600">Items</p>
-                            <p className="text-lg font-bold text-gray-800">
-                                {order.itemCount}
-                            </p>
-                        </div>
+                        {/* RIGHT: ACTION BUTTONS */}
+                        <div className="flex items-center gap-2 justify-end min-w-36">
 
-                        {/* Total Amount */}
-                        <div>
-                            <p className="text-sm text-gray-600">Total</p>
-                            <p className="text-lg font-bold text-blue-600">
-                                {order.totalAmount.toLocaleString()} VND
-                            </p>
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="flex flex-row gap-2">
                             <button
-                                onClick={() => setShowForm(true)}
+                                onClick={(e) => { e.stopPropagation(); setShowForm(true); }}
                                 title="View Order Detail"
-                                className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 rounded hover:text-white hover:bg-blue-600 border-2 transition cursor-pointer"
+                                className="flex items-center gap-2 px-3 py-2 bg-white text-blue-600 rounded hover:text-white hover:bg-blue-600 border-2 transition"
                             >
                                 <Eye size={18} />
                             </button>
 
                             {user?.role === "Admin" && (
                                 <button
-                                    onClick={() => setShowUpdateForm(true)}
+                                    onClick={(e) => { e.stopPropagation(); setShowUpdateForm(true); }}
                                     title="Update Order"
-                                    className="flex items-center gap-2 px-4 py-2 bg-white text-green-600 rounded hover:text-white hover:bg-green-600 border-2 transition cursor-pointer"
+                                    className="flex items-center gap-2 px-3 py-2 bg-white text-green-600 rounded hover:text-white hover:bg-green-600 border-2 transition"
                                 >
                                     <SquarePen size={18} />
                                 </button>
@@ -149,9 +160,9 @@ export default function UserOrderCard(order: UserOrderCardProps) {
 
                             {order.status.toLowerCase() === "shipped" && (
                                 <button
-                                    onClick={() => handleTrackShipment()}
+                                    onClick={(e) => { e.stopPropagation(); handleTrackShipment(); }}
                                     title="Track Shipment"
-                                    className="flex items-center gap-2 px-4 py-2 bg-white text-purple-600 rounded hover:text-white hover:bg-purple-600 border-2 transition cursor-pointer"
+                                    className="flex items-center gap-2 px-3 py-2 bg-white text-purple-600 rounded hover:text-white hover:bg-purple-600 border-2 transition"
                                 >
                                     <Truck size={18} />
                                 </button>
@@ -159,17 +170,19 @@ export default function UserOrderCard(order: UserOrderCardProps) {
 
                             {order.status.toLowerCase() === "pending" && (
                                 <button
-                                    onClick={() => handleCancelOrder()}
+                                    onClick={(e) => { e.stopPropagation(); handleCancelOrder(); }}
                                     title="Cancel Order"
-                                    className="flex items-center gap-2 px-4 py-2 bg-white text-red-600 rounded hover:text-white hover:bg-red-600 border-2 transition cursor-pointer"
+                                    className="flex items-center gap-2 px-3 py-2 bg-white text-red-600 rounded hover:text-white hover:bg-red-600 border-2 transition"
                                 >
                                     <X size={18} />
                                 </button>
                             )}
+
                         </div>
                     </div>
                 </div>
             </div>
+            
             {showForm && (
                 <UseOrderDetailForm
                     showForm={showForm}
