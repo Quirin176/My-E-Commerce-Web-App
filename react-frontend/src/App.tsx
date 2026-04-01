@@ -1,13 +1,16 @@
 import "./App.css";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import MainLayout from "./layouts/MainLayout";
+
+import CustomerLayout from "./layouts/CustomerLayout";
+import AdminLayout from "./layouts/AdminLayout";
 
 import Home from "./pages/home/Home";
 import CategoryProducts from "./pages/category/Category";
 import ProductDetail from "./pages/productdetail/ProductDetail";
 import Search from "./pages/search/Search";
 
+import AdminHome from "./pages/admin/Home/AdminHome";
 import AdminProducts from "./pages/admin/Products/AdminProducts";
 import AdminOrders from "./pages/admin/Orders/AdminOrders";
 import AdminAttributes from "./pages/admin/Attributes/AdminAttributes"
@@ -26,9 +29,8 @@ import Checkout from "./pages/user/Checkout";
 
 import Test from "./pages/test/Test";
 
-// // Context
+// Context
 import { useAuth } from "./hooks/useAuth";
-
 
 // Protected Route Component
 interface ProtectedProps {
@@ -36,13 +38,14 @@ interface ProtectedProps {
 }
 
 // Protected Route Component
-function Protected({ children }: ProtectedProps) {
+function CustomerProtected({ children }: ProtectedProps) {
   const { user } = useAuth();
   return user ? children : <Navigate to="/home" replace />;
 }
 
 function AdminProtected({ children }: ProtectedProps) {
   const { user } = useAuth();
+  console.log(user);
   if (!user) return <Navigate to="/auth?mode=login" replace />;
   if (user.role !== "Admin") return <Navigate to="/home" replace />;
   return children;
@@ -67,30 +70,36 @@ export default function App() {
       />
 
       <Routes>
-        <Route element={<MainLayout />}>
+        {/* -------------------- CUSTOMER LAYOUT -------------------- */}
+        <Route path="/*" element={<CustomerLayout />}>
           {/* Customer Pages */}
-          <Route path="/home" element={<Home />} />
-          <Route path="/" element={<Navigate to="/home" replace />} />
-          <Route path="/category/:selectedCategory" element={<CategoryProducts />} /> // Use selectedCategory param to fetch products
-          <Route path="/product/:slug" element={<ProductDetail />} /> // Use slug param to fetch product details
-          <Route path="/search" element={<Search />} /> // Search page
+          <Route path="home" element={<Home />} />
+          <Route path="" element={<Navigate to="/home" replace />} />
+          <Route path="category/:selectedCategory" element={<CategoryProducts />} /> // Use selectedCategory param to fetch products
+          <Route path="product/:slug" element={<ProductDetail />} /> // Use slug param to fetch product details
+          <Route path="search" element={<Search />} /> // Search page
 
-          {/* Admin Pages */}
-          <Route path="/admin/products" element={<AdminProtected><AdminProducts /></AdminProtected>} />
-          <Route path="/admin/orders" element={<AdminProtected><AdminOrders /></AdminProtected>} />
-          <Route path="/admin/attributes" element={<AdminProtected><AdminAttributes /></AdminProtected>} />
-
-          <Route path="/about" element={<About />} />
-          <Route path="/cart" element={<Cart />} />
+          <Route path="about" element={<About />} />
+          <Route path="cart" element={<Cart />} />
 
           {/* User Account Pages */}
-          <Route path="/profile" element={<Protected><Profile /></Protected>} />
-          <Route path="/orders" element={<Protected><Orders /></Protected>} />
-          <Route path="/order/:orderId" element={<Protected><OrderDetail /></Protected>} /> // Use orderId param to fetch order details
-          <Route path="/checkout" element={<Protected><Checkout /></Protected>} />
+          <Route path="profile" element={<CustomerProtected><Profile /></CustomerProtected>} />
+          <Route path="orders" element={<CustomerProtected><Orders /></CustomerProtected>} />
+          <Route path="order/:orderId" element={<CustomerProtected><OrderDetail /></CustomerProtected>} /> // Use orderId param to fetch order details
+          <Route path="checkout" element={<CustomerProtected><Checkout /></CustomerProtected>} />
         </Route>
 
-        {/* Auth pages use AuthLayout (no nav/footer) */}
+        {/* -------------------- ADMIN LAYOUT -------------------- */}
+        <Route path="/admin" element={<AdminProtected><AdminLayout /></AdminProtected>}>
+          <Route path="home" element={<AdminHome />} />
+          <Route path="" element={<Navigate to="home" replace />} />
+          <Route path="products" element={<AdminProducts />} />
+          <Route path="orders" element={<AdminOrders />} />
+          <Route path="attributes" element={<AdminAttributes />} />
+        </Route>
+
+
+        {/* -------------------- AUTH LAYOUT -------------------- */}
         <Route path="/auth" element={<Auth />} >
           <Route path="login" element={<Login />} />
           <Route path="signup" element={<Signup />} />

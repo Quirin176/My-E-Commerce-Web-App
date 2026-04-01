@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { useCategories } from "../../hooks/useCategories";
+import { useCategories } from "../../../hooks/useCategories";
 import { ChevronDown, LayoutGrid } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { categoryApi } from "../../api/products/categoryApi";
-import { siteConfig } from "../../config/siteConfig";
-import { categoriesIcon } from "../../config/siteConfig";
-import type { ProductOption } from "../../types/models/products/ProductOption";
+import { categoryApi } from "../../../api/products/categoryApi";
+import { siteConfig } from "../../../config/siteConfig";
+import { categoriesIcon } from "../../../config/siteConfig";
+import type { ProductOption } from "../../../types/models/products/ProductOption";
 
 export default function CategoriesDropdown() {
   const colors = siteConfig.colors;
@@ -63,7 +63,7 @@ export default function CategoriesDropdown() {
   return (
     <div className="relative inline-block font-semibold">
       <button
-        className="flex items-center gap-2 px-4 py-2 border-2 rounded-4xl font-semibold hover:shadow-md transition"
+        className="flex items-center gap-2 px-4 py-2 border-2 rounded-4xl font-semibold hover:shadow-md transition cursor-pointer"
         style={{ color: "White" }}
         onClick={() => setOpen(!open)}
       >

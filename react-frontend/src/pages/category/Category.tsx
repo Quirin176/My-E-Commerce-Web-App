@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import toast from "react-hot-toast";
-import DynamicFilters from "../../components/MainLayout/Product/DynamicFilters";
-import ProductCard from "../../components/MainLayout/Product/ProductCard";
+import DynamicFilters from "../../components/MainLayout/Customer/Product/DynamicFilters";
+import ProductCard from "../../components/MainLayout/Customer/Product/ProductCard";
+import PaginationControl from "../../components/MainLayout/PaginationControl";
 import { productApi } from "../../api/products/productApi";
 import { categoryApi } from "../../api/products/categoryApi";
 import type { Product } from "../../types/models/products/Product";
@@ -20,10 +20,10 @@ export default function Category() {
   // Converts a comma-separated string into an array - "75, 80, abc, 100" → [75, 80, "abc", 100]
   const parseOptionsParam = (param?: string | null) =>
     param ? param
-        .split(",")
-        .map((v) => v.trim())
-        .filter(Boolean)
-        .map((v) => (v === "" ? v : isNaN(Number(v)) ? v : Number(v)))
+      .split(",")
+      .map((v) => v.trim())
+      .filter(Boolean)
+      .map((v) => (v === "" ? v : isNaN(Number(v)) ? v : Number(v)))
       : [];
 
   // Pagination State
@@ -56,16 +56,16 @@ export default function Category() {
 
   // Centralized URL updater (keeps options/min/max/sort/page in sync)
   const updateUrlParams = useCallback((page: number, sort: string, options?: (string | number)[], min?: string | number, max?: string | number) => {
-      const params = new URLSearchParams();
-      if (page > 1) params.set("page", String(page));
-      if (sort && sort !== "newest") params.set("sort", sort);
-      if (options && options.length > 0) params.set("options", options.map(String).join(","));
-      if (min !== undefined && String(min) !== "0") params.set("minPrice", String(min));
-      if (max !== undefined && String(max) !== "100000000") params.set("maxPrice", String(max));
+    const params = new URLSearchParams();
+    if (page > 1) params.set("page", String(page));
+    if (sort && sort !== "newest") params.set("sort", sort);
+    if (options && options.length > 0) params.set("options", options.map(String).join(","));
+    if (min !== undefined && String(min) !== "0") params.set("minPrice", String(min));
+    if (max !== undefined && String(max) !== "100000000") params.set("maxPrice", String(max));
 
-      const search = params.toString();
-      navigate({ search: search ? `?${search}` : "" }, { replace: true });
-    }, [navigate]);
+    const search = params.toString();
+    navigate({ search: search ? `?${search}` : "" }, { replace: true });
+  }, [navigate]);
 
   // API Load products with all filters applied
   const loadProducts = useCallback(async () => {
@@ -219,14 +219,7 @@ export default function Category() {
   return (
     <div className="container mx-auto">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">{formattedName}</h1>
-        {products.length > 0 && (
-          <p className="text-gray-600">
-            Showing {startIndex} to {endIndex} of {totalCount} product{totalCount !== 1 ? "s" : ""}
-          </p>
-        )}
-      </div>
+      <h1 className="text-3xl font-bold py-12">{formattedName}</h1>
 
       {/* Dynamic filters */}
       <DynamicFilters
@@ -283,89 +276,14 @@ export default function Category() {
           </div>
 
           {/* Pagination Controls */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between gap-4 p-6 bg-white rounded-lg shadow">
-              {/* Previous Button */}
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
-                title="Previous page"
-              >
-                <ChevronLeft size={20} />
-                <span className="hidden sm:inline">Previous</span>
-              </button>
-
-              {/* Page Numbers */}
-              <div className="flex items-center gap-2">
-                {/* First page */}
-                <button
-                  onClick={() => handlePageChange(1)}
-                  className={`px-3 py-2 rounded-lg font-semibold transition ${currentPage === 1
-                    ? "bg-blue-600 text-white"
-                    : "border border-gray-300 hover:bg-gray-50"
-                    }`}
-                >
-                  1
-                </button>
-
-                {/* Ellipsis if needed */}
-                {currentPage > 3 && (
-                  <span className="px-2 py-2 text-gray-400">...</span>
-                )}
-
-                {/* Middle pages */}
-                {Array.from({ length: totalPages }, (_, i) => i + 1)
-                  .filter(
-                    (page) =>
-                      page > 1 &&
-                      page < totalPages &&
-                      Math.abs(page - currentPage) <= 1
-                  )
-                  .map((page) => (
-                    <button
-                      key={page}
-                      onClick={() => handlePageChange(page)}
-                      className={`px-3 py-2 rounded-lg font-semibold transition ${currentPage === page
-                        ? "bg-blue-600 text-white"
-                        : "border border-gray-300 hover:bg-gray-50"
-                        }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
-
-                {/* Ellipsis if needed */}
-                {currentPage < totalPages - 2 && (
-                  <span className="px-2 py-2 text-gray-400">...</span>
-                )}
-
-                {/* Last page */}
-                {totalPages > 1 && (
-                  <button
-                    onClick={() => handlePageChange(totalPages)}
-                    className={`px-3 py-2 rounded-lg font-semibold transition ${currentPage === totalPages
-                      ? "bg-blue-600 text-white"
-                      : "border border-gray-300 hover:bg-gray-50"
-                      }`}
-                  >
-                    {totalPages}
-                  </button>
-                )}
-              </div>
-
-              {/* Next Button */}
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
-                title="Next page"
-              >
-                <span className="hidden sm:inline">Next</span>
-                <ChevronRight size={20} />
-              </button>
-            </div>
-          )}
+          <PaginationControl
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalCount={totalCount}
+            pageSize={ITEMS_PER_PAGE}
+            onPageChange={handlePageChange}
+            showGoTo={true}
+          />
         </>
       )}
     </div>

@@ -6,7 +6,7 @@ import { siteConfig } from "../../config/siteConfig";
 import { categoriesIcon } from "../../config/siteConfig";
 import { categoryApi } from "../../api/products/categoryApi";
 import type { ProductOption } from "../../types/models/products/ProductOption.ts";
-import CategoryTabs from "../../components/MainLayout/Product/CategoryTabs";
+import CategoryTabs from "../../components/MainLayout/Customer/Product/CategoryTabs.tsx";
 
 export default function Home() {
   const colors = siteConfig.colors;

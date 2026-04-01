@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Package, Download } from "lucide-react";
 import { adminOrdersApi } from "../../../api/admin/adminOrdersApi";
-import UserOrderCard from "../../../components/MainLayout/Orders/UserOrderCard";
+import UserOrderCard from "../../../components/MainLayout/Customer/Orders/UserOrderCard";
 import type { OrderResponseModel } from "../../../types/models/order/OrderResponseModel";
 import { siteConfig } from "../../../config/siteConfig";
 

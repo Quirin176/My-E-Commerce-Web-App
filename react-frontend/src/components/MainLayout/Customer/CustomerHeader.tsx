@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
-import { siteConfig } from "../../config/siteConfig";
-import { useAuth } from "../../hooks/useAuth";
-import UserDropDown from "../User/UserDropDown";
+import { siteConfig } from "../../../config/siteConfig";
+import { useAuth } from "../../../hooks/useAuth";
+import UserDropDown from "../../User/UserDropDown";
 import CategoriesDropdown from "./CategoriesDropdown";
 
-export default function Header() {
+export default function CustomerHeader() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -64,39 +64,19 @@ export default function Header() {
           </div>
 
           {/* NAVIGATION LINKS */}
-          {user?.role === "Admin" && (
-            <div className="flex items-center gap-6">
-              <Link
-                to="/admin/products"
-                className="font-semibold text-white">
-                Products
-              </Link>
-              <Link
-                to="/admin/orders"
-                className="font-semibold text-white">
-                Orders
-              </Link>
-              <Link
-                to="/admin/attributes"
-                className="font-semibold text-white">
-                Attributes
-              </Link>
-            </div>
-          )}
-          {user?.role !== "Admin" && (
-            <div className="flex items-center gap-6">
-              <Link
-                to="/about"
-                className="font-semibold text-white">
-                About us
-              </Link>
-              <Link
-                to="/cart"
-                className="font-semibold text-white">
-                Cart
-              </Link>
-            </div>
-          )}
+          <div className="flex items-center gap-6">
+            <Link
+              to="/about"
+              className="font-semibold text-white">
+              About us
+            </Link>
+            <Link
+              to="/cart"
+              className="font-semibold text-white">
+              Cart
+            </Link>
+          </div>
+
 
           {/* USER */}
           {!user && (

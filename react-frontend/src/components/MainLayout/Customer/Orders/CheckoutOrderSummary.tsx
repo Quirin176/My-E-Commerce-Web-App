@@ -1,5 +1,5 @@
-import { useCart } from "../../../hooks/useCart"
-import { siteConfig } from "../../../config/siteConfig";
+import { useCart } from "../../../../hooks/useCart"
+import { siteConfig } from "../../../../config/siteConfig";
 
 export default function CheckoutOrderSummary() {
     const { cartItems, getTotalPrice } = useCart();

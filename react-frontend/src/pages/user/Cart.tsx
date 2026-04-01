@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ShoppingBag } from "lucide-react";
 import toast from "react-hot-toast";
-import CartItemCard from "../../components/MainLayout/Orders/CartItemCard";
+import CartItemCard from "../../components/MainLayout/Customer/Orders/CartItemCard";
 import { useAuth } from "../../hooks/useAuth";
 import { useCart } from "../../hooks/useCart";
 import { siteConfig } from "../../config/siteConfig"

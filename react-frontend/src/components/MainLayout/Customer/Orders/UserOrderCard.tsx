@@ -1,11 +1,11 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { useAuth } from "../../../hooks/useAuth";
+import { useAuth } from "../../../../hooks/useAuth";
 import { Clock, CheckCircle, Eye, SquarePen, Truck, Package, X } from "lucide-react";
-import { adminOrdersApi } from "../../../api/admin/adminOrdersApi";
-import type { OrderResponseModel } from "../../../types/models/order/OrderResponseModel";
+import { adminOrdersApi } from "../../../../api/admin/adminOrdersApi";
+import type { OrderResponseModel } from "../../../../types/models/order/OrderResponseModel";
 import UseOrderDetailForm from "./UserOrderDetailForm";
-import UpdateOrderStatusForm from "../../Admin/Orders/UpdateOrderStatusForm";
+import UpdateOrderStatusForm from "../../../Admin/Orders/UpdateOrderStatusForm";
 
 // Extend Model
 interface UserOrderCardProps extends OrderResponseModel {

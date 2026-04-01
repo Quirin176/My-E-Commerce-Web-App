@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { Minus, Plus, Trash2 } from "lucide-react"
-import { useCart } from "../../../hooks/useCart"
-import type { CartItem } from "../../../types/models/cart/CartItem"
-import { siteConfig } from "../../../config/siteConfig";
+import { useCart } from "../../../../hooks/useCart"
+import type { CartItem } from "../../../../types/models/cart/CartItem"
+import { siteConfig } from "../../../../config/siteConfig";
 
 export default function CartItemCard(CartItem: CartItem) {
     const colors = siteConfig.colors;

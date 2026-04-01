@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 import { Eye, EyeClosed } from "lucide-react";
 import toast from "react-hot-toast";
 import type { AxiosError } from "axios";
-import { useAuth } from "../../hooks/useAuth";
 import type { SignupRequest } from "../../types/dto/SignupRequest";
 import { siteConfig } from "../../config/siteConfig";
 
@@ -25,7 +25,7 @@ export default function Auth() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const navigate = useNavigate();
-  const { login, signup } = useAuth();
+  const { login, signup, user } = useAuth();
 
   {/* ========== LOGIN HANDLER ========== */ }
   const handleLoginSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -36,7 +36,11 @@ export default function Auth() {
     try {
       await login(loginEmail, loginPassword);
       toast.success("Login successful!");
-      navigate("/");
+      if (user?.role === "Admin") {
+        navigate("/admin/home");
+      } else {
+        navigate("/home");
+      }
     } catch (err: unknown) {
       console.error("Login error:", err);
 
@@ -272,7 +276,7 @@ export default function Auth() {
                   type="submit"
                   disabled={isLoading}
                   className="w-full text-white py-3 rounded-lg font-medium hover:bg-blue-700 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  style={{background: siteConfig.colors.primarycolor}}
+                  style={{ background: siteConfig.colors.primarycolor }}
                 >
                   {isLoading ? "Signing in..." : "SIGN IN"}
                 </button>
@@ -411,7 +415,7 @@ export default function Auth() {
                   type="submit"
                   disabled={isLoading}
                   className="w-full text-white py-3 rounded-lg font-medium hover:bg-blue-700 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  style={{ background: siteConfig.colors.primarycolor}}
+                  style={{ background: siteConfig.colors.primarycolor }}
                 >
                   {isLoading ? "Creating account..." : "Register"}
                 </button>

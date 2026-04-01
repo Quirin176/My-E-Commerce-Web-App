@@ -12,16 +12,6 @@ export const siteConfig = {
     backgroundcolor: "GhostWhite",
   },
 
-  // usermenuItems: [
-  //   { "label": "Customer Service", "link": "/customer-service" },
-  //   { "label": "Cart", "link": "/cart" }
-  // ],
-
-  adminmenuItems: [
-    { "label": "Manage Products", "link": "/admin/products" },
-    { "label": "User Management", "link": "/admin/users" }
-  ],
-
   // Order's Status Options
   ORDER_STATUS_OPTIONS: [
     { value: "all", label: "All", color: "black" },
