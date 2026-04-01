@@ -5,7 +5,6 @@ import AdminSidePanel from "../components/MainLayout/Admin/AdminSidePanel";
 import { siteConfig } from "../config/siteConfig";
 
 export default function AdminLayout() {
-  const { colors } = siteConfig;
 
   return (
     <div className="flex min-h-screen">
@@ -14,7 +13,7 @@ export default function AdminLayout() {
       <AdminSidePanel />
 
       {/* Right Section */}
-      <div className="flex flex-col flex-1 ml-16 transition-all duration-300" style={{ backgroundColor: colors.backgroundcolor }}>
+      <div className="flex flex-col flex-1 ml-16 transition-all duration-300" style={{ backgroundColor: siteConfig.colors.backgroundcolor }}>
         {/* Top Header */}
         <AdminHeader />
 

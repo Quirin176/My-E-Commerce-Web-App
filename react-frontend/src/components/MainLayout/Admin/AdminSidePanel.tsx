@@ -4,7 +4,8 @@ import { Home, LayoutDashboard, Package, ShoppingCart, ListTree, LogOut } from "
 import { siteConfig } from "../../../config/siteConfig";
 
 const menuItems = [
-    { label: "Dashboard", icon: <LayoutDashboard size={20} />, to: "/admin/home" },
+    { label: "Home", icon: <Home size={20} />, to: "/admin/home" },
+    { label: "Dashboard", icon: <LayoutDashboard size={20} />, to: "/admin/dashboard" },
     { label: "Products", icon: <Package size={20} />, to: "/admin/products" },
     { label: "Attributes", icon: <ListTree size={20} />, to: "/admin/attributes" },
     { label: "Orders", icon: <ShoppingCart size={20} />, to: "/admin/orders" },
@@ -14,7 +15,7 @@ export default function AdminSidePanel() {
     const { user, logout } = useAuth();
     return (
         <div
-            className="group text-white h-screen fixed left-0 top-16 flex flex-col transition-all duration-300 w-16 hover:w-56 overflow-hidden z-40 rounded-r-3xl"
+      className="group text-white fixed left-0 top-16 bottom-0 flex flex-col transition-all duration-300 w-16 hover:w-56 overflow-hidden z-40"
             style={{ background: siteConfig.colors.primarycolor }}
         >
             {/* MENU */}
