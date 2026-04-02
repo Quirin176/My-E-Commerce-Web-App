@@ -10,7 +10,6 @@ import CategoryProducts from "./pages/category/Category";
 import ProductDetail from "./pages/productdetail/ProductDetail";
 import Search from "./pages/search/Search";
 
-import AdminHome from "./pages/admin/Home/AdminHome";
 import AdminDashboard from "./pages/admin/Dashboard/Dashboard";
 import AdminProducts from "./pages/admin/Products/AdminProducts";
 import AdminOrders from "./pages/admin/Orders/AdminOrders";
@@ -92,8 +91,7 @@ export default function App() {
 
         {/* -------------------- ADMIN LAYOUT -------------------- */}
         <Route path="/admin" element={<AdminProtected><AdminLayout /></AdminProtected>}>
-          <Route path="home" element={<AdminHome />} />
-          <Route path="" element={<Navigate to="home" replace />} />
+          <Route path="" element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="products" element={<AdminProducts />} />
           <Route path="orders" element={<AdminOrders />} />

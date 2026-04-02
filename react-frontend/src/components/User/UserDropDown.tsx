@@ -33,18 +33,18 @@ export default function UserDropDown() {
 
   return (
     <div className="relative flex items-center gap-2">
-      
+
       <button
         onClick={() => setOpen(!open)}
         className="flex flex-col items-start text-white cursor-pointer"
       >
-        <div className="flex flex-row">
-          <User2 size={55} strokeWidth={1.25} className="text-white cursor-pointer" />
-
-          <div className="flex flex-col">
-            <span className="text-lg">Welcome,</span>
-            <span className="text-lg font-semibold">{user?.username}</span>
+        <div className="flex flex-row gap-2 items-center">
+          {/* <User2 size={55} strokeWidth={1.25} className="text-white cursor-pointer" /> */}
+          <div className="w-8 h-8 rounded-full bg-white text-black font-bold flex items-center justify-center cursor-pointer">
+            {user?.username?.[0]?.toUpperCase() || "U"}
           </div>
+
+          <span className="text-lg font-semibold">{user?.username}</span>
         </div>
       </button>
 

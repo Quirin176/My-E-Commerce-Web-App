@@ -51,8 +51,6 @@ export default function Category() {
 
   // Calculate pagination info
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE + 1;
-  const endIndex = Math.min(currentPage * ITEMS_PER_PAGE, totalCount);
 
   // Centralized URL updater (keeps options/min/max/sort/page in sync)
   const updateUrlParams = useCallback((page: number, sort: string, options?: (string | number)[], min?: string | number, max?: string | number) => {

@@ -1,23 +1,30 @@
 import { useAuth } from "../../../hooks/useAuth";
-import { NavLink } from "react-router-dom";
-import { Home, LayoutDashboard, Package, ShoppingCart, ListTree, LogOut } from "lucide-react";
+import { Link, NavLink } from "react-router-dom";
+import { LayoutDashboard, Handbag, FilePlus, Layers, LogOut, User2 } from "lucide-react";
 import { siteConfig } from "../../../config/siteConfig";
+import reactLogo from "../../../assets/react.svg";
 
 const menuItems = [
-    { label: "Home", icon: <Home size={20} />, to: "/admin/home" },
     { label: "Dashboard", icon: <LayoutDashboard size={20} />, to: "/admin/dashboard" },
-    { label: "Products", icon: <Package size={20} />, to: "/admin/products" },
-    { label: "Attributes", icon: <ListTree size={20} />, to: "/admin/attributes" },
-    { label: "Orders", icon: <ShoppingCart size={20} />, to: "/admin/orders" },
+    { label: "Products", icon: <FilePlus size={20} />, to: "/admin/products" },
+    { label: "Categories & Attributes", icon: <Layers size={20} />, to: "/admin/attributes" },
+    { label: "Orders", icon: <Handbag size={20} />, to: "/admin/orders" },
+    { label: "Users", icon: <User2 size={20} />, to: "/admin/users" },
 ];
 
 export default function AdminSidePanel() {
-    const { user, logout } = useAuth();
+    const { logout } = useAuth();
     return (
         <div
-      className="group text-white fixed left-0 top-16 bottom-0 flex flex-col transition-all duration-300 w-16 hover:w-56 overflow-hidden z-40"
+            className="group text-white fixed flex flex-col transition-all duration-300 h-full overflow-hidden z-40 rounded-br"
             style={{ background: siteConfig.colors.primarycolor }}
         >
+            {/* LOGO AND SITE NAME */}
+            <Link to="/admin/dashboard" className="flex items-center gap-2 text-white text-2xl font-bold h-12 px-4 py-2">
+                <img src={reactLogo} alt="logo" className="w-8 h-8" />
+                {siteConfig.webName}
+            </Link>
+
             {/* MENU */}
             <nav className="flex-1 flex flex-col mt-4">
                 {menuItems.map((item) => (
@@ -27,39 +34,23 @@ export default function AdminSidePanel() {
                         className={({ isActive }) => `flex items-center gap-3 p-4 font-bold hover:text-black hover:bg-white transition-all duration-300 ${isActive ? "text-black bg-white" : ""}`}
                     >
                         <span>{item.icon}</span>
-                        <span className="opacity-0 group-hover:opacity-100 whitespace-nowrap transition-all duration-300">
+                        <span className="whitespace-nowrap transition-all duration-300">
                             {item.label}
                         </span>
                     </NavLink>
                 ))}
             </nav>
 
-            {/* USER + LOGOUT (BOTTOM SECTION) */}
-            <div className="p-4 border-t border-white/30">
-                {/* USER INFO */}
-                <div className="flex items-center gap-3 mb-3">
-                    {/* Avatar (Initial Letter) */}
-                    <div className="w-8 h-8 rounded-full bg-white text-black font-bold flex items-center justify-center">
-                        {user?.username?.[0]?.toUpperCase() || "U"}
-                    </div>
-
-                    {/* Username (visible on expand) */}
-                    <span className="opacity-0 group-hover:opacity-100 whitespace-nowrap transition-all duration-300 font-semibold">
-                        {user?.username || "User"}
-                    </span>
-                </div>
-
-                {/* LOGOUT BUTTON */}
-                <button
-                    onClick={logout}
-                    className="flex items-center gap-3 w-full p-3 font-bold text-white hover:bg-red-500 transition-all duration-300 rounded"
-                >
-                    <LogOut size={20} />
-                    <span className="opacity-0 group-hover:opacity-100 whitespace-nowrap transition-all duration-300">
-                        Logout
-                    </span>
-                </button>
-            </div>
+            {/* LOGOUT BUTTON */}
+            <button
+                onClick={logout}
+                className="flex items-center gap-3 p-4 w-full h-16 font-bold text-white hover:bg-red-500 transition-all duration-300 rounded"
+            >
+                <LogOut size={20} />
+                <span className="whitespace-nowrap transition-all duration-300">
+                    Logout
+                </span>
+            </button>
         </div>
     );
 }

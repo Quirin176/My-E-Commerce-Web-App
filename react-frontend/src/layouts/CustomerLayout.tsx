@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 import CustomerHeader from "../components/MainLayout/Customer/CustomerHeader";
-import Footer from "../components/MainLayout/Footer";
+import Footer from "../components/MainLayout/Customer/Footer";
 import { siteConfig } from "../config/siteConfig";
 
 export default function CustomerLayout() {
@@ -14,7 +14,7 @@ export default function CustomerLayout() {
 
       <CustomerHeader />
 
-      <main className="flex-1 flex flex-col container mx-auto px-4 py-4 mt-20">
+      <main className="flex-1 flex flex-col container mx-auto p-4">
         <Outlet />
       </main>
 
