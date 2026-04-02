@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast"
-import { User2 } from "lucide-react";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../../../hooks/useAuth";
 
 export default function UserDropDown() {
   const navigate = useNavigate();

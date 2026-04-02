@@ -1,210 +1,48 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useParams, useSearchParams, useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+import { useParams } from "react-router-dom";
 import DynamicFilters from "../../components/MainLayout/Customer/Product/DynamicFilters";
 import ProductCard from "../../components/MainLayout/Customer/Product/ProductCard";
 import PaginationControl from "../../components/MainLayout/PaginationControl";
-import { productApi } from "../../api/products/productApi";
-import { categoryApi } from "../../api/products/categoryApi";
-import type { Product } from "../../types/models/products/Product";
-import type { ProductOption } from "../../types/models/products/ProductOption";
+import { useUrlFilters } from "../../hooks/useUrlFilters";
+import { usePagination } from "../../hooks/usePagination";
+import { useProducts } from "../../hooks/useProducts";
 
-const ITEMS_PER_PAGE = 10;
+const PAGE_SIZE = 10;
 
 export default function Category() {
   const { selectedCategory } = useParams<{ selectedCategory: string }>();
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Converts a comma-separated string into an array - "75, 80, abc, 100" → [75, 80, "abc", 100]
-  const parseOptionsParam = (param?: string | null) =>
-    param ? param
-      .split(",")
-      .map((v) => v.trim())
-      .filter(Boolean)
-      .map((v) => (v === "" ? v : isNaN(Number(v)) ? v : Number(v)))
-      : [];
+  // ── URL state (reads searchParams, never causes extra renders) ──────────────
+  const { page, sortOrder, minPrice, maxPrice, selectedOptions, updateUrl } = useUrlFilters();
 
-  // Pagination State
-  const [currentPage, setCurrentPage] = useState<number>(() => parseInt(searchParams.get("page") || "1", 10));
-  const [totalCount, setTotalCount] = useState<number>(0);
+  // ── Data fetching ─────────────────────────────────────────────────────────
+  const { products, totalCount, loading, error, loadedOptions, refetch } =
+    useProducts(
+      { categorySlug: selectedCategory, pageSize: PAGE_SIZE },
+      { minPrice, maxPrice, sortOrder, selectedOptions, currentPage: page }
+    );
 
-  // Products State - current page's products
-  const [products, setProducts] = useState<Product[]>([]);
+  // ── Pagination ────────────────────────────────────────────────────────────
+  const { totalPages, goToPage } = usePagination({
+    totalCount,
+    pageSize: PAGE_SIZE,
+    currentPage: page,
+    onPageChange: (p) => updateUrl({ page: p }),
+  });
 
-  // Dynamic filter states
-  const [minPrice, setMinPrice] = useState<string | number>(() => searchParams.get("minPrice") ?? "0");
-  const [maxPrice, setMaxPrice] = useState<string | number>(() => searchParams.get("maxPrice") ?? "100000000");
-  const [sortOrder, setSortOrder] = useState<string>(() => searchParams.get("sort") || "newest");
-  const [loadedOptions, setLoadedOptions] = useState<ProductOption[]>([]);
-  const [selectedOptions, setSelectedOptions] = useState<(string | number)[]>(() =>
-    parseOptionsParam(searchParams.get("options") || searchParams.get("filter")));
+  // ── Handlers ──────────────────────────────────────────────────────────────
+  const handleSortChange = (newSort: string) =>
+    updateUrl({ sortOrder: newSort, page: 1 });
 
-  // Page Stastus
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const handleFilterChange = (newOptions: (string | number)[]) =>
+    updateUrl({ selectedOptions: newOptions, page: 1 });
 
-  // Format category name from slug
-  const formattedName = selectedCategory ?
-    selectedCategory.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ") : "Products";
+  const handleMinPrice = (val: string | number) =>
+    updateUrl({ minPrice: String(val), page: 1 });
 
-  // Calculate pagination info
-  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+  const handleMaxPrice = (val: string | number) =>
+    updateUrl({ maxPrice: String(val), page: 1 });
 
-  // Centralized URL updater (keeps options/min/max/sort/page in sync)
-  const updateUrlParams = useCallback((page: number, sort: string, options?: (string | number)[], min?: string | number, max?: string | number) => {
-    const params = new URLSearchParams();
-    if (page > 1) params.set("page", String(page));
-    if (sort && sort !== "newest") params.set("sort", sort);
-    if (options && options.length > 0) params.set("options", options.map(String).join(","));
-    if (min !== undefined && String(min) !== "0") params.set("minPrice", String(min));
-    if (max !== undefined && String(max) !== "100000000") params.set("maxPrice", String(max));
-
-    const search = params.toString();
-    navigate({ search: search ? `?${search}` : "" }, { replace: true });
-  }, [navigate]);
-
-  // API Load products with all filters applied
-  const loadProducts = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    // Cancel previous request if still pending
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    try {
-      if (!selectedCategory) {
-        setProducts([]);
-        setTotalCount(0);
-        setLoading(false);
-        return;
-      }
-
-      // Prepare filter options - ensure they're strings for API consistency
-      const optionsString = selectedOptions.length > 0 ? selectedOptions.map(String).join(",") : "";
-
-      const data = await productApi.getProductsByFilters(
-        selectedCategory,
-        {
-          minPrice: Number(minPrice) || 0,
-          maxPrice: Number(maxPrice) || 100000000,
-          sortOrder,
-          options: optionsString,
-        },
-      );
-
-      // Standardize response handling
-      const allProducts = Array.isArray(data) ? data : (data?.products || data?.data || []);
-
-      if (!Array.isArray(allProducts)) {
-        throw new Error("Invalid product list format from API");
-      }
-
-      // Set total count
-      setTotalCount(allProducts.length);
-
-      // Apply pagination
-      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-      const endIndex = startIndex + ITEMS_PER_PAGE;
-      const paginatedProducts = allProducts.slice(startIndex, endIndex);
-
-      setProducts(paginatedProducts);
-      console.log(allProducts)
-      setError(null);
-    } catch (error) {
-      console.error("Error loading products:", error);
-      const errorMessage = error instanceof Error ? error.message : "Failed to load products";
-      setError(errorMessage);
-      toast.error(errorMessage);
-      setProducts([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [selectedCategory, minPrice, maxPrice, sortOrder, selectedOptions, currentPage]);
-
-  // Sync component state with URL params when the user navigates (back/forward / refresh)
-  useEffect(() => {
-    const pageParam = parseInt(searchParams.get("page") || "1", 10) || 1;
-    if (pageParam !== currentPage) setCurrentPage(pageParam);
-
-    const sortParam = searchParams.get("sort") || "newest";
-    if (sortParam !== sortOrder) setSortOrder(sortParam);
-
-    const minParam = searchParams.get("minPrice") ?? "0";
-    if (String(minParam) !== String(minPrice)) setMinPrice(minParam);
-
-    const maxParam = searchParams.get("maxPrice") ?? "100000000";
-    if (String(maxParam) !== String(maxPrice)) setMaxPrice(maxParam);
-
-    const optParam = searchParams.get("options") || searchParams.get("filter");
-    const parsed = parseOptionsParam(optParam);
-    const equal =
-      parsed.length === selectedOptions.length &&
-      parsed.map(String).sort().join(",") === selectedOptions.map(String).sort().join(",");
-    if (!equal) setSelectedOptions(parsed);
-  }, [searchParams]);
-
-  // Load products when any filter or page changes
-  useEffect(() => {
-    loadProducts();
-  }, [loadProducts]);
-
-  // API Load available filters for this category
-  useEffect(() => {
-    const loadFilters = async () => {
-      if (!selectedCategory) {
-        setLoadedOptions([]);
-        return;
-      }
-
-      try {
-        const filters = await categoryApi.getAllChildDataByCategorySlug(selectedCategory);
-        const filterList = Array.isArray(filters) ? filters : [];
-        setLoadedOptions(filterList);
-      } catch (err) {
-        console.error("Error loading filters:", err);
-        toast.error("Failed to load category filters");
-        setLoadedOptions([]);
-      }
-    };
-
-    loadFilters();
-  }, [selectedCategory]);
-
-  // Handle page change
-  const handlePageChange = (newPage: number) => {
-    const maxPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
-    if (newPage < 1 || newPage > maxPages) return;
-
-    setCurrentPage(newPage);
-    updateUrlParams(newPage, sortOrder, selectedOptions, minPrice, maxPrice);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  // Handle sort change: Set price order, reset page and update URL
-  const handleSortChange = (newSort: string) => {
-    setSortOrder(newSort);
-    setCurrentPage(1);
-    updateUrlParams(1, newSort, selectedOptions, minPrice, maxPrice);
-  };
-
-  // Handle filter change: Set selected options, reset page and update URL
-  const handleFilterChange = (newOptions: (string | number)[]) => {
-    setSelectedOptions(newOptions);
-    setCurrentPage(1);
-    updateUrlParams(1, sortOrder, newOptions, minPrice, maxPrice);
-  };
-
-  // Keep price changes in sync with URL
-  useEffect(() => {
-    updateUrlParams(1, sortOrder, selectedOptions, minPrice, maxPrice);
-    setCurrentPage(1);
-  }, [minPrice, maxPrice]);
-
-  // Guard against invalid slug
+  // ── Guard ─────────────────────────────────────────────────────────────────
   if (!selectedCategory) {
     return (
       <div className="p-8 text-center">
@@ -214,28 +52,31 @@ export default function Category() {
     );
   }
 
+  const formattedName = selectedCategory
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="container mx-auto">
-      {/* Header */}
       <h1 className="text-3xl font-bold py-12">{formattedName}</h1>
 
-      {/* Dynamic filters */}
       <DynamicFilters
         loadedOptions={loadedOptions}
         selectedOptions={selectedOptions}
         setSelectedOptions={handleFilterChange}
         minPrice={minPrice}
-        setMinPrice={setMinPrice}
+        setMinPrice={handleMinPrice}
         maxPrice={maxPrice}
-        setMaxPrice={setMaxPrice}
+        setMaxPrice={handleMaxPrice}
         sortOrder={sortOrder}
         setSortOrder={handleSortChange}
       />
 
-      {/* Products grid or loading/empty state */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
           <p className="text-gray-600 mt-4">Loading products...</p>
         </div>
       ) : error ? (
@@ -243,7 +84,7 @@ export default function Category() {
           <h3 className="text-lg font-semibold text-red-800 mb-2">Error Loading Products</h3>
           <p className="text-red-700 mb-4">{error}</p>
           <button
-            onClick={() => loadProducts()}
+            onClick={refetch}
             className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
           >
             Try Again
@@ -253,11 +94,11 @@ export default function Category() {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center">
           <h3 className="text-lg font-semibold text-blue-800 mb-2">No Products Found</h3>
           <p className="text-blue-700 mb-4">
-            No products found in <strong>{formattedName}</strong> with the selected filters.
+            No products in <strong>{formattedName}</strong> match the selected filters.
           </p>
           {selectedOptions.length > 0 && (
             <button
-              onClick={() => setSelectedOptions([])}
+              onClick={() => handleFilterChange([])}
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
             >
               Clear Filters
@@ -266,21 +107,19 @@ export default function Category() {
         </div>
       ) : (
         <>
-          {/* Products Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
             {products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
 
-          {/* Pagination Controls */}
           <PaginationControl
-            currentPage={currentPage}
+            currentPage={page}
             totalPages={totalPages}
             totalCount={totalCount}
-            pageSize={ITEMS_PER_PAGE}
-            onPageChange={handlePageChange}
-            showGoTo={true}
+            pageSize={PAGE_SIZE}
+            onPageChange={goToPage}
+            showGoTo
           />
         </>
       )}

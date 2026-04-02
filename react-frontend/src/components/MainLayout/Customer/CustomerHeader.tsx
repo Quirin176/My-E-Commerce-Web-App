@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import { siteConfig } from "../../../config/siteConfig";
 import { useAuth } from "../../../hooks/useAuth";
-import UserDropDown from "../../User/UserDropDown";
+import UserDropDown from "./User/UserDropDown";
 import CategoriesDropdown from "./CategoriesDropdown";
 
 export default function CustomerHeader() {

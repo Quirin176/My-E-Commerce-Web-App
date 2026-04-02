@@ -1,7 +1,6 @@
-// THIS IS A CUSTOM HOOK FOR MANAGING PAGINATED ADMIN PRODUCTS WITH FILTERING, SEARCHING, CREATING, UPDATING, AND DELETING FUNCTIONALITIES
-
 import { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { productApi } from "../../api/products/productApi";
 import { adminProductsApi, type UpdatedProductPayload } from "../../api/admin/adminProductsApi";
 import type { Product } from "../../types/models/products/Product";
 
@@ -46,7 +45,7 @@ export const useAdminProductsPaginated = (opts: ProductListOptions = {}) => {
         sortOrder: sortOrder as "newest" | "oldest" | "ascending" | "descending",
       };
 
-      const response = await adminProductsApi.getProductsPaginated(page, ITEMS_PER_PAGE, search || undefined, "id", sortOrder, filters);
+      const response = await productApi.getProductsPaginated(page, ITEMS_PER_PAGE, search || undefined, "id", sortOrder, filters);
 
       setProducts(Array.isArray(response.data) ? response.data : []);
       setCurrentPage(response.pagination.currentPage);

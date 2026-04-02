@@ -1,8 +1,9 @@
+export default function Category() {
 
-export default function AdminProducts() {
-
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen">
+    <div className="container mx-auto">
+
     </div>
   );
 }

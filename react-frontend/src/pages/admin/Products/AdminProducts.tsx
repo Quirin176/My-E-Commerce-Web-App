@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Search, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Search, AlertCircle } from "lucide-react";
 import { useAdminProductsPaginated } from "../../../hooks/admin/useAdminProductsPaginated";
 import { useCategories } from "../../../hooks/useCategories";
 import { useProductForm } from "../../../hooks/admin/useProductForm";

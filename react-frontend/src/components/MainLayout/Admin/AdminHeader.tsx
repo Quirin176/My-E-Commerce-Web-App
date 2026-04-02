@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { BellRing, Settings } from "lucide-react";
 import { siteConfig } from "../../../config/siteConfig";
 import { useAuth } from "../../../hooks/useAuth";
-import UserDropDown from "../../User/UserDropDown";
+import AdminDropDown from "./Admin/AdminDropDown";
 
 const navigationItems = [
     { label: "Alarm", icon: <BellRing size={20} />, to: "/admin/alarms" },
@@ -34,7 +34,7 @@ export default function AdminHeader() {
                 {/* USER */}
                 {user && (
                     <div className="flex items-center gap-3">
-                        <UserDropDown />
+                        <AdminDropDown />
                     </div>)}
             </div>
         </header>
