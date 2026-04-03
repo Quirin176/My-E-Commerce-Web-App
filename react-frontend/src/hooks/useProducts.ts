@@ -70,8 +70,7 @@ export function useProducts({ categorySlug, pageSize }: UseProductsOptions, filt
     } catch (err) {
       // Ignore aborted requests
       if (err instanceof DOMException && err.name === "AbortError") return;
-      const message =
-        err instanceof Error ? err.message : "Failed to load products";
+      const message = err instanceof Error ? err.message : "Failed to load products";
       setError(message);
       toast.error(message);
       setProducts([]);

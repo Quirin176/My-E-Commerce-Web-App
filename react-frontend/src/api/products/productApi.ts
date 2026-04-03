@@ -1,14 +1,14 @@
 import { apiClient } from "../apiClient";
 import type { Product } from "../../types/models/products/Product";
 
-interface Filters {
+export interface Filters {
   minPrice: number,
   maxPrice: number,
   sortOrder: string,
   options: string,
 };
 
-interface SearchFilters {
+export interface SearchFilters {
   minPrice: number,
   maxPrice: number,
   sortOrder: string,
