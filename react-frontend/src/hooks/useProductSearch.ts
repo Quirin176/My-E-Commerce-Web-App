@@ -63,7 +63,7 @@ export function useProductSearch({ query, currentPage, pageSize }: UserProductsS
         } finally {
             setLoading(false);
         }
-    }, [pageSize, minPrice, maxPrice, sortOrder]);
+    }, [query, currentPage,pageSize, minPrice, maxPrice, sortOrder]);
 
     useEffect(() => {
         fetchProducts();

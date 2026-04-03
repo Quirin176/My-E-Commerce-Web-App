@@ -1,4 +1,3 @@
-import { useSearchParams } from "react-router-dom";
 import { useProductSearch } from "../../hooks/useProductSearch";
 import { useUrlFilters } from "../../hooks/useUrlFilters";
 import { usePagination } from "../../hooks/usePagination";
@@ -8,17 +7,15 @@ import PaginationControl from "../../components/MainLayout/PaginationControl";
 const PAGE_SIZE = 10;
 
 export default function Search() {
-    const [searchParams] = useSearchParams();
-    const searchQuery = searchParams.get("query") || "";
 
     // Filters and pagination from URL
-    const { page, minPrice, maxPrice, sortOrder, selectedOptions, updateUrl } = useUrlFilters();
+    const { query, page, minPrice, maxPrice, sortOrder, updateUrl } = useUrlFilters();
 
     const { products, totalCount, loading, error, refetch } = useProductSearch(
-        { query: searchQuery, currentPage: page, pageSize: 10 },
+        { query: query, currentPage: page, pageSize: 10 },
         { minPrice: 0, maxPrice: 100000000, sortOrder: "relevance" });
 
-    const { totalPages, canGoNext, canGoPrev, goToPage, goNext, goPrev } = usePagination({
+    const { totalPages, goToPage } = usePagination({
         totalCount,
         pageSize: PAGE_SIZE,
         currentPage: page,
@@ -39,7 +36,7 @@ export default function Search() {
         updateUrl({ minPrice: "0", maxPrice: "100000000", sortOrder: "relevance", selectedOptions: [], page: 1 });
 
     // ── No query entered ───────────────────────────────────────────────
-    if (!searchQuery.trim()) {
+    if (!query.trim()) {
         return (
             <div className="container mx-auto py-12 text-center">
                 <h1 className="text-3xl font-bold text-gray-800 mb-4">Search Products</h1>
@@ -53,7 +50,7 @@ export default function Search() {
             <h1 className="text-3xl font-bold py-6">
                 Search Results
                 <span className="text-gray-500 font-normal text-xl ml-3">
-                    for &ldquo;{searchQuery}&rdquo;
+                    for &ldquo;{query}&rdquo;
                 </span>
             </h1>
 

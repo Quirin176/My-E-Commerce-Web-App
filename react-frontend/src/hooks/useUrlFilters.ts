@@ -7,6 +7,7 @@ export interface UrlFilterState {
   minPrice: string;
   maxPrice: string;
   selectedOptions: (string | number)[];
+  query: string;
 }
 
 interface UseUrlFiltersReturn extends UrlFilterState {
@@ -31,6 +32,7 @@ export function useUrlFilters(): UseUrlFiltersReturn {
   const sortOrder = searchParams.get("sort") || "newest";
   const minPrice = searchParams.get("minPrice") ?? "0";
   const maxPrice = searchParams.get("maxPrice") ?? "100000000";
+  const query = searchParams.get("query") || "";
   const optionsRaw = searchParams.get("options") || searchParams.get("filter") || "";
   const selectedOptions = useMemo(() => parseOptions(optionsRaw), [optionsRaw]);  // useMemo to avoid re-parsing on every render
 
@@ -42,15 +44,16 @@ export function useUrlFilters(): UseUrlFiltersReturn {
         minPrice,
         maxPrice,
         selectedOptions,
+        query,
         ...overrides,
       };
 
+      // Build new search params - Example: ?query=phone&page=2&sort=ascending&minPrice=100&maxPrice=1000&options=red,blue
       const params = new URLSearchParams();
+      if (next.query) params.set("query", next.query);
       if (next.page > 1) params.set("page", String(next.page));
-      if (next.sortOrder && next.sortOrder !== "newest")
-        params.set("sort", next.sortOrder);
-      if (next.selectedOptions.length > 0)
-        params.set("options", next.selectedOptions.map(String).join(","));
+      if (next.sortOrder && next.sortOrder !== "newest") params.set("sort", next.sortOrder);
+      if (next.selectedOptions.length > 0) params.set("options", next.selectedOptions.map(String).join(","));
       if (next.minPrice !== "0") params.set("minPrice", next.minPrice);
       if (next.maxPrice !== "100000000") params.set("maxPrice", next.maxPrice);
 
@@ -60,5 +63,5 @@ export function useUrlFilters(): UseUrlFiltersReturn {
     [navigate, page, sortOrder, minPrice, maxPrice, selectedOptions]
   );
 
-  return { page, sortOrder, minPrice, maxPrice, selectedOptions, updateUrl };
+  return { page, sortOrder, minPrice, maxPrice, selectedOptions, query, updateUrl };
 }
