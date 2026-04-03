@@ -19,12 +19,7 @@ interface UsePaginationReturn {
   endIndex: number;
 }
 
-export function usePagination({
-  totalCount,
-  pageSize,
-  currentPage,
-  onPageChange,
-  scrollToTop = true}: UsePaginationOptions): UsePaginationReturn {
+export function usePagination({ totalCount, pageSize, currentPage, onPageChange, scrollToTop = true }: UsePaginationOptions): UsePaginationReturn {
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
   const canGoNext = currentPage < totalPages;
   const canGoPrev = currentPage > 1;

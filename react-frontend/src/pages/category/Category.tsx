@@ -16,10 +16,7 @@ export default function Category() {
 
   // ── Data fetching ─────────────────────────────────────────────────────────
   const { products, totalCount, loading, error, loadedOptions, refetch } =
-    useProducts(
-      { categorySlug: selectedCategory, pageSize: PAGE_SIZE },
-      { minPrice, maxPrice, sortOrder, selectedOptions, currentPage: page }
-    );
+    useProducts({ categorySlug: selectedCategory, pageSize: PAGE_SIZE }, { minPrice, maxPrice, sortOrder, selectedOptions, currentPage: page });
 
   // ── Pagination ────────────────────────────────────────────────────────────
   const { totalPages, goToPage } = usePagination({
@@ -57,11 +54,12 @@ export default function Category() {
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 
-  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="container mx-auto">
+      {/* Category Title */}
       <h1 className="text-3xl font-bold py-12">{formattedName}</h1>
 
+      {/* Filters */}
       <DynamicFilters
         loadedOptions={loadedOptions}
         selectedOptions={selectedOptions}
@@ -74,6 +72,7 @@ export default function Category() {
         setSortOrder={handleSortChange}
       />
 
+      {/* Handle Loading, Error, and Empty States */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
@@ -107,6 +106,7 @@ export default function Category() {
         </div>
       ) : (
         <>
+          {/* Main Content */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
             {products.map((product) => (
               <ProductCard key={product.id} product={product} />

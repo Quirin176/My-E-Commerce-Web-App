@@ -27,12 +27,7 @@ interface UseProductsReturn {
   refetch: () => void;
 }
 
-export function useProducts(
-  {
-    categorySlug,
-    pageSize,
-  }: UseProductsOptions,
-  filters: FilterParams): UseProductsReturn {
+export function useProducts({ categorySlug, pageSize }: UseProductsOptions, filters: FilterParams): UseProductsReturn {
   const [products, setProducts] = useState<Product[]>([]);
   const [loadedOptions, setLoadedOptions] = useState<ProductOption[]>([]);
   const [loading, setLoading] = useState(false);
@@ -46,11 +41,6 @@ export function useProducts(
 
   // ── Fetch products ──────────────────────────────────────────────────────────
   const fetchProducts = useCallback(async () => {
-    if (!categorySlug) {
-      setProducts([]);
-      return;
-    }
-
     // Cancel any in-flight request
     abortRef.current?.abort();
     abortRef.current = new AbortController();
@@ -62,12 +52,11 @@ export function useProducts(
       const response = await productApi.getProductsPaginated(
         filters.currentPage,
         pageSize, "", "id", filters.sortOrder, {
-        category: categorySlug,
+        category: categorySlug || undefined,
         minPrice: Number(filters.minPrice) || undefined,
         maxPrice: Number(filters.maxPrice) || undefined,
         options: filters.selectedOptions.length > 0 ? filters.selectedOptions : undefined,
-        sortOrder: filters.sortOrder as "newest" | "oldest" | "ascending" | "descending",
-      }
+        sortOrder: filters.sortOrder as "newest" | "oldest" | "ascending" | "descending",}
       );
 
       const list: Product[] = Array.isArray(response.data) ? response.data : [];
@@ -105,12 +94,9 @@ export function useProducts(
 
     let cancelled = false;
 
-    categoryApi
-      .getAllChildDataByCategorySlug(categorySlug)
-      .then((res) => {
+    categoryApi.getAllChildDataByCategorySlug(categorySlug).then((res) => {
         if (!cancelled) setLoadedOptions(Array.isArray(res) ? res : []);
-      })
-      .catch(() => {
+      }).catch(() => {
         if (!cancelled) {
           toast.error("Failed to load category filters");
           setLoadedOptions([]);

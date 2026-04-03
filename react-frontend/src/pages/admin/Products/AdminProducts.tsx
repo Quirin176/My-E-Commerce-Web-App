@@ -1,52 +1,49 @@
 import { useState } from "react";
 import { Plus, Search, AlertCircle } from "lucide-react";
-import { useAdminProductsPaginated } from "../../../hooks/admin/useAdminProductsPaginated";
+import toast from "react-hot-toast";
+import { useProducts } from "../../../hooks/useProducts";
+import { useUrlFilters } from "../../../hooks/useUrlFilters";
+import { usePagination } from "../../../hooks/usePagination";
 import { useCategories } from "../../../hooks/useCategories";
 import { useProductForm } from "../../../hooks/admin/useProductForm";
 import { useAdminProductModal } from "../../../hooks/admin/useAdminProductModal";
-import { useSearchParams } from "react-router-dom";
-import toast from "react-hot-toast";
 import AdminProductCard from "../../../components/Admin/Products/AdminProductCard";
 import AdminProductForm from "../../../components/Admin/Products/AdminProductForm";
 import AdminDynamicFilters from "../../../components/Admin/Products/AdminDynamicFilters";
 import PaginationControl from "../../../components/MainLayout/PaginationControl";
+import { adminProductsApi } from "../../../api/admin/adminProductsApi";
 import { categoryApi } from "../../../api/products/categoryApi";
 import type { Product } from "../../../types/models/products/Product";
 import type { ProductOption } from "../../../types/models/products/ProductOption";
 
-const ITEMS_PER_PAGE = 10;
+const PAGE_SIZE = 10;
 
 export default function AdminProducts() {
-  const [searchParams, setSearchParams] = useSearchParams();
   const { categories } = useCategories();
 
-  // Dynamic filter states
+  // ── URL-driven filter state ──────────────────────────────────────────────
+  const { page, sortOrder, minPrice, maxPrice, selectedOptions, updateUrl } = useUrlFilters();
+
+  // ── Local UI state ───────────────────────────────────────────────────────
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [minPrice, setMinPrice] = useState<string | number>("0");
-  const [maxPrice, setMaxPrice] = useState<string | number>("100000000");
-  const [sortOrder, setSortOrder] = useState<string>(searchParams.get("sort") || "newest");
   const [loadedOptions, setLoadedOptions] = useState<ProductOption[]>([]);
-  const [selectedOptions, setSelectedOptions] = useState<(string | number)[]>([]);
   const [loadingFilters, setLoadingFilters] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const [submitting, setSubmitting] = useState<boolean>(false);
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  // ── Data fetching via shared hook ────────────────────────────────────────
+  const { products, totalCount, loading, error, refetch } = useProducts(
+    { categorySlug: selectedCategory ?? undefined, pageSize: PAGE_SIZE },
+    { minPrice, maxPrice, sortOrder, selectedOptions, currentPage: page, }
+  );
 
-  // Output Data from useAdminProductsPaginated
-  const {
-    products,
-    loading: productsLoading,
-    error: productsError,
-    currentPage,
-    totalPages,
+  // ── Pagination ────────────────────────────────────────────────────────────
+  const { totalPages, goToPage } = usePagination({
     totalCount,
-    fetchProducts,
-    goToPage,
-    searchProducts,
-    createProduct,
-    updateProduct,
-    deleteProduct,
-  } = useAdminProductsPaginated({ pageSize: ITEMS_PER_PAGE, minPrice, maxPrice, sortOrder, category: selectedCategory, options: selectedOptions });
+    pageSize: PAGE_SIZE,
+    currentPage: page,
+    onPageChange: (p) => updateUrl({ page: p }),
+  });
 
   // Form Data
   const {
@@ -79,8 +76,8 @@ export default function AdminProducts() {
 
   // ========== LOAD OPTIONS FOR SELECTED CATEGORY ==========
   const handleCategoryChange = async (slug: string) => {
-    setSelectedCategory(slug);
-    setSelectedOptions([]);
+    setSelectedCategory(slug || null);
+    updateUrl({ selectedOptions: [], page: 1 });
 
     if (!slug) {
       setLoadedOptions([]);
@@ -101,19 +98,52 @@ export default function AdminProducts() {
     }
   };
 
-  // ========== HANDLE SEARCH ==========
-  const handleSearch = (value: string) => {
-    setSearchTerm(value);
-    searchProducts(value);
+  // ── Filter handlers (write to URL, refetch is automatic via useProducts) ──
+  const handleSortChange = (val: string) => updateUrl({ sortOrder: val, page: 1 });
+  const handleMinPrice = (val: string | number) => updateUrl({ minPrice: String(val), page: 1 });
+  const handleMaxPrice = (val: string | number) => updateUrl({ maxPrice: String(val), page: 1 });
+  const handleOptionsChange = (opts: (string | number)[]) => updateUrl({ selectedOptions: opts, page: 1 });
+
+  const applyFilters = () => {
+    // Normalize / validate price inputs
+    const min = minPrice === "" ? 0 : Number(minPrice);
+    const max = maxPrice === "" ? Number.MAX_SAFE_INTEGER : Number(maxPrice);
+
+    if (min < 0 || max < 0) {
+      toast.error("Price cannot be negative.");
+      return;
+    }
+
+    if (min > max) {
+      toast.error("Min price cannot be greater than max price.");
+      return;
+    }
+
+    updateUrl({ page: 1 });
+    refetch();
   };
 
-  // ========== PAGE NAVIGATION ==========
-  const handleGoToPage = (page: number) => {
-    if (page < 1 || page > totalPages) return;
-    setSearchParams({ page: String(page) });
-    goToPage(page);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  const visibleProducts = searchTerm.trim()
+    ? products.filter(
+      (p) =>
+        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.slug.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    : products;
+
+  // // ========== HANDLE SEARCH ==========
+  // const handleSearch = (value: string) => {
+  //   setSearchTerm(value);
+  //   searchProducts(value);
+  // };
+
+  // // ========== PAGE NAVIGATION ==========
+  // const handleGoToPage = (page: number) => {
+  //   if (page < 1 || page > totalPages) return;
+  //   setSearchParams({ page: String(page) });
+  //   goToPage(page);
+  //   window.scrollTo({ top: 0, behavior: "smooth" });
+  // };
 
   // ========== FORM SUBMISSION ==========
   const handleSubmit = async () => {
@@ -138,13 +168,17 @@ export default function AdminProducts() {
       };
 
       if (editingId) {
-        await updateProduct(editingId, payload);
+        await adminProductsApi.updateProductById(editingId, payload);
+        toast.success("Product updated successfully!");
       } else {
-        await createProduct(payload);
+        await adminProductsApi.createProduct(payload);
+        toast.success("Product created successfully!");
       }
 
       resetForm();
       closeForm();
+      refetch();
+
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to save product";
       toast.error(message);
@@ -153,10 +187,19 @@ export default function AdminProducts() {
     }
   };
 
-  // ========== CLOSE FORM ==========
-  const handleCloseForm = () => {
-    resetForm();
-    closeForm();
+  // ========== DELETE ==========
+  const handleDelete = async (id: number | string) => {
+    if (!window.confirm("Delete this product? This cannot be undone.")) return;
+
+    try {
+      await adminProductsApi.deleteProduct(id);
+      toast.success("Product deleted!");
+      // If deleted the last item on this page, go back one page
+      if (visibleProducts.length === 1 && page > 1) updateUrl({ page: page - 1 });
+      else refetch();
+    } catch {
+      toast.error("Failed to delete product");
+    }
   };
 
   // ========== CREATE NEW ==========
@@ -165,39 +208,24 @@ export default function AdminProducts() {
     openCreateForm();
   };
 
-  // ========== DELETE ==========
-  const handleDelete = async (id: number | string) => {
-    if (!window.confirm("Delete this product? This cannot be undone.")) return;
-    try { await deleteProduct(Number(id)); } catch { /* toast shown in hook */ }
+  // ========== CLOSE FORM ==========
+  const handleCloseForm = () => {
+    resetForm();
+    closeForm();
   };
 
   // ========== CATEGORY CHANGE IN MODAL ==========
   const handleModalCategoryChange = (categoryId: number) => {
     updateField("categoryId", categoryId);
     updateField("selectedOptionValueIds", []);
-    if (categoryId) {
-      loadOptionsForCategory(categoryId);
-    }
+    if (categoryId) { loadOptionsForCategory(categoryId); }
   };
 
-  const applyFilters = () => {
-    // Normalize / validate price inputs
-    const cleanedMin = minPrice === "" ? 0 : Number(minPrice);
-    const cleanedMax = maxPrice === "" ? Number.MAX_SAFE_INTEGER : Number(maxPrice);
+  const openEdit = (p: Product) =>
+    openEditForm(p, setFormData, (f, v) => updateField(f as keyof typeof formData, v));
 
-    if (cleanedMin < 0 || cleanedMax < 0) {
-      toast.error("Price cannot be negative.");
-      return;
-    }
-
-    if (cleanedMin > cleanedMax) {
-      toast.error("Min price cannot be greater than max price.");
-      return;
-    }
-
-    setSearchParams({ page: "1" });
-    fetchProducts(1, searchTerm);
-  };
+  const openView = (p: Product) =>
+    openViewForm(p, setFormData, (f, v) => updateField(f as keyof typeof formData, v));
 
   return (
     <div className="flex flex-col gap-y-2">
@@ -222,12 +250,12 @@ export default function AdminProducts() {
             type="text"
             placeholder="Search by name or slug..."
             value={searchTerm}
-            onChange={(e) => handleSearch(e.target.value)}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
           />
           {searchTerm && (
             <button
-              onClick={() => handleSearch("")}
+              onClick={() => setSearchTerm("")}
               className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
             >
               ✕
@@ -245,12 +273,12 @@ export default function AdminProducts() {
       </div>
 
       {/* ========== ERROR DISPLAY ========== */}
-      {productsError && (
+      {error && (
         <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg flex items-center gap-3">
           <AlertCircle size={20} />
           <div>
             <p className="font-semibold">Error Loading Products</p>
-            <p className="text-sm">{productsError}</p>
+            <p className="text-sm">{error}</p>
           </div>
         </div>
       )}
@@ -273,18 +301,18 @@ export default function AdminProducts() {
         isLoading={loadingFilters}
         loadedOptions={loadedOptions}
         selectedOptions={selectedOptions}
-        setSelectedOptions={setSelectedOptions}
+        setSelectedOptions={handleOptionsChange}
         minPrice={minPrice}
-        setMinPrice={setMinPrice}
+        setMinPrice={handleMinPrice}
         maxPrice={maxPrice}
-        setMaxPrice={setMaxPrice}
+        setMaxPrice={handleMaxPrice}
         sortOrder={sortOrder}
-        setSortOrder={setSortOrder}
+        setSortOrder={handleSortChange}
         onApplyFilters={applyFilters}
       />
 
       {/* ========== PRODUCTS LIST ========== */}
-      {productsLoading ? (
+      {loading ? (
         <div className="text-center py-12">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           <p className="text-gray-600 mt-4">Loading products...</p>
@@ -315,8 +343,8 @@ export default function AdminProducts() {
                 <AdminProductCard
                   product={product}
                   isLoading={isLoadingModalData}
-                  onView={(p: Product) => openViewForm(p, setFormData, (f, v) => updateField(f as keyof typeof formData, v))}
-                  onEdit={(p: Product) => openEditForm(p, setFormData, (f, v) => updateField(f as keyof typeof formData, v))}
+                  onView={openView}
+                  onEdit={openEdit}
                   onDelete={handleDelete}
                 />
               </div>
@@ -325,11 +353,11 @@ export default function AdminProducts() {
 
           {/* Pagination Controls */}
           <PaginationControl
-            currentPage={currentPage}
+            currentPage={page}
             totalPages={totalPages}
             totalCount={totalCount}
-            pageSize={ITEMS_PER_PAGE}
-            onPageChange={handleGoToPage}
+            pageSize={PAGE_SIZE}
+            onPageChange={goToPage}
             showGoTo={true}
           />
         </>
