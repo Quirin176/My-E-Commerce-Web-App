@@ -1,5 +1,3 @@
-// THIS IS A CUSTOM HOOK FOR MANAGING THE STATE AND BEHAVIOR OF THE ADMIN PRODUCT MODAL
-
 import { useCallback, useState } from "react";
 import toast from "react-hot-toast";
 import { categoryApi } from "../../api/products/categoryApi";
@@ -42,7 +40,8 @@ export const useAdminProductModal = (): UseAdminProductModalReturn => {
       const data = await categoryApi.getAllChildDataByCategoryId(categoryId);
       const filters = Array.isArray(data) ? data : (data?.data || []);
 
-      // Validate filter structure
+      // Validate filter structure - optionId should be valid (not null or undefined), optionName should be valid (not null or undefined)
+      // and optionValues should be an array
       const validFilters = filters.filter((o: ProductOption) =>
         o.optionId &&
         o.optionName &&

@@ -1,21 +1,5 @@
-// THIS IS A CUSTOM HOOK FOR MANAGING THE STATE AND LOGIC OF A PRODUCT FORM IN THE ADMIN DASHBOARD
-
 import { useCallback, useState } from "react";
 import { slugify } from "../../utils/slugify";
-
-// Define the structure of the product form data
-export interface ProductFormData {
-  id: string | number;
-  name: string;
-  slug: string;
-  shortDescription: string;
-  description: string;
-  price: number | string;
-  imageUrl: string;
-  images: string[];
-  categoryId: number | string;
-  selectedOptionValueIds: number[];
-}
 
 // Define the return type of the useProductForm hook
 interface UseProductFormReturn {
@@ -29,6 +13,20 @@ interface UseProductFormReturn {
   handleOptionChange: (optionValueId: number) => void;
   resetForm: () => void;
   autoGenerateSlug: (name: string) => void;
+}
+
+// Define the structure of the product form data
+export interface ProductFormData {
+  id: string | number;
+  name: string;
+  slug: string;
+  shortDescription: string;
+  description: string;
+  price: number | string;
+  imageUrl: string;
+  images: string[];
+  categoryId: number | string;
+  selectedOptionValueIds: number[];
 }
 
 // Initial form data template
@@ -52,6 +50,7 @@ export const useProductForm = (): UseProductFormReturn => {
 
   // Update a specific field in the form data
   const updateField = useCallback((field: keyof ProductFormData, value: unknown) => {
+    // Update the form data with the new value for the specified field
     setFormData((prev) => ({
       ...prev,
       [field]: value,

@@ -146,6 +146,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     // Swagger JSON is available at http://localhost:5159/swagger/v1/swagger.json
+    // Swagger UI is available at http://localhost:5159/swagger/index.html
     app.UseSwagger();
     app.UseSwaggerUI();
 }
@@ -171,6 +172,7 @@ app.MapControllers();
 // Log startup info
 Console.WriteLine("Starting WebApp API...");
 Console.WriteLine($"Listening on: http://localhost:5159");
-Console.WriteLine($"Swagger: http://localhost:5159/swagger");
+Console.WriteLine($"Swagger JSON: http://localhost:5159/swagger/v1/swagger.json");
+Console.WriteLine($"Swagger UI: http://localhost:5159/swagger/index.html");
 
 app.Run();

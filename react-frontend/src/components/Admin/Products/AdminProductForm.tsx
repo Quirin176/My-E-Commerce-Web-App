@@ -1,5 +1,3 @@
-// THIS IS A MODAL COMPONENT FOR ADDING/EDITING/VIEWING PRODUCTS IN THE ADMIN DASHBOARD
-
 import { X, AlertCircle, Plus, Trash2 } from 'lucide-react';
 import type { Category } from '../../../types/models/products/Category';
 import type { ProductFormData } from "../../../hooks/admin/useProductForm";

@@ -131,20 +131,6 @@ export default function AdminProducts() {
     )
     : products;
 
-  // // ========== HANDLE SEARCH ==========
-  // const handleSearch = (value: string) => {
-  //   setSearchTerm(value);
-  //   searchProducts(value);
-  // };
-
-  // // ========== PAGE NAVIGATION ==========
-  // const handleGoToPage = (page: number) => {
-  //   if (page < 1 || page > totalPages) return;
-  //   setSearchParams({ page: String(page) });
-  //   goToPage(page);
-  //   window.scrollTo({ top: 0, behavior: "smooth" });
-  // };
-
   // ========== FORM SUBMISSION ==========
   const handleSubmit = async () => {
     if (!validateForm()) {
