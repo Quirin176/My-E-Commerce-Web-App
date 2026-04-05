@@ -10,19 +10,19 @@ namespace WebApp_API.Repositories
         public UserRepository(AppDbContext db) => _db = db;
 
         // ────────────────────────────────────────────────── Single product lookups ──────────────────────────────────────────────────
-        public async Task<User> GetByIdAsync(int id)
+        public async Task<User?> GetByIdAsync(int id)
         {
-            return await _db.Users.FindAsync(id) ?? throw new KeyNotFoundException($"User with ID {id} not found.");
+            return await _db.Users.FindAsync(id);
         }
 
-        public async Task<User> GetByEmailAsync(string email)
+        public async Task<User?> GetByEmailAsync(string email)
         {
-            return await _db.Users.FirstOrDefaultAsync(x => x.Email == email) ?? throw new KeyNotFoundException($"User with Email {email} not found.");
+            return await _db.Users.FirstOrDefaultAsync(x => x.Email == email);
         }
 
-        public async Task<User> GetByPhoneAsync(string phone)
+        public async Task<User?> GetByPhoneAsync(string phone)
         {
-            return await _db.Users.FirstOrDefaultAsync(x => x.Phone == phone) ?? throw new KeyNotFoundException($"User with Phone {phone} not found.");
+            return await _db.Users.FirstOrDefaultAsync(x => x.Phone == phone);
         }
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────

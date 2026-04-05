@@ -33,7 +33,6 @@ export const useAuthStore = create<AuthState>()(
             role: response.role || "user",
             createdAt: response.createdAt,
           };
-          // localStorage.setItem("token", response.token);
           set({ user, loading: false });
           return user;
         } catch (err) {
@@ -55,7 +54,6 @@ export const useAuthStore = create<AuthState>()(
             role: response.role || "user",
             createdAt: response.createdAt,
           };
-          // localStorage.setItem("token", response.token);
           set({ user, loading: false });
           return true;
         } catch (err) {
@@ -66,8 +64,6 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: async () => {
-        // localStorage.removeItem("token");
-        // localStorage.removeItem("auth");
         await authApi.logout();
         set({ user: null, error: null });
       },

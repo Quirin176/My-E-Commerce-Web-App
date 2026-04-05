@@ -11,24 +11,29 @@ namespace WebApp_API.Services
         public OrderService(IOrderRepository repo) => _repo = repo;
 
         // ────────────────────────────── Order Lookups ──────────────────────────────
-        public async Task<OrderDTOs.OrderResponse?> GetOrderByIdAsync(int id)
+        public async Task<OrderDTOs.OrderResponse?> GetCustomerOrderByIdAsync(int id, int? userId = null)
         {
             var order = await _repo.GetOrderByIdAsync(id);
-            return order is null ? null : MapToOrderResponse(order);
+
+            // Check if order exists and optionally enforce ownership if userId is provided
+            if (order is null) return null;
+            if (userId.HasValue && order.UserId != userId.Value) return null;
+
+            return MapToOrderResponse(order);
         }
- 
+
         public async Task<OrderDTOs.OrderStatsResponse?> GetOrderStatsAsync()
         {
             var orders = await _repo.GetAllOrdersWithItemsAsync();
- 
+
             return new OrderDTOs.OrderStatsResponse
             {
-                TotalOrders        = orders.Count,
-                TotalRevenue       = orders.Sum(o => o.TotalAmount),
-                TotalItems         = orders.Sum(o => o.OrderItems.Count),
-                AverageOrderValue  = orders.Count > 0 ? orders.Average(o => o.TotalAmount) : 0,
-                Last30DaysRevenue  = orders.Where(o => o.OrderDate >= DateTime.UtcNow.AddDays(-30)).Sum(o => o.TotalAmount),
-                Last30DaysOrders   = orders.Count(o => o.OrderDate >= DateTime.UtcNow.AddDays(-30)),
+                TotalOrders = orders.Count,
+                TotalRevenue = orders.Sum(o => o.TotalAmount),
+                TotalItems = orders.Sum(o => o.OrderItems.Count),
+                AverageOrderValue = orders.Count > 0 ? orders.Average(o => o.TotalAmount) : 0,
+                Last30DaysRevenue = orders.Where(o => o.OrderDate >= DateTime.UtcNow.AddDays(-30)).Sum(o => o.TotalAmount),
+                Last30DaysOrders = orders.Count(o => o.OrderDate >= DateTime.UtcNow.AddDays(-30)),
                 ByStatus = orders
                     .GroupBy(o => o.Status)
                     .Select(g => new OrderDTOs.OrderStatusCountDto { Status = g.Key, Count = g.Count() })
@@ -51,12 +56,12 @@ namespace WebApp_API.Services
             var orders = await _repo.GetFilteredOrdersAsync(filterParams);
             return orders.Select(MapToOrderResponse).ToList();
         }
- 
+
         public async Task<OrderDTOs.AdminOrderResponse?> GetAdminOrderByIdAsync(int id)
         {
             var order = await _repo.GetOrderWithItemsByIdAsync(id);
             if (order is null) return null;
- 
+
             return new OrderDTOs.AdminOrderResponse
             {
                 Id = order.Id,
@@ -107,60 +112,60 @@ namespace WebApp_API.Services
             var created = await _repo.CreateOrderAsync(order, items);
             return MapToOrderResponse(created);
         }
- 
+
         public async Task<bool> UpdateOrderStatusAsync(int id, string status)
         {
             var order = await _repo.GetOrderByIdAsync(id);
             if (order is null) return false;
- 
+
             order.Status = status;
             await _repo.UpdateOrderAsync(order);
             return true;
         }
- 
+
         public async Task<bool> UpdateOrderAsync(int id, OrderDTOs.UpdateOrderRequest request)
         {
             var order = await _repo.GetOrderByIdAsync(id);
             if (order is null) return false;
- 
-            if (!string.IsNullOrWhiteSpace(request.CustomerName))  order.CustomerName    = request.CustomerName;
-            if (!string.IsNullOrWhiteSpace(request.CustomerEmail)) order.CustomerEmail   = request.CustomerEmail;
-            if (!string.IsNullOrWhiteSpace(request.CustomerPhone)) order.CustomerPhone   = request.CustomerPhone;
+
+            if (!string.IsNullOrWhiteSpace(request.CustomerName)) order.CustomerName = request.CustomerName;
+            if (!string.IsNullOrWhiteSpace(request.CustomerEmail)) order.CustomerEmail = request.CustomerEmail;
+            if (!string.IsNullOrWhiteSpace(request.CustomerPhone)) order.CustomerPhone = request.CustomerPhone;
             if (!string.IsNullOrWhiteSpace(request.ShippingAddress)) order.ShippingAddress = request.ShippingAddress;
-            if (!string.IsNullOrWhiteSpace(request.City))          order.City            = request.City;
-            if (!string.IsNullOrWhiteSpace(request.Status))        order.Status          = request.Status;
-            if (!string.IsNullOrWhiteSpace(request.Notes))         order.Notes           = request.Notes;
- 
+            if (!string.IsNullOrWhiteSpace(request.City)) order.City = request.City;
+            if (!string.IsNullOrWhiteSpace(request.Status)) order.Status = request.Status;
+            if (!string.IsNullOrWhiteSpace(request.Notes)) order.Notes = request.Notes;
+
             await _repo.UpdateOrderAsync(order);
             return true;
         }
- 
+
         public async Task<bool> DeleteOrderAsync(int id)
         {
             var order = await _repo.GetOrderByIdAsync(id);
             if (order is null) return false;
- 
+
             await _repo.DeleteOrderAsync(order);
             return true;
         }
- 
+
         public async Task<byte[]> ExportOrdersCsvAsync(OrderFilterParameters filterParams)
         {
             var orders = await _repo.GetFilteredOrdersAsync(filterParams);
- 
+
             var csv = new System.Text.StringBuilder();
             csv.AppendLine(
                 "Order ID,Order Number,Customer Name,Email,Phone,Address,City," +
                 "Status,Total Amount (VND),Items Count,Payment Method," +
                 "Order Date,Products (Name x Quantity)");
- 
+
             foreach (var order in orders)
             {
-                var itemsCount   = order.OrderItems?.Count ?? 0;
+                var itemsCount = order.OrderItems?.Count ?? 0;
                 var itemsSummary = order.OrderItems?.Count > 0
                     ? string.Join(" | ", order.OrderItems.Select(i => $"{i.ProductName} x{i.Quantity}"))
                     : "";
- 
+
                 csv.AppendLine(
                     $"\"{order.Id}\",\"ORDER-{order.Id}\"," +
                     $"\"{order.CustomerName}\",\"{order.CustomerEmail}\",\"{order.CustomerPhone}\"," +
@@ -168,7 +173,7 @@ namespace WebApp_API.Services
                     $"\"{order.Status}\",\"{order.TotalAmount}\",\"{itemsCount}\",\"{order.PaymentMethod}\"," +
                     $"\"{order.OrderDate:yyyy-MM-dd HH:mm:ss}\",\"{itemsSummary}\"");
             }
- 
+
             return System.Text.Encoding.UTF8.GetPreamble()
                 .Concat(System.Text.Encoding.UTF8.GetBytes(csv.ToString()))
                 .ToArray();

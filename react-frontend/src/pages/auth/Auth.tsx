@@ -42,14 +42,11 @@ export default function Auth() {
         navigate("/home");
       }
     } catch (err: unknown) {
-      console.error("Login error:", err);
-
       const axiosErr = err as AxiosError;
 
       const status = axiosErr?.response?.status;
 
-      // console.log("Login error status:", status);
-
+      // Rate Limiting Error Handling
       if (status === 429) {
         const retryAfter = axiosErr?.response?.headers?.["retry-after"];
         const waitSec = retryAfter ? Number(retryAfter) : 60;
@@ -99,8 +96,6 @@ export default function Auth() {
         navigate("/auth?mode=login");
       }
     } catch (err: unknown) {
-      console.error("Signup error:", err);
-
       const axiosErr = err as AxiosError;
 
       const errorMsg = "Signup failed: " + (axiosErr?.message || "Unknown error");

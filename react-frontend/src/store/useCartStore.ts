@@ -60,7 +60,7 @@ export const useCartStore = create<CartState>()(
         get().cartItems.reduce((sum, c) => sum + c.quantity, 0),
     }),
     {
-      name: "cart", // replaces the manual localStorage.setItem("cart", ...)
+      name: "cart",
     }
   )
 );

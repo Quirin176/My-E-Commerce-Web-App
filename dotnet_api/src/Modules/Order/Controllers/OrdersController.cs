@@ -62,22 +62,12 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                var order = await _orderService.GetOrderByIdAsync(id);
-                if (order is null)
-                    return NotFound(new { message = "Order not found" });
-
-                // Customers can only view their own orders
+                // Ensure the user can only access their own orders
                 var userId = User.FindFirst("id")?.Value;
-                var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
-                if (string.IsNullOrEmpty(userId))
-                    return Unauthorized();
-
-                // Note: OrderResponse doesn't expose UserId, so we re-fetch from service if needed.
-                // A cleaner approach is to let the service enforce ownership:
-                var fullOrder = await _orderService.GetAdminOrderByIdAsync(id);
-                if (userRole != "Admin" && fullOrder?.UserId != int.Parse(userId))
-                    return Forbid();
+                var order = await _orderService.GetCustomerOrderByIdAsync(id, int.Parse(userId));
+                if (order is null) return NotFound(new { message = "Order not found" });
 
                 return Ok(order);
             }

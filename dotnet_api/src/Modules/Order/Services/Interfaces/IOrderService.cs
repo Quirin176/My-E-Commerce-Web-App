@@ -6,7 +6,7 @@ namespace WebApp_API.Services
     public interface IOrderService
     {
         // ────────────────────────────── Single Order Lookups ──────────────────────────────
-        Task<OrderDTOs.OrderResponse?> GetOrderByIdAsync(int id);
+        Task<OrderDTOs.OrderResponse?> GetCustomerOrderByIdAsync(int id, int? userId = null);
         Task<OrderDTOs.OrderStatsResponse?> GetOrderStatsAsync();
         Task<List<OrderDTOs.OrderResponse>> GetOrdersByUserIdAsync(int userId);
 
