@@ -11,6 +11,6 @@
 //   return context;
 // };
 
-import { useCartStore } from "../store/useCartStore";
+import { useCartStore } from "../../store/useCartStore";
 
 export const useCart = () => useCartStore();

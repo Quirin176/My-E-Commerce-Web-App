@@ -4,7 +4,7 @@ import ProductCard from "../../components/MainLayout/Customer/Product/ProductCar
 import PaginationControl from "../../components/MainLayout/PaginationControl";
 import { useUrlFilters } from "../../hooks/useUrlFilters";
 import { usePagination } from "../../hooks/usePagination";
-import { useProducts } from "../../hooks/useProducts";
+import { useProducts } from "../../hooks/products/useProducts";
 
 const PAGE_SIZE = 10;
 

@@ -30,7 +30,7 @@ import Checkout from "./pages/user/Checkout";
 import Test from "./pages/test/Test";
 
 // Context
-import { useAuth } from "./hooks/useAuth";
+import { useAuth } from "./hooks/users/useAuth";
 
 // Protected Route Component
 interface ProtectedProps {

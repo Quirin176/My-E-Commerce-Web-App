@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCategories } from "../../hooks/useCategories.ts";
+import { useCategories } from "../../hooks/products/useCategories.ts";
 import { LayoutGrid } from "lucide-react";
 import { siteConfig } from "../../config/siteConfig";
 import { categoriesIcon } from "../../config/siteConfig";

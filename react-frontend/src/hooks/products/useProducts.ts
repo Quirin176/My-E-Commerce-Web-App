@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import toast from "react-hot-toast";
-import { productApi } from "../api/products/productApi";
-import { categoryApi } from "../api/products/categoryApi";
-import type { Product } from "../types/models/products/Product";
-import type { ProductOption } from "../types/models/products/ProductOption";
+import { productApi } from "../../api/products/productApi";
+import { categoryApi } from "../../api/products/categoryApi";
+import type { Product } from "../../types/models/products/Product";
+import type { ProductOption } from "../../types/models/products/ProductOption";
 
 interface UseProductsOptions {
   categorySlug: string | undefined;

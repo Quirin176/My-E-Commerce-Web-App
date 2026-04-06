@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../hooks/users/useAuth";
 import { Eye, EyeClosed } from "lucide-react";
 import toast from "react-hot-toast";
 import type { AxiosError } from "axios";

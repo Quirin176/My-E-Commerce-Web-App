@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useCategories } from "../../../hooks/useCategories";
+import { useCategories } from "../../../hooks/products/useCategories";
 import toast from "react-hot-toast";
 import { Plus, SquarePen, X } from "lucide-react";
 import { productoptionApi } from "../../../api/products/productoptionApi";

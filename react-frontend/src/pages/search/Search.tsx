@@ -1,4 +1,4 @@
-import { useProductSearch } from "../../hooks/useProductSearch";
+import { useProductSearch } from "../../hooks/products/useProductSearch";
 import { useUrlFilters } from "../../hooks/useUrlFilters";
 import { usePagination } from "../../hooks/usePagination";
 import ProductCard from "../../components/MainLayout/Customer/Product/ProductCard";

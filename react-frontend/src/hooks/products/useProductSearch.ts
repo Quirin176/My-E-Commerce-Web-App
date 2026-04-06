@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import toast from "react-hot-toast";
-import { productApi } from "../api/products/productApi";
-import type { Product } from "../types/models/products/Product";
-import type { SearchFilters } from "../api/products/productApi";
+import { productApi } from "../../api/products/productApi";
+import type { Product } from "../../types/models/products/Product";
+import type { SearchFilters } from "../../api/products/productApi";
 
 interface UserProductsSearchOptions {
     query: string;

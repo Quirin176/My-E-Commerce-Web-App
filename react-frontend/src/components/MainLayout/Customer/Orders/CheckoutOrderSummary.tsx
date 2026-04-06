@@ -1,4 +1,4 @@
-import { useCart } from "../../../../hooks/useCart"
+import { useCart } from "../../../../hooks/cart/useCart"
 import { siteConfig } from "../../../../config/siteConfig";
 
 export default function CheckoutOrderSummary() {

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Plus, Search, AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
-import { useProducts } from "../../../hooks/useProducts";
+import { useProducts } from "../../../hooks/products/useProducts";
 import { useUrlFilters } from "../../../hooks/useUrlFilters";
 import { usePagination } from "../../../hooks/usePagination";
-import { useCategories } from "../../../hooks/useCategories";
+import { useCategories } from "../../../hooks/products/useCategories";
 import { useProductForm } from "../../../hooks/admin/useProductForm";
 import { useAdminProductModal } from "../../../hooks/admin/useAdminProductModal";
 import AdminProductCard from "../../../components/Admin/Products/AdminProductCard";

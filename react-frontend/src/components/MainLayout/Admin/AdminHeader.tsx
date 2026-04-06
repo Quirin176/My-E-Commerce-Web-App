@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { BellRing, Settings } from "lucide-react";
 import { siteConfig } from "../../../config/siteConfig";
-import { useAuth } from "../../../hooks/useAuth";
+import { useAuth } from "../../../hooks/users/useAuth";
 import AdminDropDown from "./Admin/AdminDropDown";
 
 const navigationItems = [

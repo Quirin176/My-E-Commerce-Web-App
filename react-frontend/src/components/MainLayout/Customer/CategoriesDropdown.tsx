@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useCategories } from "../../../hooks/useCategories";
+import { useCategories } from "../../../hooks/products/useCategories";
 import { ChevronDown, LayoutGrid } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { categoryApi } from "../../../api/products/categoryApi";

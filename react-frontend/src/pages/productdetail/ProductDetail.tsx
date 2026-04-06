@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useParams, Link } from "react-router-dom";
 import { productApi } from "../../api/products/productApi";
-import { useAuth } from "../../hooks/useAuth";
-import { useCart } from "../../hooks/useCart";
+import { useAuth } from "../../hooks/users/useAuth";
+import { useCart } from "../../hooks/cart/useCart";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import type { Product } from "../../types/models/products/Product";
 

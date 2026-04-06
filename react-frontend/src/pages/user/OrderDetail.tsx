@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { ArrowLeft, Download, Printer } from "lucide-react";
 import { checkoutApi } from "../../api/checkoutApi";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../hooks/users/useAuth";
 import type { OrderResponseModel } from "../../types/models/order/OrderResponseModel";
 
 export default function OrderDetail() {

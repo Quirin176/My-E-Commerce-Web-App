@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { Package } from "lucide-react";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../hooks/users/useAuth";
 import { checkoutApi } from "../../api/checkoutApi";
 import type { OrderResponseModel } from "../../types/models/order/OrderResponseModel";
 import UserOrderCard from "../../components/MainLayout/Customer/Orders/UserOrderCard";

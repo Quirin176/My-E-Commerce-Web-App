@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { Minus, Plus, Trash2 } from "lucide-react"
-import { useCart } from "../../../../hooks/useCart"
+import { useCart } from "../../../../hooks/cart/useCart"
 import type { CartItem } from "../../../../types/models/cart/CartItem"
 import { siteConfig } from "../../../../config/siteConfig";
 

@@ -1,4 +1,4 @@
-import { useAuth } from "../../../hooks/useAuth";
+import { useAuth } from "../../../hooks/users/useAuth";
 
 export default function AdminDashboard() {
   const { user } = useAuth();

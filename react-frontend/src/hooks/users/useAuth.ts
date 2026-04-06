@@ -11,7 +11,7 @@
 //   return context;
 // };
 
-import { useAuthStore } from "../store/useAuthStore";
+import { useAuthStore } from "../../store/useAuthStore";
 
 // Drop-in replacement — every component calling useAuth() needs zero changes
 export const useAuth = () => useAuthStore();
