@@ -11,6 +11,7 @@ interface UseProductsOptions {
 }
 
 interface FilterParams {
+  searchTerm: string;
   minPrice: string | number;
   maxPrice: string | number;
   sortOrder: string;
@@ -49,9 +50,10 @@ export function useProducts({ categorySlug, pageSize }: UseProductsOptions, filt
     setError(null);
 
     try {
+      console.log(filters.searchTerm);
       const response = await productApi.getProductsPaginated(
         filters.currentPage,
-        pageSize, "", "id", filters.sortOrder, {
+        pageSize, filters.searchTerm, "id", filters.sortOrder, {
         category: categorySlug || undefined,
         minPrice: Number(filters.minPrice) || undefined,
         maxPrice: Number(filters.maxPrice) || undefined,
@@ -77,7 +79,7 @@ export function useProducts({ categorySlug, pageSize }: UseProductsOptions, filt
     } finally {
       setLoading(false);
     }
-  }, [categorySlug, pageSize, filters.currentPage, filters.minPrice, filters.maxPrice, filters.sortOrder, optionsKey]);
+  }, [categorySlug, pageSize, filters.currentPage, filters.searchTerm, filters.minPrice, filters.maxPrice, filters.sortOrder, optionsKey]);
 
   useEffect(() => {
     fetchProducts();

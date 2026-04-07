@@ -1,5 +1,5 @@
+import { useCategories } from '../../../hooks/products/useCategories';
 import { X, AlertCircle, Plus, Trash2 } from 'lucide-react';
-import type { Category } from '../../../types/models/products/Category';
 import type { ProductFormData } from "../../../hooks/admin/useProductForm";
 import type { ProductOption } from '../../../types/models/products/ProductOption';
 
@@ -9,7 +9,6 @@ interface AdminProductFormProps {
   isViewMode: boolean;
   formData: ProductFormData;
   formErrors: Record<string, string>;
-  categories: Category[];
   filters: ProductOption[];
   filtersLoading: boolean;
   submitting: boolean;
@@ -29,7 +28,6 @@ export default function AdminProductForm({
   isViewMode,
   formData,
   formErrors,
-  categories,
   filters,
   filtersLoading,
   submitting,
@@ -43,6 +41,8 @@ export default function AdminProductForm({
   onCategoryChange,
 }: AdminProductFormProps) {
   if (!showForm) return null;
+
+  const { categories } = useCategories();
 
   const allImages = Array.isArray(formData.images) ? formData.images : [];
   const selectedIds = formData.selectedOptionValueIds ?? [];

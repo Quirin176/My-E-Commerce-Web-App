@@ -45,7 +45,6 @@ function CustomerProtected({ children }: ProtectedProps) {
 
 function AdminProtected({ children }: ProtectedProps) {
   const { user } = useAuth();
-  console.log(user);
   if (!user) return <Navigate to="/auth?mode=login" replace />;
   if (user.role !== "Admin") return <Navigate to="/home" replace />;
   return children;

@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import toast from "react-hot-toast";
 import { siteConfig } from "../../../config/siteConfig";
-import type { Category } from "../../../types/models/products/Category";
+import { useCategories } from "../../../hooks/products/useCategories";
+import { categoryApi } from "../../../api/products/categoryApi";
 import type { ProductOption } from "../../../types/models/products/ProductOption";
 
 export interface DynamicFiltersProps {
-    loadedCategories: Category[];
     onCategoryChange: (slug: string) => void;
-    isLoading: boolean;
-    loadedOptions: ProductOption[] | null | undefined;
     selectedOptions: (string | number)[];
     setSelectedOptions: (option: (string | number)[]) => void;
     minPrice: string | number;
@@ -21,10 +20,7 @@ export interface DynamicFiltersProps {
 }
 
 export default function DynamicFilters({
-    loadedCategories,
     onCategoryChange,
-    isLoading,
-    loadedOptions,
     selectedOptions,
     setSelectedOptions,
     minPrice,
@@ -37,7 +33,34 @@ export default function DynamicFilters({
 }: DynamicFiltersProps) {
 
     const colors = siteConfig.colors;
+
+    const { categories } = useCategories();
+    const [loadedOptions, setLoadedOptions] = useState<ProductOption[]>([]);
+    const [loadingFilters, setLoadingFilters] = useState(false);
+
     const [openDropdowns, setOpenDropdowns] = useState<Record<string | number, boolean>>({});
+
+    const handleCategoryChange = async (slug: string) => {
+        onCategoryChange(slug);
+
+        if (!slug) {
+            setLoadedOptions([]);
+            return;
+        }
+
+        setLoadingFilters(true);
+
+        try {
+            const filters = await categoryApi.getAllChildDataByCategorySlug(slug);
+            const filterList = Array.isArray(filters) ? filters : (filters?.data || []);
+            setLoadedOptions(filterList);
+        } catch (error) {
+            toast.error("Failed to load category filters");
+            setLoadedOptions([]);
+        } finally {
+            setLoadingFilters(false);
+        }
+    };
 
     // Toggle dropdown for specific category
     const toggleDropdown = (categoryId: string | number) => {
@@ -72,19 +95,19 @@ export default function DynamicFilters({
 
             <div className="flex flex-wrap gap-2 items-center">
                 <select
-                    disabled={isLoading}
-                    onChange={(e) => onCategoryChange(e.target.value ? e.target.value : "")}
+                    disabled={loadingFilters}
+                    onChange={(e) => handleCategoryChange(e.target.value ? e.target.value : "")}
                     className="text-xs font-semibold text-gray-700 border rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition"
                 >
                     <option value="">Category</option>
-                    {loadedCategories.map((cat) => (
+                    {categories.map((cat) => (
                         <option key={cat.id} value={cat.slug}>
                             {cat.name}
                         </option>
                     ))}
                 </select>
 
-                {isLoading && (
+                {loadingFilters && (
                     <div className="ml-2 text-xs text-gray-500">Loading options…</div>
                 )}
 
@@ -180,7 +203,7 @@ export default function DynamicFilters({
                     </select>
 
                     <button
-                        disabled={isLoading}
+                        disabled={loadingFilters}
                         className="border p-1.5 rounded-lg text-xs min-w-32 bg-blue-600 text-white hover:bg-blue-700 transition"
                         onClick={() => {
                             // sanitize price inputs

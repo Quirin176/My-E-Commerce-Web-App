@@ -4,7 +4,6 @@ import toast from "react-hot-toast";
 import { useProducts } from "../../../hooks/products/useProducts";
 import { useUrlFilters } from "../../../hooks/useUrlFilters";
 import { usePagination } from "../../../hooks/usePagination";
-import { useCategories } from "../../../hooks/products/useCategories";
 import { useProductForm } from "../../../hooks/admin/useProductForm";
 import { useAdminProductModal } from "../../../hooks/admin/useAdminProductModal";
 import AdminProductCard from "../../../components/Admin/Products/AdminProductCard";
@@ -12,29 +11,23 @@ import AdminProductForm from "../../../components/Admin/Products/AdminProductFor
 import AdminDynamicFilters from "../../../components/Admin/Products/AdminDynamicFilters";
 import PaginationControl from "../../../components/MainLayout/PaginationControl";
 import { adminProductsApi } from "../../../api/admin/adminProductsApi";
-import { categoryApi } from "../../../api/products/categoryApi";
 import type { Product } from "../../../types/models/products/Product";
-import type { ProductOption } from "../../../types/models/products/ProductOption";
 
 const PAGE_SIZE = 10;
 
 export default function AdminProducts() {
-  const { categories } = useCategories();
-
   // ── URL-driven filter state ──────────────────────────────────────────────
   const { page, sortOrder, minPrice, maxPrice, selectedOptions, updateUrl } = useUrlFilters();
 
   // ── Local UI state ───────────────────────────────────────────────────────
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [loadedOptions, setLoadedOptions] = useState<ProductOption[]>([]);
-  const [loadingFilters, setLoadingFilters] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   // ── Data fetching via shared hook ────────────────────────────────────────
   const { products, totalCount, loading, error, refetch } = useProducts(
     { categorySlug: selectedCategory ?? undefined, pageSize: PAGE_SIZE },
-    { minPrice, maxPrice, sortOrder, selectedOptions, currentPage: page, }
+    { searchTerm, minPrice, maxPrice, sortOrder, selectedOptions, currentPage: page, }
   );
 
   // ── Pagination ────────────────────────────────────────────────────────────
@@ -74,31 +67,12 @@ export default function AdminProducts() {
     loadOptionsForCategory,
   } = useAdminProductModal();
 
-  // ========== LOAD OPTIONS FOR SELECTED CATEGORY ==========
-  const handleCategoryChange = async (slug: string) => {
+  // ── Filter handlers (write to URL, refetch is automatic via useProducts) ──
+  const handleCategoryChange = (slug: string) => {
     setSelectedCategory(slug || null);
     updateUrl({ selectedOptions: [], page: 1 });
-
-    if (!slug) {
-      setLoadedOptions([]);
-      return;
-    }
-
-    setLoadingFilters(true);
-
-    try {
-      const filters = await categoryApi.getAllChildDataByCategorySlug(slug);
-      const filterList = Array.isArray(filters) ? filters : (filters?.data || []);
-      setLoadedOptions(filterList);
-    } catch (error) {
-      toast.error("Failed to load category filters");
-      setLoadedOptions([]);
-    } finally {
-      setLoadingFilters(false);
-    }
   };
-
-  // ── Filter handlers (write to URL, refetch is automatic via useProducts) ──
+  const handleSearchChange = (val: string) => updateUrl({ query: String(val), page: 1 });
   const handleSortChange = (val: string) => updateUrl({ sortOrder: val, page: 1 });
   const handleMinPrice = (val: string | number) => updateUrl({ minPrice: String(val), page: 1 });
   const handleMaxPrice = (val: string | number) => updateUrl({ maxPrice: String(val), page: 1 });
@@ -122,14 +96,6 @@ export default function AdminProducts() {
     updateUrl({ page: 1 });
     refetch();
   };
-
-  const visibleProducts = searchTerm.trim()
-    ? products.filter(
-      (p) =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.slug.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    : products;
 
   // ========== FORM SUBMISSION ==========
   const handleSubmit = async () => {
@@ -180,9 +146,6 @@ export default function AdminProducts() {
     try {
       await adminProductsApi.deleteProduct(id);
       toast.success("Product deleted!");
-      // If deleted the last item on this page, go back one page
-      if (visibleProducts.length === 1 && page > 1) updateUrl({ page: page - 1 });
-      else refetch();
     } catch {
       toast.error("Failed to delete product");
     }
@@ -230,14 +193,19 @@ export default function AdminProducts() {
         </div>
 
         {/* ========== SEARCH BAR ========== */}
-        <div className="relative">
-          <Search size={20} className="absolute left-3 top-3 text-gray-400" />
+        <div className="flex items-center gap-4 pl-4 pr-2 py-2">
           <input
             type="text"
-            placeholder="Search by name or slug..."
+            placeholder="Search For Products"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleSearchChange(searchTerm);
+              }
+            }}
+            className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
           />
           {searchTerm && (
             <button
@@ -246,7 +214,14 @@ export default function AdminProducts() {
             >
               ✕
             </button>
+
           )}
+          <button
+            onClick={() => handleSearchChange(searchTerm)}
+            className="rounded-full px-2 py-2 text-white bg-blue-600 hover:text-gray-600 hover:bg-blue-700 cursor-pointer"
+          >
+            <Search size={20} />
+          </button>
         </div>
 
         <button
@@ -282,10 +257,7 @@ export default function AdminProducts() {
 
       {/* Dynamic filters */}
       <AdminDynamicFilters
-        loadedCategories={categories}
         onCategoryChange={handleCategoryChange}
-        isLoading={loadingFilters}
-        loadedOptions={loadedOptions}
         selectedOptions={selectedOptions}
         setSelectedOptions={handleOptionsChange}
         minPrice={minPrice}
@@ -356,7 +328,6 @@ export default function AdminProducts() {
         isViewMode={isViewMode}
         formData={formData}
         formErrors={formErrors}
-        categories={categories}
         filters={currentCategoryFilters}
         filtersLoading={filtersLoading}
         submitting={submitting}

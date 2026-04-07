@@ -40,26 +40,23 @@ export default function CustomerHeader() {
         </div>
 
         {/* SEARCH BAR */}
-        <div className="bg-white rounded-4xl pl-4 pr-2">
-          <div className="flex gap-4 py-2 items-center">
+        <div className="flex items-center bg-white rounded-4xl gap-4 pl-4 pr-2 py-2">
+          <input
+            className="text-lg rounded-full px-4"
+            style={{ width: 500 }}
+            type="text"
+            placeholder="Search For Products"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
+          />
+          <button
+            onClick={handleSearchSubmit}
+            className="rounded-full px-2 py-2 text-white hover:text-gray-600 cursor-pointer"
+            style={{ background: siteConfig.colors.primarycolor }}
+          >
             <Search size={20} />
-            <input
-              className="text-lg"
-              style={{ width: 500 }}
-              type="text"
-              placeholder="Search For Products"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
-            <button
-              onClick={handleSearchSubmit}
-              className="px-4 py-2 rounded-4xl text-white hover:text-gray-600 cursor-pointer"
-              style={{ background: siteConfig.colors.primarycolor }}
-            >
-              Search
-            </button>
-          </div>
+          </button>
         </div>
 
         {/* NAVIGATION LINKS */}
