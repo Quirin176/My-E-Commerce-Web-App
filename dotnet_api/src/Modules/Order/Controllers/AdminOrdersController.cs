@@ -35,11 +35,11 @@ namespace WebApp_API.Controllers
 
         // GET: /api/adminorders/{id} - Get order detail
         [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetOrderDetail(int id)
+        public async Task<IActionResult> GetOrderDetailById(int orderId)
         {
             try
             {
-                var order = await _orderService.GetAdminOrderByIdAsync(id);
+                var order = await _orderService.AdminGetOrderWithItemsByIdAsync(orderId);
                 if (order is null)
                     return NotFound(new { message = "Order not found" });
 
@@ -133,7 +133,7 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                var stats = await _orderService.GetOrderStatsAsync();
+                var stats = await _orderService.GetOrderStatisticsAsync();
                 return Ok(stats);
             }
             catch (Exception ex)
@@ -148,7 +148,7 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                var order = await _orderService.GetAdminOrderByIdAsync(id);
+                var order = await _orderService.AdminGetOrderWithItemsByIdAsync(id);
                 if (order is null)
                     return NotFound(new { message = "Order not found" });
 

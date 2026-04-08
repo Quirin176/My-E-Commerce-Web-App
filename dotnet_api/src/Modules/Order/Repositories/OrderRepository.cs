@@ -11,17 +11,25 @@ namespace WebApp_API.Repositories
         public OrderRepository(AppDbContext db) => _db = db;
 
         // ────────────────────────────── Single Order Lookups ──────────────────────────────
-        public async Task<Order?> GetOrderByIdAsync(int id)
+        public async Task<Order?> GetOrderByIdAsync(int orderId)
         {
-            return await _db.Orders.FindAsync(id);
+            return await _db.Orders.FindAsync(orderId);
         }
 
-        public async Task<Order?> GetOrderWithItemsByIdAsync(int id)
+        public async Task<Order?> GetOrderWithItemsByIdAsync(int orderId)
         {
             return await _db.Orders
                         .Include(o => o.User)
                         .Include(o => o.OrderItems)
-                        .FirstOrDefaultAsync(o => o.Id == id);
+                        .FirstOrDefaultAsync(o => o.Id == orderId);
+        }
+
+        public async Task<Order?> AdminGetOrderWithItemsByIdAsync(int orderId)
+        {
+            return await _db.Orders
+                        .Include(o => o.User)
+                        .Include(o => o.OrderItems)
+                        .FirstOrDefaultAsync(o => o.Id == orderId);
         }
 
         // ────────────────────────────── List of Orders Lookups ──────────────────────────────
@@ -93,14 +101,6 @@ namespace WebApp_API.Repositories
         {
             order.UpdatedAt = DateTime.UtcNow;
             _db.Orders.Update(order);
-            await _db.SaveChangesAsync();
-        }
-
-        public async Task UpdateOrderStatusAsync(Order order)
-        {
-            order.UpdatedAt = DateTime.UtcNow;
-            _db.Orders.Update(order);
-
             await _db.SaveChangesAsync();
         }
 

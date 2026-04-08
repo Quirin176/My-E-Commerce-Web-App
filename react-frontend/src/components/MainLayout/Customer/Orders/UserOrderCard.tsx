@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../../../../hooks/users/useAuth";
-import { Clock, CheckCircle, Eye, SquarePen, Truck, Package, X } from "lucide-react";
+import { Clock, CheckCircle, Download, SquarePen, Truck, Package, X } from "lucide-react";
 import { adminOrdersApi } from "../../../../api/admin/adminOrdersApi";
 import type { OrderResponseModel } from "../../../../types/models/order/OrderResponseModel";
 import UseOrderDetailForm from "./UserOrderDetailForm";
@@ -16,6 +17,8 @@ export default function UserOrderCard(order: UserOrderCardProps) {
     const [showForm, setShowForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
     const { user } = useAuth();
+
+    const navigate = useNavigate();
 
     const getStatusIcon = (status: string) => {
         const statusLower = status.toLowerCase();
@@ -52,6 +55,10 @@ export default function UserOrderCard(order: UserOrderCardProps) {
                 return "bg-gray-100 text-gray-800";
         }
     };
+
+    const handleViewDetail = () => {
+        navigate(`/order/${order.id}`);
+    }
 
     const handleTrackShipment = () => {
         if (order.status.toLowerCase() === "shipped") {
@@ -141,11 +148,11 @@ export default function UserOrderCard(order: UserOrderCardProps) {
                         <div className="flex items-center gap-2 justify-end min-w-36">
 
                             <button
-                                onClick={(e) => { e.stopPropagation(); setShowForm(true); }}
-                                title="View Order Detail"
+                                onClick={() => handleViewDetail()}
+                                title="Download Order Detail"
                                 className="flex items-center gap-2 px-3 py-2 bg-white text-blue-600 rounded hover:text-white hover:bg-blue-600 border-2 transition"
                             >
-                                <Eye size={18} />
+                                <Download size={18} />
                             </button>
 
                             {user?.role === "Admin" && (

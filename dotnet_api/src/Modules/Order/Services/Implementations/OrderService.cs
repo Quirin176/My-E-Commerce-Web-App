@@ -11,9 +11,9 @@ namespace WebApp_API.Services
         public OrderService(IOrderRepository repo) => _repo = repo;
 
         // ────────────────────────────── Order Lookups ──────────────────────────────
-        public async Task<OrderDTOs.OrderResponse?> GetCustomerOrderByIdAsync(int id, int? userId = null)
+        public async Task<OrderDTOs.OrderResponse?> GetOrderByIdAsync(int orderId, int? userId = null)
         {
-            var order = await _repo.GetOrderByIdAsync(id);
+            var order = await _repo.GetOrderByIdAsync(orderId);
 
             // Check if order exists and optionally enforce ownership if userId is provided
             if (order is null) return null;
@@ -22,44 +22,32 @@ namespace WebApp_API.Services
             return MapToOrderResponse(order);
         }
 
-        public async Task<OrderDTOs.OrderStatsResponse?> GetOrderStatsAsync()
+        public async Task<OrderDTOs.OrderResponse?> GetOrderWithItemsByIdAsync(int orderId, int? userId = null)
         {
-            var orders = await _repo.GetAllOrdersWithItemsAsync();
+            var order = await _repo.GetOrderWithItemsByIdAsync(orderId);
+            if (order is null) return null;
+            if (userId.HasValue && order.UserId != userId.Value) return null;
 
-            return new OrderDTOs.OrderStatsResponse
+            return new OrderDTOs.OrderResponse
             {
-                TotalOrders = orders.Count,
-                TotalRevenue = orders.Sum(o => o.TotalAmount),
-                TotalItems = orders.Sum(o => o.OrderItems.Count),
-                AverageOrderValue = orders.Count > 0 ? orders.Average(o => o.TotalAmount) : 0,
-                Last30DaysRevenue = orders.Where(o => o.OrderDate >= DateTime.UtcNow.AddDays(-30)).Sum(o => o.TotalAmount),
-                Last30DaysOrders = orders.Count(o => o.OrderDate >= DateTime.UtcNow.AddDays(-30)),
-                ByStatus = orders
-                    .GroupBy(o => o.Status)
-                    .Select(g => new OrderDTOs.OrderStatusCountDto { Status = g.Key, Count = g.Count() })
-                    .ToList(),
-                ByPaymentMethod = orders
-                    .GroupBy(o => o.PaymentMethod)
-                    .Select(g => new OrderDTOs.OrderPaymentMethodCountDto { Method = g.Key, Count = g.Count() })
-                    .ToList()
+                Id = order.Id,
+                CustomerName = order.CustomerName,
+                CustomerEmail = order.CustomerEmail,
+                CustomerPhone = order.CustomerPhone,
+                ShippingAddress = order.ShippingAddress,
+                City = order.City,
+                TotalAmount = order.TotalAmount,
+                PaymentMethod = order.PaymentMethod,
+                Status = order.Status,
+                OrderDate = order.OrderDate,
+                Notes = order.Notes,
+                Items = order.OrderItems.Select(MapToItemResponse).ToList()
             };
         }
 
-        public async Task<List<OrderDTOs.OrderResponse>> GetOrdersByUserIdAsync(int userId)
+        public async Task<OrderDTOs.AdminOrderResponse?> AdminGetOrderWithItemsByIdAsync(int orderId)
         {
-            var orders = await _repo.GetOrdersByUserIdAsync(userId);
-            return orders.Select(MapToOrderResponse).ToList();
-        }
-
-        public async Task<List<OrderDTOs.OrderResponse>> GetFilteredOrdersAsync(OrderFilterParameters filterParams)
-        {
-            var orders = await _repo.GetFilteredOrdersAsync(filterParams);
-            return orders.Select(MapToOrderResponse).ToList();
-        }
-
-        public async Task<OrderDTOs.AdminOrderResponse?> GetAdminOrderByIdAsync(int id)
-        {
-            var order = await _repo.GetOrderWithItemsByIdAsync(id);
+            var order = await _repo.AdminGetOrderWithItemsByIdAsync(orderId);
             if (order is null) return null;
 
             return new OrderDTOs.AdminOrderResponse
@@ -78,6 +66,42 @@ namespace WebApp_API.Services
                 UserId = order.User?.Id,
                 UserName = order.User?.Username,
                 Items = order.OrderItems.Select(MapToItemResponse).ToList()
+            };
+        }
+
+        public async Task<List<OrderDTOs.OrderResponse>> GetOrdersByUserIdAsync(int userId)
+        {
+            var orders = await _repo.GetOrdersByUserIdAsync(userId);
+            return orders.Select(MapToOrderResponse).ToList();
+        }
+
+        public async Task<List<OrderDTOs.OrderResponse>> GetFilteredOrdersAsync(OrderFilterParameters filterParams)
+        {
+            var orders = await _repo.GetFilteredOrdersAsync(filterParams);
+            return orders.Select(MapToOrderResponse).ToList();
+        }
+
+        // ────────────────────────────── Order Statistics ──────────────────────────────
+        public async Task<OrderDTOs.OrderStatisticsResponse?> GetOrderStatisticsAsync()
+        {
+            var orders = await _repo.GetAllOrdersWithItemsAsync();
+
+            return new OrderDTOs.OrderStatisticsResponse
+            {
+                TotalOrders = orders.Count,
+                TotalRevenue = orders.Sum(o => o.TotalAmount),
+                TotalItems = orders.Sum(o => o.OrderItems.Count),
+                AverageOrderValue = orders.Count > 0 ? orders.Average(o => o.TotalAmount) : 0,
+                Last30DaysRevenue = orders.Where(o => o.OrderDate >= DateTime.UtcNow.AddDays(-30)).Sum(o => o.TotalAmount),
+                Last30DaysOrders = orders.Count(o => o.OrderDate >= DateTime.UtcNow.AddDays(-30)),
+                ByStatus = orders
+                    .GroupBy(o => o.Status)
+                    .Select(g => new OrderDTOs.OrderStatusCountDto { Status = g.Key, Count = g.Count() })
+                    .ToList(),
+                ByPaymentMethod = orders
+                    .GroupBy(o => o.PaymentMethod)
+                    .Select(g => new OrderDTOs.OrderPaymentMethodCountDto { Method = g.Key, Count = g.Count() })
+                    .ToList()
             };
         }
 
@@ -113,19 +137,9 @@ namespace WebApp_API.Services
             return MapToOrderResponse(created);
         }
 
-        public async Task<bool> UpdateOrderStatusAsync(int id, string status)
+        public async Task<bool> UpdateOrderAsync(int orderId, OrderDTOs.UpdateOrderRequest request)
         {
-            var order = await _repo.GetOrderByIdAsync(id);
-            if (order is null) return false;
-
-            order.Status = status;
-            await _repo.UpdateOrderAsync(order);
-            return true;
-        }
-
-        public async Task<bool> UpdateOrderAsync(int id, OrderDTOs.UpdateOrderRequest request)
-        {
-            var order = await _repo.GetOrderByIdAsync(id);
+            var order = await _repo.GetOrderByIdAsync(orderId);
             if (order is null) return false;
 
             if (!string.IsNullOrWhiteSpace(request.CustomerName)) order.CustomerName = request.CustomerName;
@@ -136,6 +150,16 @@ namespace WebApp_API.Services
             if (!string.IsNullOrWhiteSpace(request.Status)) order.Status = request.Status;
             if (!string.IsNullOrWhiteSpace(request.Notes)) order.Notes = request.Notes;
 
+            await _repo.UpdateOrderAsync(order);
+            return true;
+        }
+
+        public async Task<bool> UpdateOrderStatusAsync(int orderId, string status)
+        {
+            var order = await _repo.GetOrderByIdAsync(orderId);
+            if (order is null) return false;
+
+            order.Status = status;
             await _repo.UpdateOrderAsync(order);
             return true;
         }

@@ -40,13 +40,14 @@ export default function AdminProductForm({
   autoGenerateSlug,
   onCategoryChange,
 }: AdminProductFormProps) {
+
   if (!showForm) return null;
 
   const { categories } = useCategories();
 
   const allImages = Array.isArray(formData.images) ? formData.images : [];
   const selectedIds = formData.selectedOptionValueIds ?? [];
-  
+
   return (
     <>
       {/* Backdrop Overlay */}
@@ -57,14 +58,14 @@ export default function AdminProductForm({
 
       {/* Modal Container */}
       <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-lg shadow-2xl w-full max-w-7xl max-h-[90vh] overflow-y-auto">
+        <div className="flex flex-col bg-white rounded-lg shadow-2xl w-full max-w-7xl max-h-[90vh] overflow-y-auto">
 
           {/* Modal Header */}
-          <div className="sticky bg-white border-b px-6 py-2 flex justify-between items-center">
+          <div className="sticky top-0 bg-white border-b px-6 py-2 flex justify-between items-center z-10">
             <h2 className="text-2xl font-bold text-black">
               {isViewMode ? 'Product Information' : editingId ? 'Edit Product' : 'Add New Product'}
             </h2>
-            
+
             <button
               onClick={onClose}
               className="text-black hover:bg-gray-300 transition rounded-xl cursor-pointer p-1"
@@ -74,7 +75,7 @@ export default function AdminProductForm({
           </div>
 
           {/* Modal Content */}
-          <div className="p-6 space-y-6">
+          <div className="p-6 space-y-6 overflow-y-auto">
             {/* Basic Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -253,19 +254,19 @@ export default function AdminProductForm({
 
                         {/* Delete Button */}
                         {!isViewMode && (
-                        <button
-                          type="button"
-                          disabled={isViewMode}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            removeImageUrl(idx);
-                          }}
-                          className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white p-1.5 rounded-full shadow-lg hover:shadow-xl transition transform hover:scale-110 z-10"
-                          title={`Remove Image ${idx + 1}`}
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                          <button
+                            type="button"
+                            disabled={isViewMode}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              removeImageUrl(idx);
+                            }}
+                            className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white p-1.5 rounded-full shadow-lg hover:shadow-xl transition transform hover:scale-110 z-10"
+                            title={`Remove Image ${idx + 1}`}
+                          >
+                            <Trash2 size={14} />
+                          </button>
                         )}
 
                         {/* Hover Overlay */}
@@ -335,21 +336,21 @@ export default function AdminProductForm({
 
             {/* Submit Buttons */}
             {!isViewMode && (
-            <div className="flex gap-3 pt-6 border-t">
-              <button
-                onClick={onSubmit}
-                disabled={isViewMode || submitting}
-                className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {submitting ? 'Saving...' : editingId ? 'Update Product' : 'Create Product'}
-              </button>
-              <button
-                onClick={onClose}
-                className="flex-1 px-6 py-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition font-semibold"
-              >
-                Cancel
-              </button>
-            </div>
+              <div className="flex gap-3 pt-6 border-t">
+                <button
+                  onClick={onSubmit}
+                  disabled={isViewMode || submitting}
+                  className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {submitting ? 'Saving...' : editingId ? 'Update Product' : 'Create Product'}
+                </button>
+                <button
+                  onClick={onClose}
+                  className="flex-1 px-6 py-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition font-semibold"
+                >
+                  Cancel
+                </button>
+              </div>
             )}
           </div>
         </div>

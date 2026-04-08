@@ -1,5 +1,3 @@
-// THIS IS A COMPONENT FOR DISPLAYING A PRODUCT CARD IN THE ADMIN DASHBOARD WITH OPTIONS TO VIEW, EDIT, OR DELETE THE PRODUCT
-
 import { Edit2, Trash2 } from "lucide-react";
 import type { Product } from "../../../types/models/products/Product";
 

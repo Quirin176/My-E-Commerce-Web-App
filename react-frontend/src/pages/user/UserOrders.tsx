@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { Package } from "lucide-react";
 import { useAuth } from "../../hooks/users/useAuth";
-import { checkoutApi } from "../../api/checkoutApi";
+import { orderApi } from "../../api/user/orderApi";
 import type { OrderResponseModel } from "../../types/models/order/OrderResponseModel";
 import UserOrderCard from "../../components/MainLayout/Customer/Orders/UserOrderCard";
 import { siteConfig } from "../../config/siteConfig";
@@ -22,11 +22,9 @@ export default function UserOrders() {
     const loadOrders = async () => {
       setLoading(true);
       try {
-        const data = await checkoutApi.getUserOrders();
+        const data = await orderApi.getUserAllOrders();
         setOrders(Array.isArray(data) ? data : []);
-        console.log("Orders loaded:", data);
       } catch (error) {
-        console.error("Error loading orders:", error);
         toast.error("Failed to load orders");
         setOrders([]);
       } finally {

@@ -6,12 +6,14 @@ namespace WebApp_API.Services
     public interface IOrderService
     {
         // ────────────────────────────── Single Order Lookups ──────────────────────────────
-        Task<OrderDTOs.OrderResponse?> GetCustomerOrderByIdAsync(int id, int? userId = null);
-        Task<OrderDTOs.OrderStatsResponse?> GetOrderStatsAsync();
+        Task<OrderDTOs.OrderResponse?> GetOrderByIdAsync(int id, int? userId = null);
+        Task<OrderDTOs.OrderResponse?> GetOrderWithItemsByIdAsync(int id, int? userId = null);
+        Task<OrderDTOs.AdminOrderResponse?> AdminGetOrderWithItemsByIdAsync(int id);
+
+        Task<OrderDTOs.OrderStatisticsResponse?> GetOrderStatisticsAsync();
         Task<List<OrderDTOs.OrderResponse>> GetOrdersByUserIdAsync(int userId);
 
         // ────────────────────────────── List of Orders Lookups ──────────────────────────────
-        Task<OrderDTOs.AdminOrderResponse?> GetAdminOrderByIdAsync(int id);
         Task<List<OrderDTOs.OrderResponse>> GetFilteredOrdersAsync(OrderFilterParameters filterParams);
 
         // ────────────────────────────── Write Operations ──────────────────────────────

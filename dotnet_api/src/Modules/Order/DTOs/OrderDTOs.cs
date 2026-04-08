@@ -89,7 +89,7 @@ namespace WebApp_API.DTOs
         }
 
         // DTO returned by GET /api/adminorders/stats
-        public class OrderStatsResponse
+        public class OrderStatisticsResponse
         {
             public int TotalOrders { get; set; }
             public decimal TotalRevenue { get; set; }

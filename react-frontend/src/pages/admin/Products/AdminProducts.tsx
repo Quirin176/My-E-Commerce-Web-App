@@ -16,21 +16,22 @@ import type { Product } from "../../../types/models/products/Product";
 const PAGE_SIZE = 10;
 
 export default function AdminProducts() {
-  // ── URL-driven filter state ──────────────────────────────────────────────
+  // ──────────────────── URL-driven filter state ────────────────────
   const { page, sortOrder, minPrice, maxPrice, selectedOptions, updateUrl } = useUrlFilters();
 
-  // ── Local UI state ───────────────────────────────────────────────────────
+  // ──────────────────── Local UI state ────────────────────
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // ── Data fetching via shared hook ────────────────────────────────────────
+  // ──────────────────── Product data fetching ────────────────────
   const { products, totalCount, loading, error, refetch } = useProducts(
     { categorySlug: selectedCategory ?? undefined, pageSize: PAGE_SIZE },
     { searchTerm, minPrice, maxPrice, sortOrder, selectedOptions, currentPage: page, }
   );
 
-  // ── Pagination ────────────────────────────────────────────────────────────
+  // ──────────────────── Pagination ────────────────────
   const { totalPages, goToPage } = usePagination({
     totalCount,
     pageSize: PAGE_SIZE,
@@ -38,7 +39,7 @@ export default function AdminProducts() {
     onPageChange: (p) => updateUrl({ page: p }),
   });
 
-  // Form Data
+  // Product Form Data
   const {
     formData,
     formErrors,
@@ -72,11 +73,6 @@ export default function AdminProducts() {
     setSelectedCategory(slug || null);
     updateUrl({ selectedOptions: [], page: 1 });
   };
-  const handleSearchChange = (val: string) => updateUrl({ query: String(val), page: 1 });
-  const handleSortChange = (val: string) => updateUrl({ sortOrder: val, page: 1 });
-  const handleMinPrice = (val: string | number) => updateUrl({ minPrice: String(val), page: 1 });
-  const handleMaxPrice = (val: string | number) => updateUrl({ maxPrice: String(val), page: 1 });
-  const handleOptionsChange = (opts: (string | number)[]) => updateUrl({ selectedOptions: opts, page: 1 });
 
   const applyFilters = () => {
     // Normalize / validate price inputs
@@ -146,8 +142,9 @@ export default function AdminProducts() {
     try {
       await adminProductsApi.deleteProduct(id);
       toast.success("Product deleted!");
-    } catch {
-      toast.error("Failed to delete product");
+    } catch(error) {
+      const message = error instanceof Error ? error.message : "Failed to delete product";
+      toast.error(message);
     }
   };
 
@@ -170,11 +167,8 @@ export default function AdminProducts() {
     if (categoryId) { loadOptionsForCategory(categoryId); }
   };
 
-  const openEdit = (p: Product) =>
-    openEditForm(p, setFormData, (f, v) => updateField(f as keyof typeof formData, v));
-
-  const openView = (p: Product) =>
-    openViewForm(p, setFormData, (f, v) => updateField(f as keyof typeof formData, v));
+  const openEdit = (p: Product) => openEditForm(p, setFormData, (f, v) => updateField(f as keyof typeof formData, v));
+  const openView = (p: Product) => openViewForm(p, setFormData, (f, v) => updateField(f as keyof typeof formData, v));
 
   return (
     <div className="flex flex-col gap-y-2">
@@ -193,23 +187,28 @@ export default function AdminProducts() {
         </div>
 
         {/* ========== SEARCH BAR ========== */}
-        <div className="flex items-center gap-4 pl-4 pr-2 py-2">
+        <div className="flex items-center gap-4">
           <input
             type="text"
             placeholder="Search For Products"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
-                handleSearchChange(searchTerm);
+                setSearchTerm(searchInput);
+                updateUrl({ query: searchInput, page: 1 });
               }
             }}
-            className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
+            className="text-lg w-full pl-4 pr-2 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
           />
           {searchTerm && (
             <button
-              onClick={() => setSearchTerm("")}
+              onClick={() => {
+                setSearchInput("");
+                setSearchTerm("");
+                updateUrl({ query: undefined, page: 1 });
+              }}
               className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
             >
               ✕
@@ -217,7 +216,10 @@ export default function AdminProducts() {
 
           )}
           <button
-            onClick={() => handleSearchChange(searchTerm)}
+            onClick={() => {
+              setSearchTerm(searchInput);
+              updateUrl({ query: searchInput, page: 1 });
+            }}
             className="rounded-full px-2 py-2 text-white bg-blue-600 hover:text-gray-600 hover:bg-blue-700 cursor-pointer"
           >
             <Search size={20} />
@@ -259,13 +261,13 @@ export default function AdminProducts() {
       <AdminDynamicFilters
         onCategoryChange={handleCategoryChange}
         selectedOptions={selectedOptions}
-        setSelectedOptions={handleOptionsChange}
+        setSelectedOptions={(opts: (string | number)[]) => updateUrl({ selectedOptions: opts, page: 1 })}
         minPrice={minPrice}
-        setMinPrice={handleMinPrice}
+        setMinPrice={(val: string | number) => updateUrl({ minPrice: String(val), page: 1 })}
         maxPrice={maxPrice}
-        setMaxPrice={handleMaxPrice}
+        setMaxPrice={(val: string | number) => updateUrl({ maxPrice: String(val), page: 1 })}
         sortOrder={sortOrder}
-        setSortOrder={handleSortChange}
+        setSortOrder={(val: string) => updateUrl({ sortOrder: val, page: 1 })}
         onApplyFilters={applyFilters}
       />
 

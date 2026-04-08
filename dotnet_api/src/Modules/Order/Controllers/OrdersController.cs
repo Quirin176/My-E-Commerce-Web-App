@@ -41,7 +41,7 @@ namespace WebApp_API.Controllers
             try
             {
                 var order = await _orderService.CreateOrderAsync(request, int.Parse(userId));
-                return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, new
+                return CreatedAtAction(nameof(GetOrderById), new { id = order.Id }, new
                 {
                     order.Id,
                     order.CustomerName,
@@ -56,9 +56,9 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // GET api/orders/{id} - Get order by ID
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetOrder(int id)
+        // GET api/orders/id/{id:int}/details - Get order by ID
+        [HttpGet("id/{orderId:int}/details")]
+        public async Task<IActionResult> GetOrderById(int orderId)
         {
             try
             {
@@ -66,7 +66,7 @@ namespace WebApp_API.Controllers
                 var userId = User.FindFirst("id")?.Value;
                 if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
-                var order = await _orderService.GetCustomerOrderByIdAsync(id, int.Parse(userId));
+                var order = await _orderService.GetOrderByIdAsync(orderId, int.Parse(userId));
                 if (order is null) return NotFound(new { message = "Order not found" });
 
                 return Ok(order);
@@ -77,15 +77,35 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // GET api/orders/user/my-orders - Get the current user's orders
-        [HttpGet("user/my-orders")]
-        public async Task<IActionResult> GetUserOrders()
+        // GET api/orders/id/{id:int}/detailswithitems - Get order by ID
+        [HttpGet("id/{orderId:int}/detailswithitems")]
+        public async Task<IActionResult> GetOrderWithItemsById(int orderId)
+        {
+            try
+            {
+                // Ensure the user can only access their own orders
+                var userId = User.FindFirst("id")?.Value;
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+                var order = await _orderService.GetOrderWithItemsByIdAsync(orderId, int.Parse(userId));
+                if (order is null) return NotFound(new { message = "Order not found" });
+
+                return Ok(order);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error fetching order", error = ex.Message });
+            }
+        }
+
+        // GET api/orders/user/all - Get the current user's orders
+        [HttpGet("user/all")]
+        public async Task<IActionResult> GetAllOrdersByUserId()
         {
             try
             {
                 var userId = User.FindFirst("id")?.Value;
-                if (string.IsNullOrEmpty(userId))
-                    return Unauthorized();
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
                 var orders = await _orderService.GetOrdersByUserIdAsync(int.Parse(userId));
                 return Ok(orders);

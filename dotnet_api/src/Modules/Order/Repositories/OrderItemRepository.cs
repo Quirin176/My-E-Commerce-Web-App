@@ -8,9 +8,12 @@ namespace WebApp_API.Repositories
     {
         private readonly AppDbContext _db;
         public OrderItemRepository(AppDbContext db) => _db = db;
+
+        // ────────────────────────────── Order Item Lookups ──────────────────────────────
         public async Task<OrderItem?> GetOrderItemByIdAsync(int id) =>
             await _db.OrderItems.FindAsync(id);
 
+        // ────────────────────────────── Order Item List Lookups ──────────────────────────────
         public async Task AddRangeAsync(IEnumerable<OrderItem> items)
         {
             await _db.OrderItems.AddRangeAsync(items);

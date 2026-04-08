@@ -6,8 +6,9 @@ namespace WebApp_API.Repositories
     public interface IOrderRepository
     {
         // ────────────────────────────── Single Order Lookups ──────────────────────────────
-        Task<Order?> GetOrderByIdAsync(int id);
-        Task<Order?> GetOrderWithItemsByIdAsync(int id);
+        Task<Order?> GetOrderByIdAsync(int orderId);
+        Task<Order?> GetOrderWithItemsByIdAsync(int orderId);
+        Task<Order?> AdminGetOrderWithItemsByIdAsync(int orderId);
 
         // ────────────────────────────── List of Orders Lookups ──────────────────────────────
         Task<List<Order>> GetOrdersByUserIdAsync(int userId);
@@ -17,7 +18,6 @@ namespace WebApp_API.Repositories
         // ────────────────────────────── Write Operations ──────────────────────────────
         Task<Order> CreateOrderAsync(Order order, List<OrderItem> items);   // Customer
         Task UpdateOrderAsync(Order order);                 // Admin
-        Task UpdateOrderStatusAsync(Order order);           // Admin
         Task DeleteOrderAsync(Order order);                 // Admin
     }
 }
