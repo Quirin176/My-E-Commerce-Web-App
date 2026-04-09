@@ -95,16 +95,13 @@ export default function UserOrderDetailForm({ showForm, order, setShowForm }: Us
         <>
             {/* Backdrop Overlay */}
             <div
-                className="fixed inset-0 z-40 bg-black/50 flex items-center justify-center p-4 cursor-pointer"
+                className="fixed inset-0 z-40 bg-black/50 flex items-center justify-center p-4"
                 onClick={() => setShowForm(false)}
-            />
-
-            <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+            >
                 <div
-                    className="flex flex-col bg-white rounded-lg shadow-2xl w-full max-w-7xl max-h-[90vh] overflow-y-auto cursor-default"
+                    className="flex flex-col bg-white rounded-lg shadow-2xl w-full max-w-7xl max-h-[80vh] overflow-y-auto"
                     onClick={(e) => e.stopPropagation()}
                 >
-
                     {/* Header */}
                     <div className="flex items-center justify-between bg-white sticky top-0 px-6 py-2 border-b z-10">
                         <h1 className="text-2xl font-bold text-black">Order #{order.id}</h1>
@@ -118,12 +115,12 @@ export default function UserOrderDetailForm({ showForm, order, setShowForm }: Us
                     </div>
 
                     {/* Main Content */}
-                    <div className="overflow-y-auto">
+                    <div className="flex flex-col gap-y-4 overflow-y-auto">
                         {/* Status */}
-                        <div className="flex flex-col bg-white p-6 rounded-lg shadow mb-6">
-                            <div className="flex items-center justify-between mb-6 gap-10">
+                        <div className="flex flex-col bg-white p-6 rounded-lg shadow-lg">
+                            <div className="flex items-center justify-between">
                                 <div className="flex items-center mb-6 gap-10">
-                                    <h3 className="font-bold text-gray-800">Order Status</h3>
+                                    <h3 className="text-lg font-bold text-gray-800">Order Status</h3>
 
                                     <p className={`inline-block px-6 py-3 rounded-full border-2 font-bold capitalize ${getStatusColor(order.status)}`}>
                                         {order.status}
@@ -140,12 +137,12 @@ export default function UserOrderDetailForm({ showForm, order, setShowForm }: Us
                             </div>
 
                             {/* Timeline */}
-                            <div className="mt-6">
-                                <h4 className="text-sm font-semibold text-gray-600 mb-3">Tracking Progress</h4>
+                            <div className="flex flex-col gap-y-4">
+                                <h4 className="text-lg font-semibold text-black">Tracking Progress</h4>
                                 <div className="flex justify-between">
                                     {getStatusTimeline(order.status)}
                                 </div>
-                                <div className="flex justify-between text-xs text-gray-600 mt-2">
+                                <div className="flex justify-between text-xs text-gray-600">
                                     <span>Pending</span>
                                     <span>Confirmed</span>
                                     <span>Shipped</span>
@@ -155,9 +152,9 @@ export default function UserOrderDetailForm({ showForm, order, setShowForm }: Us
                         </div>
 
                         {/* Order Information */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Shipping Information */}
-                            <div className="bg-white p-6 rounded-lg shadow">
+                            <div className="bg-white p-6 rounded-lg shadow-lg">
                                 <h3 className="font-bold text-lg text-gray-800 mb-4">Shipping Information</h3>
                                 <div className="space-y-2 text-gray-700">
                                     <p><strong>{order.customerName}</strong></p>
@@ -168,7 +165,7 @@ export default function UserOrderDetailForm({ showForm, order, setShowForm }: Us
                             </div>
 
                             {/* Payment Information */}
-                            <div className="bg-white p-6 rounded-lg shadow">
+                            <div className="bg-white p-6 rounded-lg shadow-lg">
                                 <h3 className="font-bold text-lg text-gray-800 mb-4">Payment Details</h3>
                                 <div className="space-y-3 text-gray-700">
                                     <div className="flex justify-between">
@@ -189,7 +186,7 @@ export default function UserOrderDetailForm({ showForm, order, setShowForm }: Us
 
                         {/* Order Items */}
                         {order.items && order.items.length > 0 && (
-                            <div className="bg-white p-6 rounded-lg shadow mb-6">
+                            <div className="bg-white p-6 rounded-lg shadow-lg">
                                 <h3 className="font-bold text-lg text-gray-800 mb-4">Order Items</h3>
                                 <div className="space-y-3">
                                     {order.items.map(item => (
