@@ -25,6 +25,11 @@ namespace WebApp_API.Repositories
             return await _db.Users.FirstOrDefaultAsync(x => x.Phone == phone);
         }
 
+        // public async Task<User[]> GetAllUsersAsync()
+        // {
+        //     return await _db.Users.ToListAsync();
+        // }
+
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
         public async Task CreateAsync(User user)
         {
