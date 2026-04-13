@@ -6,15 +6,15 @@ namespace WebApp_API.Services
     // Business Logic
     public interface IUserService
     {
-        // ────────────────────────────────────────────────── User Profile Query ──────────────────────────────────────────────────
+        // ──────────────────── User Profile Query ────────────────────
         Task<UserDTOs.ProfileResponse?> GetByIdAsync(int id);
+        Task<UserDTOs.ProfileResponse?> GetByEmailAsync(string email);
+        Task<UserDTOs.ProfileResponse?> GetByPhoneAsync(string phone);
+        Task<List<UserDTOs.ProfileResponse>> GetAllUsersAsync();
 
-        // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
-
-        // Returns the updated user or null if not found
+        // ──────────────────── Write operations ────────────────────
         Task UpdateAsync(int id, UserDTOs.ProfileUpdateRequest request);
 
-        // Returns false if user not found
         // Task<bool> DeleteAsync(int id);
     }
 }

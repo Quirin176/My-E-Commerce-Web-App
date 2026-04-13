@@ -10,25 +10,17 @@ namespace WebApp_API.Repositories
         public UserRepository(AppDbContext db) => _db = db;
 
         // ────────────────────────────────────────────────── Single product lookups ──────────────────────────────────────────────────
-        public async Task<User?> GetByIdAsync(int id)
-        {
-            return await _db.Users.FindAsync(id);
-        }
+        public Task<User?> GetByIdAsync(int id) =>
+        _db.Users.FindAsync(id).AsTask();
 
-        public async Task<User?> GetByEmailAsync(string email)
-        {
-            return await _db.Users.FirstOrDefaultAsync(x => x.Email == email);
-        }
+        public Task<User?> GetByEmailAsync(string email) =>
+        _db.Users.FirstOrDefaultAsync(x => x.Email == email);
 
-        public async Task<User?> GetByPhoneAsync(string phone)
-        {
-            return await _db.Users.FirstOrDefaultAsync(x => x.Phone == phone);
-        }
+        public Task<User?> GetByPhoneAsync(string phone) =>
+        _db.Users.FirstOrDefaultAsync(x => x.Phone == phone);
 
-        // public async Task<User[]> GetAllUsersAsync()
-        // {
-        //     return await _db.Users.ToListAsync();
-        // }
+        public Task<List<User>> GetAllUsersAsync() =>
+        _db.Users.ToListAsync();
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
         public async Task CreateAsync(User user)
@@ -42,7 +34,7 @@ namespace WebApp_API.Repositories
             _db.Users.Update(user);
             await _db.SaveChangesAsync();
         }
-        
+
         // public void Remove(User user) => _db.Users.Remove(user);
     }
 }

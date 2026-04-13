@@ -35,6 +35,51 @@ namespace WebApp_API.Controllers
             }
         }
 
+        [HttpGet("email/{email}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetProfileByEmail(string email)
+        {
+            try
+            {
+                var profile = await _userService.GetByEmailAsync(email);
+                return Ok(profile);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("phone/{phone}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetProfileByPhone(string phone)
+        {
+            try
+            {
+                var profile = await _userService.GetByPhoneAsync(phone);
+                return Ok(profile);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAll()
+        {
+            try
+            {
+                var usesprofile = await _userService.GetAllUsersAsync();
+                return Ok(usesprofile);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+
         [HttpPut("profile")]
         [Authorize]
         public async Task<IActionResult> UpdateProfile(UserDTOs.ProfileUpdateRequest dto)

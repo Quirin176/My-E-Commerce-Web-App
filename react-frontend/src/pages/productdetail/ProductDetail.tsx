@@ -44,7 +44,6 @@ export default function ProductDetails() {
       toast.success(`${item.name} added to cart!`);
     } catch (error) {
       toast.error(`Failed to add ${item.name} to cart.`);
-      console.error("Cart addition error:", error);
     }
   };
 
@@ -59,9 +58,7 @@ export default function ProductDetails() {
       try {
         const data = await productApi.getProductBySlug(slug);
         setProduct(data);
-        console.log("Product loaded:", data);
       } catch (error) {
-        console.error("Error loading product:", error);
         toast.error("Failed to load product details");
       } finally {
         setLoading(false);

@@ -12,8 +12,9 @@ import Search from "./pages/search/Search";
 
 import AdminDashboard from "./pages/admin/Dashboard/Dashboard";
 import AdminProducts from "./pages/admin/Products/AdminProducts";
-import AdminOrders from "./pages/admin/Orders/AdminOrders";
 import AdminAttributes from "./pages/admin/Attributes/AdminAttributes"
+import AdminOrders from "./pages/admin/Orders/AdminOrders";
+import AdminUsers from "./pages/admin/Users/AdminUsers";
 
 import About from "./pages/about/About";
 import Cart from "./pages/user/Cart"
@@ -94,6 +95,7 @@ export default function App() {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="products" element={<AdminProducts />} />
           <Route path="orders" element={<AdminOrders />} />
+          <Route path="users" element={<AdminUsers />} />
           <Route path="orders/:orderId" element={<AdminProtected><OrderDetail /></AdminProtected>} />
           <Route path="attributes" element={<AdminAttributes />} />
         </Route>

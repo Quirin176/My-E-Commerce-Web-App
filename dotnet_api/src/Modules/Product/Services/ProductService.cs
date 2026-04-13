@@ -12,7 +12,7 @@ namespace WebApp_API.Services
 
         public ProductService(IProductRepository repo) => _repo = repo;
 
-        // ────────────────────────────────────────────────── Public queries ──────────────────────────────────────────────────
+        // ──────────────────── Public queries ────────────────────
 
         public async Task<ProductDTOs.ProductDetailResponse?> GetByIdAsync(int id)
         {
@@ -87,7 +87,7 @@ namespace WebApp_API.Services
             return items.Select(p => p.Name).Distinct().Take(limit).ToList();
         }
 
-        // ────────────────────────────────────────────────── Admin queries ──────────────────────────────────────────────────
+        // ──────────────────── Admin queries ────────────────────
 
         public async Task<PaginatedResponse<ProductDTOs.ProductAdminResponse>> GetPaginatedAsync(
             ProductListDTOs.AdminProductFilterParams filterParams)
@@ -119,7 +119,7 @@ namespace WebApp_API.Services
             };
         }
 
-        // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
+        // ──────────────────── Write operations ────────────────────
 
         public async Task<int> CreateAsync(ProductDTOs.CreateProductRequest request)
         {
@@ -212,8 +212,7 @@ namespace WebApp_API.Services
             return true;
         }
 
-        // ────────────────────────────────────────────────── Mapping helpers ──────────────────────────────────────────────────
-
+        // ──────────────────── Mapping helpers ────────────────────
         private async Task<ProductDTOs.ProductDetailResponse> MapToDetailAsync(Product product)
         {
             var images = await _repo.GetImageUrlsAsync(product.Id);
