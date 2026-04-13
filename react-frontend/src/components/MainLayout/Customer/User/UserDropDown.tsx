@@ -50,7 +50,7 @@ export default function UserDropDown() {
       {/* DROP DOWN PANEL */}
       {open && (
         <div
-          className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-48 bg-white border rounded-lg shadow-lg p-2 z-50"
+          className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-36 bg-white border rounded-lg shadow-lg p-2 z-50"
           onMouseLeave={() => setOpen(false)}
         >
           <Link
