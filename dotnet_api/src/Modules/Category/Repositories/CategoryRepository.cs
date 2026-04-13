@@ -20,9 +20,16 @@ namespace WebApp_API.Repositories
         public Task<List<Category>> GetAllCategoriesAsync() =>
         _db.Categories.ToListAsync();
 
-        public async Task AddCategoryAsync(Category category) =>
-        await _db.Categories.AddAsync(category);
+        public async Task AddCategoryAsync(Category category)
+        {
+            await _db.Categories.AddAsync(category);
+            await _db.SaveChangesAsync();
+        }
 
-        public void Update(Category category) => _db.Categories.Update(category);
+        public async Task UpdateAsync(Category category)
+        {
+            _db.Categories.Update(category);
+            await _db.SaveChangesAsync();
+        }
     }
 }

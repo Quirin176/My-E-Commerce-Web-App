@@ -11,6 +11,6 @@ namespace WebApp_API.Repositories
 
         // ──────────────────── Write Oparation ────────────────────
         Task AddCategoryAsync(Category request);
-        void Update(Category category);
+        Task UpdateAsync(Category category);
     }
 }

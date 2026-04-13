@@ -9,34 +9,45 @@ namespace WebApp_API.Services
         public CategoryService(ICategoryRepository repo) => _repo = repo;
 
         // ──────────────────── Category Queries ────────────────────
-        public async Task<Category?> GetCategoryByIdAsync(int id)
-        {
-            var category = await _repo.GetCategoryByIdAsync(id);
-            if (category == null) return null;
-            return category;
-        }
-        public async Task<Category?> GetCategoryBySlugAsync(string slug)
-        {
-            var category = await _repo.GetCategoryBySlugAsync(slug);
-            if (category == null) return null;
-            return category;
-        }
-        public async Task<List<Category>> GetAllCategoriesAsync()
-        {
-            var list = await _repo.GetAllCategoriesAsync();
-            return list;
-        }
+        public Task<Category?> GetCategoryByIdAsync(int id) =>
+        _repo.GetCategoryByIdAsync(id);
+        
+        public Task<Category?> GetCategoryBySlugAsync(string slug) =>
+        _repo.GetCategoryBySlugAsync(slug);
+        
+        public Task<List<Category>> GetAllCategoriesAsync() =>
+        _repo.GetAllCategoriesAsync();
 
         // ──────────────────── Write Oparation ────────────────────
-        public async Task AddCategoryAsync(Category request)
+        public async Task AddCategoryAsync(CategoryDTOs.CreateCategoryRequest request)
         {
-            // if (!await _repo.GetCategoryBySlugAsync(request.Slug))
-            // throw new InvalidOperationException($"Category with slug '{request.Slug}' already exists.");
-            
+            if (await _repo.GetCategoryBySlugAsync(request.Slug) != null)
+                throw new InvalidOperationException($"A category with slug '{request.Slug}' already exists.");
+
+            var category = new Category
+            {
+                Name = request.Name,
+                Slug = request.Slug
+            };
+
+            await _repo.AddCategoryAsync(category);
         }
-        public void Update(Category category)
+
+        public async Task<bool> UpdateAsync (int id, CategoryDTOs.CreateCategoryRequest request)
         {
-            
+            var category = await _repo.GetCategoryByIdAsync(id);
+            if (category is null) return false;
+
+            // Check slug uniqueness only if it's changing
+            if (category.Slug != request.Slug &&
+                await _repo.GetCategoryBySlugAsync(request.Slug) != null)
+                throw new InvalidOperationException($"A category with slug '{request.Slug}' already exists.");
+
+            category.Name = request.Name;
+            category.Slug = request.Slug;
+
+            await _repo.UpdateAsync(category);
+            return true;
         }
     }
 }

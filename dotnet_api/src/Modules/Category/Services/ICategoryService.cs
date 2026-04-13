@@ -10,7 +10,7 @@ namespace WebApp_API.Services
         Task<List<Category>> GetAllCategoriesAsync();
 
         // ──────────────────── Write Oparation ────────────────────
-        Task AddCategoryAsync(Category request);
-        void Update(Category category);
+        Task AddCategoryAsync(CategoryDTOs.CreateCategoryRequest request);
+        Task<bool> UpdateAsync(int id, CategoryDTOs.CreateCategoryRequest request);
     }
 }
