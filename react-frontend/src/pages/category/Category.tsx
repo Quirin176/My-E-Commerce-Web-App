@@ -27,17 +27,17 @@ export default function Category() {
   });
 
   // ── Handlers ──────────────────────────────────────────────────────────────
-  const handleSortChange = (newSort: string) =>
-    updateUrl({ sortOrder: newSort, page: 1 });
-
-  const handleFilterChange = (newOptions: (string | number)[]) =>
-    updateUrl({ selectedOptions: newOptions, page: 1 });
-
   const handleMinPrice = (val: string | number) =>
     updateUrl({ minPrice: String(val), page: 1 });
 
   const handleMaxPrice = (val: string | number) =>
     updateUrl({ maxPrice: String(val), page: 1 });
+
+  const handleSortChange = (newSort: string) =>
+    updateUrl({ sortOrder: newSort, page: 1 });
+
+  const handleFilterChange = (newOptions: (string | number)[]) =>
+    updateUrl({ selectedOptions: newOptions, page: 1 });
 
   // ── Guard ─────────────────────────────────────────────────────────────────
   if (!selectedCategory) {

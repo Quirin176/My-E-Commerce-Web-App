@@ -81,7 +81,6 @@ namespace WebApp_API.Controllers
         // ────────────────────────────────────────────────── Admin endpoints ──────────────────────────────────────────────────
         // GET /api/products/paginated
         [HttpGet("paginated")]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetProductsPaginated(
             [FromQuery] ProductListDTOs.AdminProductFilterParams filterParams)
         {

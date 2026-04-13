@@ -70,7 +70,10 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 
-// Add DI for repositories and services
+// Add DI (Dependency Injection) for repositories and services
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
 
