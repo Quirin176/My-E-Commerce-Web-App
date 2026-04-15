@@ -1,15 +1,28 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe, HttpException, HttpStatus } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // ─── GLOBAL PREFIX ─────────────────────────────────────────────────────────
-  // Matches React frontend's API_URL: "http://localhost:5159/api"
-  app.setGlobalPrefix('api');
+  // ──────────────────── GLOBAL PREFIX ────────────────────
+  app.setGlobalPrefix('api');   // Matches React frontend's API_URL: "http://localhost:5159/api"
 
-  // ─── VALIDATION PIPE ───────────────────────────────────────────────────────
+  // ──────────────────── SWAGGER SETUP ────────────────────
+  const config = new DocumentBuilder()
+    .setTitle('My API')
+    .setDescription('API documentation')
+    .setVersion('1.0')
+    .addBearerAuth() // if using JWT
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+
+  // IMPORTANT: respect global prefix
+  SwaggerModule.setup('swagger/index.html', app, document);   // Swagger URL: "http://localhost:5159/swagger/index.html"
+
+  // ──────────────────── VALIDATION PIPE ────────────────────
   // Validate all incoming DTOs automatically
   app.useGlobalPipes(
     new ValidationPipe({
@@ -22,18 +35,19 @@ async function bootstrap() {
     }),
   );
 
-  // ─── CORS ──────────────────────────────────────────────────────────────────
+  // ──────────────────── CORS ────────────────────
   app.enableCors({
     origin: [
       'http://localhost:5173', // React frontend Server URL (Vite default)
       'http://localhost:3000', // CRA fallback
     ],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   await app.listen(5159);
   console.log('Server running at http://localhost:5159/api');
+  console.log('Swagger UI at http://localhost:5159/swagger/index.html')
 }
 bootstrap();

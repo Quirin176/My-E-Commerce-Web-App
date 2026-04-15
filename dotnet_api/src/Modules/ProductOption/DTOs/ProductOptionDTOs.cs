@@ -8,17 +8,6 @@ namespace WebApp_API.DTOs
             public int? CategoryId { get; set; }
         }
 
-        public class CreateOptionValueRequest
-        {
-            public int OptionId { get; set; }
-            public string Value { get; set; } = "";
-        }
-
-        public class UpdateOptionValueRequest
-        {
-            public string Value { get; set; } = "";
-        }
-
         public class ProductOptionResponse
         {
             public int Id { get; set; }

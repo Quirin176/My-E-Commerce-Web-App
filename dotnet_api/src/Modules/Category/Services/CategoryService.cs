@@ -33,7 +33,7 @@ namespace WebApp_API.Services
             await _repo.AddCategoryAsync(category);
         }
 
-        public async Task<bool> UpdateAsync (int id, CategoryDTOs.CreateCategoryRequest request)
+        public async Task<bool> UpdateAsync(int id, CategoryDTOs.CreateCategoryRequest request)
         {
             var category = await _repo.GetCategoryByIdAsync(id);
             if (category is null) return false;

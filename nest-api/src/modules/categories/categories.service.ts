@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Category } from "./entities/category.entity";
+import { CreateCategoryRequest } from "./dtos/categories.dtos";
 
 @Injectable()
 export class CategoriesService {
@@ -31,13 +32,17 @@ export class CategoriesService {
     return category;
   }
 
-  // Get all options and all their optionvalues for a category by slug
-  async getFiltersBySlug(slug: string) {
-    const category = await this.categoryRepo.findOne({
-      where: { slug },
-      relations: ['options', 'options.optionValues'], // Assuming relations are set up
-    });
-    if (!category) throw new NotFoundException('Category not found');
-    return category;
+  // Create a new category
+  async create(request: CreateCategoryRequest) {
+    if (await this.categoryRepo.findOne({ where: { slug: request.slug } }))
+      throw new ConflictException(`A category with slug '${request.slug}' already exists.`);
+
+    // var category = this.categoryRepo.create({
+    //   name: request.name,
+    //   slug: request.slug
+    // })
+
+    // return await this.categoryRepo.save(category);
+    return await this.categoryRepo.save(request);
   }
 }

@@ -1,15 +1,15 @@
-import { Controller, Get, Param, Query, Req } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ProductsService } from './products.service';
 
 @Controller('products') // API endpoint: /api/products
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) { }
 
-  // GET api/products
-  @Get()
-  getAll() {
-    return this.productsService.getAll();
-  }
+  // // GET api/products
+  // @Get()
+  // getAll() {
+  //   return this.productsService.getAll();
+  // }
 
   // GET api/products/categories/:id
   @Get('categories/id/:id')
@@ -18,7 +18,7 @@ export class ProductsController {
   }
 
   // GET api/products/categories/:slug
-  @Get('categories/:slug')
+  @Get('categories/slug/:slug')
   getByCategorySlug(@Param('slug') slug: string) {
     return this.productsService.getByCategorySlug(slug);
   }

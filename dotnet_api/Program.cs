@@ -17,7 +17,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// CORS - allow your frontend origin
+// CORS (Cross-Origin Resource Sharing) - allow frontend origin
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>

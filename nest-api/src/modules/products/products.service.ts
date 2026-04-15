@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { In, Repository } from "typeorm";
 import { Product } from "./entities/product.entity";
@@ -7,6 +7,7 @@ import { ProductOptionValue } from "../product-option-values/entities/option-val
 import { ProductFilter } from "../product-filters/entities/product-filter.entity";
 import { CategoriesService } from "../categories/categories.service";
 import { ProductFiltersService } from "../product-filters/product-filters.service";
+import { CreateProductRequest } from "./dtos/products.dtos"
 
 export interface Filters {
   minPrice: number,
@@ -116,16 +117,16 @@ export class ProductsService {
     });
   }
 
-  // Get all products data
-  async getAll() {
-    const products = await this.productRepo.find();
-    return products;
-  }
+  // // Get all products data
+  // async getAll() {
+  //   const products = await this.productRepo.find();
+  //   return products;
+  // }
 
   // Get all products in a category by category ID
   async getByCategoryId(categoryId: number) {
     const products = await this.productRepo.find({
-      where: { categoryId: categoryId }
+      where: { category: { id: categoryId } }
     });
     return products;
   }
@@ -226,5 +227,22 @@ export class ProductsService {
     // Return products matching the filters
     const products = await query.getMany();
     return this.enrichWithOptions(products);
+  }
+
+  // Create a new category
+  async create(request: CreateProductRequest) {
+    if (await this.productRepo.findOne({ where: { slug: request.slug } }))
+      throw new ConflictException(`A category with slug '${request.slug}' already exists.`);
+
+    if (request.selectedOptionValueIds.length > 0)
+    {
+    }
+    // var category = this.categoryRepo.create({
+    //   name: request.name,
+    //   slug: request.slug
+    // })
+
+    // return await this.categoryRepo.save(category);
+    return await this.productRepo.save(request);
   }
 }
