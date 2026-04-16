@@ -15,7 +15,10 @@ namespace WebApp_API.Services
             if (string.IsNullOrWhiteSpace(request.Value))
                 throw new InvalidOperationException("Option value is required");
 
-            if (await _repo.GetProductOptionValueAsync(request.Value) != null)
+            if (!await _repo.OptionExistsAsync(request.OptionId))
+                throw new KeyNotFoundException($"ProductOption with ID {request.OptionId} not found.");
+
+            if (await _repo.GetProductOptionValueAsync(request.Value, request.OptionId) != null)
                 throw new InvalidOperationException($"Value '{request.Value}' already exists for this option");
 
             var optionValue = new ProductOptionValue

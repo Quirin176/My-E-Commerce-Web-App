@@ -9,9 +9,10 @@ namespace WebApp_API.Repositories
         private readonly AppDbContext _db;
         public ProductOptionValueRepository(AppDbContext db) => _db = db;
 
-        public async Task<ProductOptionValue?> GetProductOptionValueAsync(string optionValue)
+        public async Task<ProductOptionValue?> GetProductOptionValueAsync(string optionValue, int optionId)
         {
-            return await _db.ProductOptionValues.FirstOrDefaultAsync(optVal => optVal.Value == optionValue);
+            return await _db.ProductOptionValues.
+            FirstOrDefaultAsync(optVal => optVal.Value == optionValue && optVal.ProductOptionId == optionId);
         }
 
         public async Task<ProductOptionValue?> GetProductOptionValueByIdAsync(int optionValueId)
@@ -27,20 +28,24 @@ namespace WebApp_API.Repositories
 
         public async Task UpdateProductOptionValueByIdAsync(int optionValueId, ProductOptionValue productOptionValue)
         {
-            productOptionValue.Id = optionValueId;
+            var existing = await _db.ProductOptionValues.FindAsync(optionValueId);
+            if (existing is null) return;
 
-            _db.ProductOptionValues.Update(productOptionValue);
+            existing.Value = productOptionValue.Value;
+
             await _db.SaveChangesAsync();
         }
 
         public async Task DeleteProductOptionValueByIdAsync(int optionValueId)
         {
             var optionValue = await GetProductOptionValueByIdAsync(optionValueId);
-            if (optionValue != null)
-            {
-                _db.ProductOptionValues.Remove(optionValue);
-                await _db.SaveChangesAsync();
-            }
+            if (optionValue is null) return;
+            
+            _db.ProductOptionValues.Remove(optionValue);
+            await _db.SaveChangesAsync();
         }
+
+        public Task<bool> OptionExistsAsync(int optionId) =>
+        _db.ProductOptions.AnyAsync(o => o.Id == optionId);
     }
 }
