@@ -44,14 +44,14 @@ namespace WebApp_API.Services
             return await MapToSummaryListAsync(products);
         }
 
-        public async Task<List<ProductListDTOs.ProductSummaryResponse>> GetByCategoryAsync(string categorySlug)
-        {
-            var categoryId = await _repo.ResolveCategoryIdAsync(categorySlug);
-            if (categoryId is null) return new List<ProductListDTOs.ProductSummaryResponse>();
+        // public async Task<List<ProductListDTOs.ProductSummaryResponse>> GetByCategoryAsync(string categorySlug)
+        // {
+        //     var categoryId = await _repo.ResolveCategoryIdAsync(categorySlug);
+        //     if (categoryId is null) return new List<ProductListDTOs.ProductSummaryResponse>();
 
-            var products = await _repo.GetByCategoryAsync(categoryId.Value);
-            return await MapToSummaryListAsync(products);
-        }
+        //     var products = await _repo.GetByCategoryAsync(categoryId.Value);
+        //     return await MapToSummaryListAsync(products);
+        // }
 
         public async Task<ProductDTOs.SearchResponse> SearchAsync(ProductListDTOs.ProductSearchParams searchParams)
         {
@@ -61,7 +61,7 @@ namespace WebApp_API.Services
             return new ProductDTOs.SearchResponse
             {
                 Success = true,
-                Query = searchParams.Q,
+                Query = searchParams.QueryPhrase,
                 TotalCount = totalCount,
                 PageNumber = spec.Page,
                 PageSize = spec.PageSize,
@@ -79,7 +79,7 @@ namespace WebApp_API.Services
 
             var spec = ProductSearchSpec.From(new ProductListDTOs.ProductSearchParams
             {
-                Q = q,
+                QueryPhrase = q,
                 PageSize = limit
             });
 

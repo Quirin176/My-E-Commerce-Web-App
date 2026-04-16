@@ -106,15 +106,16 @@ const CategoryTabs = () => {
   // Render loading / error states
   if (categoriesLoading) {
     return (
-      <div style={{ borderRadius: 10, width: "100%", maxWidth: 1200, margin: "0 auto", textAlign: "center", background: colors.primarycolor, paddingBottom: 10, padding: 40 }}>
+      <div style={{ borderRadius: 10, width: "100%", maxWidth: 1200, margin: "0 auto", textAlign: "center", background: colors.primarycolor, paddingBottom: 10 }}>
         <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
         <p style={{ color: "white", marginTop: 16 }}>Loading categories...</p>
       </div>
     );
   }
+
   if (categoriesError) {
     return (
-      <div style={{ borderRadius: 10, width: "100%", maxWidth: 1200, margin: "0 auto", textAlign: "center", background: colors.primarycolor, paddingBottom: 10, padding: 40 }}>
+      <div style={{ borderRadius: 10, width: "100%", maxWidth: 1200, margin: "0 auto", textAlign: "center", background: colors.primarycolor, paddingBottom: 10 }}>
         <p style={{ color: "white", fontSize: 18 }}>
           {categoriesError || "No categories available"}
         </p>

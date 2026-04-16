@@ -72,7 +72,7 @@ namespace WebApp_API.Specifications
 
         public static ProductSearchSpec From(ProductListDTOs.ProductSearchParams p)
         {
-            var q = p.Q?.Trim() ?? "";
+            var q = p.QueryPhrase?.Trim() ?? "";
             if (q.Length > 200) q = q[..200];
 
             return new ProductSearchSpec

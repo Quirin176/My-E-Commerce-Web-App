@@ -11,7 +11,7 @@ namespace WebApp_API.Services
         Task<ProductDTOs.ProductDetailResponse?> GetBySlugAsync(string slug);
 
         Task<List<ProductListDTOs.ProductSummaryResponse>> GetFilteredAsync(ProductListDTOs.ProductFilterParams filterParams);
-        Task<List<ProductListDTOs.ProductSummaryResponse>> GetByCategoryAsync(string categorySlug);
+        // Task<List<ProductListDTOs.ProductSummaryResponse>> GetByCategoryAsync(string categorySlug);
 
         Task<ProductDTOs.SearchResponse> SearchAsync(ProductListDTOs.ProductSearchParams searchParams);
         Task<List<string>> GetSuggestionsAsync(string q, int limit = 10);

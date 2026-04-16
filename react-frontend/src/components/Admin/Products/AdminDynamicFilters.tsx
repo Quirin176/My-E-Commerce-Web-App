@@ -116,7 +116,7 @@ export default function DynamicFilters({
                     <>
                         {options.map(option => {
                             const selectedInCategory = selectedOptions.filter(id =>
-                                option.optionValues.some(v => v.optionValueId === id)
+                                option.optionValues.some(v => v.id === id)
                             );
 
                             return (
@@ -148,13 +148,13 @@ export default function DynamicFilters({
                                             <div className="p-2 max-h-48 overflow-y-auto">
                                                 {option.optionValues.map(value => (
                                                     <label
-                                                        key={value.optionValueId}
+                                                        key={value.id}
                                                         className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-100 transition cursor-pointer"
                                                     >
                                                         <input
                                                             type="checkbox"
-                                                            checked={selectedOptions.includes(value.optionValueId)}
-                                                            onChange={() => toggleOption(value.optionValueId)}
+                                                            checked={selectedOptions.includes(value.id)}
+                                                            onChange={() => toggleOption(value.id)}
                                                             className="w-3 h-3"
                                                         />
                                                         <span className="text-gray-700 text-xs">{value.value}</span>
@@ -237,7 +237,7 @@ export default function DynamicFilters({
                         {selectedOptions.map(id => {
                             const option = options
                                 .flatMap(c => c.optionValues || [])
-                                .find(v => String(v.optionValueId) === String(id));
+                                .find(v => String(v.id) === String(id));
                             return option ? (
                                 <span
                                     key={id}

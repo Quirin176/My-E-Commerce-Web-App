@@ -132,8 +132,8 @@ export default function Home() {
                         <div className="flex flex-wrap gap-2">
                           {option.optionValues.map((optionvalue) => (
                             <button
-                              key={optionvalue.optionValueId}
-                              onClick={() => handleFilterClick(selectedCategory, optionvalue.optionValueId)}
+                              key={optionvalue.id}
+                              onClick={() => handleFilterClick(selectedCategory, optionvalue.id)}
                               className="px-4 py-1 bg-white hover:bg-gray-700 text-gray-700 hover:text-white text-xs rounded-lg hover:shadow-md transition duration-200 font-medium border border-gray-300"
                             >
                               {optionvalue.value}

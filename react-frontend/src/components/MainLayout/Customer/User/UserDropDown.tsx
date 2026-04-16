@@ -18,7 +18,7 @@ export default function UserDropDown() {
     }
 
     if (item === "Orders" && user?.role === "Admin") {
-      navigate("admin/orders")
+      navigate("admin/dashboard")
     }
 
     if (item === "Logout") {
@@ -72,11 +72,11 @@ export default function UserDropDown() {
 
           {user?.role === "Admin" && (
             <Link
-              to={"/admin/orders"}
+              to={"/admin/dashboard"}
               onClick={() => handleClick("Orders")}
               className="block px-3 py-2 rounded hover:text-white hover:font-bold hover:bg-black"
             >
-              Orders
+              Admin Panel
             </Link>)}
 
           <Link

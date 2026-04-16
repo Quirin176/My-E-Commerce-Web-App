@@ -27,16 +27,18 @@ namespace WebApp_API.DTOs
             public string? Category { get; set; }
             public decimal MinPrice { get; set; } = 0;
             public decimal MaxPrice { get; set; } = decimal.MaxValue;
-
-            /// Comma-separated ProductOptionValue IDs, e.g. "1,3,7".
-            public string? Options { get; set; }
-
+            public string? Options { get; set; }    // Comma-separated ProductOptionValue IDs, e.g. "1,3,7".
             public string SortOrder { get; set; } = "newest";
         }
 
         /// Admin-only extensions on top of the base filter.
-        public class AdminProductFilterParams : ProductFilterParams
+        public class AdminProductFilterParams
         {
+            public string? Category { get; set; }
+            public decimal MinPrice { get; set; } = 0;
+            public decimal MaxPrice { get; set; } = decimal.MaxValue;
+            public string? Options { get; set; }    // Comma-separated ProductOptionValue IDs, e.g. "1,3,7".
+            public string SortOrder { get; set; } = "newest";
             public int Page { get; set; } = 1;
             public int PageSize { get; set; } = 10;
             public string? Search { get; set; }
@@ -45,7 +47,7 @@ namespace WebApp_API.DTOs
         /// Query parameters for the public search endpoint.
         public class ProductSearchParams
         {
-            public string Q { get; set; } = "";
+            public string QueryPhrase { get; set; } = "";
             public int Page { get; set; } = 1;
             public int PageSize { get; set; } = 10;
             public decimal MinPrice { get; set; } = 0;

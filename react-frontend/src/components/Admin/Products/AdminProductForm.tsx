@@ -303,13 +303,13 @@ export default function AdminProductForm({
                         <div className="flex flex-wrap gap-2">
                           {option.optionValues?.map(value => (
                             <label
-                              key={value.optionValueId}
+                              key={value.id}
                               className="flex items-center gap-2 px-4 py-2 border-2 rounded-lg cursor-pointer transition"
                               style={{
-                                borderColor: selectedIds.includes(value.optionValueId)
+                                borderColor: selectedIds.includes(value.id)
                                   ? 'blue'
                                   : 'black',
-                                backgroundColor: selectedIds.includes(value.optionValueId)
+                                backgroundColor: selectedIds.includes(value.id)
                                   ? '#eff6ff'
                                   : 'white',
                               }}
@@ -317,8 +317,8 @@ export default function AdminProductForm({
                               <input
                                 type="checkbox"
                                 disabled={isViewMode}
-                                checked={selectedIds.includes(value.optionValueId)}
-                                onChange={() => handleOptionChange(value.optionValueId)}
+                                checked={selectedIds.includes(value.id)}
+                                onChange={() => handleOptionChange(value.id)}
                                 className="w-4 h-4 cursor-pointer"
                               />
                               <span className="text-sm font-medium text-black border-black">

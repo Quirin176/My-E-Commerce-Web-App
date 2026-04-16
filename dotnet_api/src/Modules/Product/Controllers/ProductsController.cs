@@ -17,12 +17,12 @@ namespace WebApp_API.Controllers
 
         // ────────────────────────────────────────────────── Public endpoints ──────────────────────────────────────────────────
         // GET /api/products
-        [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] ProductListDTOs.ProductFilterParams filterParams)
-        {
-            var products = await _service.GetFilteredAsync(filterParams);
-            return Ok(products);
-        }
+        // [HttpGet]
+        // public async Task<IActionResult> GetAll([FromQuery] ProductListDTOs.ProductFilterParams filterParams)
+        // {
+        //     var products = await _service.GetFilteredAsync(filterParams);
+        //     return Ok(products);
+        // }
 
         // GET /api/products/id:{id}
         [HttpGet("id:{id:int}")]
@@ -41,12 +41,12 @@ namespace WebApp_API.Controllers
         }
 
         // GET /api/products/categories/{categorySlug}
-        [HttpGet("categories/{categorySlug}")]
-        public async Task<IActionResult> GetByCategory(string categorySlug)
-        {
-            var products = await _service.GetByCategoryAsync(categorySlug);
-            return Ok(products);
-        }
+        // [HttpGet("categories/{categorySlug}")]
+        // public async Task<IActionResult> GetByCategory(string categorySlug)
+        // {
+        //     var products = await _service.GetByCategoryAsync(categorySlug);
+        //     return Ok(products);
+        // }
 
         // GET /api/products/filters
         [HttpGet("filters")]
@@ -63,7 +63,7 @@ namespace WebApp_API.Controllers
         [HttpGet("search")]
         public async Task<IActionResult> SearchProducts([FromQuery] ProductListDTOs.ProductSearchParams searchParams)
         {
-            if (string.IsNullOrWhiteSpace(searchParams.Q))
+            if (string.IsNullOrWhiteSpace(searchParams.QueryPhrase))
                 return BadRequest(new { message = "Search query is required" });
 
             var result = await _service.SearchAsync(searchParams);

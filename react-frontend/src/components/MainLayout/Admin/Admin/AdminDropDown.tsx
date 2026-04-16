@@ -9,8 +9,12 @@ export default function AdminDropDown() {
   const { user, logout } = useAuth();
 
   const handleClick = (item: string) => {
-    if (item === "My Acount") {
+    if (item === "Profile") {
       navigate("/profile")
+    }
+
+    if (item === "Home") {
+      navigate("/home")
     }
 
     if (item === "Logout") {
@@ -54,7 +58,15 @@ export default function AdminDropDown() {
           </Link>
 
           <Link
-            to={"/profile"}
+            to={"/home"}
+            onClick={() => handleClick("Profile")}
+            className="block px-3 py-2 rounded hover:text-white hover:font-bold hover:bg-black"
+          >
+            Home Page
+          </Link>
+
+          <Link
+            to={"/auth/login"}
             onClick={() => handleClick("Logout")}
             className="block px-3 py-2 rounded hover:text-white hover:font-bold hover:bg-black"
           >

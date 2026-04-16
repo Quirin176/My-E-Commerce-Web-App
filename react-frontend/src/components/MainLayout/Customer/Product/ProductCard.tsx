@@ -36,14 +36,12 @@ export default function ProductCard({ product }: { product: Product }) {
       toast.success(`${item.name} added to cart!`);
     } catch (error) {
       toast.error(`Failed to add ${item.name} to cart.`);
-      console.error("Cart addition error:", error);
     }
   };
 
   return (
     <div className="border rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 bg-white flex flex-col">
-      <Link to={`/product/${product.slug}`} className="block"
-        onClick={() => console.log(product.options)}>
+      <Link to={`/product/${product.slug}`} className="block">
         <div className="flex justify-center pt-2">
           <img
             src={

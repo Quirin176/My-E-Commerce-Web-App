@@ -93,7 +93,7 @@ export const useAdminProductModal = (): UseAdminProductModalReturn => {
           opt.optionValues.forEach((optVal) => {
             loadedFilters.forEach((filter) => {
               filter.optionValues.forEach((fv) => {
-                if (fv.value === optVal.value) selectedIds.push(fv.optionValueId);
+                if (fv.value === optVal.value) selectedIds.push(fv.id);
               });
             });
           });
