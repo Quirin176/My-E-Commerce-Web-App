@@ -60,7 +60,7 @@ export function useUrlFilters(): UseUrlFiltersReturn {
       const search = params.toString();
       navigate({ search: search ? `?${search}` : "" }, { replace: true });
     },
-    [navigate, page, sortOrder, minPrice, maxPrice, selectedOptions]
+    [navigate, page, sortOrder, minPrice, maxPrice, selectedOptions, query]
   );
 
   return { page, sortOrder, minPrice, maxPrice, selectedOptions, query, updateUrl };

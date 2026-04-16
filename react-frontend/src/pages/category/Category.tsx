@@ -16,7 +16,7 @@ export default function Category() {
 
   // ── Data fetching ─────────────────────────────────────────────────────────
   const { products, totalCount, loading, error, loadedOptions, refetch } =
-    useProducts({ categorySlug: selectedCategory, pageSize: PAGE_SIZE }, { minPrice, maxPrice, sortOrder, selectedOptions, currentPage: page });
+    useProducts({ categorySlug: selectedCategory, pageSize: PAGE_SIZE }, { searchTerm: "", minPrice, maxPrice, sortOrder, selectedOptions, currentPage: page });
 
   // ── Pagination ────────────────────────────────────────────────────────────
   const { totalPages, goToPage } = usePagination({

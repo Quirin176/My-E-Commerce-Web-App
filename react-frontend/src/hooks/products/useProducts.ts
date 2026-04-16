@@ -50,7 +50,6 @@ export function useProducts({ categorySlug, pageSize }: UseProductsOptions, filt
     setError(null);
 
     try {
-      console.log(filters.searchTerm);
       const response = await productApi.getProductsPaginated(
         filters.currentPage,
         pageSize, filters.searchTerm, "id", filters.sortOrder, {

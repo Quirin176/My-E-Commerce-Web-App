@@ -48,10 +48,11 @@ export default function DynamicFilters({
 
   // Toggle option selection - handles both string and number IDs
   const toggleOption = (optionValueId: string | number) => {
-    if (selectedOptions.includes(optionValueId)) {
-      setSelectedOptions(selectedOptions.filter(o => o !== optionValueId));
+    const id = String(optionValueId);
+    if (selectedOptions.map(String).includes(id)) {
+      setSelectedOptions(selectedOptions.filter(o => String(o) !== id));
     } else {
-      setSelectedOptions([...selectedOptions, optionValueId]);
+      setSelectedOptions([...selectedOptions, Number(optionValueId)]);
     }
   };
 
@@ -104,7 +105,7 @@ export default function DynamicFilters({
                           >
                             <input
                               type="checkbox"
-                              checked={selectedOptions.includes(value.optionValueId)}
+                              checked={selectedOptions.map(String).includes(String(value.optionValueId))}
                               onChange={() => toggleOption(value.optionValueId)}
                               className="w-3 h-3"
                             />
