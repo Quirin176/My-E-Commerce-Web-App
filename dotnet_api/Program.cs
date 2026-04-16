@@ -74,6 +74,12 @@ builder.Services.AddRateLimiter(options =>
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 
+builder.Services.AddScoped<IProductOptionValueRepository, ProductOptionValueRepository>();
+builder.Services.AddScoped<IProductOptionValueService, ProductOptionValueService>();
+
+builder.Services.AddScoped<IProductOptionRepository, ProductOptionRepository>();
+builder.Services.AddScoped<IProductOptionService, ProductOptionService>();
+
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
 
