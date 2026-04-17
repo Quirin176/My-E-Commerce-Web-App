@@ -1,11 +1,12 @@
 import { useCallback, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
 import { slugify } from "../../utils/slugify";
 
 // Define the return type of the useProductForm hook
 interface UseProductFormReturn {
   formData: ProductFormData;
   formErrors: Record<string, string>;
-  setFormData: (data: ProductFormData) => void;
+  setFormData: Dispatch<SetStateAction<ProductFormData>>;
   updateField: (field: keyof ProductFormData, value: unknown) => void;
   validateForm: () => boolean;
   addImageUrl: () => void;
@@ -45,7 +46,10 @@ const INITIAL_FORM_DATA: ProductFormData = {
 
 // Custom hook to manage product form state and logic
 export const useProductForm = (): UseProductFormReturn => {
-  const [formData, setFormData] = useState<ProductFormData>(INITIAL_FORM_DATA);
+  const [formData, setFormData]: [
+    ProductFormData,
+    Dispatch<SetStateAction<ProductFormData>>
+  ] = useState(INITIAL_FORM_DATA);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   // Update a specific field in the form data
@@ -104,7 +108,7 @@ export const useProductForm = (): UseProductFormReturn => {
   // Add a new image URL to the images array
   const addImageUrl = useCallback(() => {
     const trimmedUrl = formData.imageUrl?.trim();
-    
+
     // Validate the image URL
     if (!trimmedUrl) {
       setFormErrors((prev) => ({
@@ -146,13 +150,13 @@ export const useProductForm = (): UseProductFormReturn => {
   // Remove an image URL from the images array by index
   const removeImageUrl = useCallback((index: number) => {
     setFormData((prev) => {
-    const newImages = prev.images.filter((_, i) => i !== index);
-    return {
-      ...prev,
-      images: newImages,
-    };
-  });
-}, []);
+      const newImages = prev.images.filter((_, i) => i !== index);
+      return {
+        ...prev,
+        images: newImages,
+      };
+    });
+  }, []);
 
   // Handle selection/deselection of product option values
   const handleOptionChange = useCallback((optionValueId: number) => {

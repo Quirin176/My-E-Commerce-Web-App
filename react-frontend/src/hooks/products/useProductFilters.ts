@@ -3,42 +3,36 @@ import toast from "react-hot-toast";
 import { categoryApi } from "../../api/products/categoryApi";
 import type { ProductOption } from "../../types/models/products/ProductOption";
 
-interface UseProductFiltersReturn {
-  filters: ProductOption[];
-  filtersLoading: boolean;
-  loadOptionsForCategory: (categoryId: number) => Promise<ProductOption[]>;
-  clearFilters: () => void;
-}
- 
-export const useProductFilters = (): UseProductFiltersReturn => {
+export const useProductFilters = () => {
   const [filters, setFilters] = useState<ProductOption[]>([]);
   const [filtersLoading, setFiltersLoading] = useState(false);
- 
-  const loadOptionsForCategory = useCallback(async (categoryId: number): Promise<ProductOption[]> => {
-    if (!categoryId || categoryId <= 0) {
+
+  const loadFilters = useCallback(async (categoryId: number): Promise<ProductOption[]> => {
+    if (!categoryId) {
       setFilters([]);
       return [];
     }
- 
+
     setFiltersLoading(true);
     try {
-      const data = await categoryApi.getAllChildDataByCategoryId(categoryId);
-      const raw = Array.isArray(data) ? data : (data?.data ?? []);
-      const valid: ProductOption[] = raw.filter(
-        (o: ProductOption) => o.optionId && o.optionName && Array.isArray(o.optionValues)
-      );
-      setFilters(valid);
-      return valid;
+      const res = await categoryApi.getAllChildDataByCategoryId(categoryId);
+      const raw = Array.isArray(res) ? res : res?.data ?? [];
+
+      setFilters(raw);
+      return raw;
     } catch {
-      toast.error("Failed to load product attributes");
+      toast.error("Failed to load filters");
       setFilters([]);
       return [];
     } finally {
       setFiltersLoading(false);
     }
   }, []);
- 
-  const clearFilters = useCallback(() => setFilters([]), []);
- 
-  return { filters, filtersLoading, loadOptionsForCategory, clearFilters };
+
+  return {
+    filters,
+    filtersLoading,
+    loadFilters,
+    setFilters,
+  };
 };

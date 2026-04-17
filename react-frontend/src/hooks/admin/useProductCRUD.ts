@@ -3,82 +3,60 @@ import toast from "react-hot-toast";
 import { adminProductsApi } from "../../api/admin/adminProductsApi";
 import type { ProductFormData } from "./useProductForm";
 
-interface UseProductCRUDReturn {
-  submitting: boolean;
-  handleSubmit: (
-    formData: ProductFormData,
-    editingId: number | null,
-    validateForm: () => boolean,
-    // onSuccess: () => void,
-  ) => Promise<void>;
-  handleDelete: (id: number | string) => Promise<void>;
-}
- 
-/**
- * Handles create, update, and delete API calls for products.
- * Receives form data and callbacks — has no local form state.
- */
-export const useProductCRUD = (): UseProductCRUDReturn => {
+const mapPayload = (form: ProductFormData) => ({
+  name: form.name.trim(),
+  slug: form.slug.trim(),
+  shortDescription: form.shortDescription.trim(),
+  description: form.description.trim(),
+  price: Number(form.price),
+  imageUrl: form.images[0] ?? "",
+  imageUrls: form.images,
+  categoryId: Number(form.categoryId),
+  selectedOptionValueIds: form.selectedOptionValueIds,
+});
+
+export const useProductCRUD = (onRefetch: () => void) => {
   const [submitting, setSubmitting] = useState(false);
- 
-  const handleSubmit = useCallback(async (
-    formData: ProductFormData,
-    editingId: number | null,
-    validateForm: () => boolean,
-    // onSuccess: () => void,
-  ) => {
-    if (!validateForm()) {
-      toast.error("Please fix the errors before saving");
-      return;
-    }
- 
-    setSubmitting(true);
-    try {
-      const payload = {
-        name: formData.name.trim(),
-        slug: formData.slug.trim(),
-        shortDescription: formData.shortDescription.trim(),
-        description: formData.description.trim(),
-        price: parseFloat(String(formData.price)),
-        imageUrl: formData.images[0] ?? "",
-        imgUrl: formData.images[0] ?? "",
-        imgUrls: formData.images,
-        categoryId: Number(formData.categoryId),
-        options: formData.selectedOptionValueIds.map((id) => ({
-          optionId: 0,     // backend resolves from valueId
-          valueId: id,
-        })),
-      };
- 
-      if (editingId) {
-        await adminProductsApi.updateProductById(editingId, payload);
-        toast.success("Product updated successfully!");
-      } else {
-        await adminProductsApi.createProduct(payload);
-        toast.success("Product created successfully!");
+
+  const createOrUpdate = useCallback(
+    async (form: ProductFormData, editingId: number | null) => {
+      setSubmitting(true);
+      try {
+        const payload = mapPayload(form);
+
+        if (editingId) {
+          await adminProductsApi.updateProductById(editingId, payload);
+          toast.success("Product updated successfully!");
+        } else {
+          await adminProductsApi.createProduct(payload);
+          toast.success("Product created successfully!");
+        }
+
+        onRefetch();
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Save failed");
+      } finally {
+        setSubmitting(false);
       }
- 
-      // onSuccess();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save product");
-    } finally {
-      setSubmitting(false);
-    }
-  }, []);
- 
-  const handleDelete = useCallback(async (
-    id: number | string,
-    // onSuccess: () => void,
-  ) => {
-    if (!window.confirm("Delete this product? This cannot be undone.")) return;
+    },
+    [onRefetch]
+  );
+
+  const handleDelete = useCallback(async (id: number | string) => {
+    if (!window.confirm("Delete this product?")) return;
+
     try {
       await adminProductsApi.deleteProduct(id);
-      toast.success("Product deleted!");
-      // onSuccess();
+      toast.success("Deleted");
+      onRefetch();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete product");
+      toast.error("Delete failed");
     }
-  }, []);
- 
-  return { submitting, handleSubmit, handleDelete };
+  }, [onRefetch]);
+
+  return {
+    submitting,
+    createOrUpdate,
+    handleDelete,
+  };
 };
