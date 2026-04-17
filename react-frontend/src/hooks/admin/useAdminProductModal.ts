@@ -142,10 +142,6 @@ export const useAdminProductModal = (): UseAdminProductModalReturn => {
     setIsViewMode(false);
   }, []);
 
-  // const clearFilters = useCallback(() => {
-  //   setCurrentCategoryFilters([]);
-  // }, []);
-
   return {
     showForm,
     editingId,

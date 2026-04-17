@@ -4,14 +4,11 @@ import toast from "react-hot-toast";
 import { useProducts } from "../../../hooks/products/useProducts";
 import { useUrlFilters } from "../../../hooks/useUrlFilters";
 import { usePagination } from "../../../hooks/usePagination";
-import { useProductForm } from "../../../hooks/admin/useProductForm";
-import { useAdminProductModal } from "../../../hooks/admin/useAdminProductModal";
+import { useAdminProductManager } from "../../../hooks/admin/useAdminProductManager";
 import AdminProductCard from "../../../components/Admin/Products/AdminProductCard";
 import AdminProductForm from "../../../components/Admin/Products/AdminProductForm";
 import AdminDynamicFilters from "../../../components/Admin/Products/AdminDynamicFilters";
 import PaginationControl from "../../../components/MainLayout/PaginationControl";
-import { adminProductsApi } from "../../../api/admin/adminProductsApi";
-import type { Product } from "../../../types/models/products/Product";
 
 const PAGE_SIZE = 10;
 
@@ -23,7 +20,6 @@ export default function AdminProducts() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [submitting, setSubmitting] = useState(false);
 
   // ──────────────────── Product data fetching ────────────────────
   const { products, totalCount, loading, error, refetch } = useProducts(
@@ -39,34 +35,7 @@ export default function AdminProducts() {
     onPageChange: (p) => updateUrl({ page: p }),
   });
 
-  // Product Form Data
-  const {
-    formData,
-    formErrors,
-    validateForm,
-    addImageUrl,
-    removeImageUrl,
-    handleOptionChange,
-    updateField,
-    resetForm,
-    setFormData,
-    autoGenerateSlug,
-  } = useProductForm();
-
-  // Modal state — edit/view/create logic lives here now
-  const {
-    showForm,
-    editingId,
-    isViewMode,
-    currentCategoryFilters,
-    filtersLoading,
-    isLoadingModalData,
-    openCreateForm,
-    openEditForm,
-    openViewForm,
-    closeForm,
-    loadOptionsForCategory,
-  } = useAdminProductModal();
+  const manager = useAdminProductManager(refetch);
 
   // ── Filter handlers (write to URL, refetch is automatic via useProducts) ──
   const handleCategoryChange = (slug: string) => {
@@ -92,83 +61,6 @@ export default function AdminProducts() {
     updateUrl({ page: 1 });
     refetch();
   };
-
-  // ========== FORM SUBMISSION ==========
-  const handleSubmit = async () => {
-    if (!validateForm()) {
-      toast.error("Please fix the errors below");
-      return;
-    }
-
-    setSubmitting(true);
-
-    try {
-      const payload = {
-        name: formData.name.trim(),
-        slug: formData.slug.trim(),
-        shortDescription: formData.shortDescription.trim(),
-        description: formData.description.trim(),
-        price: parseFloat(String(formData.price)),
-        imageUrl: formData.images[0] || "",
-        imageUrls: formData.images,
-        categoryId: Number(formData.categoryId),
-        selectedOptionValueIds: formData.selectedOptionValueIds || [],
-      };
-
-      if (editingId) {
-        await adminProductsApi.updateProductById(editingId, payload);
-        toast.success("Product updated successfully!");
-      } else {
-        await adminProductsApi.createProduct(payload);
-        toast.success("Product created successfully!");
-      }
-
-      resetForm();
-      closeForm();
-      refetch();
-
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to save product";
-      toast.error(message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  // ========== DELETE ==========
-  const handleDelete = async (id: number | string) => {
-    if (!window.confirm("Delete this product? This cannot be undone.")) return;
-
-    try {
-      await adminProductsApi.deleteProduct(id);
-      toast.success("Product deleted!");
-    } catch(error) {
-      const message = error instanceof Error ? error.message : "Failed to delete product";
-      toast.error(message);
-    }
-  };
-
-  // ========== CREATE NEW ==========
-  const handleCreateNew = () => {
-    resetForm();
-    openCreateForm();
-  };
-
-  // ========== CLOSE FORM ==========
-  const handleCloseForm = () => {
-    resetForm();
-    closeForm();
-  };
-
-  // ========== CATEGORY CHANGE IN MODAL ==========
-  const handleModalCategoryChange = (categoryId: number) => {
-    updateField("categoryId", categoryId);
-    updateField("selectedOptionValueIds", []);
-    if (categoryId) { loadOptionsForCategory(categoryId); }
-  };
-
-  const openEdit = (p: Product) => openEditForm(p, setFormData, (f, v) => updateField(f as keyof typeof formData, v));
-  const openView = (p: Product) => openViewForm(p, setFormData, (f, v) => updateField(f as keyof typeof formData, v));
 
   return (
     <div className="flex flex-col gap-y-2">
@@ -227,7 +119,7 @@ export default function AdminProducts() {
         </div>
 
         <button
-          onClick={handleCreateNew}
+          onClick={manager.openCreateForm}
           className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold whitespace-nowrap cursor-pointer"
         >
           <Plus size={20} />
@@ -247,7 +139,7 @@ export default function AdminProducts() {
       )}
 
       {/* ========== MODAL DATA LOADING OVERLAY ========== */}
-      {isLoadingModalData && (
+      {manager.isLoadingModalData && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center pointer-events-none">
           <div className="bg-white rounded-lg p-8 shadow-2xl text-center pointer-events-auto">
             <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600 mx-auto mb-4"></div>
@@ -285,7 +177,7 @@ export default function AdminProducts() {
           </p>
 
           <button
-            onClick={handleCreateNew}
+            onClick={manager.openCreateForm}
             className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
           >
             {searchTerm ? "Clear Search" : "Create First Product"}
@@ -302,10 +194,10 @@ export default function AdminProducts() {
               >
                 <AdminProductCard
                   product={product}
-                  isLoading={isLoadingModalData}
-                  onView={openView}
-                  onEdit={openEdit}
-                  onDelete={handleDelete}
+                  isLoading={manager.isLoadingModalData}
+                  onView={manager.openViewForm}
+                  onEdit={manager.openEditForm}
+                  onDelete={manager.handleDelete}
                 />
               </div>
             ))}
@@ -323,24 +215,24 @@ export default function AdminProducts() {
         </>
       )}
 
-      {/* ========== CREATE NEW PRODUCT MODAL ========== */}
+      {/* ========== PRODUCT FORM ========== */}
       <AdminProductForm
-        showForm={showForm}
-        editingId={editingId}
-        isViewMode={isViewMode}
-        formData={formData}
-        formErrors={formErrors}
-        filters={currentCategoryFilters}
-        filtersLoading={filtersLoading}
-        submitting={submitting}
-        onClose={handleCloseForm}
-        onSubmit={handleSubmit}
-        updateField={(field: string, value: unknown) => updateField(field as keyof typeof formData, value)}
-        addImageUrl={addImageUrl}
-        removeImageUrl={removeImageUrl}
-        handleOptionChange={handleOptionChange}
-        autoGenerateSlug={autoGenerateSlug}
-        onCategoryChange={handleModalCategoryChange}
+        showForm={manager.showForm}
+        editingId={manager.editingId}
+        isViewMode={manager.isViewMode}
+        formData={manager.formData}
+        formErrors={manager.formErrors}
+        filters={manager.filters}
+        filtersLoading={manager.filtersLoading}
+        submitting={manager.submitting}
+        onClose={manager.closeForm}
+        onSubmit={manager.handleSubmit}
+        updateField={(field: string, value: unknown) => manager.updateField(field as keyof typeof manager.formData, value)}//
+        addImageUrl={manager.addImageUrl}
+        removeImageUrl={manager.removeImageUrl}
+        handleOptionChange={manager.handleOptionChange}
+        autoGenerateSlug={manager.autoGenerateSlug}
+        onCategoryChange={manager.handleModalCategoryChange}
       />
     </div>
   );
