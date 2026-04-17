@@ -14,7 +14,7 @@ interface AdminProductFormProps {
   submitting: boolean;
   onClose: () => void;
   onSubmit: () => Promise<void>;
-  updateField: (field: string, value: unknown) => void;
+  updateField: (field: keyof ProductFormData, value: unknown) => void;
   addImageUrl: () => void;
   removeImageUrl: (index: number) => void;
   handleOptionChange: (optionValueId: number) => void;

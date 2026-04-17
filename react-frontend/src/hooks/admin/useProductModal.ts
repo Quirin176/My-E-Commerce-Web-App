@@ -39,7 +39,6 @@ export const useProductModal = ({
       .filter((id): id is number => Boolean(id));
   };
 
-  // ✅ THE FUNCTION YOU ASKED ABOUT — NOW CORRECTLY PLACED
   const loadProductIntoForm = useCallback(
     async (product: Product) => {
       setIsLoadingModalData(true);

@@ -50,7 +50,7 @@ export default function AdminProducts() {
   });
   const crud = useProductCRUD(refetch);
 
-  // ── Filter handlers (write to URL, refetch is automatic via useProducts) ──
+  // ──────────────────── Filter handlers ────────────────────
   const handleCategoryChange = (slug: string) => {
     setSelectedCategory(slug || null);
     updateUrl({ selectedOptions: [], page: 1 });
@@ -73,6 +73,12 @@ export default function AdminProducts() {
 
     updateUrl({ page: 1 });
     refetch();
+  };
+
+  // ──────────────────── Close modal and reset filters ────────────────────
+  const handleCloseForm = () => {
+    modal.close();
+    filters.setFilters([]);
   };
 
   return (
@@ -241,10 +247,10 @@ export default function AdminProducts() {
         filtersLoading={filters.filtersLoading}
         submitting={crud.submitting}
 
-        onClose={modal.close}
+        onClose={handleCloseForm}
         onSubmit={() => crud.createOrUpdate(form.formData, modal.editingId)}
 
-        updateField={() => form.updateField}
+        updateField={form.updateField}
         addImageUrl={form.addImageUrl}
         removeImageUrl={form.removeImageUrl}
         handleOptionChange={form.handleOptionChange}
