@@ -119,7 +119,7 @@ export default function AdminProducts() {
         </div>
 
         <button
-          onClick={manager.openCreateForm}
+          onClick={() => manager.modal.openCreateForm}
           className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold whitespace-nowrap cursor-pointer"
         >
           <Plus size={20} />
@@ -139,7 +139,7 @@ export default function AdminProducts() {
       )}
 
       {/* ========== MODAL DATA LOADING OVERLAY ========== */}
-      {manager.isLoadingModalData && (
+      {manager.modal.isLoadingModalData && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center pointer-events-none">
           <div className="bg-white rounded-lg p-8 shadow-2xl text-center pointer-events-auto">
             <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600 mx-auto mb-4"></div>
@@ -177,7 +177,7 @@ export default function AdminProducts() {
           </p>
 
           <button
-            onClick={manager.openCreateForm}
+            onClick={() => manager.modal.openCreateForm}
             className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
           >
             {searchTerm ? "Clear Search" : "Create First Product"}
@@ -194,10 +194,10 @@ export default function AdminProducts() {
               >
                 <AdminProductCard
                   product={product}
-                  isLoading={manager.isLoadingModalData}
-                  onView={manager.openViewForm}
-                  onEdit={manager.openEditForm}
-                  onDelete={manager.handleDelete}
+                  isLoading={manager.modal.isLoadingModalData}
+                  onView={manager.modal.openViewForm}
+                  onEdit={manager.modal.openEditForm}
+                  onDelete={manager.crud.handleDelete}
                 />
               </div>
             ))}
@@ -217,22 +217,22 @@ export default function AdminProducts() {
 
       {/* ========== PRODUCT FORM ========== */}
       <AdminProductForm
-        showForm={manager.showForm}
-        editingId={manager.editingId}
-        isViewMode={manager.isViewMode}
-        formData={manager.formData}
-        formErrors={manager.formErrors}
-        filters={manager.filters}
-        filtersLoading={manager.filtersLoading}
-        submitting={manager.submitting}
-        onClose={manager.closeForm}
-        onSubmit={manager.handleSubmit}
-        updateField={(field: string, value: unknown) => manager.updateField(field as keyof typeof manager.formData, value)}//
-        addImageUrl={manager.addImageUrl}
-        removeImageUrl={manager.removeImageUrl}
-        handleOptionChange={manager.handleOptionChange}
-        autoGenerateSlug={manager.autoGenerateSlug}
-        onCategoryChange={manager.handleModalCategoryChange}
+        showForm={manager.modal.showForm}
+        editingId={manager.modal.editingId}
+        isViewMode={manager.modal.isViewMode}
+        formData={manager.form.formData}
+        formErrors={manager.form.formErrors}
+        filters={manager.filters.filters}
+        filtersLoading={manager.filters.filtersLoading}
+        submitting={manager.crud.submitting}
+        onClose={() => manager.modal.closeForm}
+        onSubmit={() => manager.crud.handleSubmit(manager.form.formData, manager.modal.editingId, manager.form.validateForm)}
+        updateField={(field: string, value: unknown) => manager.form.updateField(field as keyof typeof manager.form.formData, value)}//
+        addImageUrl={manager.form.addImageUrl}
+        removeImageUrl={manager.form.removeImageUrl}
+        handleOptionChange={manager.form.handleOptionChange}
+        autoGenerateSlug={manager.form.autoGenerateSlug}
+        onCategoryChange={manager.modal.handleModalCategoryChange}
       />
     </div>
   );
