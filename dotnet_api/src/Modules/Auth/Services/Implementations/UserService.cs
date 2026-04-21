@@ -67,6 +67,14 @@ namespace WebApp_API.Services
             return await MapToResponseAsync(users);
         }
 
+        public async Task<List<UserDTOs.ProfileResponse>> GetUsersByRoleAsync(string role)
+        {
+            var users = await _repo.GetUsersByRoleAsync(role);
+            if (users is null) return new List<UserDTOs.ProfileResponse>();
+
+            return await MapToResponseAsync(users);
+        }
+
         // ──────────────────── Update User Profile ────────────────────
         public async Task UpdateAsync(int id, UserDTOs.ProfileUpdateRequest request)
         {
@@ -108,6 +116,5 @@ namespace WebApp_API.Services
             }
             return result;
         }
-
     }
 }

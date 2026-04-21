@@ -46,7 +46,7 @@ export default function AdminProducts() {
   const modal = useProductModal({
     setFormData: form.setFormData,
     resetForm: form.resetForm,
-    loadFilters: filters.loadFilters, // critical
+    loadFilters: filters.loadFilters,
   });
   const crud = useProductCRUD(refetch);
 

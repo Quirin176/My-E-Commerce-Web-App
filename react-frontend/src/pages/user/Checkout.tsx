@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { ShoppingBag } from "lucide-react";
-import { useAuth } from "../../hooks/users/useAuth";
+import { useAuth } from "../../hooks/auth/useAuth";
 import { useCart } from "../../hooks/cart/useCart";
 import { siteConfig } from "../../config/siteConfig";
 import CheckoutOrderSummary from "../../components/MainLayout/Customer/Orders/CheckoutOrderSummary";

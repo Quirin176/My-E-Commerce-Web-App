@@ -1,5 +1,4 @@
 using WebApp_API.DTOs;
-using static WebApp_API.DTOs.PaginationDTOs;
 
 namespace WebApp_API.Services
 {
@@ -11,6 +10,7 @@ namespace WebApp_API.Services
         Task<UserDTOs.ProfileResponse?> GetByEmailAsync(string email);
         Task<UserDTOs.ProfileResponse?> GetByPhoneAsync(string phone);
         Task<List<UserDTOs.ProfileResponse>> GetAllUsersAsync();
+        Task<List<UserDTOs.ProfileResponse>> GetUsersByRoleAsync(string role);
 
         // ──────────────────── Write operations ────────────────────
         Task UpdateAsync(int id, UserDTOs.ProfileUpdateRequest request);

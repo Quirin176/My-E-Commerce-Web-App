@@ -22,6 +22,9 @@ namespace WebApp_API.Repositories
         public Task<List<User>> GetAllUsersAsync() =>
         _db.Users.ToListAsync();
 
+        public Task<List<User>> GetUsersByRoleAsync(string role) =>
+        _db.Users.Where(u => u.Role == role).ToListAsync();
+
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
         public async Task CreateAsync(User user)
         {

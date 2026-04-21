@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { toast } from "react-hot-toast/headless";
+import { toast } from "react-hot-toast";
 import { userApi } from "../../api/user/userApi";
 
 const INITIAL_PROFILE_DATA = {

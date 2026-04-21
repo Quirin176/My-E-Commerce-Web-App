@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Download, X } from "lucide-react";
-import { useAuth } from "../../../../hooks/users/useAuth";
+import { useAuth } from "../../../../hooks/auth/useAuth";
 import type { OrderResponseModel } from "../../../../types/models/order/OrderResponseModel";
 
 interface UserOrderDetailFormProps {

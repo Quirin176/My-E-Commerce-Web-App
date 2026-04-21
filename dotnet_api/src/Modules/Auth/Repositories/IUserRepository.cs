@@ -9,6 +9,7 @@ namespace WebApp_API.Repositories
         Task<User?> GetByEmailAsync(string email);
         Task<User?> GetByPhoneAsync(string phone);
         Task<List<User>> GetAllUsersAsync();
+        Task<List<User>> GetUsersByRoleAsync(string role);
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
         Task CreateAsync(User user);

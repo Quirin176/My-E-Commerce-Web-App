@@ -1,4 +1,4 @@
-import { useAuth } from "../../../hooks/users/useAuth";
+import { useAuth } from "../../../hooks/auth/useAuth";
 import { Link, NavLink } from "react-router-dom";
 import { LayoutDashboard, Handbag, FilePlus, Layers, LogOut, User2 } from "lucide-react";
 import { siteConfig } from "../../../config/siteConfig";

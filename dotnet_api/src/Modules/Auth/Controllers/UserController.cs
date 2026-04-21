@@ -35,7 +35,7 @@ namespace WebApp_API.Controllers
             }
         }
 
-        [HttpGet("email/{email}")]
+        [HttpGet("admin/email/{email}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetProfileByEmail(string email)
         {
@@ -50,7 +50,7 @@ namespace WebApp_API.Controllers
             }
         }
 
-        [HttpGet("phone/{phone}")]
+        [HttpGet("admin/phone/{phone}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetProfileByPhone(string phone)
         {
@@ -65,13 +65,28 @@ namespace WebApp_API.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("admin")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll()
         {
             try
             {
                 var usesprofile = await _userService.GetAllUsersAsync();
+                return Ok(usesprofile);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("admin/role/{role}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetUsersByRole(string role)
+        {
+            try
+            {
+                var usesprofile = await _userService.GetUsersByRoleAsync(role);
                 return Ok(usesprofile);
             }
             catch (KeyNotFoundException ex)

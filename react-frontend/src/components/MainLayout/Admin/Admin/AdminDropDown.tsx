@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast"
-import { useAuth } from "../../../../hooks/users/useAuth";
+import { useAuth } from "../../../../hooks/auth/useAuth";
 
 export default function AdminDropDown() {
   const navigate = useNavigate();

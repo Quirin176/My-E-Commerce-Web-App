@@ -1,6 +1,6 @@
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../../../hooks/users/useAuth";
+import { useAuth } from "../../../../hooks/auth/useAuth";
 import { useCart } from "../../../../hooks/cart/useCart";
 import { siteConfig } from "../../../../config/siteConfig";
 import type { Product } from "../../../../types/models/products/Product";
