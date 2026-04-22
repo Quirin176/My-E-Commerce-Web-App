@@ -1,4 +1,5 @@
 using WebApp_API.Entities;
+using WebApp_API.Specifications;
 
 namespace WebApp_API.Repositories
 {
@@ -10,6 +11,7 @@ namespace WebApp_API.Repositories
         Task<User?> GetByPhoneAsync(string phone);
         Task<List<User>> GetAllUsersAsync();
         Task<List<User>> GetUsersByRoleAsync(string role);
+        Task<(List<User> Users, int TotalCount)> GetUsersByFiltersAsync(UserFiltersSpec spec);
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
         Task CreateAsync(User user);

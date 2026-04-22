@@ -20,7 +20,7 @@ namespace WebApp_API.Controllers
 
         // GET: /api/adminorders - Get all orders with filters
         [HttpGet]
-        public async Task<IActionResult> GetAllOrders([FromQuery] OrderFilterParameters filterParams)
+        public async Task<IActionResult> GetAllOrders([FromQuery] OrderFiltersParameters filterParams)
         {
             try
             {
@@ -114,7 +114,7 @@ namespace WebApp_API.Controllers
 
         // GET: /api/adminorders/export - Export orders as CSV
         [HttpGet("export")]
-        public async Task<IActionResult> ExportOrders([FromQuery] OrderFilterParameters filterParams)
+        public async Task<IActionResult> ExportOrders([FromQuery] OrderFiltersParameters filterParams)
         {
             try
             {

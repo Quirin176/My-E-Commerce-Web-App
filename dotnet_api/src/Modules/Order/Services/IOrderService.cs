@@ -14,14 +14,14 @@ namespace WebApp_API.Services
         Task<List<OrderDTOs.OrderResponse>> GetOrdersByUserIdAsync(int userId);
 
         // ────────────────────────────── List of Orders Lookups ──────────────────────────────
-        Task<List<OrderDTOs.OrderResponse>> GetFilteredOrdersAsync(OrderFilterParameters filterParams);
+        Task<List<OrderDTOs.OrderResponse>> GetFilteredOrdersAsync(OrderFiltersParameters filterParams);
 
         // ────────────────────────────── Write Operations ──────────────────────────────
         Task<OrderDTOs.OrderResponse> CreateOrderAsync(OrderDTOs.CreateOrderRequest request, int userId);
         Task<bool> UpdateOrderAsync(int id, OrderDTOs.UpdateOrderRequest request);
         Task<bool> UpdateOrderStatusAsync(int id, string status);
         Task<bool> DeleteOrderAsync(int id);
-        Task<byte[]> ExportOrdersCsvAsync(OrderFilterParameters filterParams);
+        Task<byte[]> ExportOrdersCsvAsync(OrderFiltersParameters filterParams);
 
     }
 }

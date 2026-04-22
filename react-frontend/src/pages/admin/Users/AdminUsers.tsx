@@ -1,14 +1,21 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { adminUsersApi } from "../../../api/admin/adminUsersApi";
 import type { User } from "../../../types/models/auth/User";
 import { useAuth } from "../../../hooks/auth/useAuth";
+
+import { useUserUrlFilters } from "../../../hooks/useUserUrlFilters";
+import { usePagination } from "../../../hooks/usePagination";
+
 import toast from "react-hot-toast";
 import AdminUserCard from "../../../components/Admin/Users/AdminUserCard";
+import PaginationControl from "../../../components/MainLayout/PaginationControl";
 
 const ROLE = [
     { Id: 1, Role: "Admin" },
     { Id: 2, Role: "Customer" }
 ]
+
+const PAGE_SIZE = 10;
 
 export default function AdminUsers() {
     const { user } = useAuth();
@@ -16,26 +23,44 @@ export default function AdminUsers() {
     const [loading, setLoading] = useState<boolean>(false);
 
     const [selectedRole, setSelectedRole] = useState<string>("Admin")
-    const [sortBy, setSortBy] = useState<string>("Id");
 
-    const fetchData = useCallback(async () => {
-        if (user !== null && user.role !== "Admin") return;
+    const [totalCount, setTotalCount] = useState<number>(0);
 
-        try {
-            setLoading(true);
-            const usersData = await adminUsersApi.getProfilesByRole(selectedRole);
-            setUsers(usersData);
-        } catch (error) {
-            toast.error("Failed to load product details");
-        } finally {
-            setLoading(false);
-        }
-    }, [selectedRole, sortBy])
+    // ──────────────────── URL-driven filter state ────────────────────
+    const { page, role, sortBy, sortOrder, updateUrl } = useUserUrlFilters();
 
     useEffect(() => {
-        fetchData()
-    }, [fetchData]);
+        const fetchData = async () => {
+            if (user !== null && user.role !== "Admin") return;
 
+            try {
+                setLoading(true);
+                const res = await adminUsersApi.getProfilesByFilters("", selectedRole, sortBy, sortOrder, page, PAGE_SIZE);
+                const usersData = res.data;
+                setUsers(usersData);
+                setTotalCount(res.pagination.totalCount);
+            } catch {
+                toast.error("Failed to load product details");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [selectedRole, sortBy, sortOrder, page, PAGE_SIZE]);
+
+    // ──────────────────── Pagination ────────────────────
+    const { totalPages, goToPage } = usePagination({
+        totalCount: totalCount,
+        pageSize: PAGE_SIZE,
+        currentPage: page,
+        onPageChange: (p) => updateUrl({ page: p }),
+    });
+
+    const handleRoleChange = (role: string) => {
+        setSelectedRole(role);
+        updateUrl({ role: role, page: 1 });
+    }
     return (
         <div>
             {/* LOADING OVERLAY */}
@@ -60,7 +85,7 @@ export default function AdminUsers() {
                             return (
                                 <button
                                     key={index}
-                                    onClick={() => setSelectedRole(role.Role)}
+                                    onClick={() => handleRoleChange(role.Role)}
                                     className={`text-lg border-2 px-2 w-32 rounded-full cursor-pointer transition
                                         ${isActive
                                             ? "bg-blue-600 text-white border-blue-600"
@@ -73,10 +98,27 @@ export default function AdminUsers() {
                         })}
                     </div>
 
-                    <select name="sort" id="sort" value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="border-2 rounded-full px-2 py-1 w-36">
-                        <option value="Id">ID</option>
-                        <option value="Joining Date">Joining Date</option>
-                    </select>
+                    <div className="flex flex-row items-center justify-between gap-4 text-blue-600">
+                        <span className="text-lg font-semibold">Sort By</span>
+                        <select name="sortBy" id="sortBy" value={sortBy}
+                            onChange={(e) => updateUrl({ sortBy: e.target.value, page: 1 })}
+                            className="border-2 rounded-full px-2 py-1 w-36">
+                            {/* <option value="">Sort By</option> */}
+                            <option value="Id">ID</option>
+                            <option value="Joining Date">Joining Date</option>
+                        </select>
+                    </div>
+
+                    <div className="flex flex-row items-center justify-between gap-4 text-blue-600">
+                        <span className="text-lg font-semibold">Sort Order</span>
+                        <select name="sortOrder" id="sortOrder" value={sortOrder}
+                            onChange={(e) => updateUrl({ sortOrder: e.target.value, page: 1 })}
+                            className="border-2 rounded-full px-2 py-1 w-36">
+                            {/* <option value="">Sort Order</option> */}
+                            <option value="asc">Ascending</option>
+                            <option value="desc">Descending</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div className="flex flex-col gap-y-4">
@@ -84,6 +126,15 @@ export default function AdminUsers() {
                         <AdminUserCard key={u.id} user={u} />
                     ))}
                 </div>
+                {/* Pagination Controls */}
+                <PaginationControl
+                    currentPage={page}
+                    totalPages={totalPages}
+                    totalCount={totalCount}
+                    pageSize={PAGE_SIZE}
+                    onPageChange={goToPage}
+                    showGoTo={true}
+                />
             </div>
         </div>
     );

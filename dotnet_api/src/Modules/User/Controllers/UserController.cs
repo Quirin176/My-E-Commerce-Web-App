@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using WebApp_API.DTOs;
 using WebApp_API.Services;
+using WebApp_API.Specifications;
 
 namespace WebApp_API.Controllers
 {
@@ -83,6 +84,38 @@ namespace WebApp_API.Controllers
         [HttpGet("admin/role/{role}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUsersByRole(string role)
+        {
+            try
+            {
+                var usesprofile = await _userService.GetUsersByRoleAsync(role);
+                return Ok(usesprofile);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("admin/filters")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetUsersByFilters([FromQuery] UserDTOs.UsersFiltersParams parameter)
+        {
+            var spec = UserFiltersSpec.From(parameter);
+
+            try
+            {
+                var usesprofile = await _userService.GetUsersByFiltersAsync(spec);
+                return Ok(usesprofile);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("admin/users")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetUsers(string role)
         {
             try
             {

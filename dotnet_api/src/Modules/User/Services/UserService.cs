@@ -1,6 +1,8 @@
 using WebApp_API.DTOs;
 using WebApp_API.Entities;
 using WebApp_API.Repositories;
+using WebApp_API.Specifications;
+using static WebApp_API.DTOs.PaginationDTOs;
 
 namespace WebApp_API.Services
 {
@@ -73,6 +75,21 @@ namespace WebApp_API.Services
             if (users is null) return new List<UserDTOs.ProfileResponse>();
 
             return await MapToResponseAsync(users);
+        }
+
+        public async Task<PaginatedResponse<UserDTOs.ProfileResponse>> GetUsersByFiltersAsync(UserFiltersSpec spec)
+        {
+            var (users, totalCount) = await _repo.GetUsersByFiltersAsync(spec);
+            if (users is null) return new PaginatedResponse<UserDTOs.ProfileResponse>();
+
+            var data = await MapToResponseAsync(users);
+
+            return new PaginatedResponse<UserDTOs.ProfileResponse>
+            {
+                Success = true,
+                Data = data,
+                Pagination = PaginationMeta.From(spec.Page, spec.PageSize, totalCount)
+            };
         }
 
         // ──────────────────── Update User Profile ────────────────────

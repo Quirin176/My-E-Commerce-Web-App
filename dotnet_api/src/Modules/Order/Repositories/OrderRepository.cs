@@ -42,7 +42,7 @@ namespace WebApp_API.Repositories
                 .ToListAsync();
         }
 
-        public async Task<List<Order>> GetFilteredOrdersAsync(OrderFilterParameters filterParams)
+        public async Task<List<Order>> GetFilteredOrdersAsync(OrderFiltersParameters filterParams)
         {
             IQueryable<Order> query = _db.Orders
                 .Include(o => o.User)

@@ -75,7 +75,7 @@ namespace WebApp_API.Services
             return orders.Select(MapToOrderResponse).ToList();
         }
 
-        public async Task<List<OrderDTOs.OrderResponse>> GetFilteredOrdersAsync(OrderFilterParameters filterParams)
+        public async Task<List<OrderDTOs.OrderResponse>> GetFilteredOrdersAsync(OrderFiltersParameters filterParams)
         {
             var orders = await _repo.GetFilteredOrdersAsync(filterParams);
             return orders.Select(MapToOrderResponse).ToList();
@@ -173,7 +173,7 @@ namespace WebApp_API.Services
             return true;
         }
 
-        public async Task<byte[]> ExportOrdersCsvAsync(OrderFilterParameters filterParams)
+        public async Task<byte[]> ExportOrdersCsvAsync(OrderFiltersParameters filterParams)
         {
             var orders = await _repo.GetFilteredOrdersAsync(filterParams);
 

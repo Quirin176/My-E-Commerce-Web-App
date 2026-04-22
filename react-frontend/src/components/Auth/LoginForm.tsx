@@ -13,7 +13,21 @@ export default function LoginForm({ onSwitch }: { onSwitch: () => void }) {
 
     return (
         <div className="flex h-full">
-            <div className="w-1/2 p-12 flex flex-col justify-center">
+            <div className="w-1/2 p-10 flex flex-col justify-center overflow-y-auto">
+                <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
+                    Sign In
+                </h2>
+
+                {/* Social icons */}
+                <div className="flex gap-6 mb-8 items-center justify-center">
+                    <span className="text-3xl cursor-pointer hover:scale-125 transition-transform duration-300">🐦</span>
+                    <span className="text-3xl cursor-pointer hover:scale-125 transition-transform duration-300">📘</span>
+                    <span className="text-3xl cursor-pointer hover:scale-125 transition-transform duration-300">📷</span>
+                    <span className="text-3xl cursor-pointer hover:scale-125 transition-transform duration-300">🔗</span>
+                </div>
+
+                <p className="text-gray-500 mb-6 text-sm">or use your email password</p>
+
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {error && <p className="text-red-500 text-sm">{error}</p>}
 
@@ -59,7 +73,7 @@ export default function LoginForm({ onSwitch }: { onSwitch: () => void }) {
                 </form>
             </div>
 
-            {/* LOGIN RIGHT */}
+            {/* SIGN UP RIGHT */}
             <div
                 className="w-1/2 flex flex-col items-center justify-center text-white p-12 rounded-l-[3rem]"
                 style={{ background: siteConfig.colors.primarycolor }}

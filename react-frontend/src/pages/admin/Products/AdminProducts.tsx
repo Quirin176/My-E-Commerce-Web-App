@@ -3,7 +3,7 @@ import { Plus, Search, AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { useProducts } from "../../../hooks/products/useProducts";
-import { useUrlFilters } from "../../../hooks/useUrlFilters";
+import { useProductUrlFilters } from "../../../hooks/useProductUrlFilters";
 import { usePagination } from "../../../hooks/usePagination";
 
 import { useProductForm } from "../../../hooks/admin/useProductForm";
@@ -20,7 +20,7 @@ const PAGE_SIZE = 10;
 
 export default function AdminProducts() {
   // ──────────────────── URL-driven filter state ────────────────────
-  const { page, sortOrder, minPrice, maxPrice, selectedOptions, updateUrl } = useUrlFilters();
+  const { page, sortOrder, minPrice, maxPrice, selectedOptions, updateUrl } = useProductUrlFilters();
 
   // ──────────────────── Local UI state ────────────────────
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);

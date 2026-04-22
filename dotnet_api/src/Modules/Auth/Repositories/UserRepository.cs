@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using WebApp_API.Data;
 using WebApp_API.Entities;
+using WebApp_API.Specifications;
 
 namespace WebApp_API.Repositories
 {
@@ -24,6 +25,39 @@ namespace WebApp_API.Repositories
 
         public Task<List<User>> GetUsersByRoleAsync(string role) =>
         _db.Users.Where(u => u.Role == role).ToListAsync();
+
+        public async Task<(List<User> Users, int TotalCount)> GetUsersByFiltersAsync(UserFiltersSpec spec)
+        {
+            IQueryable<User> query = _db.Users;
+
+            // Filtered By User's Role
+            if (!string.IsNullOrWhiteSpace(spec.Role))
+                query = query.Where(u => u.Role == spec.Role);
+
+            // Normalize sort order
+            var sortOrder = spec.SortOrder?.ToLower() == "desc" ? "desc" : "asc";
+
+            // Apply Sorting
+            query = spec.SortBy switch
+            {
+                "Id" => spec.SortOrder == "asc" ?
+                    query.OrderBy(o => o.Id) : query.OrderByDescending(o => o.Id),
+                "Joining Date" => spec.SortOrder == "asc" ?
+                    query.OrderBy(o => o.CreatedAt) : query.OrderByDescending(o => o.CreatedAt),
+                _ => spec.SortOrder == "asc" ?
+                query.OrderBy(o => o.Id) : query.OrderByDescending(o => o.Id),
+            };
+
+            // Pagination
+            int totalCount = await query.CountAsync();
+
+            var users = await query
+                .Skip((spec.Page - 1) * spec.PageSize)
+                .Take(spec.PageSize)
+                .ToListAsync();
+
+            return (users, totalCount);
+        }
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
         public async Task CreateAsync(User user)

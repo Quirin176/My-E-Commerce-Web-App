@@ -2,7 +2,7 @@
 namespace WebApp_API.Specifications
 {
     // DTO used for filtering and sorting orders in admin order listing
-    public class OrderFilterParameters
+    public class OrderFiltersParameters
     {
         public string? Status { get; set; }
         public string? MinDate { get; set; }
