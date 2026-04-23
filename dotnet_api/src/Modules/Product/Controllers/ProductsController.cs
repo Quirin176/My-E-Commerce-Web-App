@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using WebApp_API.DTOs;
 using WebApp_API.Services;
+using WebApp_API.Specifications;
 
 namespace WebApp_API.Controllers
 {
@@ -81,10 +82,10 @@ namespace WebApp_API.Controllers
         // ────────────────────────────────────────────────── Admin endpoints ──────────────────────────────────────────────────
         // GET /api/products/paginated
         [HttpGet("paginated")]
-        public async Task<IActionResult> GetProductsPaginated(
-            [FromQuery] ProductListDTOs.AdminProductFilterParams filterParams)
+        public async Task<IActionResult> GetProductsPaginated([FromQuery] ProductListDTOs.AdminProductFilterParams filterParams)
         {
-            var result = await _service.GetPaginatedAsync(filterParams);
+            var spec = ProductFilterSpec.From(filterParams);
+            var result = await _service.GetPaginatedAsync(spec);
             return Ok(result);
         }
 

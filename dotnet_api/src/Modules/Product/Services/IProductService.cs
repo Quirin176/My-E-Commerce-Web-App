@@ -1,4 +1,5 @@
 using WebApp_API.DTOs;
+using WebApp_API.Specifications;
 using static WebApp_API.DTOs.PaginationDTOs;
 
 namespace WebApp_API.Services
@@ -17,7 +18,7 @@ namespace WebApp_API.Services
         Task<List<string>> GetSuggestionsAsync(string q, int limit = 10);
 
         // ────────────────────────────────────────────────── Admin queries ──────────────────────────────────────────────────
-        Task<PaginatedResponse<ProductDTOs.ProductAdminResponse>> GetPaginatedAsync(ProductListDTOs.AdminProductFilterParams filterParams);
+        Task<PaginatedResponse<ProductDTOs.ProductAdminResponse>> GetPaginatedAsync(ProductFilterSpec spec);
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
 

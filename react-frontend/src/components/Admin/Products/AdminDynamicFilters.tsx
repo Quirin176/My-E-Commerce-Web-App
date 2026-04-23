@@ -94,6 +94,8 @@ export default function DynamicFilters({
         <div className="bg-white p-3 rounded shadow border mb-4">
 
             <div className="flex flex-wrap gap-2 items-center">
+                
+                {/* Category Select Box */}
                 <select
                     disabled={loadingFilters}
                     onChange={(e) => handleCategoryChange(e.target.value ? e.target.value : "")}
@@ -111,7 +113,7 @@ export default function DynamicFilters({
                     <div className="ml-2 text-xs text-gray-500">Loading options…</div>
                 )}
 
-                {/* Dynamic Option Dropdowns*/}
+                {/* Dynamic Option Dropdowns */}
                 {options.length > 0 && (
                     <>
                         {options.map(option => {

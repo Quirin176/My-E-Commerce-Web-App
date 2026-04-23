@@ -24,6 +24,9 @@ namespace WebApp_API.Specifications
         public decimal MaxPrice { get; init; }
         public List<int> SelectedOptionValueIds { get; init; } = new();
         public string SortOrder { get; init; } = "newest";
+        public int Page { get; init; } = 1;
+        public int PageSize { get; init; } = 10;
+        public string? Search { get; init; }
 
         // Use in Customer Viewing Product Pages
         public static ProductFilterSpec From(ProductListDTOs.ProductFilterParams p) => new()
@@ -42,7 +45,10 @@ namespace WebApp_API.Specifications
             MinPrice = p.MinPrice,
             MaxPrice = p.MaxPrice,
             SelectedOptionValueIds = ParseOptionIds(p.Options),
-            SortOrder = p.SortOrder
+            SortOrder = p.SortOrder,
+            Search = p.Search,
+            Page = p.Page,
+            PageSize = p.PageSize
         };
 
         private static List<int> ParseOptionIds(string? raw)

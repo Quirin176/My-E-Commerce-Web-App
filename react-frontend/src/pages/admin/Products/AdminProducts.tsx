@@ -53,7 +53,7 @@ export default function AdminProducts() {
   // ──────────────────── Filter handlers ────────────────────
   const handleCategoryChange = (slug: string) => {
     setSelectedCategory(slug || null);
-    updateUrl({ selectedOptions: [], page: 1 });
+    updateUrl({ category: slug, selectedOptions: [], page: 1 });
   };
 
   const applyFilters = () => {
@@ -108,7 +108,7 @@ export default function AdminProducts() {
               if (e.key === "Enter") {
                 e.preventDefault();
                 setSearchTerm(searchInput);
-                updateUrl({ query: searchInput, page: 1 });
+                updateUrl({ search: searchInput, page: 1 });
               }
             }}
             className="text-lg w-full pl-4 pr-2 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
@@ -118,7 +118,7 @@ export default function AdminProducts() {
               onClick={() => {
                 setSearchInput("");
                 setSearchTerm("");
-                updateUrl({ query: undefined, page: 1 });
+                updateUrl({ search: undefined, page: 1 });
               }}
               className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
             >
@@ -129,7 +129,7 @@ export default function AdminProducts() {
           <button
             onClick={() => {
               setSearchTerm(searchInput);
-              updateUrl({ query: searchInput, page: 1 });
+              updateUrl({ search: searchInput, page: 1 });
             }}
             className="rounded-full px-2 py-2 text-white bg-blue-600 hover:text-gray-600 hover:bg-blue-700 cursor-pointer"
           >

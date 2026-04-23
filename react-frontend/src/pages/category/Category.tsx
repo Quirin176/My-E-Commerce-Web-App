@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import DynamicFilters from "../../components/MainLayout/Customer/Product/DynamicFilters";
 import ProductCard from "../../components/MainLayout/Customer/Product/ProductCard";
 import PaginationControl from "../../components/MainLayout/PaginationControl";
-import { useUrlFilters } from "../../hooks/useUrlFilters";
+import { useProductUrlFilters } from "../../hooks/useProductUrlFilters";
 import { usePagination } from "../../hooks/usePagination";
 import { useProducts } from "../../hooks/products/useProducts";
 
@@ -12,7 +12,7 @@ export default function Category() {
   const { selectedCategory } = useParams<{ selectedCategory: string }>();
 
   // ── URL state (reads searchParams, never causes extra renders) ──────────────
-  const { page, sortOrder, minPrice, maxPrice, selectedOptions, updateUrl } = useUrlFilters();
+  const { page, sortOrder, minPrice, maxPrice, selectedOptions, updateUrl } = useProductUrlFilters();
 
   // ── Data fetching ─────────────────────────────────────────────────────────
   const { products, totalCount, loading, error, loadedOptions, refetch } =

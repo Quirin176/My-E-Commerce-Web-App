@@ -32,34 +32,31 @@ namespace WebApp_API.Repositories
             return await query.ToListAsync();
         }
 
-        public async Task<(List<Product> Items, int TotalCount)> GetPaginatedAsync(
-            ProductFilterSpec spec,
-            int? resolvedCategoryId,
-            string? search,
-            int page,
-            int pageSize)
+        public async Task<(List<Product> Items, int TotalCount)> GetPaginatedAsync(ProductFilterSpec spec)
         {
             var query = _db.Products.Include(p => p.Category).AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(search))
+            if (!string.IsNullOrWhiteSpace(spec.Search))
             {
-                var term = search.ToLower().Trim();
+                var term = spec.Search.ToLower().Trim();
                 query = query.Where(p =>
                     p.Name.ToLower().Contains(term) ||
                     p.Slug.ToLower().Contains(term));
             }
 
-            if (resolvedCategoryId.HasValue)
-                query = query.Where(p => p.CategoryId == resolvedCategoryId.Value);
+            if (spec.Category != null)
+                query = query.Where(p => p.Category.Slug == spec.Category);
 
             query = ApplyPriceFilter(query, spec.MinPrice, spec.MaxPrice);
             query = await ApplyOptionFilter(query, spec.SelectedOptionValueIds);
             query = ProductSortSpec.Apply(query, spec.SortOrder);
 
+            // Pagination
             var totalCount = await query.CountAsync();
+
             var items = await query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
+                .Skip((spec.Page - 1) * spec.PageSize)
+                .Take(spec.PageSize)
                 .ToListAsync();
 
             return (items, totalCount);

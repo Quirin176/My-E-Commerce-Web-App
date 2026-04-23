@@ -89,33 +89,22 @@ namespace WebApp_API.Services
 
         // ──────────────────── Admin queries ────────────────────
 
-        public async Task<PaginatedResponse<ProductDTOs.ProductAdminResponse>> GetPaginatedAsync(
-            ProductListDTOs.AdminProductFilterParams filterParams)
+        public async Task<PaginatedResponse<ProductDTOs.ProductAdminResponse>> GetPaginatedAsync(ProductFilterSpec spec)
         {
-            var spec = ProductFilterSpec.From(filterParams);
-
-            if (filterParams.Page < 1) filterParams.Page = 1;
-            if (filterParams.PageSize is < 1 or > 100) filterParams.PageSize = 10;
-
-            int? categoryId = string.IsNullOrWhiteSpace(spec.Category)
-                ? null
-                : await _repo.ResolveCategoryIdAsync(spec.Category);
-
-            if (!string.IsNullOrWhiteSpace(spec.Category) && categoryId is null)
+            if (!string.IsNullOrWhiteSpace(spec.Category))
                 return new PaginatedResponse<ProductDTOs.ProductAdminResponse>
                 {
-                    Pagination = PaginationMeta.From(filterParams.Page, filterParams.PageSize, 0)
+                    Pagination = PaginationMeta.From(spec.Page, spec.PageSize, 0)
                 };
 
-            var (items, totalCount) = await _repo.GetPaginatedAsync(
-                spec, categoryId, filterParams.Search, filterParams.Page, filterParams.PageSize);
+            var (items, totalCount) = await _repo.GetPaginatedAsync(spec);
 
             var data = await MapToAdminListAsync(items);
             return new PaginatedResponse<ProductDTOs.ProductAdminResponse>
             {
                 Success = true,
                 Data = data,
-                Pagination = PaginationMeta.From(filterParams.Page, filterParams.PageSize, totalCount)
+                Pagination = PaginationMeta.From(spec.Page, spec.PageSize, totalCount)
             };
         }
 
