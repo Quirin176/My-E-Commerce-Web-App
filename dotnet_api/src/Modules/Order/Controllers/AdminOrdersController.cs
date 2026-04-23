@@ -35,11 +35,11 @@ namespace WebApp_API.Controllers
 
         // GET: /api/adminorders/{id} - Get order detail
         [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetOrderDetailById(int orderId)
+        public async Task<IActionResult> GetOrderDetailById(int id)
         {
             try
             {
-                var order = await _orderService.AdminGetOrderWithItemsByIdAsync(orderId);
+                var order = await _orderService.AdminGetOrderWithItemsByIdAsync(id);
                 if (order is null)
                     return NotFound(new { message = "Order not found" });
 

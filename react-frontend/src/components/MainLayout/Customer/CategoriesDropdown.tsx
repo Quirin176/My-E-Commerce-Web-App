@@ -1,62 +1,46 @@
 import { useState } from "react";
-import { useCategories } from "../../../hooks/products/useCategories";
 import { ChevronDown, LayoutGrid } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { categoryApi } from "../../../api/products/categoryApi";
+import { useCategories } from "../../../hooks/products/useCategories";
+import { useProductFiltersBySlug } from "../../../hooks/products/useProductFiltersBySlug";
+
 import { siteConfig } from "../../../config/siteConfig";
 import { categoriesIcon } from "../../../config/siteConfig";
-import type { ProductOption } from "../../../types/models/products/ProductOption";
+import CategoryFiltersPanel from "../Home/CategoryFiltersPanel";
+import CategoryPanel from "../Home/CategoryPanel";
 
 export default function CategoriesDropdown() {
   const colors = siteConfig.colors;
   const [open, setOpen] = useState(false);
   const { categories } = useCategories();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [categoryFilters, setCategoryFilters] = useState<Record<string, ProductOption[]>>({});
-  const [loadingFilters, setLoadingFilters] = useState<Record<string, boolean>>({});
   const navigate = useNavigate();
 
+  const { filters, filtersLoading, loadFilters } = useProductFiltersBySlug();
+
   // Get icon component from category
-  const getCategoryIcon = (categorySlug: string) => {
-    const IconComponent = categoriesIcon[categorySlug.toLowerCase()];
-    return IconComponent ? <IconComponent size={20} /> : <LayoutGrid size={20} />;
+  const handleHover = async (slug: string) => {
+    await loadFilters(slug);
+    setSelectedCategory(slug);
   };
 
-  // Load filters when category is hovered
-  const handleCategoryHover = async (categoryLink: string) => {
-    if (categoryFilters[categoryLink]) {
-      setSelectedCategory(categoryLink);
-      return;
-    }
-
-    setLoadingFilters(prev => ({ ...prev, [categoryLink]: true }));
-    try {
-      const filters = await categoryApi.getAllChildDataByCategorySlug(categoryLink);
-      setCategoryFilters(prev => ({
-        ...prev,
-        [categoryLink]: filters || []
-      }));
-      setSelectedCategory(categoryLink);
-    } catch (error) {
-      console.error("Error loading category filters:", error);
-      setCategoryFilters(prev => ({
-        ...prev,
-        [categoryLink]: []
-      }));
-      setSelectedCategory(categoryLink);
-    } finally {
-      setLoadingFilters(prev => ({ ...prev, [categoryLink]: false }));
-    }
+  const handleCategoryClick = (slug: string) => {
+    setSelectedCategory(null);
+    navigate(`/category/${slug}`);
   };
 
   // Handle filter click - navigate with filter applied
   const handleFilterClick = (categoryLink: string, optionValueId: string | number) => {
     setOpen(false);
-    navigate(`/category/${encodeURIComponent(categoryLink)}?filter=${optionValueId}`);
+    navigate(`/category/${encodeURIComponent(categoryLink)}?category=${encodeURIComponent(categoryLink)}&selectedOptions=${optionValueId}`);
   };
 
   const handleClose = () => {
     setOpen(false);
+    setSelectedCategory(null);
+  };
+
+  const handleLeave = () => {
     setSelectedCategory(null);
   };
 
@@ -83,8 +67,7 @@ export default function CategoriesDropdown() {
       {/* DROPDOWN PANEL - HORIZONTALLY CENTERED, VERTICALLY CENTERED ON PAGE */}
       {open && (
         <div
-          className="fixed left-1/2 transform -translate-x-1/2 bg-white border-0 rounded-xl shadow-2xl z-50 flex overflow-hidden"
-          style={{ width: "1500px", height: "700px" }}
+          className="w-375 h-175 fixed left-1/2 transform -translate-x-1/2 bg-white border-0 rounded-xl shadow-2xl z-50 flex overflow-hidden"
           onMouseLeave={handleClose}
         >
           {/* LEFT SIDE: CATEGORIES LIST */}
@@ -96,44 +79,12 @@ export default function CategoriesDropdown() {
               <h3 className="text-lg font-bold">Categories</h3>
             </div>
 
-            <div className="p-2 space-y-2">
-              {categories.map((cat) => (
-                <button
-                  key={cat.id}
-                  onMouseEnter={() => handleCategoryHover(cat.slug)}
-                  onClick={() => {
-                    handleClose();
-                    navigate(`/category/${encodeURIComponent(cat.slug)}`);
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition duration-200"
-                  style={{
-                    backgroundColor: selectedCategory === cat.slug ? colors.primarycolor : "White",
-                    color: selectedCategory === cat.slug ? "White" : "Black"
-                  }}
-                >
-
-                  {/* ICON BOX */}
-                  <div
-                    className="flex items-center justify-center w-8 h-8 rounded-md border-2 transition"
-                    style={{ background: selectedCategory === cat.slug ? colors.primarycolor : "#F9FAFB", borderColor: selectedCategory === cat.slug ? "white" : "#E5E7EB" }}
-                  >
-                    <div className={selectedCategory === cat.slug ? "text-white" : "text-gray-700"}>
-                      {getCategoryIcon(cat.name)}
-                    </div>
-                  </div>
-
-                  {/* LABEL */}
-                  <div className="flex-1 text-left">
-                    <span className="font-semibold text-base block">{cat.name}</span>
-                  </div>
-                  {/* ARROW */}
-                  <ChevronDown
-                    size={20}
-                    className={`transition ${selectedCategory === cat.slug ? "rotate-180" : ""}`}
-                  />
-                </button>
-              ))}
-            </div>
+            <CategoryPanel
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onHover={handleHover}
+              onClick={handleCategoryClick}
+            />
           </div>
 
           {/* RIGHT SIDE: FILTERS FOR SELECTED CATEGORY */}
@@ -149,71 +100,14 @@ export default function CategoriesDropdown() {
               </div>
 
               {/* CONTENT */}
-              <div className="p-4">
-
-                {/* LOADING OVERLAY */}
-                {loadingFilters[selectedCategory] ? (
-                  <div className="text-center py-12">
-                    <div className="inline-block">
-                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                    </div>
-                    <p className="text-gray-500 text-sm mt-4">Loading filters...</p>
-                  </div>
-                ) : categoryFilters[selectedCategory]?.length > 0 ? (
-                  <div className="space-y-4">
-                    {categoryFilters[selectedCategory].map((option) => (
-                      <div key={option.optionId}>
-                        {/* OPTION NAME */}
-                        <h4 className="text-sm font-bold text-gray-800 mb-4 uppercase tracking-wide">
-                          {option.optionName}
-                        </h4>
-
-                        {/* OPTION VALUES */}
-                        <div className="flex flex-wrap gap-2">
-                          {option.optionValues.map((value) => (
-                            <button
-                              key={value.optionValueId}
-                              onClick={() => handleFilterClick(selectedCategory, value.optionValueId)}
-                              className="px-4 py-2 bg-white hover:bg-gray-700 text-gray-700 hover:text-white text-sm rounded-lg hover:shadow-md transition duration-200 font-medium border border-gray-300"
-                            >
-                              {value.value}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-
-                    {/* DIVIDER */}
-                    <div className="border-t border-gray-200 pt-4">
-                      {/* VIEW ALL BUTTON */}
-                      <button
-                        onClick={() => {
-                          handleClose();
-                          navigate(`/category/${encodeURIComponent(selectedCategory)}`);
-                        }}
-                        className="w-full px-6 py-3 bg-linear-to-r text-white text-sm font-bold rounded-lg hover:shadow-lg transition duration-200 hover:brightness-75"
-                        style={{ background: colors.primarycolor }}
-                      >
-                        View All Products in {categories.find(c => c.slug === selectedCategory)?.name}
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <p className="text-gray-500 text-sm mb-6">No filters available for this category</p>
-                    <button
-                      onClick={() => {
-                        handleClose();
-                        navigate(`/category/${encodeURIComponent(selectedCategory)}`);
-                      }}
-                      className="px-6 py-3 text-white text-sm font-bold rounded-lg hover:brightness-75 transition duration-200"
-                      style={{ background: colors.primarycolor }}
-                    >
-                      View Products
-                    </button>
-                  </div>
-                )}
-              </div>
+              <CategoryFiltersPanel
+                selectedCategory={selectedCategory}
+                filters={filters}
+                loading={filtersLoading}
+                onLeave={handleLeave}
+                onFilterClick={handleFilterClick}
+                onViewAll={() => handleCategoryClick(selectedCategory)}
+              />
             </div>)}
         </div>
       )}

@@ -16,15 +16,6 @@ namespace WebApp_API.Controllers
             _service = service;
         }
 
-        // ────────────────────────────────────────────────── Public endpoints ──────────────────────────────────────────────────
-        // GET /api/products
-        // [HttpGet]
-        // public async Task<IActionResult> GetAll([FromQuery] ProductListDTOs.ProductFilterParams filterParams)
-        // {
-        //     var products = await _service.GetFilteredAsync(filterParams);
-        //     return Ok(products);
-        // }
-
         // GET /api/products/id:{id}
         [HttpGet("id:{id:int}")]
         public async Task<IActionResult> GetById(int id)
@@ -40,14 +31,6 @@ namespace WebApp_API.Controllers
             var product = await _service.GetBySlugAsync(slug);
             return product is null ? NotFound() : Ok(product);
         }
-
-        // GET /api/products/categories/{categorySlug}
-        // [HttpGet("categories/{categorySlug}")]
-        // public async Task<IActionResult> GetByCategory(string categorySlug)
-        // {
-        //     var products = await _service.GetByCategoryAsync(categorySlug);
-        //     return Ok(products);
-        // }
 
         // GET /api/products/filters
         [HttpGet("filters")]

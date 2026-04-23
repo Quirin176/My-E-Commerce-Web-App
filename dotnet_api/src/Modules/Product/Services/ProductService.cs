@@ -44,15 +44,6 @@ namespace WebApp_API.Services
             return await MapToSummaryListAsync(products);
         }
 
-        // public async Task<List<ProductListDTOs.ProductSummaryResponse>> GetByCategoryAsync(string categorySlug)
-        // {
-        //     var categoryId = await _repo.ResolveCategoryIdAsync(categorySlug);
-        //     if (categoryId is null) return new List<ProductListDTOs.ProductSummaryResponse>();
-
-        //     var products = await _repo.GetByCategoryAsync(categoryId.Value);
-        //     return await MapToSummaryListAsync(products);
-        // }
-
         public async Task<ProductDTOs.SearchResponse> SearchAsync(ProductListDTOs.ProductSearchParams searchParams)
         {
             var spec = ProductSearchSpec.From(searchParams);
@@ -91,12 +82,6 @@ namespace WebApp_API.Services
 
         public async Task<PaginatedResponse<ProductDTOs.ProductAdminResponse>> GetPaginatedAsync(ProductFilterSpec spec)
         {
-            if (!string.IsNullOrWhiteSpace(spec.Category))
-                return new PaginatedResponse<ProductDTOs.ProductAdminResponse>
-                {
-                    Pagination = PaginationMeta.From(spec.Page, spec.PageSize, 0)
-                };
-
             var (items, totalCount) = await _repo.GetPaginatedAsync(spec);
 
             var data = await MapToAdminListAsync(items);

@@ -44,8 +44,7 @@ namespace WebApp_API.Repositories
                     p.Slug.ToLower().Contains(term));
             }
 
-            if (spec.Category != null)
-                query = query.Where(p => p.Category.Slug == spec.Category);
+            if (spec.Category != null) query = query.Where(p => p.Category.Slug == spec.Category);
 
             query = ApplyPriceFilter(query, spec.MinPrice, spec.MaxPrice);
             query = await ApplyOptionFilter(query, spec.SelectedOptionValueIds);
