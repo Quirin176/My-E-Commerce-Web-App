@@ -5,7 +5,6 @@ import { useCategories } from "../../../hooks/products/useCategories";
 import { useProductFiltersBySlug } from "../../../hooks/products/useProductFiltersBySlug";
 
 import { siteConfig } from "../../../config/siteConfig";
-import { categoriesIcon } from "../../../config/siteConfig";
 import CategoryFiltersPanel from "../Home/CategoryFiltersPanel";
 import CategoryPanel from "../Home/CategoryPanel";
 

@@ -1,5 +1,5 @@
 import { useProductSearch } from "../../hooks/products/useProductSearch";
-import { useUrlFilters } from "../../hooks/useUrlFilters";
+import { useProductUrlFilters } from "../../hooks/useProductUrlFilters";
 import { usePagination } from "../../hooks/usePagination";
 import ProductCard from "../../components/MainLayout/Customer/Product/ProductCard";
 import PaginationControl from "../../components/MainLayout/PaginationControl";
@@ -9,7 +9,7 @@ const PAGE_SIZE = 10;
 export default function Search() {
 
     // Filters and pagination from URL
-    const { query, page, minPrice, maxPrice, sortOrder, updateUrl } = useUrlFilters();
+    const { query, page, minPrice, maxPrice, sortOrder, updateUrl } = useProductUrlFilters();
 
     const { products, totalCount, loading, error, refetch } = useProductSearch(
         { query: query, currentPage: page, pageSize: 10 },

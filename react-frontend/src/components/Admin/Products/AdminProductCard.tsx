@@ -19,10 +19,9 @@ export default function AdminProductCard({
 
   return (
     <div
-      className="border rounded-lg p-4 shadow-sm hover:shadow-md hover:bg-gray-100 transition-shadow cursor-pointer"
       onClick={() => onView(product)}
     >
-      <div className="flex justify-between items-start">
+      <div className="flex justify-between items-center">
         <div className="flex flex-row items-center gap-2">
           <img
             src={
@@ -41,6 +40,7 @@ export default function AdminProductCard({
             <p className="text-sm text-gray-500">{product.slug}</p>
           </div>
         </div>
+
         <div className="flex flex-row gap-20">
           <span className="text-lg font-bold text-blue-600">
             {product.price?.toLocaleString("vi-VN")} VND

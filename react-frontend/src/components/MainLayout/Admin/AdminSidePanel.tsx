@@ -16,7 +16,7 @@ export default function AdminSidePanel() {
     const { logout } = useAuth();
     return (
         <div
-            className="group text-white fixed flex flex-col transition-all duration-300 h-full overflow-hidden z-40 rounded-br"
+            className="group text-white fixed flex flex-col transition-all duration-300 h-full overflow-hidden z-40 rounded-br w-60"
             style={{ background: siteConfig.colors.primarycolor }}
         >
             {/* LOGO AND SITE NAME */}

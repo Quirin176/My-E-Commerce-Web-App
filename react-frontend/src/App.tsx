@@ -29,6 +29,8 @@ import OrderDetail from "./pages/user/OrderDetail";
 import Checkout from "./pages/user/Checkout";
 
 import Test from "./pages/test/Test";
+import Weather from "./pages/games/Weather";
+import WhosThatPokemon from "./pages/games/WhosThatPokemon";
 
 import { useAuth } from "./hooks/auth/useAuth";
 
@@ -110,6 +112,8 @@ export default function App() {
         <Route path="*" element={<Navigate to="/home" replace />} />
 
         <Route path="/test" element={<Test />} />
+        <Route path="/weather" element={<Weather />} />
+        <Route path="/whosthatpokemon" element={<WhosThatPokemon />} />
       </Routes>
     </>
   );

@@ -6,15 +6,15 @@ namespace WebApp_API.DTOs
         // DTO used for creating a new order from the client/frontend
         public class CreateOrderRequest
         {
-            public string CustomerName { get; set; }
-            public string CustomerEmail { get; set; }
-            public string CustomerPhone { get; set; }
-            public string ShippingAddress { get; set; }
-            public string City { get; set; }
+            public required string CustomerName { get; set; }
+            public required string CustomerEmail { get; set; }
+            public required string CustomerPhone { get; set; }
+            public required string ShippingAddress { get; set; }
+            public required string City { get; set; }
             public decimal TotalAmount { get; set; }
             public string PaymentMethod { get; set; } = "Card";
-            public string Status { get; set; }
-            public string Notes { get; set; }
+            public required string Status { get; set; }
+            public string? Notes { get; set; }
             public List<OrderItemDTOs.OrderItemRequest> OrderItems { get; set; } = new();
         }
 
@@ -23,31 +23,32 @@ namespace WebApp_API.DTOs
         public class OrderResponse
         {
             public int Id { get; set; }
-            public string CustomerName { get; set; }
-            public string CustomerEmail { get; set; }
-            public string CustomerPhone { get; set; }
-            public string ShippingAddress { get; set; }
-            public string City { get; set; }
+            public required string CustomerName { get; set; }
+            public required string CustomerEmail { get; set; }
+            public required string CustomerPhone { get; set; }
+            public required string ShippingAddress { get; set; }
+            public required string City { get; set; }
             public decimal TotalAmount { get; set; }
-            public string PaymentMethod { get; set; }
-            public string Status { get; set; }
+            public required string PaymentMethod { get; set; }
+            public required string Status { get; set; }
             public DateTime OrderDate { get; set; }
             public string? Notes { get; set; }
             public int ItemCount { get; set; }
             public List<OrderItemDTOs.OrderItemResponse> Items { get; set; } = new();
         }
+
         // DTO used for returning order details to admin client/frontend
         public class AdminOrderResponse
         {
             public int Id { get; set; }
-            public string CustomerName { get; set; }
-            public string CustomerEmail { get; set; }
-            public string CustomerPhone { get; set; }
-            public string ShippingAddress { get; set; }
-            public string City { get; set; }
+            public required string CustomerName { get; set; }
+            public required string CustomerEmail { get; set; }
+            public required string CustomerPhone { get; set; }
+            public required string ShippingAddress { get; set; }
+            public required string City { get; set; }
             public decimal TotalAmount { get; set; }
-            public string PaymentMethod { get; set; }
-            public string Status { get; set; }
+            public required string PaymentMethod { get; set; }
+            public required string Status { get; set; }
             public DateTime OrderDate { get; set; }
             public string? Notes { get; set; }
             public int? UserId { get; set; }        // Admin-specific
@@ -58,33 +59,33 @@ namespace WebApp_API.DTOs
         // DTO used for updating order status from the client/frontend
         public class UpdateOrderStatusRequest
         {
-            public string Status { get; set; }
+            public required string Status { get; set; }
         }
 
         // DTO used for updating entire order details from the client/frontend
         public class UpdateOrderRequest
         {
-            public string CustomerName { get; set; }
-            public string CustomerEmail { get; set; }
-            public string CustomerPhone { get; set; }
-            public string ShippingAddress { get; set; }
-            public string City { get; set; }
-            public string Status { get; set; }
-            public string Notes { get; set; }
+            public required string CustomerName { get; set; }
+            public required string CustomerEmail { get; set; }
+            public required string CustomerPhone { get; set; }
+            public required string ShippingAddress { get; set; }
+            public required string City { get; set; }
+            public required string Status { get; set; }
+            public string? Notes { get; set; }
         }
         
-        //////////////////// Order Stats DTOs for admin dashboard ////////////////////
+        // ──────────────────── Admin ────────────────────
         // DTO for a single status group count
         public class OrderStatusCountDto
         {
-            public string Status { get; set; }
+            public required string Status { get; set; }
             public int Count { get; set; }
         }
 
         // DTO for a single payment method group count
         public class OrderPaymentMethodCountDto
         {
-            public string Method { get; set; }
+            public required string Method { get; set; }
             public int Count { get; set; }
         }
 
@@ -99,6 +100,15 @@ namespace WebApp_API.DTOs
             public List<OrderPaymentMethodCountDto> ByPaymentMethod { get; set; } = new();
             public decimal Last30DaysRevenue { get; set; }
             public int Last30DaysOrders { get; set; }
+        }
+
+        // DTO used for returning order details (shorter version) to admin dashboard
+        public class RecentOrderDto
+        {
+            public int Id { get; set; }
+            public required string CustomerName { get; set; }
+            public decimal TotalAmount { get; set; }
+            public required string Status { get; set; }
         }
     }
 }

@@ -59,6 +59,12 @@ namespace WebApp_API.Repositories
             return (users, totalCount);
         }
 
+        // ────────────────────────────────────────────────── Dashboard Features ──────────────────────────────────────────────────
+        public int CountUsers()
+        {
+            return _db.Users.Count();
+        }
+
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
         public async Task CreateAsync(User user)
         {

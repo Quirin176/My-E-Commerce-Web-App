@@ -65,7 +65,7 @@ export default function AdminUsers() {
         <div>
             {/* LOADING OVERLAY */}
             {loading && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 backdrop-blur-sm flex flex-col items-center justify-center z-50">
+                <div className="fixed inset-0 bg-opacity-50 backdrop-blur-sm flex flex-col items-center justify-center z-50">
                     <div className="bg-white px-6 py-4 rounded-xl shadow-lg flex flex-col items-center gap-4">
                         <div className="animate-spin rounded-full h-10 w-10 border-4 border-green-500 border-t-transparent"></div>
                         <p className="font-semibold text-black">Loading...</p>
@@ -73,11 +73,7 @@ export default function AdminUsers() {
                 </div>
             )}
 
-            <div className="flex flex-col gap-y-6">
-                <h1 className="text-2xl font-bold">
-                    Admin Users Management
-                </h1>
-
+            <div className="flex flex-col gap-y-8 pt-8 px-8">
                 <div className="flex flex-row items-center justify-between">
                     <div className="flex gap-4">
                         {ROLE.map((role, index) => {
@@ -98,32 +94,38 @@ export default function AdminUsers() {
                         })}
                     </div>
 
-                    <div className="flex flex-row items-center justify-between gap-4 text-blue-600">
+                    <div className="flex flex-row items-center justify-between gap-4 text-gray-600">
                         <span className="text-lg font-semibold">Sort By</span>
-                        <select name="sortBy" id="sortBy" value={sortBy}
+                        <select
+                            name="sortBy"
+                            id="sortBy"
+                            value={sortBy}
                             onChange={(e) => updateUrl({ sortBy: e.target.value, page: 1 })}
                             className="border-2 rounded-full px-2 py-1 w-36">
-                            {/* <option value="">Sort By</option> */}
                             <option value="Id">ID</option>
                             <option value="Joining Date">Joining Date</option>
                         </select>
                     </div>
 
-                    <div className="flex flex-row items-center justify-between gap-4 text-blue-600">
+                    <div className="flex flex-row items-center justify-between gap-4 text-gray-600">
                         <span className="text-lg font-semibold">Sort Order</span>
-                        <select name="sortOrder" id="sortOrder" value={sortOrder}
+                        <select
+                            name="sortOrder"
+                            id="sortOrder"
+                            value={sortOrder}
                             onChange={(e) => updateUrl({ sortOrder: e.target.value, page: 1 })}
                             className="border-2 rounded-full px-2 py-1 w-36">
-                            {/* <option value="">Sort Order</option> */}
                             <option value="asc">Ascending</option>
                             <option value="desc">Descending</option>
                         </select>
                     </div>
                 </div>
 
-                <div className="flex flex-col gap-y-4">
+                <div className="space-y-2">
                     {users.map((u) => (
-                        <AdminUserCard key={u.id} user={u} />
+                        <div className="rounded-2xl border bg-white p-4">
+                            <AdminUserCard key={u.id} user={u} />
+                        </div>
                     ))}
                 </div>
                 {/* Pagination Controls */}

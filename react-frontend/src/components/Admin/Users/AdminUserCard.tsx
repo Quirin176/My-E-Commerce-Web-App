@@ -7,7 +7,7 @@ interface UserCardProp {
 export default function AdminUserCard({ user }: UserCardProp) {
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-6 rounded-2xl border bg-white shadow-xl p-4">
+        <div className="grid grid-cols-1 md:grid-cols-6">
             <div className="flex flex-col items-center">
                 <p className="text-sm text-gray-700">UserID</p>
                 <p className="font-bold">{user.id}</p>

@@ -4,7 +4,6 @@ using static WebApp_API.DTOs.PaginationDTOs;
 
 namespace WebApp_API.Services
 {
-    // Business Logic
     public interface IUserService
     {
         // ──────────────────── User Profile Query ────────────────────

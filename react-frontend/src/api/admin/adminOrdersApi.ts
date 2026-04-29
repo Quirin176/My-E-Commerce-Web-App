@@ -1,13 +1,5 @@
 import { apiClient } from "../apiClient";
 
-// export interface AdminOrdersFilters {
-//   status: string,
-//   minDate: string,
-//   maxDate: string,
-//   sortBy: string,
-//   sortOrder: string
-// }
-
 export const adminOrdersApi = {
   // GET /api/adminorders?status=&minDate=&maxDate=&sortBy=&sortOrder= - Get all orders with filters
   async getAllOrders(

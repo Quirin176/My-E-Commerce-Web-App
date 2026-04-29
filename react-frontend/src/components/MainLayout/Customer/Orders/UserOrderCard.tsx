@@ -81,7 +81,7 @@ export default function UserOrderCard(order: UserOrderCardProps) {
 
     return (
         <>
-            <div key={order.id} className="bg-white rounded-lg shadow-lg hover:shadow-lg transition">
+            <div key={order.id}>
 
                 {/* Order Header */}
                 <div

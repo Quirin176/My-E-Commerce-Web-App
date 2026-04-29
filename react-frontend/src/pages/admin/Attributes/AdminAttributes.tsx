@@ -111,7 +111,7 @@ export default function AdminAttributes() {
         });
 
     return (
-        <div className="flex flex-col gap-y-4">
+        <div className="flex flex-col gap-y-4 pt-8 px-8">
             <h1 className="text-2xl font-bold">Categories</h1>
 
             <div className="flex justify-between gap-2">
@@ -120,7 +120,8 @@ export default function AdminAttributes() {
                         <button
                             key={category.id}
                             onClick={() => setSelectedCategory(category)}
-                            className="rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 cursor-pointer"
+                            className={category.name === selectedCategory?.name ? `rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 cursor-pointer` :
+                                `rounded-full bg-white-600 hover:bg-blue-600 text-blue-600 hover:text-white font-semibold px-4 py-2 cursor-pointer border-2 border-blue-600`}
                         >
                             {category.name}
                         </button>
@@ -159,14 +160,14 @@ export default function AdminAttributes() {
                             <div key={option.optionId} className="flex flex-col gap-3">
 
                                 {/* Option Header */}
-                                <div className="flex justify-between items-center rounded-xl bg-blue-600 font-semibold px-4 py-2 shadow cursor-pointer group"
+                                <div className="flex justify-between items-center rounded-xl border-2 border-blue-600 hover:border-black px-4 py-2 cursor-pointer group"
                                     onClick={() => {
                                         if (option.optionId === selectedOptionId) setSelectedOptionId(0)
                                         else setSelectedOptionId(option.optionId);
                                     }}>
 
                                     <div className="flex-1">
-                                        <span className="text-white transition group-hover:text-blue-200">
+                                        <span className="text-blue-600 font-bold transition group-hover:text-black">
                                             {option.optionName}
                                         </span>
                                     </div>
@@ -174,19 +175,19 @@ export default function AdminAttributes() {
                                     <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
                                         <button
                                             onClick={() => openAddValue(option.optionId)}
-                                            className="text-white cursor-pointer hover:opacity-70 transition rounded-xl border-2 p-1"
+                                            className="text-blue-600 hover:text-black cursor-pointer transition rounded-xl border-2 p-1"
                                             title="Add Attribute Value">
                                             <Plus size={18} />
                                         </button>
                                         <button
                                             onClick={() => openEditOption(option)}
-                                            className="text-white cursor-pointer hover:opacity-70 transition rounded-xl border-2 p-1"
+                                            className="text-blue-600 hover:text-black cursor-pointer transition rounded-xl border-2 p-1"
                                             title="Update Attribute">
                                             <SquarePen size={18} />
                                         </button>
                                         <button
                                             onClick={() => confirmDeleteOption(option)}
-                                            className="text-white cursor-pointer hover:opacity-70 transition rounded-xl border-2 p-1"
+                                            className="text-blue-600 hover:text-black cursor-pointer transition rounded-xl border-2 p-1"
                                             title="Remove Attribute">
                                             <X size={18} />
                                         </button>
@@ -198,20 +199,20 @@ export default function AdminAttributes() {
                                     <div className="flex flex-col gap-2 ml-4">
                                         {option.optionValues.map((value) => (
                                             <div
-                                                key={value.optionValueId}
+                                                key={value.id}
                                                 className="flex justify-between items-center rounded-xl border border-blue-600 text-blue-600 font-medium px-4 py-2"
                                             >
                                                 <span>{value.value}</span>
 
                                                 <div className="flex items-center gap-3">
                                                     <button
-                                                        onClick={() => openEditValue(value.optionValueId, value.value)}
+                                                        onClick={() => openEditValue(value.id, value.value)}
                                                         className="cursor-pointer hover:opacity-70 transition rounded-xl border-2 p-1"
                                                         title="Update Attribute Value">
                                                         <SquarePen size={18} />
                                                     </button>
                                                     <button
-                                                        onClick={() => confirmDeleteValue(value.optionValueId, value.value)}
+                                                        onClick={() => confirmDeleteValue(value.id, value.value)}
                                                         className="cursor-pointer hover:opacity-70 transition rounded-xl border-2 p-1"
                                                         title="Remove Attribute Value">
                                                         <X size={18} />

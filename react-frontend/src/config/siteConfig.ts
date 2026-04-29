@@ -8,8 +8,8 @@ export const siteConfig = {
 
   colors: {
     primarycolor: "#4169E1",
-    pricecolor: "red",
-    backgroundcolor: "GhostWhite",
+    pricecolor: "Red",
+    backgroundcolor: "White",
   },
 
   // Order's Status Options

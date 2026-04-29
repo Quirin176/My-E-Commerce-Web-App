@@ -107,7 +107,7 @@ export default function AdminOrders() {
     };
 
     return (
-        <div className="flex flex-col gap-y-2">
+        <div className="flex flex-col gap-y-8 pt-8 px-8">
 
             {/* EXPORT OVERLAY */}
             {exporting && (
@@ -119,10 +119,8 @@ export default function AdminOrders() {
                 </div>
             )}
 
-            {/* Title */}
+            {/* Filters */}
             <div className="flex justify-between">
-                <h1 className="text-2xl font-bold">Admin Orders Management</h1>
-
                 <div className="flex flex-row gap-10">
                     <div className="flex flex-row items-center gap-4">
                         <label className="font-bold w-full">Select Start Date</label>
@@ -163,7 +161,7 @@ export default function AdminOrders() {
                 </select>
             </div>
 
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center">
                 {/* Status Filter */}
                 <div className="flex flex-wrap gap-2">
                     {orderStatus.map((option) => (
@@ -220,10 +218,12 @@ export default function AdminOrders() {
             ) : (
                 <div className="space-y-4">
                     {orders.map((order) => (
+                        <div className="bg-white rounded-lg border transition">
                         <UserOrderCard
                             key={order.id}
                             {...order}
                             onCancelSuccess={(id) => setOrders(prev => prev.filter(o => o.id !== id))} />
+                        </div>
                     ))}
                 </div>
             )}

@@ -93,6 +93,8 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 builder.Services.AddScoped<IOrderItemService, OrderItemService>();
 
+builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+
 // JWT auth
 if (string.IsNullOrEmpty(builder.Configuration["Jwt:Key"]))
 {

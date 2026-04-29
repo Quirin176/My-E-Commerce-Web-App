@@ -29,7 +29,7 @@ export default function PaginationControl({
   );
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between p-6 gap-4 bg-white rounded-lg shadow">
+    <div className="flex flex-col sm:flex-row items-center justify-between p-6 gap-4 bg-white">
 
       {/* Summary */}
       {showSummary && (

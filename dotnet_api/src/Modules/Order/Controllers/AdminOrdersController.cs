@@ -9,7 +9,7 @@ namespace WebApp_API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Admin")]
-    public class AdminOrdersController : ControllerBase // API URL: /api/adminorders
+    public class AdminOrdersController : ControllerBase // API Endpoint: /api/adminorders
     {
         private readonly IOrderService _orderService;
 

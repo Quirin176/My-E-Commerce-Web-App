@@ -82,20 +82,15 @@ export default function AdminProducts() {
   };
 
   return (
-    <div className="flex flex-col gap-y-2">
+    <div className="flex flex-col gap-y-4 pt-8 px-8">
 
       {/* ========== HEADER ========== */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">
-            Products Management
-          </h1>
-          <p className="text-gray-600 mt-1">
-            {totalCount > 0
-              ? `${totalCount} total products`
-              : "No products found"}
-          </p>
-        </div>
+        <p className="text-gray-600 mt-1">
+          {totalCount > 0
+            ? `${totalCount} total products`
+            : "No products found"}
+        </p>
 
         {/* ========== SEARCH BAR ========== */}
         <div className="flex items-center gap-4">
@@ -209,7 +204,7 @@ export default function AdminProducts() {
             {products.map((product) => (
               <div
                 key={product.id}
-                className="bg-white rounded-lg shadow hover:shadow-lg transition"
+                className="border rounded-lg px-8 py-2 shadow-sm hover:shadow-md hover:bg-gray-100 transition-shadow cursor-pointer"
               >
                 <AdminProductCard
                   product={product}

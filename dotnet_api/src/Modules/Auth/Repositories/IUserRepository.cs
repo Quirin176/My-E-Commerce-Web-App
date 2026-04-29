@@ -13,6 +13,9 @@ namespace WebApp_API.Repositories
         Task<List<User>> GetUsersByRoleAsync(string role);
         Task<(List<User> Users, int TotalCount)> GetUsersByFiltersAsync(UserFiltersSpec spec);
 
+        // ────────────────────────────────────────────────── Dashboard Features ──────────────────────────────────────────────────
+        int CountUsers();
+
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
         Task CreateAsync(User user);
         Task UpdateAsync(User user);

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WebApp_API.Data;
+using WebApp_API.DTOs;
 using WebApp_API.Entities;
 
 namespace WebApp_API.Repositories
@@ -13,18 +14,20 @@ namespace WebApp_API.Repositories
         public async Task<OrderItem?> GetOrderItemByIdAsync(int id) =>
             await _db.OrderItems.FindAsync(id);
 
-        // ────────────────────────────── Order Item List Lookups ──────────────────────────────
-        public async Task AddRangeAsync(IEnumerable<OrderItem> items)
+        public List<OrderItemDTOs.TopProductDto> GetTopSellingProducts(int top)
         {
-            await _db.OrderItems.AddRangeAsync(items);
-            await _db.SaveChangesAsync();
-        }
-
-        public async Task RemoveRangeByOrderIdAsync(int orderId)
-        {
-            var items = await _db.OrderItems.Where(oi => oi.OrderId == orderId).ToListAsync();
-            _db.OrderItems.RemoveRange(items);
-            await _db.SaveChangesAsync();
+            return _db.OrderItems
+                .GroupBy(oi => oi.ProductId)
+                .Select(g => new OrderItemDTOs.TopProductDto
+                {
+                    ProductId = g.Key,
+                    ProductName = g.First().ProductName,
+                    TotalQuantity = g.Sum(x => x.Quantity),
+                    TotalRevenue = g.Sum(x => x.TotalPrice)
+                })
+                .OrderByDescending(x => x.TotalQuantity)
+                .Take(top)
+                .ToList();
         }
     }
 }
