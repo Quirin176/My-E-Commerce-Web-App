@@ -8,7 +8,7 @@ import DashboardCard from "../../../components/Admin/Dashboards/DashboardCard";
 import RecentOrdersTable from "../../../components/Admin/Dashboards/RecentOrdersTable";
 import TopProductsTable from "../../../components/Admin/Dashboards/TopProductsTable";
 import DashboardLineChart from "../../../components/Admin/Dashboards/DashboardLineChart";
-import type { RecentOrder, TopProduct } from "../../../types/dto/AdminDashboardDTOs";
+import type { RecentOrder, TopProduct, LineChartPoints } from "../../../types/dto/AdminDashboardDTOs";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -20,6 +20,7 @@ export default function AdminDashboard() {
   const [totalSale, setTotalSale] = useState<Number>(0);
   const [recentOrders, setRecentOrders] = useState<RecentOrder[] | null>(null);
   const [topProducts, setTopProducts] = useState<TopProduct[] | null>(null);
+  const [chartData, setChartData] = useState<LineChartPoints[] | undefined>(undefined);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,13 +29,13 @@ export default function AdminDashboard() {
       try {
         setLoading(true);
         const res = await adminDashboardApi.getSummary();
-        const summary = res.result;
 
-        setTotalUsers(summary.totalUsers);
-        setTotalOrders(summary.totalOrders);
-        setTotalSale(summary.totalRevenue);
-        setRecentOrders(summary.recentOrders);
-        setTopProducts(summary.topProducts);
+        setTotalUsers(res.totalUsers);
+        setTotalOrders(res.totalOrders);
+        setTotalSale(res.totalRevenue);
+        setRecentOrders(res.recentOrders);
+        setTopProducts(res.topProducts);
+        setChartData(res.lineChartPoints);
       } catch {
         toast.error("Failed to load dashboard data");
       } finally {
@@ -58,20 +59,22 @@ export default function AdminDashboard() {
         <DashboardCard title="Total Users" value={totalusers?.toLocaleString("vi-VN")} icon={<User2 />} onClick={() => navigate("/admin/users")} />
       </div>
 
-      {/* RECENT ORDERS */}
-      <div className="rounded-2xl bg-gray-100 shadow p-6">
-        <h2 className="text-lg font-semibold mb-4">Recent Orders</h2>
-        <RecentOrdersTable orders={recentOrders} />
+      <div className="flex flex-row w-full">
+        {/* RECENT ORDERS */}
+        <div className="rounded-2xl bg-gray-50 shadow p-6 w-1/2 mr-4">
+          <h2 className="text-lg font-semibold mb-4">Recent Orders</h2>
+          <RecentOrdersTable orders={recentOrders} />
+        </div>
+
+        {/* TOP PRODUCTS */}
+        <div className="rounded-2xl bg-gray-50 shadow p-6 w-1/2 ml-4">
+          <h2 className="text-lg font-semibold mb-4">Top Products</h2>
+          <TopProductsTable topProducts={topProducts} />
+        </div>
       </div>
 
-      {/* TOP PRODUCTS */}
-      <div className="rounded-2xl bg-gray-100 shadow p-6">
-        <h2 className="text-lg font-semibold mb-4">Top Products</h2>
-        <TopProductsTable topProducts={topProducts} />
-      </div>
-
-      {/* TOP PRODUCTS */}
-      {/* <DashboardLineChart data={} /> */}
+      {/* LINE CHART */}
+      <DashboardLineChart data={chartData} />
     </div>
   );
 };

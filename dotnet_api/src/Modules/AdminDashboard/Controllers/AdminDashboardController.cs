@@ -6,7 +6,7 @@ namespace WebApp_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    // [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public class AdminDashboardController : ControllerBase // API Endpoint: /api/admindashboard
     {
         private readonly IAdminDashboardService _service;
@@ -21,7 +21,7 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                var res = _service.GetSummary();
+                var res = await _service.GetSummary();
                 return Ok(res);
             }
             catch (Exception ex)

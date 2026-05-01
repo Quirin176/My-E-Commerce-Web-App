@@ -3,6 +3,7 @@ using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using WebApp_API.Hubs;
 using WebApp_API.Data;
 using WebApp_API.Repositories;
 using WebApp_API.Services;
@@ -95,6 +96,12 @@ builder.Services.AddScoped<IOrderItemService, OrderItemService>();
 
 builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+builder.Services.AddScoped<MessageService>();
+
+builder.Services.AddSignalR();
+
 // JWT auth
 if (string.IsNullOrEmpty(builder.Configuration["Jwt:Key"]))
 {
@@ -179,6 +186,8 @@ app.UseAuthorization();
 // });
 
 app.MapControllers();
+
+app.MapHub<ChatHub>("/chatHub");
 
 // Log startup info
 Console.WriteLine("Starting WebApp API...");

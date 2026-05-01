@@ -22,9 +22,9 @@ namespace WebApp_API.Services
                 TotalUsers = _usersRepo.CountUsers(),
                 TotalOrders = _ordersRepo.CountOrders(),
                 TotalRevenue = _ordersRepo.GetTotalRevenue(),
-                RecentOrders = _ordersRepo.GetRecentOrders(10),
+                RecentOrders = _ordersRepo.GetRecentOrders(5),
                 TopProducts = _orderItemsRepo.GetTopSellingProducts(5),
-                // LineChartPoints = await _ordersRepo.GetOrderChartDataAsync(10)
+                LineChartPoints = await _ordersRepo.GetOrderChartDataAsync(120)
             };
         }
     }

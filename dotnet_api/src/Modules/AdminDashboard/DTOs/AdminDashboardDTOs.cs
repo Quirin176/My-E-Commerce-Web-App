@@ -15,6 +15,6 @@ namespace WebApp_API.DTOs
         public decimal TotalRevenue { get; set; }
         public List<OrderDTOs.RecentOrderDto>? RecentOrders { get; set; }
         public List<OrderItemDTOs.TopProductDto>? TopProducts { get; set; }
-        // public List<LineChartPoint>? LineChartPoints { get; set; }
+        public List<LineChartPoint>? LineChartPoints { get; set; }
     }
 }

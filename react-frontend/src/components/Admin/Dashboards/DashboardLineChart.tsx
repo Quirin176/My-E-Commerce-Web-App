@@ -1,52 +1,97 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Legend, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import type { LineChartPoints } from '../../../types/dto/AdminDashboardDTOs';
 
-export default function DashboardLineChart(data: Array<Number>) {
+interface DashboardLineChartProp {
+    data: LineChartPoints[] | undefined
+}
 
+const formatMoney = (value: number) => {
+    if (value >= 1_000_000_000) return (value / 1_000_000_000).toFixed(1) + "B";
+    if (value >= 1_000_000) return (value / 1_000_000).toFixed(1) + "M";
+    if (value >= 1_000) return (value / 1_000).toFixed(1) + "K";
+    return value.toString();
+};
+
+const formatDate = (iso: string) => {
+    const d = new Date(iso);
+    return d.toLocaleDateString("en-US", {
+        month: "short",
+        day: "2-digit",
+    });
+};
+
+const formatTooltipLabel = (label: any) => {
+    const d = new Date(label);
+    return d.toLocaleDateString("en-US", {
+        month: "short",
+        day: "2-digit"
+    });
+};
+
+export default function DashboardLineChart({ data }: DashboardLineChartProp) {
     return (
-        <div className="flex flex-col items-center justify-between w-full h-full">
-            <h1 className="text-4xl font-bold mt-8 text-blue-500">Weather</h1>
+        <div className="w-1/2 rounded-2xl bg-gray-50 shadow p-6">
+            
+            {/* Title */}
+            <h2 className="text-2xl font-bold text-blue-600 text-center mb-6">
+                Revenue Analytics
+            </h2>
 
-            <div style={{ width: 800, height: 300 }}>
-                <ResponsiveContainer>
+            {/* Chart container — full width, fixed height */}
+            <div className="w-full h-[400px]">
+                <ResponsiveContainer width="100%" height="100%">
                     <LineChart
                         data={data}
-                        margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                        margin={{ top: 10, right: 20, left: 0, bottom: 10 }}
                     >
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                        <CartesianGrid strokeDasharray="4 4" stroke="#e5e7eb" />
 
-                        {/* X-Axis with Title */}
                         <XAxis
-                            dataKey="displayTime"
-                            label={{ value: 'Time (Hourly)', position: 'insideBottom', offset: -10 }}
+                            dataKey="date"
+                            tickFormatter={formatDate}
+                            tick={{ fontSize: 12 }}
                         />
 
-                        {/* Y-Axis with Title */}
                         <YAxis
-                            label={{
-                                value: 'Temperature (°C)',
-                                angle: -90,
-                                position: 'insideLeft',
-                                style: { textAnchor: 'middle' }
+                            tickFormatter={formatMoney}
+                            tick={{ fontSize: 12 }}
+                        />
+
+                        <Tooltip
+                            formatter={(v) => formatMoney(Number(v))}
+                            labelFormatter={formatTooltipLabel}
+                            contentStyle={{
+                                borderRadius: 10,
+                                borderColor: "#d1d5db",
+                                backgroundColor: "white",
+                                boxShadow: "0 4px 12px rgba(0,0,0,0.08)"
                             }}
                         />
-                        <Tooltip
-                            formatter={(value) => [`${value}`, 'Temperature']}
-                            labelStyle={{ color: 'black' }}
+
+                        <Legend verticalAlign="top" height={40} />
+
+                        <Line
+                            name="Orders"
+                            type="monotone"
+                            dataKey="orderCount"
+                            stroke="#3b82f6"
+                            strokeWidth={3}
+                            dot={{ r: 4 }}
+                            activeDot={{ r: 6 }}
                         />
 
                         <Line
-                            name="Temperature"
-                            unit="°C"
+                            name="Revenue (VND)"
                             type="monotone"
-                            dataKey="temperature"
-                            stroke="#8884d8"
-                            strokeWidth={4}
-                            dot={{ r: 2 }}
+                            dataKey="totalRevenue"
+                            stroke="#10b981"
+                            strokeWidth={3}
+                            dot={{ r: 4 }}
                             activeDot={{ r: 6 }}
                         />
                     </LineChart>
                 </ResponsiveContainer>
             </div>
-        </div >
+        </div>
     );
-};
+}

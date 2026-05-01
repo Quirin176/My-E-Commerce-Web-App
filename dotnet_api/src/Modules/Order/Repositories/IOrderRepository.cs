@@ -20,7 +20,7 @@ namespace WebApp_API.Repositories
         int CountOrders();
         decimal GetTotalRevenue();
         List<OrderDTOs.RecentOrderDto> GetRecentOrders(int count);
-        // Task<List<LineChartPoint>> GetOrderChartDataAsync(int days);
+        Task<List<LineChartPoint>> GetOrderChartDataAsync(int days);
 
         // ────────────────────────────── Write Operations ──────────────────────────────
         Task<Order> CreateOrderAsync(Order order, List<OrderItem> items);   // Customer

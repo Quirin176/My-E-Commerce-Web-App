@@ -13,10 +13,17 @@ export interface TopProduct {
   totalRevenue: number;
 }
 
+export interface LineChartPoints {
+  date: Date;
+  orderCount: number;
+  totalRevenue: number;
+}
+
 export interface DashboardSummary {
   totalUsers: number;
   totalOrders: number;
   totalRevenue: number;
   recentOrders: RecentOrder[];
   topProducts: TopProduct[];
+  lineChartPoints: LineChartPoints[];
 }

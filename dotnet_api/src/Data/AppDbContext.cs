@@ -16,6 +16,9 @@ namespace WebApp_API.Data
         public DbSet<ProductImage> ProductImages { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<Chat> Chats { get; set; }
+        public DbSet<Message> Messages { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -87,6 +90,43 @@ namespace WebApp_API.Data
             builder.Entity<Order>().HasIndex(o => o.UserId);
             builder.Entity<Order>().HasIndex(o => o.OrderDate);
             builder.Entity<Order>().HasIndex(o => o.Status);
+
+            // Chat Model
+            // Chat → Messages (1:N)
+            builder.Entity<Chat>()
+                .HasMany(c => c.Messages)
+                .WithOne(m => m.Chat)
+                .HasForeignKey(m => m.ChatId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // Chat.CustomerId → Users.Id
+            builder.Entity<Chat>()
+                .HasOne<User>()
+                .WithMany()
+                .HasForeignKey(c => c.CustomerId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // Chat.AdminId → Users.Id
+            builder.Entity<Chat>()
+                .HasOne<User>()
+                .WithMany()
+                .HasForeignKey(c => c.AdminId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // Message.SenderId → Users.Id
+            builder.Entity<Message>()
+                .HasOne<User>()
+                .WithMany()
+                .HasForeignKey(m => m.SenderId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // Indexes
+            builder.Entity<Chat>().HasIndex(c => c.CustomerId);
+            builder.Entity<Chat>().HasIndex(c => c.AdminId);
+
+            builder.Entity<Message>().HasIndex(m => m.ChatId);
+            builder.Entity<Message>().HasIndex(m => m.SenderId);
+            builder.Entity<Message>().HasIndex(m => m.CreatedAt);
         }
     }
 }
