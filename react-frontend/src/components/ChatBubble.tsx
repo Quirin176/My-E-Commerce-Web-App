@@ -95,7 +95,7 @@ export default function ChatBubble() {
                                     className={`flex ${isMe ? "justify-end" : "justify-start"}`}
                                 >
                                     <div
-                                        className={`px-3 py-2 rounded-xl text-sm max-w-[75%] break-words ${isMe
+                                        className={`px-3 py-2 rounded-xl text-sm max-w-[75%] wrap-break-word ${isMe
                                                 ? "text-white rounded-br-none"
                                                 : "bg-white border text-gray-800 rounded-bl-none"
                                             }`}
