@@ -1,10 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
-import { BellRing, Settings } from "lucide-react";
+import { BellRing, MessageCircleMore, Settings } from "lucide-react";
 import { siteConfig } from "../../../config/siteConfig";
 import { useAuth } from "../../../hooks/auth/useAuth";
 import AdminDropDown from "./Admin/AdminDropDown";
 
 const navigationItems = [
+    { label: "Chats", icon: <MessageCircleMore size={20} />, to: "/admin/chats" },
     { label: "Alarm", icon: <BellRing size={20} />, to: "/admin/alarms" },
     { label: "Settings", icon: <Settings size={20} />, to: "/admin/settings" },
 ];

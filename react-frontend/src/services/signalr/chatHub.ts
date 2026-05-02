@@ -1,15 +1,23 @@
-import { connection } from "./signalrConnection";
+import { connection, ensureConnected } from "./signalrConnection";
 
-export function joinConversation(conversationId: number) {
+export async function joinConversation(conversationId: number) {
+  await ensureConnected();
   connection.invoke("JoinConversation", conversationId)
-    .catch(err => console.error("JoinConversation error:", err));
+    .catch((err) => console.error("JoinConversation error:", err));
 }
 
-export function sendMessage(conversationId: number, senderId: number, content: string) {
+export async function sendMessageViaHub(
+  conversationId: number,
+  senderId: number,
+  content: string
+) {
+  await ensureConnected();
   connection.invoke("SendMessage", conversationId, senderId, content)
-    .catch(err => console.error("SendMessage error:", err));
+    .catch((err) => console.error("SendMessage error:", err));
 }
 
-export function onReceiveMessage(callback: (msg: any) => void) {
+// Returns a cleanup function — call it in useEffect return
+export function onReceiveMessage(callback: (msg: any) => void): () => void {
   connection.on("ReceiveMessage", callback);
+  return () => connection.off("ReceiveMessage", callback);
 }

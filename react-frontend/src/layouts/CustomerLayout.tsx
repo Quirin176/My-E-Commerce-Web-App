@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import CustomerHeader from "../components/MainLayout/Customer/CustomerHeader";
 import Footer from "../components/MainLayout/Customer/Footer";
+import ChatBubble from "../components/ChatBubble";
 import { siteConfig } from "../config/siteConfig";
 
 export default function CustomerLayout() {
@@ -19,7 +20,7 @@ export default function CustomerLayout() {
       </main>
 
       <Footer />
-
+      <ChatBubble />
     </div>
   );
 };

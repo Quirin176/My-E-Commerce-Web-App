@@ -9,16 +9,16 @@ namespace WebApp_API.Hubs
             await Groups.AddToGroupAsync(Context.ConnectionId, $"convo-{conversationId}");
         }
 
-        public async Task SendMessage(int conversationId, string senderId, string content)
-        {
-            await Clients.Group($"convo-{conversationId}")
-                .SendAsync("ReceiveMessage", new
-                {
-                    conversationId,
-                    senderId,
-                    content,
-                    createdAt = DateTime.UtcNow
-                });
-        }
+        // public async Task SendMessage(int conversationId, string senderId, string content)
+        // {
+        //     await Clients.Group($"convo-{conversationId}")
+        //         .SendAsync("ReceiveMessage", new
+        //         {
+        //             conversationId,
+        //             senderId,
+        //             content,
+        //             createdAt = DateTime.UtcNow
+        //         });
+        // }
     }
 }

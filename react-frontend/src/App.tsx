@@ -15,6 +15,7 @@ import AdminProducts from "./pages/admin/Products/AdminProducts";
 import AdminAttributes from "./pages/admin/Attributes/AdminAttributes"
 import AdminOrders from "./pages/admin/Orders/AdminOrders";
 import AdminUsers from "./pages/admin/Users/AdminUsers";
+import AdminChats from "./pages/admin/Chats/AdminChats";
 
 import About from "./pages/about/About";
 import Cart from "./pages/user/Cart"
@@ -93,12 +94,18 @@ export default function App() {
         {/* -------------------- ADMIN LAYOUT -------------------- */}
         <Route path="/admin" element={<AdminProtected><AdminLayout /></AdminProtected>}>
           <Route path="" element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="products" element={<AdminProducts />} />
-          <Route path="orders" element={<AdminOrders />} />
-          <Route path="users" element={<AdminUsers />} />
+          <Route path="dashboard" element={<AdminProtected><AdminDashboard /></AdminProtected>} />
+
+          <Route path="products" element={<AdminProtected><AdminProducts /></AdminProtected>} />
+
+          <Route path="attributes" element={<AdminProtected><AdminAttributes /></AdminProtected>} />
+
+          <Route path="orders" element={<AdminProtected><AdminOrders /></AdminProtected>} />
           <Route path="orders/:orderId" element={<AdminProtected><OrderDetail /></AdminProtected>} />
-          <Route path="attributes" element={<AdminAttributes />} />
+
+          <Route path="users" element={<AdminProtected><AdminUsers /></AdminProtected>} />
+          
+          <Route path="chats" element={<AdminProtected><AdminChats /></AdminProtected>} />
         </Route>
 
 

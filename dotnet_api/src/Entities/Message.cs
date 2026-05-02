@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace WebApp_API.Entities
 {
     public class Message
@@ -13,6 +15,7 @@ namespace WebApp_API.Entities
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        [JsonIgnore]
         public Chat? Chat { get; set; }
     }
 }

@@ -1,19 +1,37 @@
-import { useEffect } from "react";
-import { onReceiveMessage, joinConversation } from "../../services/signalr/chatHub";
+import { useEffect, useCallback } from "react";
+import { joinConversation, onReceiveMessage } from "../../services/signalr/chatHub";
 import { useChatStore } from "../../store/chatStore";
+import { chatApi } from "../../api/chatApi";
 
-export function useChat(ChatId: number) {
-  const addMessage = useChatStore((s) => s.addMessage);
+export function useChat(chatId: number) {
+  const { messages, addMessage, clearMessages } = useChatStore();
 
   useEffect(() => {
-    joinConversation(ChatId);
+    clearMessages();
+    joinConversation(chatId);
 
-    onReceiveMessage((msg) => {
+    // onReceiveMessage now returns a cleanup fn — no duplicate listeners
+    const cleanup = onReceiveMessage((msg) => {
       addMessage(msg);
     });
-  }, [ChatId]);
 
-  return {
-    messages: useChatStore((s) => s.messages)
-  };
+    return cleanup;
+  }, [chatId]);
+
+  const sendMessage = useCallback(
+    async (content: string) => {
+      if (!content.trim() || !chatId) return;
+      
+      try {
+        await chatApi.sendMessage(chatId, content);
+      } catch (err: any) {
+        const serverMsg = err?.response?.data?.message || err?.response?.data?.error;
+        console.error("Send failed:", serverMsg ?? err.message);
+        throw err;
+      }
+    },
+    [chatId]
+  );
+
+  return { messages, sendMessage };
 }

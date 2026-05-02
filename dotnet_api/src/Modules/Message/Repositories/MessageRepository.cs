@@ -13,8 +13,11 @@ namespace WebApp_API.Repositories
         {
             _db.Messages.Add(msg);
 
-            var convo = await _db.Chats.FindAsync(msg.ChatId);
-            convo.UpdatedAt = DateTime.UtcNow;
+            var chat = await _db.Chats.FindAsync(msg.ChatId);
+            if (chat is null)
+                throw new InvalidOperationException($"Chat {msg.ChatId} not found.");
+
+            chat.UpdatedAt = DateTime.UtcNow;
 
             await _db.SaveChangesAsync();
             return msg;
