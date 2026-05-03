@@ -13,20 +13,20 @@ export default function LoginForm({ onSwitch }: { onSwitch: () => void }) {
 
     return (
         <div className="flex h-full">
-            <div className="w-1/2 p-10 flex flex-col justify-center">
-                <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
+            <div className="w-1/2 p-6 flex flex-col justify-center">
+                <h2 className="text-2xl font-bold text-center mb-4 text-gray-800">
                     Sign In
                 </h2>
 
                 {/* Social icons */}
-                <div className="flex gap-6 mb-8 items-center justify-center">
+                <div className="flex gap-4 mb-4 items-center justify-center">
                     <span className="text-3xl cursor-pointer hover:scale-125 transition-transform duration-300">🐦</span>
                     <span className="text-3xl cursor-pointer hover:scale-125 transition-transform duration-300">📘</span>
                     <span className="text-3xl cursor-pointer hover:scale-125 transition-transform duration-300">📷</span>
                     <span className="text-3xl cursor-pointer hover:scale-125 transition-transform duration-300">🔗</span>
                 </div>
 
-                <p className="text-gray-500 mb-6 text-sm">or use your email password</p>
+                <p className="text-gray-500 mb-4 text-sm">or use your email password</p>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {error && <p className="text-red-500 text-sm">{error}</p>}
@@ -75,10 +75,10 @@ export default function LoginForm({ onSwitch }: { onSwitch: () => void }) {
 
             {/* SIGN UP RIGHT */}
             <div
-                className="w-1/2 flex flex-col items-center justify-center text-white p-12 rounded-l-[3rem]"
+                className="w-1/2 flex flex-col items-center justify-center text-white p-8 rounded-l-[3rem]"
                 style={{ background: siteConfig.colors.primarycolor }}
             >
-                <h2 className="text-4xl font-bold mb-6">Hello, Friend!</h2>
+                <h2 className="text-4xl font-bold mb-4">Hello, Friend!</h2>
                 <p className="text-center text-lg mb-8 opacity-90">
                     Don't have an account yet? Register with your personal details
                 </p>

@@ -14,7 +14,8 @@ export default function Auth() {
   }
 
   return (
-      <div className="relative w-screen h-screen mx-auto">
+  <div className="flex items-center justify-center flex-1 py-24">
+    <div className="relative w-240 h-180">
         {/* LOGIN CARD */}
         <div className={`
           absolute w-full h-full rounded-[3rem] overflow-hidden bg-white shadow-2xl
@@ -29,5 +30,6 @@ export default function Auth() {
           <SignupForm onSwitch={toggleAuth} />
         </div>
       </div>
+    </div>
   );
 }

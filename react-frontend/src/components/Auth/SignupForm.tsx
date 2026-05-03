@@ -15,10 +15,10 @@ export default function LoginForm({ onSwitch }: { onSwitch: () => void }) {
     return (
         <div className="flex h-full">
             <div
-                className="w-1/2 flex flex-col items-center justify-center text-white p-12 rounded-r-[3rem]"
+                className="w-1/2 flex flex-col items-center justify-center text-white p-8 rounded-r-[3rem]"
                 style={{ background: siteConfig.colors.primarycolor }}
             >
-                <h2 className="text-4xl font-bold mb-6">Welcome Back!</h2>
+                <h2 className="text-3xl font-bold mb-4">Welcome Back!</h2>
                 <p className="text-center text-lg mb-8 opacity-90">
                     Already have an account? Sign in to continue
                 </p>
@@ -32,8 +32,8 @@ export default function LoginForm({ onSwitch }: { onSwitch: () => void }) {
             </div>
 
             {/* SIGNUP RIGHT */}
-            <div className="w-1/2 p-10 flex flex-col justify-center">
-                <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
+            <div className="w-1/2 p-6 flex flex-col justify-center">
+                <h2 className="text-2xl font-bold text-center mb-4 text-gray-800">
                     Create an Account
                 </h2>
 
