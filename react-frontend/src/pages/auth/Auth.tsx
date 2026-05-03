@@ -6,15 +6,15 @@ import SignupForm from "../../components/Auth/SignupForm";
 export default function Auth() {
   const [searchParams] = useSearchParams();
   const mode = searchParams.get("mode");
-  const [isLogin, setIsLogin] = useState(mode !== "signup");
+  const [isLogin, setIsLogin] = useState<boolean>(mode === "login");
 
   function toggleAuth() {
     setIsLogin((prev) => !prev);
+    console.log("Is Login?: ", isLogin);
   }
 
   return (
-    <div>
-      <div className="relative w-full max-w-7xl h-180 mx-auto">
+      <div className="relative w-screen h-screen mx-auto">
         {/* LOGIN CARD */}
         <div className={`
           absolute w-full h-full rounded-[3rem] overflow-hidden bg-white shadow-2xl
@@ -29,6 +29,5 @@ export default function Auth() {
           <SignupForm onSwitch={toggleAuth} />
         </div>
       </div>
-    </div>
   );
 }

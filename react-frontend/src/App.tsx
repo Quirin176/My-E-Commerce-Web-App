@@ -32,6 +32,7 @@ import Checkout from "./pages/user/Checkout";
 import Test from "./pages/test/Test";
 import Weather from "./pages/games/Weather";
 import WhosThatPokemon from "./pages/games/WhosThatPokemon";
+import Wordle from "./pages/games/Wordle";
 
 import { useAuth } from "./hooks/auth/useAuth";
 
@@ -121,6 +122,7 @@ export default function App() {
         <Route path="/test" element={<Test />} />
         <Route path="/weather" element={<Weather />} />
         <Route path="/whosthatpokemon" element={<WhosThatPokemon />} />
+        <Route path="/wordle" element={<Wordle />} />
       </Routes>
     </>
   );

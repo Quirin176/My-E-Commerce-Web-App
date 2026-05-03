@@ -20,18 +20,18 @@
   }
 
   .animate-slide-in-left {
-    animation: slide-in-left 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    animation: slide-in-left 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   }
 
   .animate-slide-out-right {
-    animation: slide-out-right 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    animation: slide-out-right 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   }
 
   .animate-slide-in-right {
-    animation: slide-in-right 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    animation: slide-in-right 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   }
 
   .animate-slide-out-left {
-    animation: slide-out-left 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    animation: slide-out-left 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   }
 }

@@ -13,7 +13,7 @@ export default function LoginForm({ onSwitch }: { onSwitch: () => void }) {
 
     return (
         <div className="flex h-full">
-            <div className="w-1/2 p-10 flex flex-col justify-center overflow-y-auto">
+            <div className="w-1/2 p-10 flex flex-col justify-center">
                 <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
                     Sign In
                 </h2>
