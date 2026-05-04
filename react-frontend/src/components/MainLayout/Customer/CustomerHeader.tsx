@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
-import { siteConfig } from "../../../config/siteConfig";
 import { useAuth } from "../../../hooks/auth/useAuth";
 import UserDropDown from "./User/UserDropDown";
 import CategoriesDropdown from "./CategoriesDropdown";
+import ThemeToggle from "../../ThemeToggle";
+import { siteConfig } from "../../../config/siteConfig";
 
 export default function CustomerHeader() {
   const { user } = useAuth();
@@ -73,6 +74,7 @@ export default function CustomerHeader() {
           </Link>
         </div>
 
+        <ThemeToggle />
 
         {/* USER */}
         {!user && (

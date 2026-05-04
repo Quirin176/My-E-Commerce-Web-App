@@ -40,11 +40,11 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col items-center w-full gap-4">
+    <div className="flex flex-col items-center w-full gap-4 bg-[(--bg-surface)]">
       <div className="w-full h-125 flex gap-4">
 
         {/* LEFT SIDE: CATEGORIES PANEL */}
-        <div className="w-1/6 h-full rounded-2xl border-2 border-gray-200 bg-white">
+        <div className="w-1/6 h-full rounded-2xl border-2 text-[(--text-secondary)] border-[(--border)] bg-[(--bg-surface)]">
           <CategoryPanel
             categories={categories}
             selectedCategory={selectedCategory}
@@ -54,7 +54,7 @@ export default function Home() {
         </div>
 
         {/* CENTER SIDE: DYNAMIC FILTER PANEL OR MAIN PANEL */}
-        <div className="flex-1 overflow-y-auto rounded-2xl border-2 border-gray-200 bg-white">
+        <div className="flex-1 overflow-y-auto rounded-2xl border-2 text-[(--text-secondary)] border-[(--border)] bg-[(--bg-surface)]">
           {selectedCategory ? (
             <CategoryFiltersPanel
               selectedCategory={selectedCategory}
@@ -76,11 +76,11 @@ export default function Home() {
             <div className="text-center">
               <h3 className="text-lg font-bold mb-4">Special Offer!</h3>
               <p className="text-gray-700 mb-6">Get 20% off on your first purchase. Use code: WELCOME20</p>
-              <img
+              {/* <img
                 src="https://via.placeholder.com/200x150.png?text=Ad+Banner"
                 alt="Advertisement Banner"
                 className="mx-auto rounded-lg shadow-md"
-              />
+              /> */}
             </div>
           </div>
         </div>

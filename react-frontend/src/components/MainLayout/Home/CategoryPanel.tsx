@@ -22,7 +22,7 @@ export default function CategoryPanel({
   };
 
   return (
-    <div className="bg-white overflow-y-auto rounded-2xl">
+    <div className="overflow-y-auto rounded-2xl">
       <div className="flex flex-col gap-y-4">
         {categories.map((item) => (
           <button

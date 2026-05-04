@@ -13,7 +13,7 @@ export default function LoginForm({ onSwitch }: { onSwitch: () => void }) {
     } = useSignupForm();
 
     return (
-        <div className="flex h-full">
+        <div className="flex h-full shadow-2xl">
             <div
                 className="w-1/2 flex flex-col items-center justify-center text-white p-8 rounded-r-[3rem]"
                 style={{ background: siteConfig.colors.primarycolor }}

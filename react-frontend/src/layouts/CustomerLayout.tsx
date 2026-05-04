@@ -9,13 +9,13 @@ export default function CustomerLayout() {
 
   return (
     <div
-      className="min-h-screen flex flex-col"
+      className="min-h-screen flex flex-col overflow-x-hidden"
       style={{ backgroundColor: colors.backgroundcolor }}
     >
 
       <CustomerHeader />
 
-      <main className="flex-1 flex flex-col container mx-auto p-4">
+      <main className="flex-1 flex flex-col container mx-auto p-4 overflow-x-hidden">
         <Outlet />
       </main>
 
