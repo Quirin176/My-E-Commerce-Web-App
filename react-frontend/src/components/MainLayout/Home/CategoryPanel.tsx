@@ -29,23 +29,12 @@ export default function CategoryPanel({
             key={item.id}
             onMouseEnter={() => onHover(item.slug)}
             onClick={() => onClick(item.slug)}
-            className="flex items-center gap-3 px-4 py-2 rounded-lg transition"
-            style={{
-              backgroundColor:
-                selectedCategory === item.slug
-                  ? colors.primarycolor
-                  : "white",
-              color: selectedCategory === item.slug ? "white" : "black"
-            }}
+            className={`flex items-center gap-3 px-4 py-2 rounded-lg transition
+              ${selectedCategory === item.slug ? "text-(--text-secondary) bg-(--brand-primary)" : "text-(--text-primary) bg-(--bg-surface)"}`}
           >
             <div
-              className="w-8 h-8 flex items-center justify-center rounded-md border-2"
-              style={{
-                background:
-                  selectedCategory === item.slug
-                    ? colors.primarycolor
-                    : "#F9FAFB"
-              }}
+              className={`w-8 h-8 flex items-center justify-center rounded-md border-2
+              ${selectedCategory === item.slug ? "text-(--text-secondary) bg-(--brand-primary)" : "text-(--text-primary) bg-(--bg-surface)"}`}
             >
               {getCategoryIcon(item.slug)}
             </div>

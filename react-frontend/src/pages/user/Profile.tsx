@@ -38,8 +38,7 @@ export default function Profile() {
     <div className="container mx-auto max-w-4xl p-6">
       <h1 className="text-3xl font-bold mb-6">My Profile</h1>
 
-      {/* FORM */}
-      <div className="bg-gray-100 shadow p-6 rounded-lg space-y-4">
+      <div className="shadow p-6 border rounded-lg space-y-4">
 
         {/* DISPLAY USERNAME */}
         <div>
@@ -47,7 +46,7 @@ export default function Profile() {
             <User2 className="w-6 h-6" />
             Username
           </label>
-          <div className="text-xl w-full border p-2 rounded bg-gray-50">
+          <div className="text-xl w-full border p-2 rounded">
             {profileData.username}
           </div>
         </div>
@@ -58,7 +57,7 @@ export default function Profile() {
             <Mail className="w-6 h-6" />
             Email
           </label>
-          <div className="text-xl w-full border p-2 rounded bg-gray-50">
+          <div className="text-xl w-full border p-2 rounded">
             {profileData.email}
           </div>
         </div>
@@ -69,7 +68,7 @@ export default function Profile() {
             <Phone className="w-6 h-6" />
             Phone
           </label>
-          <div className="text-xl w-full border p-2 rounded bg-gray-50">
+          <div className="text-xl w-full border p-2 rounded">
             {profileData.phone}
           </div>
         </div>
@@ -84,7 +83,7 @@ export default function Profile() {
             </div>
           </label>
 
-          <div className="flex items-center gap-2 text-xl w-full border p-2 rounded bg-gray-50">
+          <div className="flex items-center gap-2 text-xl w-full border p-2 rounded">
             {profileData.role}
           </div>
         </div>
@@ -95,7 +94,7 @@ export default function Profile() {
             <NotebookText className="w-6 h-6" />
             Account Created At
           </label>
-          <div className="text-xl w-full border p-2 rounded bg-gray-50">
+          <div className="text-xl w-full border p-2 rounded">
             {profileData.createdAt}
           </div>
         </div>

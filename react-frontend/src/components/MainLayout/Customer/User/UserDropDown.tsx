@@ -50,13 +50,13 @@ export default function UserDropDown() {
       {/* DROP DOWN PANEL */}
       {open && (
         <div
-          className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-36 bg-white border rounded-lg shadow-lg p-2 z-50"
+          className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-36 border rounded-lg shadow-lg p-2 z-50 bg-(--bg-surface)"
           onMouseLeave={() => setOpen(false)}
         >
           <Link
             to={"/profile"}
             onClick={() => handleClick("My Account")}
-            className="block px-3 py-2 rounded hover:text-white hover:font-bold hover:bg-black"
+            className="block px-3 py-2 rounded hover:font-bold hover:text-(--text-primary) hover:bg-(--bg-muted)"
           >
             My Account
           </Link>
@@ -65,7 +65,7 @@ export default function UserDropDown() {
             <Link
               to={"/orders"}
               onClick={() => handleClick("My Orders")}
-              className="block px-3 py-2 rounded hover:text-white hover:font-bold hover:bg-black"
+            className="block px-3 py-2 rounded hover:font-bold hover:text-(--text-primary) hover:bg-(--bg-muted)"
             >
               My Orders
             </Link>)}
@@ -74,7 +74,7 @@ export default function UserDropDown() {
             <Link
               to={"/admin/dashboard"}
               onClick={() => handleClick("Orders")}
-              className="block px-3 py-2 rounded hover:text-white hover:font-bold hover:bg-black"
+            className="block px-3 py-2 rounded hover:font-bold hover:text-(--text-primary) hover:bg-(--bg-muted)"
             >
               Admin Panel
             </Link>)}
@@ -82,7 +82,7 @@ export default function UserDropDown() {
           <Link
             to={"/profile"}
             onClick={() => handleClick("Logout")}
-            className="block px-3 py-2 rounded hover:text-white hover:font-bold hover:bg-black"
+            className="block px-3 py-2 rounded hover:font-bold hover:text-(--text-primary) hover:bg-(--bg-muted)"
           >
             Log Out
           </Link>

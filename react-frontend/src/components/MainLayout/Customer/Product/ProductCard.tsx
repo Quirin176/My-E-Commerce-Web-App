@@ -40,7 +40,7 @@ export default function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <div className="border rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 bg-white flex flex-col">
+    <div className="border rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 bg-(--bg-surface) flex flex-col">
       <Link to={`/product/${product.slug}`} className="block">
         <div className="flex justify-center pt-2">
           <img
@@ -64,7 +64,7 @@ export default function ProductCard({ product }: { product: Product }) {
             </h3>
           </div>
 
-          <div className="h-40 mt-2 overflow-y-auto bg-gray-100 rounded-xl p-2 text-sm text-left">
+          <div className="h-40 mt-2 overflow-y-auto rounded-xl p-2 text-sm text-left bg-(--bg-muted)">
             {product.options && product.options.length > 0 ? (
               product.options.map((opt, i) => {
                 if ('optionValues' in opt) {

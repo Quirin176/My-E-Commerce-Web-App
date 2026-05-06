@@ -18,7 +18,7 @@ export class AuthService {
     @InjectRepository(User)
     private userRepo: Repository<User>,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
   // ─── SIGNUP ────────────────────────────────────────────────────────────────
   async signup(dto: SignupDto) {

@@ -96,13 +96,13 @@ export default function UserOrderCard(order: UserOrderCardProps) {
                             {/* Order ID */}
                             <div className="flex flex-col items-center">
                                 <p className="text-sm text-gray-600">Order ID</p>
-                                <p className="text-lg font-bold text-gray-800">#{order.id}</p>
+                                <p className="text-lg font-bold">#{order.id}</p>
                             </div>
 
                             {/* Date */}
                             <div className="flex flex-col items-center">
                                 <p className="text-sm text-gray-600">Date</p>
-                                <p className="text-lg font-bold text-gray-800">
+                                <p className="text-lg font-bold">
                                     {new Date(order.orderDate).toLocaleDateString()}
                                 </p>
                             </div>
@@ -110,7 +110,7 @@ export default function UserOrderCard(order: UserOrderCardProps) {
                             {/* Customer */}
                             <div className="flex flex-col items-center">
                                 <p className="text-sm text-gray-600">Customer</p>
-                                <p className="text-lg font-bold text-gray-800">
+                                <p className="text-lg font-bold">
                                     {order.customerName}
                                 </p>
                             </div>
@@ -129,7 +129,7 @@ export default function UserOrderCard(order: UserOrderCardProps) {
                             {/* Items */}
                             <div className="flex flex-col items-center">
                                 <p className="text-sm text-gray-600">Items</p>
-                                <p className="text-lg font-bold text-gray-800">
+                                <p className="text-lg font-bold">
                                     {order.itemCount}
                                 </p>
                             </div>

@@ -117,12 +117,6 @@ export class ProductsService {
     });
   }
 
-  // // Get all products data
-  // async getAll() {
-  //   const products = await this.productRepo.find();
-  //   return products;
-  // }
-
   // Get all products in a category by category ID
   async getByCategoryId(categoryId: number) {
     const products = await this.productRepo.find({

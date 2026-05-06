@@ -25,10 +25,7 @@ export default function CustomerHeader() {
   };
 
   return (
-    <header
-      className="w-full z-50 shadow-md px-8 py-2"
-      style={{ backgroundColor: siteConfig.colors.primarycolor }}
-    >
+    <header className="w-full z-50 shadow-md px-8 py-2 bg-(--brand-primary)">
       <div className="flex items-center justify-between">
 
         {/* LOGO AND SITE NAME */}
@@ -53,8 +50,7 @@ export default function CustomerHeader() {
           />
           <button
             onClick={handleSearchSubmit}
-            className="rounded-full px-2 py-2 text-white hover:text-gray-600 cursor-pointer"
-            style={{ background: siteConfig.colors.primarycolor }}
+            className="rounded-full px-2 py-2 cursor-pointer text-(--text-primary) hover:text-(--text-secondary) bg-(--brand-primary)"
           >
             <Search size={20} />
           </button>
@@ -74,29 +70,31 @@ export default function CustomerHeader() {
           </Link>
         </div>
 
-        <ThemeToggle />
+        <div className="flex flex-row items-center gap-4">
+          <ThemeToggle />
 
-        {/* USER */}
-        {!user && (
-          <div className="flex items-center">
-            <Link
-              to="/auth?mode=login"
-              className="font-semibold text-white hover:underline px-4 py-1"
-            >
-              Sign in
-            </Link>
-            <Link
-              to="/auth?mode=signup"
-              className="font-semibold text-white hover:underline px-4 py-1"
-            >
-              Register
-            </Link>
-          </div>)}
+          {/* USER */}
+          {!user && (
+            <div className="flex items-center">
+              <Link
+                to="/auth?mode=login"
+                className="font-semibold text-white hover:underline px-4 py-1"
+              >
+                Sign in
+              </Link>
+              <Link
+                to="/auth?mode=signup"
+                className="font-semibold text-white hover:underline px-4 py-1"
+              >
+                Register
+              </Link>
+            </div>)}
 
-        {user && (
-          <div className="flex items-center gap-3">
-            <UserDropDown />
-          </div>)}
+          {user && (
+            <div className="flex items-center gap-3">
+              <UserDropDown />
+            </div>)}
+        </div>
       </div>
     </header>
   );

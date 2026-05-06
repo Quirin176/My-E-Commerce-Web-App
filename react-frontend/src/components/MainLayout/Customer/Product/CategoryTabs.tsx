@@ -1,20 +1,16 @@
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import toast from "react-hot-toast";
-import { categoryApi } from "../../../../api/products/categoryApi";
+import { useCategories } from "../../../../hooks/products/useCategories";
 import { productApi } from "../../../../api/products/productApi";
 import { siteConfig } from "../../../../config/siteConfig";
 import ProductCard from "./ProductCard";
-import type { Category } from "../../../../types/models/products/Category";
 import type { Product } from "../../../../types/models/products/Product";
 
 const CategoryTabs = () => {
   const colors = siteConfig.colors;
 
-  // Load categories from API
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [categoriesLoading, setCategoriesLoading] = useState(true);
-  const [categoriesError, setCategoriesError] = useState<string | null>(null);
+  const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
 
   const [activeTab, setActiveTab] = useState(categories[0]?.name || "");
   const [items, setItems] = useState<Product[]>([]);
@@ -26,35 +22,10 @@ const CategoryTabs = () => {
 
   // Load categories on mount
   useEffect(() => {
-    const loadCategories = async () => {
-      setCategoriesLoading(true);
-      setCategoriesError(null);
-
-      try {
-        const data = await categoryApi.getAll();
-        const categoryList = Array.isArray(data) ? data : (data?.data || []);
-
-        if (categoryList.length === 0) {
-          setCategoriesError("No categories available");
-          setCategories([]);
-          return;
-        }
-
-        setCategories(categoryList);
-        setActiveTab(categoryList[0].slug);
-      } catch (error) {
-        console.error("[CategoryTabs] Error loading categories:", error);
-        const errorMessage = error instanceof Error ? error.message : "Failed to load categories";
-        setCategoriesError(errorMessage);
-        toast.error(errorMessage);
-        setCategories([]);
-      } finally {
-        setCategoriesLoading(false);
-      }
-    };
-
-    loadCategories();
-  }, []);
+    if (categories.length > 0) {
+      setActiveTab(categories[0].slug);
+    }
+  }, [categories]);
 
   // Load products when tab changes
   useEffect(() => {
@@ -65,14 +36,14 @@ const CategoryTabs = () => {
 
       try {
         const res = await productApi.getProductsByFilters(
-        activeTab,
-        {
-          minPrice: 0,
-          maxPrice: 100000000,
-          sortOrder: "newest",
-          options: "",
-        },
-      );
+          activeTab,
+          {
+            minPrice: 0,
+            maxPrice: 100000000,
+            sortOrder: "newest",
+            options: "",
+          },
+        );
 
         const list = res?.data?.products || res?.data || res;
 
@@ -86,7 +57,6 @@ const CategoryTabs = () => {
         setItems(sorted.slice(0, ITEMS_PER_TAB));
         setPageIndex(0);
       } catch (error) {
-        console.error("Error loading products:", error);
         toast.error("Failed to load products");
       } finally {
         setProductsLoading(false);
@@ -124,9 +94,11 @@ const CategoryTabs = () => {
   }
 
   return (
-    <div style={{ borderRadius: 10, width: "100%", maxWidth: 1200, margin: "0 auto", textAlign: "center", background: colors.primarycolor, paddingBottom: 10 }}>
+    <div className="flex flex-col w-full h-full rounded-2xl bg-(--bg-surface)">
+      <h2 className="text-4xl font-bold my-8 text-center text-(--text-primary)">Featured Products</h2>
+
       {/* CATEGORY TABS */}
-      <div style={{ display: "flex", justifyContent: "left", borderTopLeftRadius: 10, borderTopRightRadius: 10, marginBottom: 10, background: "white" }}>
+      <div className="flex justify-start rounded-t-2xl bg-(--bg-surface)">
         {categories.map((cat) => (
           <button
             key={cat.id}
@@ -134,17 +106,7 @@ const CategoryTabs = () => {
               setActiveTab(cat.slug);
               setPageIndex(0);
             }}
-            style={{
-              minWidth: 150,
-              padding: "10px 20px",
-              borderTopLeftRadius: 10,
-              borderTopRightRadius: 10,
-              cursor: "pointer",
-              background: activeTab === cat.slug ? colors.primarycolor : "white",
-              color: activeTab === cat.slug ? "white" : "black",
-              fontSize: 24,
-              fontWeight: "bold",
-            }}
+            className={`min-w-38 rounded-t-2xl cursor-pointer px-2 py-4 text-2xl font-bold ${activeTab === cat.slug ? "text-white bg-(--brand-primary)" : "text-black bg-(--bg-surface)"}`}
           >
             {cat.name}
           </button>
@@ -161,7 +123,7 @@ const CategoryTabs = () => {
         </div>
       ) : (
         <>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 10, padding: 10 }}>
+          <div className="bg-(--brand-primary)" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 10, padding: 10 }}>
             {paginatedItems.length > 0 ? (
               paginatedItems.map((item) => (
                 <ProductCard key={item.id} product={item} />
@@ -174,17 +136,15 @@ const CategoryTabs = () => {
           </div>
 
           {/* PAGINATION BUTTONS */}
-          <div style={{ marginTop: 5, display: "flex", justifyContent: "center", gap: 5, paddingBottom: 5 }}>
+          <div className="flex justify-center rounded-b-2xl bg-(--brand-primary)">
             <button
               onClick={() => setPageIndex((p) => p - 1)}
               disabled={!canPrev}
               style={{
                 padding: "8px 15px",
                 borderRadius: "50%",
-                // background: canPrev ? "#444" : "#aaa",
                 color: "white",
                 cursor: "pointer",
-                // cursor: canPrev ? "pointer" : "not-allowed",
               }}
             >
               <ChevronLeft size={24} />
@@ -200,10 +160,8 @@ const CategoryTabs = () => {
               style={{
                 padding: "8px 15px",
                 borderRadius: "50%",
-                // background: canNext ? "#444" : "#aaa",
                 color: "white",
                 cursor: "pointer",
-                // cursor: canNext ? "pointer" : "not-allowed",
               }}
             >
               <ChevronRight size={24} />

@@ -2,16 +2,10 @@ import { Outlet } from "react-router-dom";
 import CustomerHeader from "../components/MainLayout/Customer/CustomerHeader";
 import Footer from "../components/MainLayout/Customer/Footer";
 import ChatBubble from "../components/ChatBubble";
-import { siteConfig } from "../config/siteConfig";
 
 export default function CustomerLayout() {
-  const { colors } = siteConfig;
-
   return (
-    <div
-      className="min-h-screen flex flex-col overflow-x-hidden"
-      style={{ backgroundColor: colors.backgroundcolor }}
-    >
+    <div className="min-h-screen flex flex-col overflow-x-hidden bg-(--bg-muted)">
 
       <CustomerHeader />
 

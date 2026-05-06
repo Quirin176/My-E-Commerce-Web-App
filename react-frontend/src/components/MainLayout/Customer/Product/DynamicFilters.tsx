@@ -60,7 +60,7 @@ export default function DynamicFilters({
   const options = Array.isArray(loadedOptions) && loadedOptions.length > 0 ? loadedOptions : [];
 
   return (
-    <div className="bg-white p-3 rounded shadow border mb-4">
+    <div className="p-3 rounded shadow border mb-4">
       <div className="flex flex-wrap gap-2 items-center">
 
         {/* Dynamic Option Dropdowns*/}
@@ -75,9 +75,9 @@ export default function DynamicFilters({
                 <div key={option.optionId} className="relative">
                   <button
                     onClick={() => toggleDropdown(option.optionId)}
-                    className="flex items-center justify-between px-2 py-1.5 border rounded bg-white hover:bg-gray-50 transition text-sm min-w-28"
+                    className="flex items-center justify-between px-2 py-1.5 border rounded transition text-sm min-w-28 text-(--text-primary)"
                   >
-                    <span className="font-semibold text-gray-700 truncate text-xs">
+                    <span className="font-semibold truncate text-xs">
                       {option.optionName}
                       {selectedInCategory.length > 0 && (
                         <span
@@ -95,13 +95,13 @@ export default function DynamicFilters({
 
                   {openDropdowns[option.optionId] && (
                     <div
-                      className="absolute top-full left-0 mt-1 bg-white border rounded shadow-lg z-50 w-40"
+                      className="absolute top-full left-0 mt-1 border rounded shadow-lg z-50 w-40 bg-(--bg-muted) text-(--text-primary)"
                       onMouseLeave={() => closeDropdown(option.optionId)}>
                       <div className="p-2 max-h-48 overflow-y-auto">
                         {option.optionValues.map(value => (
                           <label
                             key={value.id}
-                            className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-100 transition cursor-pointer"
+                            className="flex items-center gap-2 px-2 py-1.5 rounded transition cursor-pointer hover:bg-(--brand-primary) hover:text-(--text-secondary)"
                           >
                             <input
                               type="checkbox"
@@ -109,7 +109,7 @@ export default function DynamicFilters({
                               onChange={() => toggleOption(value.id)}
                               className="w-3 h-3"
                             />
-                            <span className="text-gray-700 text-xs">{value.value}</span>
+                            <span className="text-xs">{value.value}</span>
                           </label>
                         ))}
                       </div>
@@ -144,13 +144,13 @@ export default function DynamicFilters({
 
           {/* Sort Dropdown */}
           <select
-            className="border p-1.5 rounded text-xs min-w-32 bg-white hover:bg-gray-50 transition"
+            className="border p-1.5 rounded text-xs min-w-32 transition bg-(--bg-muted)"
             value={sortOrder}
             onChange={(e) => setSortOrder(e.target.value)}
           >
-            <option value="newest">Newest</option>
-            <option value="ascending">Low → High</option>
-            <option value="descending">High → Low</option>
+            <option className="text-(--text-primary) hover:text-(--text-secondary)" value="newest">Newest</option>
+            <option className="text-(--text-primary) hover:text-(--text-secondary)" value="ascending">Low → High</option>
+            <option className="text-(--text-primary) hover:text-(--text-secondary)" value="descending">High → Low</option>
           </select>
         </div>
       </div>

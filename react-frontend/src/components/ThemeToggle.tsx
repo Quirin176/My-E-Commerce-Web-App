@@ -38,8 +38,8 @@ export default function ThemeToggle() {
             <button
                 onClick={() => setOpen((p) => !p)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border
-                            bg-[(--bg-surface)] text-[(--text-primary)] hover:bg-[(--bg-muted)]
-                            transition text-sm font-medium"
+                            text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--bg-muted)
+                            transition text-sm font-medium cursor-pointer"
                 title="Change theme"
                 aria-haspopup="listbox"
                 aria-expanded={open}
@@ -54,8 +54,9 @@ export default function ThemeToggle() {
                 <div
                     role="listbox"
                     className="absolute right-0 mt-2 w-36
-                      bg-[(--bg-surface)] border border-[(--border)]
+                     border border-(--border) bg-(--bg-surface)
                      rounded-xl shadow-xl z-50 overflow-hidden"
+                     onMouseLeave={() => setOpen(!open)}
                 >
                     {OPTIONS.map(({ value, label, Icon }) => (
                         <button
@@ -64,9 +65,9 @@ export default function ThemeToggle() {
                             aria-selected={mode === value}
                             onClick={() => { setMode(value); setOpen(false); }}
                             className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium transition
-                ${mode === value
-                                    ? "bg-white dark:bg-gray-600 text-blue-600 dark:text-blue-400"
-                                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600"
+                                ${mode === value
+                                    ? "bg-(--text-primary) hover:bg-(--text-primary) text-(--text-secondary)"
+                                    : "text-(--text-primary) hover:text-(--text-secondary) hover:bg-(--text-primary)"
                                 }`}
                         >
                             <Icon size={15} />
