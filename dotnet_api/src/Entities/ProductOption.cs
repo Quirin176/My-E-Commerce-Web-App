@@ -6,7 +6,7 @@ namespace WebApp_API.Entities
     public class ProductOption
     {
         [Key] public int Id { get; set; }
-        [Required, MaxLength(100)] public string Name { get; set; }
+        [Required, MaxLength(100)] public required string Name { get; set; }
         public int CategoryId { get; set; }
         [ForeignKey("CategoryId")] public Category Category { get; set; }
 

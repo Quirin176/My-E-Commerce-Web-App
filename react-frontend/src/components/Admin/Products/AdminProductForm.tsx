@@ -157,7 +157,7 @@ export default function AdminProductForm({
                 >
                   <option value="">Select a category</option>
                   {categories.map(cat => (
-                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    <option key={cat.id} value={cat.slug} data-id={cat.id}>{cat.name}</option>
                   ))}
                 </select>
                 {formErrors.categoryId && (

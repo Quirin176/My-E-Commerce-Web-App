@@ -8,14 +8,21 @@ namespace WebApp_API.Data
         public AppDbContext(DbContextOptions options) : base(options) { }
 
         public DbSet<User> Users { get; set; }
+
         public DbSet<Category> Categories { get; set; }
-        public DbSet<Product> Products { get; set; }
         public DbSet<ProductOption> ProductOptions { get; set; }
         public DbSet<ProductOptionValue> ProductOptionValues { get; set; }
         public DbSet<ProductFilter> ProductFilters { get; set; }
+
+        public DbSet<Product> Products { get; set; }
+        public DbSet<ProductVariant> ProductVariants { get; set; }
+        public DbSet<ProductVariantOptionValue> ProductVariantOptionValues { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
+
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+
+        
         public DbSet<Chat> Chats { get; set; }
         public DbSet<Message> Messages { get; set; }
 
@@ -49,6 +56,26 @@ namespace WebApp_API.Data
             builder.Entity<Product>()
                 .HasIndex(p => p.Slug)
                 .IsUnique();
+
+            builder.Entity<ProductVariant>()
+                .HasOne(pf => pf.Product)
+                .WithMany()
+                .HasForeignKey(pf => pf.ProductId);
+
+            builder.Entity<ProductVariantOptionValue>()
+                .HasOne(pvov => pvov.ProductVariant)
+                .WithMany()
+                .HasForeignKey(pvov => pvov.ProductVariantId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<ProductVariantOptionValue>()
+                .HasOne(pvov => pvov.ProductOptionValue)
+                .WithMany()
+                .HasForeignKey(pvov => pvov.ProductOptionValueId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<ProductVariantOptionValue>()
+                .HasKey(x => new { x.ProductVariantId, x.ProductOptionValueId });
 
             builder.Entity<ProductFilter>()
                 .HasOne(pf => pf.Product)

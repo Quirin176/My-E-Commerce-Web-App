@@ -15,15 +15,15 @@ export const categoryApi = {
   },
 
   // GET: api/categories/id/:id - Get category data by ID - id, name, slug
-  async getById(id: number) {
-    try {
-      const res = await apiClient.get(`/categories/id/${id}`);
-      return res.data;
-    } catch (error) {
-      console.error("Error loading filters:", error);
-      return [];
-    }
-  },
+  // async getById(id: number) {
+  //   try {
+  //     const res = await apiClient.get(`/categories/id/${id}`);
+  //     return res.data;
+  //   } catch (error) {
+  //     console.error("Error loading filters:", error);
+  //     return [];
+  //   }
+  // },
 
   // GET: api/categories/slug/:slug - Get category data by Slug - id, name, slug
   async getBySlug(slug: string) {

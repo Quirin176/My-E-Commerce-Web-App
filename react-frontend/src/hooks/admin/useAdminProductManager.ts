@@ -288,16 +288,3 @@ const handleDelete = useCallback(async (id: number | string) => {
     submitting, handleSubmit, handleDelete,
   };
 };
-// import { useProductForm } from "./useProductForm";
-// import { useProductModal } from "./useProductModal";
-// import { useProductFilters } from "../products/useProductFilters";
-// import { useProductCRUD } from "./useProductCRUD";
-
-// export const useAdminProductManager = (onRefetch: () => void) => {
-//   const form = useProductForm();
-//   const filters = useProductFilters();
-//   const modal = useProductModal(form, filters);
-//   const crud = useProductCRUD();
-
-//   return { form, modal, filters, crud };
-// };

@@ -6,7 +6,7 @@ namespace WebApp_API.Entities
     public class ProductOptionValue
     {
         [Key] public int Id { get; set; }
-        [Required, MaxLength(200)] public string Value { get; set; }
+        [Required, MaxLength(200)] public required string Value { get; set; }
         public int ProductOptionId { get; set; }
         [ForeignKey("ProductOptionId")] public ProductOption ProductOption { get; set; }
     }

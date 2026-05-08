@@ -4,15 +4,12 @@ import { useNavigate } from "react-router-dom";
 import { useCategories } from "../../hooks/products/useCategories";
 import { useProductFiltersBySlug } from "../../hooks/products/useProductFiltersBySlug";
 
-import { siteConfig } from "../../config/siteConfig";
 import CategoryPanel from "../../components/MainLayout/Home/CategoryPanel.tsx";
 import CategoryFiltersPanel from "../../components/MainLayout/Home/CategoryFiltersPanel.tsx";
 import CenterPanel from "../../components/MainLayout/Home/CenterPanel.tsx";
 import CategoryTabs from "../../components/MainLayout/Customer/Product/CategoryTabs.tsx";
 
 export default function Home() {
-  const colors = siteConfig.colors;
-
   const { categories } = useCategories();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const navigate = useNavigate();
