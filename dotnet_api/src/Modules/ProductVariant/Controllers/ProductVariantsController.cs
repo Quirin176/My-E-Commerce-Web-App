@@ -13,8 +13,8 @@ namespace WebApp_API.Controllers
         private readonly IProductVariantService _service;
         public ProductVariantsController(IProductVariantService service) => _service = service;
 
-        // GET /api/productvariants/id:{id}
-        [HttpGet("id:{id:int}")]
+        // GET /api/productvariants/id/{id}
+        [HttpGet("id/{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
             var variant = await _service.GetByIdAsync(id);

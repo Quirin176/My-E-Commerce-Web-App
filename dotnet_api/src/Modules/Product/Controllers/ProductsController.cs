@@ -17,7 +17,7 @@ namespace WebApp_API.Controllers
         }
 
         // GET /api/products/id:{id}
-        [HttpGet("id:{id:int}")]
+        [HttpGet("id/{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
             var product = await _service.GetByIdAsync(id);

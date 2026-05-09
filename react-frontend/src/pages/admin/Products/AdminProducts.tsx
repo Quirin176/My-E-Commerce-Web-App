@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Plus, Search, AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -6,19 +7,17 @@ import { useProducts } from "../../../hooks/products/useProducts";
 import { useProductUrlFilters } from "../../../hooks/useProductUrlFilters";
 import { usePagination } from "../../../hooks/usePagination";
 
-import { useProductForm } from "../../../hooks/admin/useProductForm";
-import { useProductModal } from "../../../hooks/admin/useProductModal";
 import { useProductCRUD } from "../../../hooks/admin/useProductCRUD";
-import { useProductFilters } from "../../../hooks/products/useProductFilters";
 
 import AdminProductCard from "../../../components/Admin/Products/AdminProductCard";
-import AdminProductForm from "../../../components/Admin/Products/AdminProductForm";
 import AdminDynamicFilters from "../../../components/Admin/Products/AdminDynamicFilters";
 import PaginationControl from "../../../components/MainLayout/PaginationControl";
 
 const PAGE_SIZE = 10;
 
 export default function AdminProducts() {
+  const Navigation = useNavigate();
+
   // ──────────────────── URL-driven filter state ────────────────────
   const { page, sortOrder, minPrice, maxPrice, selectedOptions, updateUrl } = useProductUrlFilters();
 
@@ -41,13 +40,13 @@ export default function AdminProducts() {
     onPageChange: (p) => updateUrl({ page: p }),
   });
 
-  const form = useProductForm();
-  const filters = useProductFilters();
-  const modal = useProductModal({
-    setFormData: form.setFormData,
-    resetForm: form.resetForm,
-    loadFilters: filters.loadFilters,
-  });
+  // const form = useProductForm();
+  // const filters = useProductFilters();
+  // const modal = useProductModal({
+  //   setFormData: form.setFormData,
+  //   resetForm: form.resetForm,
+  //   loadFilters: filters.loadFilters,
+  // });
   const crud = useProductCRUD(refetch);
 
   // ──────────────────── Filter handlers ────────────────────
@@ -76,10 +75,10 @@ export default function AdminProducts() {
   };
 
   // ──────────────────── Close modal and reset filters ────────────────────
-  const handleCloseForm = () => {
-    modal.close();
-    filters.setFilters([]);
-  };
+  // const handleCloseForm = () => {
+  //   modal.close();
+  //   filters.setFilters([]);
+  // };
 
   return (
     <div className="flex flex-col gap-y-4 pt-8 px-8">
@@ -133,7 +132,8 @@ export default function AdminProducts() {
         </div>
 
         <button
-          onClick={() => modal.openCreateForm()}
+          // onClick={() => modal.openCreateForm()}
+          onClick={() => Navigation("/admin/products/new")}
           className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold whitespace-nowrap cursor-pointer"
         >
           <Plus size={20} />
@@ -153,7 +153,7 @@ export default function AdminProducts() {
       )}
 
       {/* ========== MODAL DATA LOADING OVERLAY ========== */}
-      {modal.isLoadingModalData && (
+      {/* {modal.isLoadingModalData && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center pointer-events-none">
           <div className="bg-white rounded-lg p-8 shadow-2xl text-center pointer-events-auto">
             <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600 mx-auto mb-4"></div>
@@ -161,7 +161,7 @@ export default function AdminProducts() {
             <p className="text-gray-500 text-sm mt-2">Please wait while we fetch options and images</p>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Dynamic filters */}
       <AdminDynamicFilters
@@ -191,7 +191,7 @@ export default function AdminProducts() {
           </p>
 
           <button
-            onClick={() => modal.openCreateForm()}
+            onClick={() => Navigation("/admin/products/new")}
             className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
           >
             {searchTerm ? "Clear Search" : "Create First Product"}
@@ -208,9 +208,9 @@ export default function AdminProducts() {
               >
                 <AdminProductCard
                   product={product}
-                  isLoading={modal.isLoadingModalData}
-                  onView={() => modal.openViewForm(product)}
-                  onEdit={() => modal.openEditForm(product)}
+                  // isLoading={modal.isLoadingModalData}
+                  // onView={() => modal.openViewForm(product)}
+                  onEdit={() => Navigation(`/admin/products/${product.id}/edit`)}
                   onDelete={() => crud.handleDelete(product.id)}
                 />
               </div>
@@ -228,35 +228,6 @@ export default function AdminProducts() {
           />
         </>
       )}
-
-      {/* ========== PRODUCT FORM ========== */}
-      <AdminProductForm
-        showForm={modal.showForm}
-        editingId={modal.editingId}
-        isViewMode={modal.isViewMode}
-
-        formData={form.formData}
-        formErrors={form.formErrors}
-
-        filters={filters.filters}
-        filtersLoading={filters.filtersLoading}
-        submitting={crud.submitting}
-
-        onClose={handleCloseForm}
-        onSubmit={() => crud.createOrUpdate(form.formData, modal.editingId)}
-
-        updateField={form.updateField}
-        addImageUrl={form.addImageUrl}
-        removeImageUrl={form.removeImageUrl}
-        handleOptionChange={form.handleOptionChange}
-        autoGenerateSlug={form.autoGenerateSlug}
-
-        onCategoryChange={(id) => {
-          form.updateField("categoryId", id);
-          form.updateField("selectedOptionValueIds", []);
-          filters.loadFilters(id);
-        }}
-      />
     </div>
   );
 }

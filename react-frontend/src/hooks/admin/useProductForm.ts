@@ -46,10 +46,7 @@ const INITIAL_FORM_DATA: ProductFormData = {
 
 // Custom hook to manage product form state and logic
 export const useProductForm = (): UseProductFormReturn => {
-  const [formData, setFormData]: [
-    ProductFormData,
-    Dispatch<SetStateAction<ProductFormData>>
-  ] = useState(INITIAL_FORM_DATA);
+  const [formData, setFormData]: [ProductFormData, Dispatch<SetStateAction<ProductFormData>>] = useState(INITIAL_FORM_DATA);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   // Update a specific field in the form data

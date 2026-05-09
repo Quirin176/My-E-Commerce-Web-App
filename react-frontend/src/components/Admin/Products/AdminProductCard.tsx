@@ -3,23 +3,23 @@ import type { Product } from "../../../types/models/products/Product";
 
 interface AdminProductCardProps {
   product: Product;
-  isLoading: boolean;
+  // isLoading: boolean;
   onEdit: (product: Product) => void;
-  onView: (product: Product) => void;
+  // onView: (product: Product) => void;
   onDelete: (id: number | string) => void;
 }
 
 export default function AdminProductCard({
   product,
-  isLoading,
+  // isLoading,
   onEdit,
-  onView,
+  // onView,
   onDelete,
 }: AdminProductCardProps) {
 
   return (
     <div
-      onClick={() => onView(product)}
+      // onClick={() => onView(product)}
     >
       <div className="flex justify-between items-center">
         <div className="flex flex-row items-center gap-2">
@@ -49,7 +49,7 @@ export default function AdminProductCard({
           <div className="flex flex-row gap-2">
             <button
               title="Edit Product"
-              disabled={isLoading}
+              // disabled={isLoading}
               className="p-2 border rounded cursor-pointer text-blue-600 bg-white hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={(e) => { e.stopPropagation(); onEdit(product); }}
             >
@@ -58,7 +58,7 @@ export default function AdminProductCard({
 
             <button
               title="Delete Product"
-              disabled={isLoading}
+              // disabled={isLoading}
               className="p-2 border rounded cursor-pointer text-red-600 bg-white hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={(e) => { e.stopPropagation(); onDelete(product.id); }}
             >

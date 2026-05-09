@@ -12,6 +12,7 @@ import Search from "./pages/search/Search";
 
 import AdminDashboard from "./pages/admin/Dashboard/Dashboard";
 import AdminProducts from "./pages/admin/Products/AdminProducts";
+import AdminProduct from "./pages/admin/Products/AdminProduct";
 import AdminAttributes from "./pages/admin/Attributes/AdminAttributes"
 import AdminOrders from "./pages/admin/Orders/AdminOrders";
 import AdminUsers from "./pages/admin/Users/AdminUsers";
@@ -98,6 +99,8 @@ export default function App() {
           <Route path="dashboard" element={<AdminProtected><AdminDashboard /></AdminProtected>} />
 
           <Route path="products" element={<AdminProtected><AdminProducts /></AdminProtected>} />
+          <Route path="products/new" element={<AdminProtected><AdminProduct /></AdminProtected>} />
+          <Route path="products/:id/edit" element={<AdminProtected><AdminProduct /></AdminProtected>} />
 
           <Route path="attributes" element={<AdminProtected><AdminAttributes /></AdminProtected>} />
 
@@ -105,7 +108,7 @@ export default function App() {
           <Route path="orders/:orderId" element={<AdminProtected><OrderDetail /></AdminProtected>} />
 
           <Route path="users" element={<AdminProtected><AdminUsers /></AdminProtected>} />
-          
+
           <Route path="chats" element={<AdminProtected><AdminChats /></AdminProtected>} />
         </Route>
 
