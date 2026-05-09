@@ -7,7 +7,7 @@ import { useProducts } from "../../../hooks/products/useProducts";
 import { useProductUrlFilters } from "../../../hooks/useProductUrlFilters";
 import { usePagination } from "../../../hooks/usePagination";
 
-import { useProductCRUD } from "../../../hooks/admin/useProductCRUD";
+import { adminProductsApi } from "../../../api/admin/adminProductsApi";
 
 import AdminProductCard from "../../../components/Admin/Products/AdminProductCard";
 import AdminDynamicFilters from "../../../components/Admin/Products/AdminDynamicFilters";
@@ -40,15 +40,6 @@ export default function AdminProducts() {
     onPageChange: (p) => updateUrl({ page: p }),
   });
 
-  // const form = useProductForm();
-  // const filters = useProductFilters();
-  // const modal = useProductModal({
-  //   setFormData: form.setFormData,
-  //   resetForm: form.resetForm,
-  //   loadFilters: filters.loadFilters,
-  // });
-  const crud = useProductCRUD(refetch);
-
   // ──────────────────── Filter handlers ────────────────────
   const handleCategoryChange = (slug: string) => {
     setSelectedCategory(slug || null);
@@ -74,11 +65,16 @@ export default function AdminProducts() {
     refetch();
   };
 
-  // ──────────────────── Close modal and reset filters ────────────────────
-  // const handleCloseForm = () => {
-  //   modal.close();
-  //   filters.setFilters([]);
-  // };
+  const handleDelete = (async (id: number | string) => {
+    if (!window.confirm("Delete this product?")) return;
+
+    try {
+      await adminProductsApi.deleteProduct(id);
+      toast.success("Deleted");
+    } catch (err) {
+      toast.error("Delete failed");
+    }
+  });
 
   return (
     <div className="flex flex-col gap-y-4 pt-8 px-8">
@@ -152,17 +148,6 @@ export default function AdminProducts() {
         </div>
       )}
 
-      {/* ========== MODAL DATA LOADING OVERLAY ========== */}
-      {/* {modal.isLoadingModalData && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center pointer-events-none">
-          <div className="bg-white rounded-lg p-8 shadow-2xl text-center pointer-events-auto">
-            <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-700 font-semibold">Loading product details...</p>
-            <p className="text-gray-500 text-sm mt-2">Please wait while we fetch options and images</p>
-          </div>
-        </div>
-      )} */}
-
       {/* Dynamic filters */}
       <AdminDynamicFilters
         onCategoryChange={handleCategoryChange}
@@ -208,10 +193,8 @@ export default function AdminProducts() {
               >
                 <AdminProductCard
                   product={product}
-                  // isLoading={modal.isLoadingModalData}
-                  // onView={() => modal.openViewForm(product)}
                   onEdit={() => Navigation(`/admin/products/${product.id}/edit`)}
-                  onDelete={() => crud.handleDelete(product.id)}
+                  onDelete={() => handleDelete(product.id)}
                 />
               </div>
             ))}
