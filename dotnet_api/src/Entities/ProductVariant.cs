@@ -12,9 +12,10 @@ namespace WebApp_API.Entities
         [Column(TypeName = "decimal(18,2)")] public decimal OriginalPrice { get; set; }
         public int Stock { get; set; }
 
-        public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
-
         public required int ProductId { get; set; }
         [ForeignKey("ProductId")] public Product? Product { get; set; }
+
+        public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
+        public ICollection<ProductVariantOptionValue> ProductVariantOptionValues { get; set; } = new List<ProductVariantOptionValue>();
     }
 }

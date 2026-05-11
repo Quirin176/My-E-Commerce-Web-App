@@ -13,19 +13,33 @@ namespace WebApp_API.Repositories
         // ────────────────────────────────────────────────── Single product lookups ──────────────────────────────────────────────────
         public async Task<ProductVariant?> GetByIdAsync(int id)
         {
-            return await _db.ProductVariants.FindAsync(id);
+            return await _db.ProductVariants
+                .Include(v => v.Images)
+                .Include(v => v.ProductVariantOptionValues)
+                    .ThenInclude(pvov => pvov.ProductOptionValue)
+                        .ThenInclude(pov => pov.ProductOption)
+                .FirstOrDefaultAsync(v => v.Id == id);
         }
 
         // ────────────────────────────────────────────────── List queries ──────────────────────────────────────────────────
         public async Task<IEnumerable<ProductVariant>> GetAllAsync()
         {
-            return await _db.ProductVariants.ToListAsync();
+            return await _db.ProductVariants
+                .Include(v => v.Images)
+                .Include(v => v.ProductVariantOptionValues)
+                    .ThenInclude(pvov => pvov.ProductOptionValue)
+                        .ThenInclude(pov => pov.ProductOption)
+                .ToListAsync();
         }
 
         public async Task<IEnumerable<ProductVariant>> GetByProductIdAsync(int productId)
         {
             return await _db.ProductVariants
                 .Where(v => v.ProductId == productId)
+                .Include(v => v.Images)
+                .Include(v => v.ProductVariantOptionValues)
+                    .ThenInclude(pvov => pvov.ProductOptionValue)
+                        .ThenInclude(pov => pov.ProductOption)
                 .ToListAsync();
         }
 
@@ -52,7 +66,5 @@ namespace WebApp_API.Repositories
             await _db.SaveChangesAsync();
             return true;
         }
-
-        public Task SaveChangesAsync() => _db.SaveChangesAsync();
     }
 }

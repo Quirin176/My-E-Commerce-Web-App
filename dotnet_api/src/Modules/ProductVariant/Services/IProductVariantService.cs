@@ -7,14 +7,14 @@ namespace WebApp_API.Services
     public interface IProductVariantService
     {
         // ────────────────────────────────────────────────── Public queries ──────────────────────────────────────────────────
-        Task<ProductVariant?> GetByIdAsync(int id);
-        Task<IEnumerable<ProductVariant>> GetAllAsync();
-        Task<IEnumerable<ProductVariant>> GetByProductIdAsync(int productId);
+        Task<ProductVariantDTOs.ProductVariantResponse?> GetByIdAsync(int id);
+        Task<IEnumerable<ProductVariantDTOs.ProductVariantResponse>> GetAllAsync();
+        Task<IEnumerable<ProductVariantDTOs.ProductVariantResponse>> GetByProductIdAsync(int productId);
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
 
-        Task CreateAsync(ProductVariantDTOs.CreateProductVariantRequest variant);
-        Task<ProductVariant> UpdateAsync(ProductVariant variant);
+        Task<ProductVariantDTOs.ProductVariantResponse> CreateAsync(ProductVariantDTOs.CreateProductVariantRequest variant);
+        Task<ProductVariantDTOs.ProductVariantResponse?> UpdateAsync(int id, ProductVariantDTOs.UpdateProductVariantRequest request);
         Task<bool> DeleteAsync(int id);
     }
 }

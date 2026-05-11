@@ -11,9 +11,9 @@ namespace WebApp_API.Entities
         public int DisplayOrder { get; set; }
         public bool IsMain { get; set; }
 
-        public int ProductId { get; set; }
-        public int VariantId { get; set; }
+        public int? ProductId { get; set; }
+        public int? VariantId { get; set; }
         [ForeignKey("ProductId")] public Product? Product { get; set; }
-        [ForeignKey("ProductVariantId")] public ProductVariant? ProductVariant { get; set; }
+        [ForeignKey("VariantId")] public ProductVariant? ProductVariant { get; set; }
     }
 }

@@ -37,26 +37,47 @@ namespace WebApp_API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(ProductVariantDTOs.CreateProductVariantRequest variant)
+        public async Task<IActionResult> Create([FromBody] ProductVariantDTOs.CreateProductVariantRequest request)
         {
-            await _service.CreateAsync(variant);
-            return Ok(new { message = "Product Variant Created" });
+            if (string.IsNullOrWhiteSpace(request.VariantName))
+                return BadRequest(new { message = "Variant name is required" });
+ 
+            if (request.Price <= 0)
+                return BadRequest(new { message = "Price must be greater than 0" });
+ 
+            if (request.ProductId <= 0)
+                return BadRequest(new { message = "Valid product ID is required" });
+ 
+            try
+            {
+                var created = await _service.CreateAsync(request);
+                return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error creating variant", error = ex.Message });
+            }
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, ProductVariant variant)
+        public async Task<IActionResult> Update(int id, [FromBody] ProductVariantDTOs.UpdateProductVariantRequest request)
         {
-            if (id != variant.Id) return BadRequest("ID mismatch");
-
-            var updated = await _service.UpdateAsync(variant);
-            return Ok(updated);
+            try
+            {
+                var updated = await _service.UpdateAsync(id, request);
+                return updated is null ? NotFound() : Ok(updated);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error updating variant", error = ex.Message });
+            }
         }
 
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
             var success = await _service.DeleteAsync(id);
-            return success ? Ok() : NotFound();
+            return success ? NoContent() : NotFound();
         }
     }
 }

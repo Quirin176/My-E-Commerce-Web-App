@@ -23,8 +23,8 @@ export interface ProductFormData {
   slug: string;
   shortDescription: string;
   description: string;
-  price: number | string;
-  imageUrl: string;
+  basePrice: number | string;
+  thumbnailUrl: string;
   images: string[];
   categoryId: number | string;
   selectedOptionValueIds: number[];
@@ -37,8 +37,8 @@ const INITIAL_FORM_DATA: ProductFormData = {
   slug: "",
   shortDescription: "",
   description: "",
-  price: "",
-  imageUrl: "",
+  basePrice: "",
+  thumbnailUrl: "",
   images: [],
   categoryId: "",
   selectedOptionValueIds: [],
@@ -87,7 +87,7 @@ export const useProductForm = (): UseProductFormReturn => {
     if (!formData.slug.trim()) {
       errors.slug = "Product slug is required";
     }
-    const priceNum = Number(formData.price);
+    const priceNum = Number(formData.basePrice);
     if (isNaN(priceNum) || priceNum <= 0) {
       errors.price = "Valid price is required (must be greater than 0)";
     }
@@ -104,7 +104,7 @@ export const useProductForm = (): UseProductFormReturn => {
 
   // Add a new image URL to the images array
   const addImageUrl = useCallback(() => {
-    const trimmedUrl = formData.imageUrl?.trim();
+    const trimmedUrl = formData.thumbnailUrl?.trim();
 
     // Validate the image URL
     if (!trimmedUrl) {
@@ -142,7 +142,7 @@ export const useProductForm = (): UseProductFormReturn => {
       delete newErrors.imageUrl;
       return newErrors;
     });
-  }, [formData.imageUrl, formData.images]);
+  }, [formData.thumbnailUrl, formData.images]);
 
   // Remove an image URL from the images array by index
   const removeImageUrl = useCallback((index: number) => {

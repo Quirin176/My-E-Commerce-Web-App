@@ -11,6 +11,7 @@ import { useProductVariants } from "../../../hooks/admin/useProductVariants";
 import { adminProductsApi } from "../../../api/admin/adminProductsApi";
 import { productApi } from "../../../api/products/productApi";
 
+import ToggleSwitch from "../../../components/ToggleSwitch";
 import ProductVariantsSection from "../../../components/Admin/Products/ProductVariantsSection";
 
 export default function AdminProduct() {
@@ -18,6 +19,8 @@ export default function AdminProduct() {
 
     const { id } = useParams();
     const mode = id ? "edit" : "create";
+
+    const [hasVariant, setHasVariant] = useState(false);
 
     const [submitting, setSubmitting] = useState<boolean>(false);
 
@@ -42,11 +45,11 @@ export default function AdminProduct() {
                     id: product.id ?? "",
                     name: product.name ?? "",
                     slug: product.slug ?? "",
-                    price: product.price ?? "",
+                    basePrice: product.basePrice ?? "",
                     categoryId: product.categoryId ?? "",
                     shortDescription: product.shortDescription ?? "",
                     description: product.description ?? "",
-                    imageUrl: "",
+                    thumbnailUrl: product.thumbnailUrl,
                     images: product.images?.length ? product.images : product.imageUrl ? [product.imageUrl] : [],
                     selectedOptionValueIds: [],
                 }));
@@ -89,7 +92,7 @@ export default function AdminProduct() {
                 slug: form.formData.slug.trim(),
                 shortDescription: form.formData.shortDescription.trim(),
                 description: form.formData.description.trim(),
-                price: parseFloat(String(form.formData.price)),
+                price: parseFloat(String(form.formData.basePrice)),
                 imageUrl: form.formData.images[0] ?? "",
                 imageUrls: form.formData.images,
                 categoryId: Number(form.formData.categoryId),
@@ -165,8 +168,8 @@ export default function AdminProduct() {
                     </label>
                     <input
                         type="number"
-                        value={form.formData.price}
-                        onChange={(e) => form.updateField('price', e.target.value)}
+                        value={form.formData.basePrice}
+                        onChange={(e) => form.updateField('basePrice', e.target.value)}
                         placeholder="Enter product price"
                         className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${form.formErrors.price ? 'border-red-500' : 'border-black'}`}
                     />
@@ -241,8 +244,8 @@ export default function AdminProduct() {
                 <div className="flex gap-2 mb-3">
                     <input
                         type="text"
-                        value={form.formData.imageUrl}
-                        onChange={(e) => form.updateField("imageUrl", e.target.value)}
+                        value={form.formData.thumbnailUrl}
+                        onChange={(e) => form.updateField("thumbnailUrl", e.target.value)}
                         placeholder="https://example.com/image.jpg"
                         className="flex-1 px-4 py-2 border-2 border-black rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                     />
@@ -255,6 +258,13 @@ export default function AdminProduct() {
                         Add Image
                     </button>
                 </div>
+                <img
+                    src={form.formData.thumbnailUrl}
+                    className="w-32 h-32 object-cover rounded-lg border-2 border-black"
+                    onError={(e) => {
+                        e.currentTarget.src = 'https://via.placeholder.com/96?text=No+Image';
+                    }}
+                />
 
                 {form.formErrors.imageUrl && (
                     <p className="text-red-500 text-sm mb-3 flex items-center gap-1">
@@ -355,6 +365,23 @@ export default function AdminProduct() {
                     )}
                 </div>
             )}
+
+            <div className="p-4">
+                <ToggleSwitch
+                    label="Has Variant?"
+                    checked={hasVariant}
+                    onChange={(value) => {
+                        setHasVariant(value);
+                        console.log("Variant enabled:", value);
+                    }}
+                />
+
+                {hasVariant && (
+                    <div className="mt-4">
+                        <p>Variant options will appear here...</p>
+                    </div>
+                )}
+            </div>
 
             {/* ── Variants section ──────────────────────────────────────── */}
             {(mode === "edit" || form.formData.categoryId) && (

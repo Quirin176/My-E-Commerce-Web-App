@@ -15,6 +15,5 @@ namespace WebApp_API.Repositories
         Task<ProductVariant> AddAsync(ProductVariant variant);
         Task<ProductVariant> UpdateAsync(ProductVariant variant);
         Task<bool> DeleteAsync(int id);
-        Task SaveChangesAsync();
     }
 }

@@ -6,28 +6,28 @@ namespace WebApp_API.Repositories
 {
     public class ProductVariantOptionValueRepository : IProductVariantOptionValueRepository
     {
-        private readonly AppDbContext _context;
+        private readonly AppDbContext _db;
 
-        public ProductVariantOptionValueRepository(AppDbContext context)
+        public ProductVariantOptionValueRepository(AppDbContext db)
         {
-            _context = context;
+            _db = db;
         }
 
         public async Task<IEnumerable<ProductVariantOptionValue>> GetAllAsync()
         {
-            return await _context.ProductVariantOptionValues.ToListAsync();
+            return await _db.ProductVariantOptionValues.ToListAsync();
         }
 
         public async Task<IEnumerable<ProductVariantOptionValue>> GetByVariantIdAsync(int variantId)
         {
-            return await _context.ProductVariantOptionValues
+            return await _db.ProductVariantOptionValues
                 .Where(x => x.ProductVariantId == variantId)
                 .ToListAsync();
         }
 
         public async Task<ProductVariantOptionValue?> GetAsync(int variantId, int optionValueId)
         {
-            return await _context.ProductVariantOptionValues
+            return await _db.ProductVariantOptionValues
                 .FirstOrDefaultAsync(x =>
                     x.ProductVariantId == variantId &&
                     x.ProductOptionValueId == optionValueId);
@@ -35,9 +35,15 @@ namespace WebApp_API.Repositories
 
         public async Task<ProductVariantOptionValue> AddAsync(ProductVariantOptionValue entity)
         {
-            _context.ProductVariantOptionValues.Add(entity);
-            await _context.SaveChangesAsync();
+            _db.ProductVariantOptionValues.Add(entity);
+            await _db.SaveChangesAsync();
             return entity;
+        }
+
+        public async Task AddRangeAsync(IEnumerable<ProductVariantOptionValue> entities)
+        {
+            await _db.ProductVariantOptionValues.AddRangeAsync(entities);
+            await _db.SaveChangesAsync();
         }
 
         public async Task<bool> DeleteAsync(int variantId, int optionValueId)
@@ -45,9 +51,21 @@ namespace WebApp_API.Repositories
             var item = await GetAsync(variantId, optionValueId);
             if (item == null) return false;
 
-            _context.ProductVariantOptionValues.Remove(item);
-            await _context.SaveChangesAsync();
+            _db.ProductVariantOptionValues.Remove(item);
+            await _db.SaveChangesAsync();
             return true;
+        }
+
+        public async Task DeleteByVariantIdAsync(int variantId)
+        {
+            var items = await _db.ProductVariantOptionValues
+                .Where(x => x.ProductVariantId == variantId)
+                .ToListAsync();
+
+            if (items.Count == 0) return;
+
+            _db.ProductVariantOptionValues.RemoveRange(items);
+            await _db.SaveChangesAsync();
         }
     }
 }
