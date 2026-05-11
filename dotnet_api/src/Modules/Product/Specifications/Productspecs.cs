@@ -9,8 +9,8 @@ namespace WebApp_API.Specifications
         public static IQueryable<Product> Apply(IQueryable<Product> query, string sortOrder) =>
             sortOrder switch
             {
-                "ascending" => query.OrderBy(p => p.Price),
-                "descending" => query.OrderByDescending(p => p.Price),
+                "ascending" => query.OrderBy(p => p.BasePrice),
+                "descending" => query.OrderByDescending(p => p.BasePrice),
                 "oldest" => query.OrderBy(p => p.Id),
                 _ => query.OrderByDescending(p => p.Id) // "newest" default
             };

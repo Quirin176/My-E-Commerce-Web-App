@@ -29,15 +29,15 @@ export interface PaginatedResponse<T> {
 
 export const productApi = {
 
-  // GET: /api/products - Get all products
-  async getProductsAll() {
-    const res = await apiClient.get("/products");
+  // GET: /api/products/{id} - Get all data of a product by id
+  async getProductById(id: number | string) {
+    const res = await apiClient.get(`/products/id/${id}`);
     return res.data;
   },
 
-  // GET: api/products/categories/${categorySlug} - Get all products in a Category
-  async getProductsByCategory(categorySlug: string) {
-    const res = await apiClient.get(`/products/categories/${categorySlug}`);
+  // GET: /api/products/{slug} - Get all data of a product by slug
+  async getProductBySlug(slug: string) {
+    const res = await apiClient.get(`/products/slug/${slug}`);
     return res.data;
   },
 
@@ -84,18 +84,6 @@ export const productApi = {
       if (filters.sortOrder) params.append("sortOrder", filters.sortOrder);
     }
     const res = await apiClient.get<PaginatedResponse<Product>>(`/products/paginated?${params.toString()}`);
-    return res.data;
-  },
-
-  // GET: /api/products/{id} - Get all data of a product by id
-  async getProductById(id: number | string) {
-    const res = await apiClient.get(`/products/id/${id}`);
-    return res.data;
-  },
-
-  // GET: /api/products/{slug} - Get all data of a product by slug
-  async getProductBySlug(slug: string) {
-    const res = await apiClient.get(`/products/slug/${slug}`);
     return res.data;
   },
 

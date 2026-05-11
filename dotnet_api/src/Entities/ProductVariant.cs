@@ -11,9 +11,10 @@ namespace WebApp_API.Entities
         [Column(TypeName = "decimal(18,2)")] public decimal Price { get; set; }
         [Column(TypeName = "decimal(18,2)")] public decimal OriginalPrice { get; set; }
         public int Stock { get; set; }
-        [MaxLength(1000)] public string? ImageUrl { get; set; }
+
+        public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
 
         public required int ProductId { get; set; }
-        [Required, ForeignKey("ProductId")] public required Product Product { get; set; }
+        [ForeignKey("ProductId")] public Product? Product { get; set; }
     }
 }

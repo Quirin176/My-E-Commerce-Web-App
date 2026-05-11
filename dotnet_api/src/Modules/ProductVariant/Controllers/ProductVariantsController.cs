@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebApp_API.DTOs;
 using WebApp_API.Entities;
 using WebApp_API.Services;
 using WebApp_API.Specifications;
@@ -36,10 +37,10 @@ namespace WebApp_API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(ProductVariant variant)
+        public async Task<IActionResult> Create(ProductVariantDTOs.CreateProductVariantRequest variant)
         {
-            var created = await _service.CreateAsync(variant);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+            await _service.CreateAsync(variant);
+            return Ok(new { message = "Product Variant Created" });
         }
 
         [HttpPut("{id:int}")]

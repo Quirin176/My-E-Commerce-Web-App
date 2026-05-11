@@ -6,9 +6,12 @@ import toast from "react-hot-toast";
 import { useCategories } from "../../../hooks/products/useCategories";
 import { useProductForm } from "../../../hooks/admin/useProductForm";
 import { useProductFilters } from "../../../hooks/products/useProductFilters";
+import { useProductVariants } from "../../../hooks/admin/useProductVariants";
 
 import { adminProductsApi } from "../../../api/admin/adminProductsApi";
 import { productApi } from "../../../api/products/productApi";
+
+import ProductVariantsSection from "../../../components/Admin/Products/ProductVariantsSection";
 
 export default function AdminProduct() {
     const Navigation = useNavigate();
@@ -22,6 +25,7 @@ export default function AdminProduct() {
 
     const form = useProductForm();
     const filters = useProductFilters();
+    const variants = useProductVariants(id ? Number(id) : null);
 
     const allImages = Array.isArray(form.formData.images) ? form.formData.images : [];
     const selectedIds = form.formData.selectedOptionValueIds ?? [];
@@ -58,7 +62,7 @@ export default function AdminProduct() {
                     );
 
                     const selectedIds: number[] = [];
-                    (product.options ?? []).forEach(opt => {
+                    (product.options ?? []).forEach((opt: any) => {
                         if (!("optionValues" in opt)) return;
                         opt.optionValues.forEach((ov: { value: string }) => {
                             const fid = valueMap.get(ov.value);
@@ -70,7 +74,7 @@ export default function AdminProduct() {
                 }
 
                 // Load variants
-                // variants.fetchVariants(Number(id));
+                variants.fetchVariants(Number(id));
             } catch {
                 toast.error("Failed to load product");
             }
@@ -100,7 +104,7 @@ export default function AdminProduct() {
 
             Navigation("/admin/products");
         } catch (err) {
-            console.error("Failed to save product:", err);
+            toast.error("Failed to save product");
         } finally {
             setSubmitting(false);
         }
@@ -341,9 +345,7 @@ export default function AdminProduct() {
                                                     onChange={() => form.handleOptionChange(value.id)}
                                                     className="w-4 h-4 cursor-pointer"
                                                 />
-                                                <span className="text-sm font-medium text-black border-black">
-                                                    {value.value}
-                                                </span>
+                                                <span className="text-sm font-medium text-black border-black">{value.value}</span>
                                             </label>
                                         ))}
                                     </div>
@@ -354,14 +356,33 @@ export default function AdminProduct() {
                 </div>
             )}
 
+            {/* ── Variants section ──────────────────────────────────────── */}
+            {(mode === "edit" || form.formData.categoryId) && (
+                <ProductVariantsSection
+                    variants={variants.variants}
+                    filters={filters.filters}
+                    isViewMode={false}
+                    productId={id ? Number(id) : null}
+                    onSave={variants.saveVariant}
+                    onDelete={variants.deleteVariant}
+                />
+            )}
+            {mode === "create" && !form.formData.categoryId && (
+                <p className="text-sm text-gray-400 border-2 border-dashed border-gray-300 rounded-xl p-4 text-center">
+                    Save the product first (or select a category) to add variants.
+                </p>
+            )}
+
             {/* Submit Buttons */}
-            <button
-                onClick={onSubmit}
-                disabled={submitting}
-                className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-                {submitting ? 'Saving...' : mode === 'edit' ? 'Update Product' : 'Create Product'}
-            </button>
+            <div className="flex justify-end">
+                <button
+                    onClick={onSubmit}
+                    disabled={submitting}
+                    className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {submitting ? 'Saving...' : mode === 'edit' ? 'Update Product' : 'Create Product'}
+                </button>
+            </div>
         </div>
     );
 }

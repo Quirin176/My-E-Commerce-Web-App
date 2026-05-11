@@ -83,7 +83,7 @@ namespace WebApp_API.Controllers
             if (string.IsNullOrWhiteSpace(request.Slug))
                 return BadRequest(new { message = "Product Slug is required" });
 
-            if (request.Price <= 0)
+            if (request.BasePrice <= 0)
                 return BadRequest(new { message = "Price must be greater than 0" });
 
             if (request.CategoryId <= 0)
@@ -91,8 +91,8 @@ namespace WebApp_API.Controllers
 
             try
             {
-                var id = await _service.CreateAsync(request);
-                return CreatedAtAction(nameof(GetById), new { id }, new { id });
+                await _service.CreateAsync(request);
+                return Ok(new { message = "Product Created" });
             }
             catch (ArgumentException ex)
             {

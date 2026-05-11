@@ -17,12 +17,12 @@ namespace WebApp_API.Services
         Task<List<string>> GetSuggestionsAsync(string q, int limit = 10);
 
         // ────────────────────────────────────────────────── Admin queries ──────────────────────────────────────────────────
-        Task<PaginatedResponse<ProductDTOs.ProductAdminResponse>> GetPaginatedAsync(ProductFilterSpec spec);
+        Task<PaginatedResponse<ProductDTOs.ProductPaginatedResponse>> GetPaginatedAsync(ProductFilterSpec spec);
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
 
         // Returns the created product ID or throws on validation failure
-        Task<int> CreateAsync(ProductDTOs.CreateProductRequest request);
+        Task CreateAsync(ProductDTOs.CreateProductRequest request);
 
         // Returns the updated product or null if not found
         Task<bool> UpdateAsync(int id, ProductDTOs.UpdateProductRequest request);

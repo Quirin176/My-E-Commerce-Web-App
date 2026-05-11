@@ -87,6 +87,7 @@ builder.Services.AddScoped<IProductOptionService, ProductOptionService>();
 builder.Services.AddScoped<IProductOptionValueRepository, ProductOptionValueRepository>();
 builder.Services.AddScoped<IProductOptionValueService, ProductOptionValueService>();
 
+builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
 

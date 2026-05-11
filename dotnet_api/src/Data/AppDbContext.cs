@@ -22,15 +22,17 @@ namespace WebApp_API.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
 
-        
+
         public DbSet<Chat> Chats { get; set; }
         public DbSet<Message> Messages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            // Apply configurations
+            builder.ApplyConfiguration(new ProductImageConfiguration());
+
             base.OnModelCreating(builder);
 
-            // Defines the EF Core model
             // User Model
             builder.Entity<User>()
                 .Property(u => u.Email)
@@ -95,12 +97,7 @@ namespace WebApp_API.Data
                 .HasForeignKey(v => v.ProductOptionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Entity<ProductImage>()
-                .HasOne(pi => pi.Product)
-                .WithMany()
-                .HasForeignKey(pi => pi.ProductId)
-                .OnDelete(DeleteBehavior.Cascade);
-
+            // Order model
             builder.Entity<Order>()
                 .HasOne(o => o.User)
                 .WithMany()
@@ -113,13 +110,7 @@ namespace WebApp_API.Data
                 .HasForeignKey(oi => oi.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Create index for faster queries
-            builder.Entity<Order>().HasIndex(o => o.UserId);
-            builder.Entity<Order>().HasIndex(o => o.OrderDate);
-            builder.Entity<Order>().HasIndex(o => o.Status);
-
-            // Chat Model
-            // Chat → Messages (1:N)
+            // Chat + Message model
             builder.Entity<Chat>()
                 .HasMany(c => c.Messages)
                 .WithOne(m => m.Chat)
@@ -148,6 +139,10 @@ namespace WebApp_API.Data
                 .OnDelete(DeleteBehavior.NoAction);
 
             // Indexes
+            builder.Entity<Order>().HasIndex(o => o.UserId);
+            builder.Entity<Order>().HasIndex(o => o.OrderDate);
+            builder.Entity<Order>().HasIndex(o => o.Status);
+
             builder.Entity<Chat>().HasIndex(c => c.CustomerId);
             builder.Entity<Chat>().HasIndex(c => c.AdminId);
 

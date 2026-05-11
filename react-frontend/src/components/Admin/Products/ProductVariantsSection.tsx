@@ -262,7 +262,7 @@ export default function ProductVariantsSection({
           )}
 
           {/* Buttons */}
-          <div className="flex gap-2 pt-1">
+          <div className="flex justify-end gap-2 pt-1">
             <button
               onClick={handleSave}
               disabled={saving}

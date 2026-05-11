@@ -48,7 +48,7 @@ namespace WebApp_API.Controllers
             try
             {
                 await _service.AddCategoryAsync(request);
-                return Ok(new { message = "Category created" });
+                return Ok(new { message = "Category Created" });
             }
             catch (InvalidOperationException ex)
             {

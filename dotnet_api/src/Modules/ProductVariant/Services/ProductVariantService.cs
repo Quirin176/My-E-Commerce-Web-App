@@ -1,37 +1,53 @@
 using WebApp_API.DTOs;
 using WebApp_API.Entities;
 using WebApp_API.Repositories;
-using WebApp_API.Specifications;
-using static WebApp_API.DTOs.PaginationDTOs;
 
 namespace WebApp_API.Services
 {
     public class ProductVariantService : IProductVariantService
     {
-        private readonly IProductVariantRepository _repo;
+        private readonly IProductVariantRepository _productVariantRepo;
+        private readonly IProductImageRepository _productImageRepo;
 
-        public ProductVariantService(IProductVariantRepository repo) => _repo = repo;
+        public ProductVariantService(IProductVariantRepository productVariantRepo, IProductImageRepository productImageRepo)
+        {
+            _productVariantRepo = productVariantRepo;
+            _productImageRepo = productImageRepo;
+        }
 
         // ──────────────────── Public queries ────────────────────
 
         public Task<IEnumerable<ProductVariant>> GetAllAsync()
-            => _repo.GetAllAsync();
+            => _productVariantRepo.GetAllAsync();
 
         public Task<ProductVariant?> GetByIdAsync(int id)
-            => _repo.GetByIdAsync(id);
+            => _productVariantRepo.GetByIdAsync(id);
 
         public Task<IEnumerable<ProductVariant>> GetByProductIdAsync(int productId)
-            => _repo.GetByProductIdAsync(productId);
+            => _productVariantRepo.GetByProductIdAsync(productId);
 
         // ──────────────────── Write operations ────────────────────
 
-        public Task<ProductVariant> CreateAsync(ProductVariant variant)
-            => _repo.AddAsync(variant);
+        public async Task CreateAsync(ProductVariantDTOs.CreateProductVariantRequest request)
+        {
+            var variant = new ProductVariant
+            {
+                VariantName = request.VariantName,
+                SKU = request.SKU,
+                Price = request.Price,
+                OriginalPrice = request.OriginalPrice,
+                Stock = request.Stock,
+                ProductId = request.ProductId,
+            };
 
+            await _productVariantRepo.AddAsync(variant);
+            await _productVariantRepo.SaveChangesAsync();
+        }
+        
         public Task<ProductVariant> UpdateAsync(ProductVariant variant)
-            => _repo.UpdateAsync(variant);
+            => _productVariantRepo.UpdateAsync(variant);
 
         public Task<bool> DeleteAsync(int id)
-            => _repo.DeleteAsync(id);
+            => _productVariantRepo.DeleteAsync(id);
     }
 }

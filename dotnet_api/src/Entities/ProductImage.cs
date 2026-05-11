@@ -6,9 +6,14 @@ namespace WebApp_API.Entities
     public class ProductImage
     {
         [Key] public int Id { get; set; }
-        [Required, MaxLength(1000)] public string ImageUrl { get; set; }
-        public int DisplayOrder { get; set; } = 0; // For ordering images
+        
+        [Required, MaxLength(1000)] public required string ImageUrl { get; set; }
+        public int DisplayOrder { get; set; }
+        public bool IsMain { get; set; }
+
         public int ProductId { get; set; }
-        [ForeignKey("ProductId")] public Product Product { get; set; }
+        public int VariantId { get; set; }
+        [ForeignKey("ProductId")] public Product? Product { get; set; }
+        [ForeignKey("ProductVariantId")] public ProductVariant? ProductVariant { get; set; }
     }
 }

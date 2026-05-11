@@ -16,7 +16,6 @@ namespace WebApp_API.Repositories
         Task<List<Product>> GetByCategoryAsync(int categoryId);
 
         // ────────────────────────────────────────────────── Related data ──────────────────────────────────────────────────
-        Task<List<string>> GetImageUrlsAsync(int productId);
         Task<List<(int OptionId, string OptionName, int ValueId, string Value)>> GetOptionsRawAsync(int productId);
         Task<List<(int OptionId, List<int> ValueIds)>> GetOptionGroupsForValuesAsync(List<int> valueIds);
         Task<List<int>> GetProductIdsByOptionValuesAsync(List<int> optionValueIds);
@@ -33,9 +32,6 @@ namespace WebApp_API.Repositories
         Task AddAsync(Product product);
         void Update(Product product);
         void Remove(Product product);
-
-        Task AddImagesAsync(IEnumerable<ProductImage> images);
-        Task RemoveImagesAsync(int productId);
 
         Task SetOptionValuesAsync(int productId, IEnumerable<int> optionValueIds);
 

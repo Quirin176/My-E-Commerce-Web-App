@@ -10,10 +10,10 @@ namespace WebApp_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductOptionValuesController : ControllerBase // API Endpoint: /api/productoptionvalues
+    public class ProductOptionValueController : ControllerBase // API Endpoint: /api/productoptionvalues
     {
         private readonly IProductOptionValueService _service;
-        public ProductOptionValuesController(IProductOptionValueService service) => _service = service;
+        public ProductOptionValueController(IProductOptionValueService service) => _service = service;
 
         // POST: api/productoptionvalues/optionvalues - Add a new value to an existing ProductOption
         [HttpPost("optionvalues")]

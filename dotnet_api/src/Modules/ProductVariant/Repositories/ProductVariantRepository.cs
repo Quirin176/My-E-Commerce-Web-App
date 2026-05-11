@@ -52,5 +52,7 @@ namespace WebApp_API.Repositories
             await _db.SaveChangesAsync();
             return true;
         }
+
+        public Task SaveChangesAsync() => _db.SaveChangesAsync();
     }
 }

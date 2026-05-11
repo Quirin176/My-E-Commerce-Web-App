@@ -8,22 +8,27 @@ namespace WebApp_API.Services
 {
     public class ProductService : IProductService
     {
-        private readonly IProductRepository _repo;
+        private readonly IProductRepository _productRepo;
+        private readonly IProductImageRepository _productImageRepo;
 
-        public ProductService(IProductRepository repo) => _repo = repo;
+        public ProductService(IProductRepository productRepo, IProductImageRepository productImageRepo)
+        {
+            _productRepo = productRepo;
+            _productImageRepo = productImageRepo;
+        }
 
         // ──────────────────── Public queries ────────────────────
 
         public async Task<ProductDTOs.ProductDetailResponse?> GetByIdAsync(int id)
         {
-            var product = await _repo.GetByIdAsync(id);
+            var product = await _productRepo.GetByIdAsync(id);
             if (product is null) return null;
             return await MapToDetailAsync(product);
         }
 
         public async Task<ProductDTOs.ProductDetailResponse?> GetBySlugAsync(string slug)
         {
-            var product = await _repo.GetBySlugAsync(slug);
+            var product = await _productRepo.GetBySlugAsync(slug);
             if (product is null) return null;
             return await MapToDetailAsync(product);
         }
@@ -34,20 +39,20 @@ namespace WebApp_API.Services
             var spec = ProductFilterSpec.From(filterParams);
             int? categoryId = string.IsNullOrWhiteSpace(spec.Category)
                 ? null
-                : await _repo.ResolveCategoryIdAsync(spec.Category);
+                : await _productRepo.ResolveCategoryIdAsync(spec.Category);
 
             // If a category slug was provided but not found, return empty
             if (!string.IsNullOrWhiteSpace(spec.Category) && categoryId is null)
                 return new List<ProductListDTOs.ProductSummaryResponse>();
 
-            var products = await _repo.GetFilteredAsync(spec, categoryId);
+            var products = await _productRepo.GetFilteredAsync(spec, categoryId);
             return await MapToSummaryListAsync(products);
         }
 
         public async Task<ProductDTOs.SearchResponse> SearchAsync(ProductListDTOs.ProductSearchParams searchParams)
         {
             var spec = ProductSearchSpec.From(searchParams);
-            var (items, totalCount) = await _repo.SearchAsync(spec);
+            var (items, totalCount) = await _productRepo.SearchAsync(spec);
 
             return new ProductDTOs.SearchResponse
             {
@@ -74,18 +79,18 @@ namespace WebApp_API.Services
                 PageSize = limit
             });
 
-            var (items, _) = await _repo.SearchAsync(spec);
+            var (items, _) = await _productRepo.SearchAsync(spec);
             return items.Select(p => p.Name).Distinct().Take(limit).ToList();
         }
 
         // ──────────────────── Admin queries ────────────────────
 
-        public async Task<PaginatedResponse<ProductDTOs.ProductAdminResponse>> GetPaginatedAsync(ProductFilterSpec spec)
+        public async Task<PaginatedResponse<ProductDTOs.ProductPaginatedResponse>> GetPaginatedAsync(ProductFilterSpec spec)
         {
-            var (items, totalCount) = await _repo.GetPaginatedAsync(spec);
+            var (items, totalCount) = await _productRepo.GetPaginatedAsync(spec);
 
             var data = await MapToAdminListAsync(items);
-            return new PaginatedResponse<ProductDTOs.ProductAdminResponse>
+            return new PaginatedResponse<ProductDTOs.ProductPaginatedResponse>
             {
                 Success = true,
                 Data = data,
@@ -95,17 +100,17 @@ namespace WebApp_API.Services
 
         // ──────────────────── Write operations ────────────────────
 
-        public async Task<int> CreateAsync(ProductDTOs.CreateProductRequest request)
+        public async Task CreateAsync(ProductDTOs.CreateProductRequest request)
         {
-            if (!await _repo.CategoryExistsAsync(request.CategoryId))
+            if (!await _productRepo.CategoryExistsAsync(request.CategoryId))
                 throw new ArgumentException($"Category with ID {request.CategoryId} does not exist.");
 
-            if (await _repo.SlugExistsAsync(request.Slug))
+            if (await _productRepo.SlugExistsAsync(request.Slug))
                 throw new InvalidOperationException($"A product with slug '{request.Slug}' already exists.");
 
             if (request.SelectedOptionValueIds.Count > 0)
             {
-                var valid = await _repo.GetValidOptionValueIdsForCategoryAsync(request.CategoryId);
+                var valid = await _productRepo.GetValidOptionValueIdsForCategoryAsync(request.CategoryId);
                 var invalid = request.SelectedOptionValueIds.Except(valid).ToList();
                 if (invalid.Count > 0)
                     throw new ArgumentException($"Option value ID(s) {string.Join(", ", invalid)} are not valid for this category.");
@@ -117,80 +122,83 @@ namespace WebApp_API.Services
                 Slug = request.Slug,
                 ShortDescription = request.ShortDescription,
                 Description = request.Description,
-                Price = request.Price,
-                ImageUrl = request.ImageUrl,
-                CategoryId = request.CategoryId
+                BasePrice = request.BasePrice,
+                ThumbnailUrl = request.ThumbnailUrl,
+                CategoryId = request.CategoryId,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                HasVariants = request.HasVariants
             };
 
-            await _repo.AddAsync(product);
-            await _repo.SaveChangesAsync();
+            await _productRepo.AddAsync(product);
+            await _productRepo.SaveChangesAsync();
 
             // Build image records (deduplicated)
-            var imageUrls = BuildImageUrlList(request.ImageUrl, request.ImageUrls);
-            await _repo.AddImagesAsync(imageUrls.Select((url, i) => new ProductImage
-            {
-                ProductId = product.Id,
-                ImageUrl = url,
-                DisplayOrder = i
-            }));
+            // var imageUrls = BuildImageUrlList(request.ImageUrl, request.ImageUrls);
+            // await _productImageRepo.AddImagesAsync(imageUrls.Select((url, i) => new ProductImage
+            // {
+            //     ProductId = product.Id,
+            //     ImageUrl = url,
+            //     DisplayOrder = i
+            // }));
 
             if (request.SelectedOptionValueIds.Count > 0)
-                await _repo.SetOptionValuesAsync(product.Id, request.SelectedOptionValueIds);
+                await _productRepo.SetOptionValuesAsync(product.Id, request.SelectedOptionValueIds);
 
-            await _repo.SaveChangesAsync();
-            return product.Id;
+            await _productRepo.SaveChangesAsync();
         }
 
         public async Task<bool> UpdateAsync(int id, ProductDTOs.UpdateProductRequest request)
         {
-            var product = await _repo.GetByIdAsync(id);
+            var product = await _productRepo.GetByIdAsync(id);
             if (product is null) return false;
 
             if (!string.IsNullOrWhiteSpace(request.Name)) product.Name = request.Name;
             if (!string.IsNullOrWhiteSpace(request.Slug)) product.Slug = request.Slug;
             if (!string.IsNullOrWhiteSpace(request.ShortDescription)) product.ShortDescription = request.ShortDescription;
             if (!string.IsNullOrWhiteSpace(request.Description)) product.Description = request.Description;
-            if (request.Price.HasValue && request.Price > 0) product.Price = request.Price.Value;
-            if (!string.IsNullOrWhiteSpace(request.ImageUrl)) product.ImageUrl = request.ImageUrl;
+            if (request.BasePrice.HasValue && request.BasePrice > 0) product.BasePrice = request.BasePrice.Value;
+            if (!string.IsNullOrWhiteSpace(request.ThumbnailUrl)) product.ThumbnailUrl = request.ThumbnailUrl;
             if (request.CategoryId.HasValue) product.CategoryId = request.CategoryId.Value;
+            product.UpdatedAt = DateTime.UtcNow;
 
-            _repo.Update(product);
-            await _repo.SaveChangesAsync();
+            _productRepo.Update(product);
+            await _productRepo.SaveChangesAsync();
 
-            if (request.ImageUrls.Count > 0)
-            {
-                await _repo.RemoveImagesAsync(id);
-                var urls = BuildImageUrlList(request.ImageUrl, request.ImageUrls);
-                await _repo.AddImagesAsync(urls.Select((url, i) => new ProductImage
-                {
-                    ProductId = id,
-                    ImageUrl = url,
-                    DisplayOrder = i
-                }));
-            }
+            // if (request.ImageUrls.Count > 0)
+            // {
+            //     await _productImageRepo.DeleteImagesAsync(id);
+            //     var urls = BuildImageUrlList(request.ImageUrl, request.ImageUrls);
+            //     await _productImageRepo.AddImagesAsync(urls.Select((url, i) => new ProductImage
+            //     {
+            //         ProductId = id,
+            //         ImageUrl = url,
+            //         DisplayOrder = i
+            //     }));
+            // }
 
             if (request.SelectedOptionValueIds is not null)
-                await _repo.SetOptionValuesAsync(id, request.SelectedOptionValueIds);
+                await _productRepo.SetOptionValuesAsync(id, request.SelectedOptionValueIds);
 
-            await _repo.SaveChangesAsync();
+            await _productRepo.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var product = await _repo.GetByIdAsync(id);
+            var product = await _productRepo.GetByIdAsync(id);
             if (product is null) return false;
 
-            _repo.Remove(product);
-            await _repo.SaveChangesAsync();
+            _productRepo.Remove(product);
+            await _productRepo.SaveChangesAsync();
             return true;
         }
 
         // ──────────────────── Mapping helpers ────────────────────
         private async Task<ProductDTOs.ProductDetailResponse> MapToDetailAsync(Product product)
         {
-            var images = await _repo.GetImageUrlsAsync(product.Id);
-            var rawOpts = await _repo.GetOptionsRawAsync(product.Id);
+            var images = await _productImageRepo.GetImageUrlsByProductAsync(product.Id);
+            var rawOpts = await _productRepo.GetOptionsRawAsync(product.Id);
 
             return new ProductDTOs.ProductDetailResponse
             {
@@ -199,8 +207,8 @@ namespace WebApp_API.Services
                 Slug = product.Slug,
                 ShortDescription = product.ShortDescription,
                 Description = product.Description,
-                Price = product.Price,
-                ImageUrl = product.ImageUrl,
+                BasePrice = product.BasePrice,
+                ThumbnailUrl = product.ThumbnailUrl,
                 CategoryId = product.CategoryId,
                 Category = MapCategory(product.Category),
                 Images = images,
@@ -213,14 +221,14 @@ namespace WebApp_API.Services
             var result = new List<ProductListDTOs.ProductSummaryResponse>(products.Count);
             foreach (var p in products)
             {
-                var rawOpts = await _repo.GetOptionsRawAsync(p.Id);
+                var rawOpts = await _productRepo.GetOptionsRawAsync(p.Id);
                 result.Add(new ProductListDTOs.ProductSummaryResponse
                 {
                     Id = p.Id,
                     Name = p.Name,
                     Slug = p.Slug,
-                    Price = p.Price,
-                    ImageUrl = p.ImageUrl,
+                    Price = p.BasePrice,
+                    ImageUrl = p.ThumbnailUrl,
                     ShortDescription = p.ShortDescription,
                     CategoryId = p.CategoryId,
                     Options = rawOpts.Select(o => new ProductListDTOs.ProductOptionFlatResponse
@@ -233,25 +241,25 @@ namespace WebApp_API.Services
             return result;
         }
 
-        private async Task<List<ProductDTOs.ProductAdminResponse>> MapToAdminListAsync(List<Product> products)
+        private async Task<List<ProductDTOs.ProductPaginatedResponse>> MapToAdminListAsync(List<Product> products)
         {
-            var result = new List<ProductDTOs.ProductAdminResponse>(products.Count);
+            var result = new List<ProductDTOs.ProductPaginatedResponse>(products.Count);
             foreach (var p in products)
             {
-                var images = await _repo.GetImageUrlsAsync(p.Id);
-                var rawOpts = await _repo.GetOptionsRawAsync(p.Id);
-                result.Add(new ProductDTOs.ProductAdminResponse
+                // var images = await _productImageRepo.GetImageUrlsByProductAsync(p.Id);
+                var rawOpts = await _productRepo.GetOptionsRawAsync(p.Id);
+                result.Add(new ProductDTOs.ProductPaginatedResponse
                 {
                     Id = p.Id,
                     Name = p.Name,
                     Slug = p.Slug,
-                    Price = p.Price,
-                    ImageUrl = p.ImageUrl,
-                    ShortDescription = p.ShortDescription,
-                    Description = p.Description,
-                    CategoryId = p.CategoryId,
-                    Category = MapCategory(p.Category),
-                    Images = images,
+                    Price = p.BasePrice,
+                    ImageUrl = p.ThumbnailUrl,
+                    // ShortDescription = p.ShortDescription,
+                    // Description = p.Description,
+                    // CategoryId = p.CategoryId,
+                    // Category = MapCategory(p.Category),
+                    // Images = images,
                     Options = GroupOptions(rawOpts)
                 });
             }

@@ -75,8 +75,8 @@ namespace WebApp_API.Repositories
 
             query = spec.SortOrder switch
             {
-                "price_asc" => query.OrderBy(p => p.Price),
-                "price_desc" => query.OrderByDescending(p => p.Price),
+                "price_asc" => query.OrderBy(p => p.BasePrice),
+                "price_desc" => query.OrderByDescending(p => p.BasePrice),
                 "newest" => query.OrderByDescending(p => p.Id),
                 "name" => query.OrderBy(p => p.Name),
                 _ => query.OrderByDescending(p => p.Id)
@@ -99,13 +99,6 @@ namespace WebApp_API.Repositories
                 .ToListAsync();
 
         // ────────────────────────────────────────────────── Related data ──────────────────────────────────────────────────
-        public async Task<List<string>> GetImageUrlsAsync(int productId) =>
-            await _db.ProductImages
-                .Where(pi => pi.ProductId == productId)
-                .OrderBy(pi => pi.DisplayOrder)
-                .Select(pi => pi.ImageUrl)
-                .ToListAsync();
-
         public async Task<List<(int OptionId, string OptionName, int ValueId, string Value)>> GetOptionsRawAsync(int productId) =>
             await _db.ProductFilters
                 .Where(pf => pf.ProductId == productId)
@@ -165,15 +158,6 @@ namespace WebApp_API.Repositories
 
         public void Remove(Product product) => _db.Products.Remove(product);
 
-        public async Task AddImagesAsync(IEnumerable<ProductImage> images) =>
-            await _db.ProductImages.AddRangeAsync(images);
-
-        public async Task RemoveImagesAsync(int productId)
-        {
-            var existing = await _db.ProductImages.Where(pi => pi.ProductId == productId).ToListAsync();
-            _db.ProductImages.RemoveRange(existing);
-        }
-
         public async Task SetOptionValuesAsync(int productId, IEnumerable<int> optionValueIds)
         {
             var existing = await _db.ProductFilters.Where(pf => pf.ProductId == productId).ToListAsync();
@@ -188,8 +172,8 @@ namespace WebApp_API.Repositories
         // ────────────────────────────────────────────────── Private helpers ──────────────────────────────────────────────────
         private static IQueryable<Product> ApplyPriceFilter(IQueryable<Product> query, decimal min, decimal max)
         {
-            if (min > 0) query = query.Where(p => p.Price >= min);
-            if (max < decimal.MaxValue) query = query.Where(p => p.Price <= max);
+            if (min > 0) query = query.Where(p => p.BasePrice >= min);
+            if (max < decimal.MaxValue) query = query.Where(p => p.BasePrice <= max);
             return query;
         }
 
