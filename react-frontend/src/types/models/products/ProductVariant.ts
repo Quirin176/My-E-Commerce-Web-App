@@ -7,6 +7,7 @@ export interface ProductVariant {
   stock: number;
   imageUrl?: string;
   productId: number | string;
+  optionValueIds: number[];
 }
 
 export interface ProductVariantForm {

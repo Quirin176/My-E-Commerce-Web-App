@@ -13,7 +13,7 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ checked, onChange, label })
 
       <div
         className={`relative w-12 h-6 rounded-full transition-colors ${
-          checked ? "bg-green-500" : "bg-gray-400"
+          checked ? "bg-green-400" : "bg-red-400"
         }`}
         onClick={() => onChange(!checked)}
       >

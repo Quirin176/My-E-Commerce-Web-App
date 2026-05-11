@@ -30,7 +30,6 @@ export default function AdminProduct() {
     const filters = useProductFilters();
     const variants = useProductVariants(id ? Number(id) : null);
 
-    const allImages = Array.isArray(form.formData.images) ? form.formData.images : [];
     const selectedIds = form.formData.selectedOptionValueIds ?? [];
 
     useEffect(() => {
@@ -161,11 +160,9 @@ export default function AdminProduct() {
             </div>
 
             {/* Price and Category */}
-            <div className="grid grid-cols-2 gap-6">
-                <div className="flex items-center gap-2 w-full">
-                    <label className="font-bold text-black whitespace-nowrap">
-                        Price (VND)
-                    </label>
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-end">
+                <div className="lg:col-span-1">
+                    <label className="block font-bold text-black mb-2">Price (VND)</label>
                     <input
                         type="number"
                         value={form.formData.basePrice}
@@ -180,10 +177,8 @@ export default function AdminProduct() {
                     )}
                 </div>
 
-                <div className="flex items-center gap-2 w-full">
-                    <label className="font-bold text-black whitespace-nowrap">
-                        Category
-                    </label>
+                <div className="lg:col-span-1">
+                    <label className="block font-bold text-black mb-2">Category</label>
 
                     <select
                         value={form.formData.categoryId}
@@ -207,114 +202,68 @@ export default function AdminProduct() {
                         </p>
                     )}
                 </div>
+
+                {/* Product Images - Enhanced */}
+                <div className="lg:col-span-2">
+                    <div className="flex flex-col md:flex-row items-center gap-4 p-3 border-2 border-black rounded-lg bg-gray-50">
+                        {/* Small Preview Box */}
+                        <div className="relative w-20 h-20 flex-shrink-0 bg-white border-2 border-black rounded-md overflow-hidden">
+                            <img
+                                src={form.formData.thumbnailUrl || 'https://via.placeholder.com/80?text=Empty'}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                    e.currentTarget.src = 'https://via.placeholder.com/80?text=Error';
+                                }}
+                            />
+                        </div>
+
+                        {/* URL Input */}
+                        <div className="flex-1 w-full">
+                            <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
+                                Thumbnail URL
+                            </label>
+                            <input
+                                type="text"
+                                value={form.formData.thumbnailUrl}
+                                onChange={(e) => form.updateField("thumbnailUrl", e.target.value)}
+                                placeholder="https://image-link.com/photo.jpg"
+                                className="w-full px-3 py-2 border-2 border-black rounded-md text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                            />
+                            {form.formErrors.imageUrl && (
+                                <p className="text-red-500 text-[10px] mt-1 flex items-center gap-1 uppercase font-bold">
+                                    <AlertCircle size={12} /> {form.formErrors.imageUrl}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Descriptions */}
-            <div>
-                <label className="block font-bold text-black mb-2">
-                    Short Description
-                </label>
-                <textarea
-                    value={form.formData.shortDescription}
-                    onChange={(e) => form.updateField('shortDescription', e.target.value)}
-                    placeholder="Brief product description"
-                    className={`w-full h-40 px-4 py-2 border-2 border-black rounded-lg focus:ring-2 focus:ring-blue-500 outline-none`}
-                />
-            </div>
-
-            <div>
-                <label className="block font-bold text-black mb-2">
-                    Full Description
-                </label>
-                <textarea
-                    value={form.formData.description}
-                    onChange={(e) => form.updateField('description', e.target.value)}
-                    placeholder="Detailed product description"
-                    className={`w-full h-60 px-4 py-2 border-2 border-black rounded-lg focus:ring-2 focus:ring-blue-500 outline-none`}
-                />
-            </div>
-
-            {/* Product Images - Enhanced */}
-            <div>
-                <label className="block font-bold text-black mb-2">
-                    Product Images
-                </label>
-
-                {/* Image URL Input */}
-                <div className="flex gap-2 mb-3">
-                    <input
-                        type="text"
-                        value={form.formData.thumbnailUrl}
-                        onChange={(e) => form.updateField("thumbnailUrl", e.target.value)}
-                        placeholder="https://example.com/image.jpg"
-                        className="flex-1 px-4 py-2 border-2 border-black rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            <div className="grid grid-cols-2 gap-6">
+                <div>
+                    <label className="block font-bold text-black mb-2">
+                        Short Description
+                    </label>
+                    <textarea
+                        value={form.formData.shortDescription}
+                        onChange={(e) => form.updateField('shortDescription', e.target.value)}
+                        placeholder="Brief product description"
+                        className={`w-full h-60 px-4 py-2 border-2 border-black rounded-lg focus:ring-2 focus:ring-blue-500 outline-none`}
                     />
-                    <button
-                        type="button"
-                        onClick={form.addImageUrl}
-                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-2"
-                    >
-                        <Plus size={18} />
-                        Add Image
-                    </button>
                 </div>
-                <img
-                    src={form.formData.thumbnailUrl}
-                    className="w-32 h-32 object-cover rounded-lg border-2 border-black"
-                    onError={(e) => {
-                        e.currentTarget.src = 'https://via.placeholder.com/96?text=No+Image';
-                    }}
-                />
 
-                {form.formErrors.imageUrl && (
-                    <p className="text-red-500 text-sm mb-3 flex items-center gap-1">
-                        <AlertCircle size={16} /> {form.formErrors.imageUrl}
-                    </p>
-                )}
-
-                {/* Images List */}
-                {allImages.length > 0 && (
-                    <div>
-                        <p className="text-sm font-semibold text-black mb-3">
-                            Added Images ({allImages.length})
-                        </p>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-10 gap-3">
-                            {allImages.map((url, idx) => (
-                                <div key={idx} className="relative group">
-                                    <img
-                                        src={url}
-                                        alt={`Product ${idx + 1}`}
-                                        className="w-32 h-32 object-cover rounded-lg border-2 border-black"
-                                        onError={(e) => {
-                                            e.currentTarget.src = 'https://via.placeholder.com/96?text=No+Image';
-                                        }}
-                                    />
-                                    {/* Image Number Badge */}
-                                    <span className="absolute bottom-1 left-1 bg-black/60 text-white text-xs px-2 py-1 rounded">
-                                        {idx + 1}
-                                    </span>
-
-                                    {/* Delete Button */}
-                                    <button
-                                        type="button"
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            form.removeImageUrl(idx);
-                                        }}
-                                        className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white p-1.5 rounded-full shadow-lg hover:shadow-xl transition transform hover:scale-110 z-10"
-                                        title={`Remove Image ${idx + 1}`}
-                                    >
-                                        <Trash2 size={14} />
-                                    </button>
-
-                                    {/* Hover Overlay */}
-                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-lg transition"></div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
+                <div>
+                    <label className="block font-bold text-black mb-2">
+                        Full Description
+                    </label>
+                    <textarea
+                        value={form.formData.description}
+                        onChange={(e) => form.updateField('description', e.target.value)}
+                        placeholder="Detailed product description"
+                        className={`w-full h-60 px-4 py-2 border-2 border-black rounded-lg focus:ring-2 focus:ring-blue-500 outline-none`}
+                    />
+                </div>
             </div>
 
             {/* Category Filters/Options - FIXED with safe access */}
@@ -366,39 +315,13 @@ export default function AdminProduct() {
                 </div>
             )}
 
-            <div className="p-4">
-                <ToggleSwitch
-                    label="Has Variant?"
-                    checked={hasVariant}
-                    onChange={(value) => {
-                        setHasVariant(value);
-                        console.log("Variant enabled:", value);
-                    }}
-                />
-
-                {hasVariant && (
-                    <div className="mt-4">
-                        <p>Variant options will appear here...</p>
-                    </div>
-                )}
-            </div>
-
-            {/* ── Variants section ──────────────────────────────────────── */}
-            {(mode === "edit" || form.formData.categoryId) && (
-                <ProductVariantsSection
-                    variants={variants.variants}
-                    filters={filters.filters}
-                    isViewMode={false}
-                    productId={id ? Number(id) : null}
-                    onSave={variants.saveVariant}
-                    onDelete={variants.deleteVariant}
-                />
-            )}
-            {mode === "create" && !form.formData.categoryId && (
-                <p className="text-sm text-gray-400 border-2 border-dashed border-gray-300 rounded-xl p-4 text-center">
-                    Save the product first (or select a category) to add variants.
-                </p>
-            )}
+            <ToggleSwitch
+                label="Has Variant?"
+                checked={hasVariant}
+                onChange={(value) => {
+                    setHasVariant(value);
+                }}
+            />
 
             {/* Submit Buttons */}
             <div className="flex justify-end">
@@ -410,6 +333,27 @@ export default function AdminProduct() {
                     {submitting ? 'Saving...' : mode === 'edit' ? 'Update Product' : 'Create Product'}
                 </button>
             </div>
+            
+            {hasVariant && (
+                <div className="mt-4">
+                    {/* ── Variants section ──────────────────────────────────────── */}
+                    {(mode === "edit" || form.formData.categoryId) && (
+                        <ProductVariantsSection
+                            variants={variants.variants}
+                            filters={filters.filters}
+                            isViewMode={false}
+                            productId={id ? Number(id) : null}
+                            onSave={variants.saveVariant}
+                            onDelete={variants.deleteVariant}
+                        />
+                    )}
+                    {mode === "create" && !form.formData.categoryId && (
+                        <p className="text-sm text-gray-400 border-2 border-dashed border-gray-300 rounded-xl p-4 text-center">
+                            Save the product first (or select a category) to add variants.
+                        </p>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

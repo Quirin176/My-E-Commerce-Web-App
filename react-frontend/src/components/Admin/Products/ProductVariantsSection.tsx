@@ -9,7 +9,7 @@ interface Props {
   filters: ProductOption[];
   isViewMode: boolean;
   productId: number | null;
-  onSave:   (form: ProductVariantForm, productId: number) => Promise<boolean>;
+  onSave: (form: ProductVariantForm, productId: number) => Promise<boolean>;
   onDelete: (id: number) => Promise<void>;
 }
 
@@ -24,13 +24,13 @@ export default function ProductVariantsSection({
 
   const startEdit = (v: ProductVariant) =>
     setEditingForm({
-      id:            v.id,
-      variantName:   v.variantName,
-      sku:           v.sku,
-      price:         v.price,
+      id: v.id,
+      variantName: v.variantName,
+      sku: v.sku,
+      price: v.price,
       originalPrice: v.originalPrice,
-      stock:         v.stock,
-      imageUrl:      v.imageUrl ?? "",
+      stock: v.stock,
+      imageUrl: v.imageUrl ?? "",
       optionValueIds: [],
     });
 
@@ -60,7 +60,7 @@ export default function ProductVariantsSection({
   // Stock badge colour
   const stockBadge = (stock: number) => {
     if (stock === 0) return "bg-red-100 text-red-700";
-    if (stock <= 5)  return "bg-yellow-100 text-yellow-700";
+    if (stock <= 5) return "bg-yellow-100 text-yellow-700";
     return "bg-green-100 text-green-700";
   };
 
@@ -161,7 +161,7 @@ export default function ProductVariantsSection({
           {/* Row 1: name + SKU */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">Variant Name *</label>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">Variant Name</label>
               <input
                 value={editingForm.variantName}
                 onChange={e => setField("variantName", e.target.value)}
@@ -170,7 +170,7 @@ export default function ProductVariantsSection({
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">SKU *</label>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">SKU</label>
               <input
                 value={editingForm.sku}
                 onChange={e => setField("sku", e.target.value)}
@@ -183,17 +183,7 @@ export default function ProductVariantsSection({
           {/* Row 2: prices + stock */}
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">Price (₫) *</label>
-              <input
-                type="number"
-                min={0}
-                value={editingForm.price}
-                onChange={e => setField("price", e.target.value)}
-                className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm outline-none focus:border-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">Original Price (₫)</label>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">Original Price</label>
               <input
                 type="number"
                 min={0}
@@ -204,7 +194,17 @@ export default function ProductVariantsSection({
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">Stock *</label>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">Variant Price</label>
+              <input
+                type="number"
+                min={0}
+                value={editingForm.price}
+                onChange={e => setField("price", e.target.value)}
+                className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm outline-none focus:border-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">Stock</label>
               <input
                 type="number"
                 min={0}
@@ -215,46 +215,76 @@ export default function ProductVariantsSection({
             </div>
           </div>
 
-          {/* Image URL */}
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1">Image URL</label>
+          {/* Image URL Input */}
+          <div className="flex gap-2 mb-3">
             <input
-              value={editingForm.imageUrl}
-              onChange={e => setField("imageUrl", e.target.value)}
-              placeholder="https://..."
-              className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm outline-none focus:border-blue-500"
+              type="text"
+              value={form.formData.thumbnailUrl}
+              onChange={(e) => form.updateField("thumbnailUrl", e.target.value)}
+              placeholder="https://example.com/image.jpg"
+              className="flex-1 px-4 py-2 border-2 border-black rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             />
+            <button
+              type="button"
+              onClick={form.addImageUrl}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-2"
+            >
+              <Plus size={18} />
+              Add Image
+            </button>
           </div>
+          <img
+            src={form.formData.thumbnailUrl}
+            className="w-32 h-32 object-cover rounded-lg border-2 border-black"
+            onError={(e) => {
+              e.currentTarget.src = 'https://via.placeholder.com/96?text=No+Image';
+            }}
+          />
 
-          {/* Option values this variant maps to */}
-          {filters.length > 0 && (
+          {form.formErrors.imageUrl && (
+            <p className="text-red-500 text-sm mb-3 flex items-center gap-1">
+              <AlertCircle size={16} /> {form.formErrors.imageUrl}
+            </p>
+          )}
+
+          {/* Images List */}
+          {allImages.length > 0 && (
             <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-2">
-                Option Values for this variant
-              </label>
-              <div className="space-y-2">
-                {filters.map(opt => (
-                  <div key={opt.optionId}>
-                    <p className="text-xs text-gray-500 mb-1">{opt.optionName}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {opt.optionValues.map(ov => {
-                        const selected = editingForm.optionValueIds.includes(ov.id);
-                        return (
-                          <button
-                            key={ov.id}
-                            type="button"
-                            onClick={() => toggleOptionValue(ov.id)}
-                            className={`px-3 py-1 text-xs rounded-full border-2 transition font-medium ${
-                              selected
-                                ? "bg-blue-600 border-blue-600 text-white"
-                                : "bg-white border-gray-300 text-gray-700 hover:border-blue-400"
-                            }`}
-                          >
-                            {ov.value}
-                          </button>
-                        );
-                      })}
-                    </div>
+              <p className="text-sm font-semibold text-black mb-3">
+                Added Images ({allImages.length})
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-10 gap-3">
+                {allImages.map((url, idx) => (
+                  <div key={idx} className="relative group">
+                    <img
+                      src={url}
+                      alt={`Product ${idx + 1}`}
+                      className="w-32 h-32 object-cover rounded-lg border-2 border-black"
+                      onError={(e) => {
+                        e.currentTarget.src = 'https://via.placeholder.com/96?text=No+Image';
+                      }}
+                    />
+                    {/* Image Number Badge */}
+                    <span className="absolute bottom-1 left-1 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                      {idx + 1}
+                    </span>
+
+                    {/* Delete Button */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        form.removeImageUrl(idx);
+                      }}
+                      className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white p-1.5 rounded-full shadow-lg hover:shadow-xl transition transform hover:scale-110 z-10"
+                      title={`Remove Image ${idx + 1}`}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+
+                    {/* Hover Overlay */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-lg transition"></div>
                   </div>
                 ))}
               </div>
