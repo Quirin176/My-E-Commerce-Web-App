@@ -147,54 +147,53 @@ namespace WebApp_API.Services
             // ── Variants + their images ───────────────────────────────────────────
             if (request.HasVariants && request.Variants.Count > 0)
             {
-                var variantEntities = new List<ProductVariant>();
+                var variantEntities = request.Variants.Select(variant => new ProductVariant
+                {
+                    VariantName = variant.VariantName,
+                    SKU = variant.SKU ?? string.Empty,
+                    Price = variant.Price,
+                    OriginalPrice = variant.OriginalPrice,
+                    Stock = variant.Stock,
+                    ProductId = product.Id,
+                }).ToList();
+
+                // Persist variants first so generated IDs can be used by child records
+                await _productVariantRepo.AddRangeAsync(variantEntities);
+                await _productRepo.SaveChangesAsync();
+
                 var variantOptionValues = new List<ProductVariantOptionValue>();
                 var variantImages = new List<ProductImage>();
 
-                foreach (var variant in request.Variants)
+                for (int i = 0; i < request.Variants.Count; i++)
                 {
-                    var variantEntity = new ProductVariant
-                    {
-                        VariantName = variant.VariantName,
-                        SKU = variant.SKU,
-                        Price = variant.Price,
-                        OriginalPrice = variant.OriginalPrice,
-                        Stock = variant.Stock,
-                        ProductId = product.Id,
-                    };
+                    var variant = request.Variants[i];
+                    var variantId = variantEntities[i].Id;
 
-                    variantEntities.Add(variantEntity);
-
-                    // Add option values for this variant
-                    if (variant.OptionValueIds != null && variant.OptionValueIds.Count > 0)
+                    if (variant.OptionValueIds.Count > 0)
                     {
-                        foreach (var optionValueId in variant.OptionValueIds)
-                        {
-                            variantOptionValues.Add(new ProductVariantOptionValue
+                        variantOptionValues.AddRange(
+                            variant.OptionValueIds.Select(optionValueId => new ProductVariantOptionValue
                             {
-                                ProductVariantId = variantEntity.Id,
+                                ProductVariantId = variantId,
                                 ProductOptionValueId = optionValueId
-                            });
-                        }
+                            }));
                     }
 
                     // Add images for this variant
-                    if (variant.ImageUrls != null && variant.ImageUrls.Count > 0)
+                    if (variant.ImageUrls.Count > 0)
                     {
-                        foreach (var img in variant.ImageUrls)
-                        {
-                            variantImages.Add(new ProductImage
-                            {
-                                ImageUrl = img.ImageUrl,
-                                DisplayOrder = img.DisplayOrder,
-                                IsMain = img.IsMain
-                            });
-                        }
+                        variantImages.AddRange(
+                            variant.ImageUrls
+                                .Where(img => !string.IsNullOrWhiteSpace(img.ImageUrl))
+                                .Select(img => new ProductImage
+                                {
+                                    VariantId = variantId,
+                                    ImageUrl = img.ImageUrl!,
+                                    DisplayOrder = img.DisplayOrder,
+                                    IsMain = img.IsMain
+                                }));
                     }
                 }
-
-                // Insert batch
-                await _productVariantRepo.AddRangeAsync(variantEntities);
 
                 if (variantOptionValues.Count > 0)
                     await _productVariantOptionValueRepo.AddRangeAsync(variantOptionValues);
