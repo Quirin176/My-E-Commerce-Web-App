@@ -1,5 +1,21 @@
 import { apiClient } from "../apiClient";
 
+export interface VariantImagePayload {
+  imageUrl: string;
+  displayOrder: number;
+  isMain: boolean;
+}
+
+export interface VariantPayload {
+  variantName: string;
+  sku?: string;
+  price: number;
+  originalPrice: number;
+  stock: number;
+  optionValueIds: number[];
+  imageUrls: VariantImagePayload[];
+}
+
 export interface ProductPayload {
   name?: string;
   slug?: string;
@@ -10,6 +26,8 @@ export interface ProductPayload {
   categoryId?: number;
   selectedOptionValueIds?: number[];
   hasVariants: boolean;
+
+  variants?: VariantPayload[];
 };
 
 export const adminProductsApi = {
@@ -21,11 +39,6 @@ export const adminProductsApi = {
 
   async updateProductById(id: number | string, data: ProductPayload) {
     const res = await apiClient.put(`/products/${id}`, data);
-    return res.data;
-  },
-
-  async updateProductBySlug(slug: string, data: ProductPayload) {
-    const res = await apiClient.put(`/products/${slug}`, data);
     return res.data;
   },
 

@@ -7,15 +7,14 @@ import { useCategories } from "../../../hooks/products/useCategories";
 import { useProductForm } from "../../../hooks/admin/useProductForm";
 import { useProductFilters } from "../../../hooks/products/useProductFilters";
 
-import { adminProductsApi, type ProductPayload } from "../../../api/admin/adminProductsApi";
+import { adminProductsApi, type ProductPayload, type VariantPayload } from "../../../api/admin/adminProductsApi";
 import { productApi } from "../../../api/products/productApi";
-import { productvariantApi, type ProductVariantPayload } from "../../../api/products/productvariantApi";
 
 import ToggleSwitch from "../../../components/ToggleSwitch";
 import ProductVariantsSection, { type VariantRow, type SkuContext, } from "../../../components/Admin/Products/ProductVariantsSection";
 
 export default function AdminProduct() {
-    const Navigation = useNavigate();
+    const navigate = useNavigate();
 
     const { id } = useParams();
     const mode = id ? "edit" : "create";
@@ -95,45 +94,65 @@ export default function AdminProduct() {
         })();
     }, [id]);
 
-    const onSubmit = async () => {
+    // ── Validation ────────────────────────────────────────────────────────────
+    const validate = (): boolean => {
         if (!form.formData.name.trim()) {
             toast.error("Product name is required");
-            return;
+            return false;
         }
         if (!form.formData.slug.trim()) {
             toast.error("Product slug is required");
-            return;
+            return false;
         }
         if (Number(form.formData.basePrice) <= 0) {
             toast.error("Price must be greater than 0");
-            return;
+            return false;
         }
         if (!form.formData.categoryId) {
             toast.error("Category is required");
-            return;
+            return false;
         }
-
-        // Validate variants if enabled
-        if (hasVariant && variantRows.length > 0) {
+        if (hasVariant) {
             for (const row of variantRows) {
                 if (!row.sku.trim()) {
                     toast.error(`SKU is required for variant "${row.label}"`);
-                    return;
+                    return false;
                 }
                 if (Number(row.price) <= 0) {
                     toast.error(`Sale price must be > 0 for variant "${row.label}"`);
-                    return;
+                    return false;
                 }
                 if (Number(row.stock) < 0) {
                     toast.error(`Stock cannot be negative for variant "${row.label}"`);
-                    return;
+                    return false;
                 }
             }
         }
+        return true;
+    };
+
+    // ── Build variant payload from VariantRow[] ───────────────────────────────
+    const buildVariantPayloads = (): VariantPayload[] =>
+        variantRows.map((row) => ({
+            variantName: row.variantName.trim() || row.label,
+            sku: row.sku.trim(),
+            price: Number(row.price),
+            originalPrice: Number(row.originalPrice) || Number(row.price),
+            stock: Number(row.stock),
+            optionValueIds: row.optionValueIds,
+            imageUrls: row.imageUrls.map((img) => ({
+                imageUrl: img.url,
+                displayOrder: img.displayOrder,
+                isMain: img.displayOrder === 0,
+            })),
+        }));
+
+    const onSubmit = async () => {
+        if (!validate()) return;
 
         setSubmitting(true);
         try {
-            const productPayload: ProductPayload = {
+            const payload: ProductPayload = {
                 name: form.formData.name.trim(),
                 slug: form.formData.slug.trim(),
                 shortDescription: form.formData.shortDescription?.trim() ?? "",
@@ -143,40 +162,20 @@ export default function AdminProduct() {
                 categoryId: Number(form.formData.categoryId),
                 selectedOptionValueIds: form.formData.selectedOptionValueIds,
                 hasVariants: hasVariant,
+
+                variants: hasVariant ? buildVariantPayloads() : [],
             };
+console.log(payload);
+            // if (mode === "edit" && id) {
+            //     await adminProductsApi.updateProductById(id, payload);
+            //     toast.success("Product updated!");
+            // } else {
+            //     await adminProductsApi.createProduct(payload);
+            //     toast.success("Product created!");
+            // }
 
-            let productId: number;
-
-            if (mode === "edit" && id) {
-                await adminProductsApi.updateProductById(id, productPayload);
-                productId = Number(id);
-            } else {
-                // create returns the new product or { id }
-                const created = await adminProductsApi.createProduct(productPayload);
-                productId = created?.id ?? created;
-            }
-
-            // ── Save variants if enabled ──────────────────────────────────────────
-            if (hasVariant && variantRows.length > 0 && productId) {
-                for (const row of variantRows) {
-                    const variantPayload: ProductVariantPayload = {
-                        variantName: row.variantName.trim() || row.label,
-                        sku: row.sku.trim(),
-                        price: Number(row.price),
-                        originalPrice: Number(row.originalPrice) || Number(row.price),
-                        stock: Number(row.stock),
-                        productId,
-                        imageUrls: row.imageUrls,
-                        optionValueIds: row.optionValueIds,
-                    }
-
-                    await productvariantApi.createVariant(variantPayload);
-                }
-            }
-
-            toast.success(mode === "edit" ? "Product updated!" : "Product created!");
-            Navigation("/admin/products");
-        } catch (err) {
+            navigate("/admin/products");
+        } catch {
             toast.error("Failed to save product");
         } finally {
             setSubmitting(false);

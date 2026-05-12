@@ -14,7 +14,7 @@ namespace WebApp_API.Repositories
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
         Task AddAsync(ProductImage img);
-        Task AddImagesAsync(IEnumerable<ProductImage> images);
+        Task AddRangeAsync(IEnumerable<ProductImage> images);
         Task UpdateAsync(ProductImage img);
         Task DeleteAsync(ProductImage img);
         Task DeleteImagesAsync(int productId);

@@ -10,11 +10,19 @@ namespace WebApp_API.Services
     {
         private readonly IProductRepository _productRepo;
         private readonly IProductImageRepository _productImageRepo;
+        private readonly IProductVariantRepository _productVariantRepo;
+        private readonly IProductVariantOptionValueRepository _productVariantOptionValueRepo;
 
-        public ProductService(IProductRepository productRepo, IProductImageRepository productImageRepo)
+        public ProductService(
+            IProductRepository productRepo,
+            IProductImageRepository productImageRepo,
+            IProductVariantRepository productVariantRepo,
+            IProductVariantOptionValueRepository productVariantOptionValueRepo)
         {
             _productRepo = productRepo;
             _productImageRepo = productImageRepo;
+            _productVariantRepo = productVariantRepo;
+            _productVariantOptionValueRepo = productVariantOptionValueRepo;
         }
 
         // ──────────────────── Public queries ────────────────────
@@ -124,25 +132,76 @@ namespace WebApp_API.Services
                 BasePrice = request.BasePrice,
                 ThumbnailUrl = request.ThumbnailUrl,
                 CategoryId = request.CategoryId,
+                HasVariants = request.HasVariants,
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                HasVariants = request.HasVariants
+                UpdatedAt = DateTime.UtcNow
             };
 
             await _productRepo.AddAsync(product);
             await _productRepo.SaveChangesAsync();
 
-            // Build image records (deduplicated)
-            // var imageUrls = BuildImageUrlList(request.ImageUrl, request.ImageUrls);
-            // await _productImageRepo.AddImagesAsync(imageUrls.Select((url, i) => new ProductImage
-            // {
-            //     ProductId = product.Id,
-            //     ImageUrl = url,
-            //     DisplayOrder = i
-            // }));
-
+            // ── Option values (filters) ───────────────────────────────────────────
             if (request.SelectedOptionValueIds.Count > 0)
                 await _productRepo.SetOptionValuesAsync(product.Id, request.SelectedOptionValueIds);
+
+            // ── Variants + their images ───────────────────────────────────────────
+            if (request.HasVariants && request.Variants.Count > 0)
+            {
+                var variantEntities = new List<ProductVariant>();
+                var variantOptionValues = new List<ProductVariantOptionValue>();
+                var variantImages = new List<ProductImage>();
+
+                foreach (var variant in request.Variants)
+                {
+                    var variantEntity = new ProductVariant
+                    {
+                        VariantName = variant.VariantName,
+                        SKU = variant.SKU,
+                        Price = variant.Price,
+                        OriginalPrice = variant.OriginalPrice,
+                        Stock = variant.Stock,
+                        ProductId = product.Id,
+                    };
+
+                    variantEntities.Add(variantEntity);
+
+                    // Add option values for this variant
+                    if (variant.OptionValueIds != null && variant.OptionValueIds.Count > 0)
+                    {
+                        foreach (var optionValueId in variant.OptionValueIds)
+                        {
+                            variantOptionValues.Add(new ProductVariantOptionValue
+                            {
+                                ProductVariantId = variantEntity.Id,
+                                ProductOptionValueId = optionValueId
+                            });
+                        }
+                    }
+
+                    // Add images for this variant
+                    if (variant.ImageUrls != null && variant.ImageUrls.Count > 0)
+                    {
+                        foreach (var img in variant.ImageUrls)
+                        {
+                            variantImages.Add(new ProductImage
+                            {
+                                ImageUrl = img.ImageUrl,
+                                DisplayOrder = img.DisplayOrder,
+                                IsMain = img.IsMain
+                            });
+                        }
+                    }
+                }
+
+                // Insert batch
+                await _productVariantRepo.AddRangeAsync(variantEntities);
+
+                if (variantOptionValues.Count > 0)
+                    await _productVariantOptionValueRepo.AddRangeAsync(variantOptionValues);
+
+                if (variantImages.Count > 0)
+                    await _productImageRepo.AddRangeAsync(variantImages);
+            }
 
             await _productRepo.SaveChangesAsync();
         }
@@ -281,13 +340,5 @@ namespace WebApp_API.Services
                        Value = v.Value
                    }).ToList()
                }).ToList();
-
-        private static List<string> BuildImageUrlList(string? imageUrl, List<string> imageUrls)
-        {
-            var all = new List<string>();
-            if (!string.IsNullOrWhiteSpace(imageUrl)) all.Add(imageUrl);
-            all.AddRange(imageUrls.Where(u => !string.IsNullOrWhiteSpace(u)));
-            return all.Distinct().ToList();
-        }
     }
 }

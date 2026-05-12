@@ -50,6 +50,12 @@ namespace WebApp_API.Repositories
             return variant;
         }
 
+        public async Task AddRangeAsync(IEnumerable<ProductVariant> variants)
+        {
+            _db.ProductVariants.AddRange(variants);
+            await _db.SaveChangesAsync();
+        }
+
         public async Task<ProductVariant> UpdateAsync(ProductVariant variant)
         {
             _db.ProductVariants.Update(variant);

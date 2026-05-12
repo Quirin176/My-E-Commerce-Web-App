@@ -3,6 +3,24 @@ namespace WebApp_API.DTOs
     public class ProductDTOs
     {
         // ────────────────────────────────────────────────── Requests ──────────────────────────────────────────────────
+        public class ProductImageDTO
+        {
+            public string? ImageUrl { get; set; }
+            public int DisplayOrder { get; set; }
+            public bool IsMain { get; set; }
+        }
+
+        public class ProductVariantDTO
+        {
+            public required string VariantName { get; set; }
+            public string? SKU { get; set; }
+            public decimal Price { get; set; }
+            public decimal OriginalPrice { get; set; }
+            public int Stock { get; set; }
+            public required int ProductId { get; set; }
+            public List<ProductImageDTO> ImageUrls { get; set; } = new();
+            public List<int> OptionValueIds { get; set; } = new();
+        }
 
         public class CreateProductRequest
         {
@@ -15,6 +33,8 @@ namespace WebApp_API.DTOs
             public required int CategoryId { get; set; }
             public List<int> SelectedOptionValueIds { get; set; } = new();
             public bool HasVariants { get; set; }
+
+            public List<ProductVariantDTO> Variants { get; set; } = new();
         }
 
         public class UpdateProductRequest
