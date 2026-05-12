@@ -165,14 +165,14 @@ export default function AdminProduct() {
 
                 variants: hasVariant ? buildVariantPayloads() : [],
             };
-console.log(payload);
-            // if (mode === "edit" && id) {
-            //     await adminProductsApi.updateProductById(id, payload);
-            //     toast.success("Product updated!");
-            // } else {
-            //     await adminProductsApi.createProduct(payload);
-            //     toast.success("Product created!");
-            // }
+// console.log(payload);
+            if (mode === "edit" && id) {
+                await adminProductsApi.updateProductById(id, payload);
+                toast.success("Product updated!");
+            } else {
+                await adminProductsApi.createProduct(payload);
+                toast.success("Product created!");
+            }
 
             navigate("/admin/products");
         } catch {
@@ -183,7 +183,7 @@ console.log(payload);
     };
 
     return (
-        <div className="w- full p-6 space-y-6 overflow-y-auto">
+        <div className="w-full p-6 space-y-6 overflow-y-auto">
 
             <h2 className="text-2xl font-bold text-black">
                 {mode === "edit" ? 'Edit Product' : 'Add New Product'}
@@ -257,7 +257,6 @@ console.log(payload);
                             form.updateField('categoryId', categoryId);
                             form.updateField("selectedOptionValueIds", []);
                             filters.loadFilters(categoryId);
-                            console.log(categoryId);
                         }}
                         className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${form.formErrors.categoryId ? 'border-red-500' : 'border-black'}`}
                     >

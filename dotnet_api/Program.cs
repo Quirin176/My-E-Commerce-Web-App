@@ -93,7 +93,7 @@ builder.Services.AddScoped<IProductService, ProductService>();
 
 builder.Services.AddScoped<IProductVariantOptionValueRepository, ProductVariantOptionValueRepository>();
 builder.Services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
-builder.Services.AddScoped<IProductVariantService, ProductVariantService>();
+// builder.Services.AddScoped<IProductVariantService, ProductVariantService>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();

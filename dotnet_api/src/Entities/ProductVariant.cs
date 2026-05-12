@@ -7,7 +7,7 @@ namespace WebApp_API.Entities
     {
         [Key] public int Id { get; set; }
         public string VariantName { get; set; } = string.Empty;
-        [Required, MaxLength(100)] public string? SKU { get; set; }
+        [Required, MaxLength(100)] public string SKU { get; set; } = string.Empty;
         [Column(TypeName = "decimal(18,2)")] public decimal Price { get; set; }
         [Column(TypeName = "decimal(18,2)")] public decimal OriginalPrice { get; set; }
         public int Stock { get; set; }

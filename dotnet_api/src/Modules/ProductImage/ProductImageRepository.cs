@@ -56,7 +56,7 @@ namespace WebApp_API.Repositories
             await _db.ProductImages.AddAsync(img);
         }
 
-        public async Task AddImagesAsync(IEnumerable<ProductImage> images)
+        public async Task AddRangeAsync(IEnumerable<ProductImage> images)
         {
             await _db.ProductImages.AddRangeAsync(images);
         }
