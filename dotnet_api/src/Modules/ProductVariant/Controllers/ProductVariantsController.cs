@@ -36,6 +36,7 @@ namespace WebApp_API.Controllers
             return Ok(await _service.GetByProductIdAsync(productId));
         }
 
+        // POST /api/productvariants
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ProductVariantDTOs.CreateProductVariantRequest request)
         {
@@ -50,8 +51,8 @@ namespace WebApp_API.Controllers
  
             try
             {
-                var created = await _service.CreateAsync(request);
-                return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+                await _service.CreateAsync(request);
+                return Ok(new { message = "Product Variants Created" });
             }
             catch (Exception ex)
             {

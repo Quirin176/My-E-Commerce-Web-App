@@ -1,30 +1,30 @@
 import { apiClient } from "../apiClient";
 
-export interface UpdatedProductPayload {
+export interface ProductPayload {
   name?: string;
   slug?: string;
   shortDescription?: string;
   description?: string;
-  price?: number;
-  imgUrl?: string;
-  imgUrls?: string[];
+  basePrice?: number;
+  thumbnailUrl?: string;
   categoryId?: number;
-  options?: { optionId: number; valueId: number }[];
+  selectedOptionValueIds?: number[];
+  hasVariants: boolean;
 };
 
 export const adminProductsApi = {
 
-  async createProduct(data: UpdatedProductPayload) {
+  async createProduct(data: ProductPayload) {
     const res = await apiClient.post("/products", data);
     return res.data;
   },
 
-  async updateProductById(id: number | string, data: UpdatedProductPayload) {
+  async updateProductById(id: number | string, data: ProductPayload) {
     const res = await apiClient.put(`/products/${id}`, data);
     return res.data;
   },
 
-  async updateProductBySlug(slug: string, data: UpdatedProductPayload) {
+  async updateProductBySlug(slug: string, data: ProductPayload) {
     const res = await apiClient.put(`/products/${slug}`, data);
     return res.data;
   },

@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { AlertCircle, Plus, Trash2 } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { useCategories } from "../../../hooks/products/useCategories";
 import { useProductForm } from "../../../hooks/admin/useProductForm";
 import { useProductFilters } from "../../../hooks/products/useProductFilters";
-import { useProductVariants } from "../../../hooks/admin/useProductVariants";
 
-import { adminProductsApi } from "../../../api/admin/adminProductsApi";
+import { adminProductsApi, type ProductPayload } from "../../../api/admin/adminProductsApi";
 import { productApi } from "../../../api/products/productApi";
+import { productvariantApi, type ProductVariantPayload } from "../../../api/products/productvariantApi";
 
 import ToggleSwitch from "../../../components/ToggleSwitch";
-import ProductVariantsSection from "../../../components/Admin/Products/ProductVariantsSection";
+import ProductVariantsSection, { type VariantRow, type SkuContext, } from "../../../components/Admin/Products/ProductVariantsSection";
 
 export default function AdminProduct() {
     const Navigation = useNavigate();
@@ -21,6 +21,7 @@ export default function AdminProduct() {
     const mode = id ? "edit" : "create";
 
     const [hasVariant, setHasVariant] = useState(false);
+    const [variantRows, setVariantRows] = useState<VariantRow[]>([]);
 
     const [submitting, setSubmitting] = useState<boolean>(false);
 
@@ -28,9 +29,14 @@ export default function AdminProduct() {
 
     const form = useProductForm();
     const filters = useProductFilters();
-    const variants = useProductVariants(id ? Number(id) : null);
 
     const selectedIds = form.formData.selectedOptionValueIds ?? [];
+
+    const skuContext: SkuContext = {
+        categoryName:
+            categories.find((c) => c.id === Number(form.formData.categoryId))?.name ?? "",
+        productName: form.formData.name,
+    };
 
     useEffect(() => {
         if (mode === "create") return;
@@ -38,8 +44,7 @@ export default function AdminProduct() {
             try {
                 const product = await productApi.getProductById(Number(id));
 
-                // Populate every form field explicitly
-                form.setFormData(prev => ({
+                form.setFormData((prev) => ({
                     ...prev,
                     id: product.id ?? "",
                     name: product.name ?? "",
@@ -48,35 +53,42 @@ export default function AdminProduct() {
                     categoryId: product.categoryId ?? "",
                     shortDescription: product.shortDescription ?? "",
                     description: product.description ?? "",
-                    thumbnailUrl: product.thumbnailUrl,
-                    images: product.images?.length ? product.images : product.imageUrl ? [product.imageUrl] : [],
+                    thumbnailUrl: product.thumbnailUrl ?? "",
+                    images: product.images?.length
+                        ? product.images
+                        : product.imageUrl
+                            ? [product.imageUrl]
+                            : [],
                     selectedOptionValueIds: [],
                 }));
 
-                // Load filters for the category, then map selected option-value IDs
                 if (product.categoryId) {
                     const loadedFilters = await filters.loadFilters(Number(product.categoryId));
 
-                    // Build a value-string → filter-id map so we can pre-tick checkboxes
                     const valueMap = new Map<string, number>();
-                    loadedFilters.forEach(opt =>
-                        opt.optionValues.forEach(v => valueMap.set(v.value, v.id))
+                    loadedFilters.forEach((opt: any) =>
+                        opt.optionValues.forEach((v: any) => valueMap.set(v.value, v.id))
                     );
 
-                    const selectedIds: number[] = [];
+                    const preSelectedIds: number[] = [];
                     (product.options ?? []).forEach((opt: any) => {
                         if (!("optionValues" in opt)) return;
                         opt.optionValues.forEach((ov: { value: string }) => {
                             const fid = valueMap.get(ov.value);
-                            if (fid !== undefined) selectedIds.push(fid);
+                            if (fid !== undefined) preSelectedIds.push(fid);
                         });
                     });
 
-                    form.setFormData(prev => ({ ...prev, selectedOptionValueIds: selectedIds }));
+                    form.setFormData((prev) => ({
+                        ...prev,
+                        selectedOptionValueIds: preSelectedIds,
+                    }));
                 }
 
-                // Load variants
-                variants.fetchVariants(Number(id));
+                // Check if product has variants
+                if (product.hasVariants) {
+                    setHasVariant(true);
+                }
             } catch {
                 toast.error("Failed to load product");
             }
@@ -84,26 +96,85 @@ export default function AdminProduct() {
     }, [id]);
 
     const onSubmit = async () => {
+        if (!form.formData.name.trim()) {
+            toast.error("Product name is required");
+            return;
+        }
+        if (!form.formData.slug.trim()) {
+            toast.error("Product slug is required");
+            return;
+        }
+        if (Number(form.formData.basePrice) <= 0) {
+            toast.error("Price must be greater than 0");
+            return;
+        }
+        if (!form.formData.categoryId) {
+            toast.error("Category is required");
+            return;
+        }
+
+        // Validate variants if enabled
+        if (hasVariant && variantRows.length > 0) {
+            for (const row of variantRows) {
+                if (!row.sku.trim()) {
+                    toast.error(`SKU is required for variant "${row.label}"`);
+                    return;
+                }
+                if (Number(row.price) <= 0) {
+                    toast.error(`Sale price must be > 0 for variant "${row.label}"`);
+                    return;
+                }
+                if (Number(row.stock) < 0) {
+                    toast.error(`Stock cannot be negative for variant "${row.label}"`);
+                    return;
+                }
+            }
+        }
+
         setSubmitting(true);
         try {
-            const payload = {
+            const productPayload: ProductPayload = {
                 name: form.formData.name.trim(),
                 slug: form.formData.slug.trim(),
-                shortDescription: form.formData.shortDescription.trim(),
-                description: form.formData.description.trim(),
-                price: parseFloat(String(form.formData.basePrice)),
-                imageUrl: form.formData.images[0] ?? "",
-                imageUrls: form.formData.images,
+                shortDescription: form.formData.shortDescription?.trim() ?? "",
+                description: form.formData.description?.trim() ?? "",
+                basePrice: parseFloat(String(form.formData.basePrice)),
+                thumbnailUrl: form.formData.thumbnailUrl ?? "",
                 categoryId: Number(form.formData.categoryId),
                 selectedOptionValueIds: form.formData.selectedOptionValueIds,
+                hasVariants: hasVariant,
             };
 
+            let productId: number;
+
             if (mode === "edit" && id) {
-                await adminProductsApi.updateProductById(id, payload);
+                await adminProductsApi.updateProductById(id, productPayload);
+                productId = Number(id);
             } else {
-                await adminProductsApi.createProduct(payload);
+                // create returns the new product or { id }
+                const created = await adminProductsApi.createProduct(productPayload);
+                productId = created?.id ?? created;
             }
 
+            // ── Save variants if enabled ──────────────────────────────────────────
+            if (hasVariant && variantRows.length > 0 && productId) {
+                for (const row of variantRows) {
+                    const variantPayload: ProductVariantPayload = {
+                        variantName: row.variantName.trim() || row.label,
+                        sku: row.sku.trim(),
+                        price: Number(row.price),
+                        originalPrice: Number(row.originalPrice) || Number(row.price),
+                        stock: Number(row.stock),
+                        productId,
+                        imageUrls: row.imageUrls,
+                        optionValueIds: row.optionValueIds,
+                    }
+
+                    await productvariantApi.createVariant(variantPayload);
+                }
+            }
+
+            toast.success(mode === "edit" ? "Product updated!" : "Product created!");
             Navigation("/admin/products");
         } catch (err) {
             toast.error("Failed to save product");
@@ -207,7 +278,7 @@ export default function AdminProduct() {
                 <div className="lg:col-span-2">
                     <div className="flex flex-col md:flex-row items-center gap-4 p-3 border-2 border-black rounded-lg bg-gray-50">
                         {/* Small Preview Box */}
-                        <div className="relative w-20 h-20 flex-shrink-0 bg-white border-2 border-black rounded-md overflow-hidden">
+                        <div className="relative w-20 h-20 shrink-0 bg-white border-2 border-black rounded-md overflow-hidden">
                             <img
                                 src={form.formData.thumbnailUrl || 'https://via.placeholder.com/80?text=Empty'}
                                 className="w-full h-full object-cover"
@@ -333,18 +404,17 @@ export default function AdminProduct() {
                     {submitting ? 'Saving...' : mode === 'edit' ? 'Update Product' : 'Create Product'}
                 </button>
             </div>
-            
+
             {hasVariant && (
                 <div className="mt-4">
                     {/* ── Variants section ──────────────────────────────────────── */}
                     {(mode === "edit" || form.formData.categoryId) && (
                         <ProductVariantsSection
-                            variants={variants.variants}
                             filters={filters.filters}
+                            selectedOptionValueIds={selectedIds}
                             isViewMode={false}
-                            productId={id ? Number(id) : null}
-                            onSave={variants.saveVariant}
-                            onDelete={variants.deleteVariant}
+                            onChange={setVariantRows}
+                            skuContext={skuContext}
                         />
                     )}
                     {mode === "create" && !form.formData.categoryId && (

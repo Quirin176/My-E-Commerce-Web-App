@@ -1,19 +1,16 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using WebApp_API.Data;
 using WebApp_API.DTOs;
-using WebApp_API.Entities;
 using WebApp_API.Services;
 
 namespace WebApp_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductOptionValueController : ControllerBase // API Endpoint: /api/productoptionvalues
+    public class ProductOptionValuesController : ControllerBase // API Endpoint: /api/productoptionvalues
     {
         private readonly IProductOptionValueService _service;
-        public ProductOptionValueController(IProductOptionValueService service) => _service = service;
+        public ProductOptionValuesController(IProductOptionValueService service) => _service = service;
 
         // POST: api/productoptionvalues/optionvalues - Add a new value to an existing ProductOption
         [HttpPost("optionvalues")]

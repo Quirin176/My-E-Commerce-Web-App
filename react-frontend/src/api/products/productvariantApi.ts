@@ -6,8 +6,9 @@ export interface ProductVariantPayload {
   price: number;
   originalPrice: number;
   stock: number;
-  imageUrl?: string;
   productId: number | string;
+  imageUrls?: { url: string, displayOrder: number }[];
+  optionValueIds: number[];
 }
 
 export interface ProductVariantOptionValuePayload {
@@ -36,7 +37,7 @@ export const productvariantApi = {
 
   // ── Write Operations ──────────────────────────────────────────────────────
 
-  async create(data: ProductVariantPayload) {
+  async createVariant(data: ProductVariantPayload) {
     const res = await apiClient.post("/productvariants", data);
     return res.data;
   },

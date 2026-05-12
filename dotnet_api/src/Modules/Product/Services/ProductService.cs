@@ -99,7 +99,6 @@ namespace WebApp_API.Services
         }
 
         // ──────────────────── Write operations ────────────────────
-
         public async Task CreateAsync(ProductDTOs.CreateProductRequest request)
         {
             if (!await _productRepo.CategoryExistsAsync(request.CategoryId))

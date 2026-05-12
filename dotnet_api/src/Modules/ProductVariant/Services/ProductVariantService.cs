@@ -38,7 +38,7 @@ namespace WebApp_API.Services
         }
 
         // ──────────────────── Write operations ────────────────────
-        public async Task<ProductVariantDTOs.ProductVariantResponse> CreateAsync(ProductVariantDTOs.CreateProductVariantRequest request)
+        public async Task CreateAsync(ProductVariantDTOs.CreateProductVariantRequest request)
         {
             var variant = new ProductVariant
             {
@@ -47,6 +47,7 @@ namespace WebApp_API.Services
                 Price = request.Price,
                 OriginalPrice = request.OriginalPrice,
                 Stock = request.Stock,
+                ImageUrl = request.ImageUrls[0].ImageUrl,
                 ProductId = request.ProductId,
             };
 
@@ -55,21 +56,19 @@ namespace WebApp_API.Services
             // Attach images if provided
             if (request.ImageUrls.Count > 0)
             {
-                var images = request.ImageUrls
-                    .Select((url, i) => new ProductImage
-                    {
-                        VariantId = variant.Id,
-                        ImageUrl = url,
-                        DisplayOrder = i,
-                        IsMain = i == 0         // first image is the main one
-                    })
+                var images = request.ImageUrls.Select((image, index) => new ProductImage
+                {
+                    VariantId = variant.Id,
+                    ImageUrl = image.ImageUrl,
+                    DisplayOrder = image.DisplayOrder,
+                    IsMain = image.IsMain
+                })
                     .ToList();
 
                 await _productImageRepo.AddImagesAsync(images);
                 await _productImageRepo.SaveChangesAsync();
             }
 
-            // Link option values (Size=L, Color=Red, …) if provided
             if (request.OptionValueIds.Count > 0)
             {
                 var links = request.OptionValueIds
@@ -81,10 +80,6 @@ namespace WebApp_API.Services
 
                 await _productVariantOptionValueRepo.AddRangeAsync(links);
             }
-
-            // Re-fetch with all includes so the response is fully populated
-            var created = await _productVariantRepo.GetByIdAsync(variant.Id);
-            return MapToResponse(created!);
         }
 
         public async Task<ProductVariantDTOs.ProductVariantResponse?> UpdateAsync(
@@ -132,7 +127,7 @@ namespace WebApp_API.Services
             if (request.OptionValueIds is not null)
             {
                 await _productVariantOptionValueRepo.DeleteByVariantIdAsync(id);
- 
+
                 if (request.OptionValueIds.Count > 0)
                 {
                     var links = request.OptionValueIds
@@ -141,7 +136,7 @@ namespace WebApp_API.Services
                             ProductVariantId = id,
                             ProductOptionValueId = ovId
                         });
- 
+
                     await _productVariantOptionValueRepo.AddRangeAsync(links);
                 }
             }
