@@ -48,6 +48,7 @@ namespace WebApp_API.DTOs
             public int? CategoryId { get; set; }
             public List<int> SelectedOptionValueIds { get; set; } = new();
             public bool HasVariants { get; set; }
+            public List<ProductVariantDTO> Variants { get; set; } = new();
         }
 
         // ────────────────────────────────────────────────── Responses ──────────────────────────────────────────────────

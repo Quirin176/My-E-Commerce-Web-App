@@ -20,14 +20,8 @@ namespace WebApp_API.Services
         Task<PaginatedResponse<ProductDTOs.ProductPaginatedResponse>> GetPaginatedAsync(ProductFilterSpec spec);
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
-
-        // Returns the created product ID or throws on validation failure
         Task CreateAsync(ProductDTOs.CreateProductRequest request);
-
-        // Returns the updated product or null if not found
         Task<bool> UpdateAsync(int id, ProductDTOs.UpdateProductRequest request);
-
-        // Returns false if product not found
         Task<bool> DeleteAsync(int id);
     }
 }

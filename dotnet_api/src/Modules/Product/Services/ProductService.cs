@@ -9,20 +9,10 @@ namespace WebApp_API.Services
     public class ProductService : IProductService
     {
         private readonly IProductRepository _productRepo;
-        private readonly IProductImageRepository _productImageRepo;
-        private readonly IProductVariantRepository _productVariantRepo;
-        private readonly IProductVariantOptionValueRepository _productVariantOptionValueRepo;
 
-        public ProductService(
-            IProductRepository productRepo,
-            IProductImageRepository productImageRepo,
-            IProductVariantRepository productVariantRepo,
-            IProductVariantOptionValueRepository productVariantOptionValueRepo)
+        public ProductService( IProductRepository productRepo)
         {
             _productRepo = productRepo;
-            _productImageRepo = productImageRepo;
-            _productVariantRepo = productVariantRepo;
-            _productVariantOptionValueRepo = productVariantOptionValueRepo;
         }
 
         // ──────────────────── Public queries ────────────────────
@@ -144,64 +134,6 @@ namespace WebApp_API.Services
             if (request.SelectedOptionValueIds.Count > 0)
                 await _productRepo.SetOptionValuesAsync(product.Id, request.SelectedOptionValueIds);
 
-            // ── Variants + their images ───────────────────────────────────────────
-            if (request.HasVariants && request.Variants.Count > 0)
-            {
-                var variantEntities = request.Variants.Select(variant => new ProductVariant
-                {
-                    VariantName = variant.VariantName,
-                    SKU = variant.SKU ?? string.Empty,
-                    Price = variant.Price,
-                    OriginalPrice = variant.OriginalPrice,
-                    Stock = variant.Stock,
-                    ProductId = product.Id,
-                }).ToList();
-
-                // Persist variants first so generated IDs can be used by child records
-                await _productVariantRepo.AddRangeAsync(variantEntities);
-                await _productRepo.SaveChangesAsync();
-
-                var variantOptionValues = new List<ProductVariantOptionValue>();
-                var variantImages = new List<ProductImage>();
-
-                for (int i = 0; i < request.Variants.Count; i++)
-                {
-                    var variant = request.Variants[i];
-                    var variantId = variantEntities[i].Id;
-
-                    if (variant.OptionValueIds.Count > 0)
-                    {
-                        variantOptionValues.AddRange(
-                            variant.OptionValueIds.Select(optionValueId => new ProductVariantOptionValue
-                            {
-                                ProductVariantId = variantId,
-                                ProductOptionValueId = optionValueId
-                            }));
-                    }
-
-                    // Add images for this variant
-                    if (variant.ImageUrls.Count > 0)
-                    {
-                        variantImages.AddRange(
-                            variant.ImageUrls
-                                .Where(img => !string.IsNullOrWhiteSpace(img.ImageUrl))
-                                .Select(img => new ProductImage
-                                {
-                                    VariantId = variantId,
-                                    ImageUrl = img.ImageUrl!,
-                                    DisplayOrder = img.DisplayOrder,
-                                    IsMain = img.IsMain
-                                }));
-                    }
-                }
-
-                if (variantOptionValues.Count > 0)
-                    await _productVariantOptionValueRepo.AddRangeAsync(variantOptionValues);
-
-                if (variantImages.Count > 0)
-                    await _productImageRepo.AddRangeAsync(variantImages);
-            }
-
             await _productRepo.SaveChangesAsync();
         }
 
@@ -217,22 +149,11 @@ namespace WebApp_API.Services
             if (request.BasePrice.HasValue && request.BasePrice > 0) product.BasePrice = request.BasePrice.Value;
             if (!string.IsNullOrWhiteSpace(request.ThumbnailUrl)) product.ThumbnailUrl = request.ThumbnailUrl;
             if (request.CategoryId.HasValue) product.CategoryId = request.CategoryId.Value;
+            product.HasVariants = request.HasVariants;
             product.UpdatedAt = DateTime.UtcNow;
 
             _productRepo.Update(product);
             await _productRepo.SaveChangesAsync();
-
-            // if (request.ImageUrls.Count > 0)
-            // {
-            //     await _productImageRepo.DeleteImagesAsync(id);
-            //     var urls = BuildImageUrlList(request.ImageUrl, request.ImageUrls);
-            //     await _productImageRepo.AddImagesAsync(urls.Select((url, i) => new ProductImage
-            //     {
-            //         ProductId = id,
-            //         ImageUrl = url,
-            //         DisplayOrder = i
-            //     }));
-            // }
 
             if (request.SelectedOptionValueIds is not null)
                 await _productRepo.SetOptionValuesAsync(id, request.SelectedOptionValueIds);
@@ -254,7 +175,6 @@ namespace WebApp_API.Services
         // ──────────────────── Mapping helpers ────────────────────
         private async Task<ProductDTOs.ProductDetailResponse> MapToDetailAsync(Product product)
         {
-            var images = await _productImageRepo.GetImageUrlsByProductAsync(product.Id);
             var rawOpts = await _productRepo.GetOptionsRawAsync(product.Id);
 
             return new ProductDTOs.ProductDetailResponse
@@ -268,7 +188,6 @@ namespace WebApp_API.Services
                 ThumbnailUrl = product.ThumbnailUrl,
                 CategoryId = product.CategoryId,
                 Category = MapCategory(product.Category),
-                Images = images,
                 Options = GroupOptions(rawOpts)
             };
         }

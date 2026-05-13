@@ -1,21 +1,5 @@
 import { apiClient } from "../apiClient";
 
-export interface ProductVariantPayload {
-  variantName: string;
-  sku: string;
-  price: number;
-  originalPrice: number;
-  stock: number;
-  productId: number | string;
-  imageUrls?: { url: string, displayOrder: number }[];
-  optionValueIds: number[];
-}
-
-export interface ProductVariantOptionValuePayload {
-  productVariantId: number;
-  productOptionValueId: number;
-}
-
 export const productvariantApi = {
 
   // ── Queries ──────────────────────────────────────────────────────────────
@@ -32,23 +16,6 @@ export const productvariantApi = {
 
   async getByProductId(productId: number | string) {
     const res = await apiClient.get(`/productvariants/product/${productId}`);
-    return res.data;
-  },
-
-  // ── Write Operations ──────────────────────────────────────────────────────
-
-  async createVariant(data: ProductVariantPayload) {
-    const res = await apiClient.post("/productvariants", data);
-    return res.data;
-  },
-
-  async update(id: number | string, data: ProductVariantPayload) {
-    const res = await apiClient.put(`/productvariants/${id}`, { ...data, id });
-    return res.data;
-  },
-
-  async delete(id: number | string) {
-    const res = await apiClient.delete(`/productvariants/${id}`);
     return res.data;
   },
 

@@ -72,5 +72,17 @@ namespace WebApp_API.Repositories
             await _db.SaveChangesAsync();
             return true;
         }
+
+        public async Task DeleteByProductIdAsync(int productId)
+        {
+            var variants = await _db.ProductVariants
+                .Where(v => v.ProductId == productId)
+                .ToListAsync();
+
+            if (variants.Count == 0) return;
+
+            _db.ProductVariants.RemoveRange(variants);
+            await _db.SaveChangesAsync();
+        }
     }
 }

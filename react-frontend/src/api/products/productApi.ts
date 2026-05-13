@@ -91,7 +91,7 @@ export const productApi = {
   async search(query: string, page = 1, pageSize = 10, filters: SearchFilters) {
     try {
       const params = {
-        q: query,
+        queryPhrase: query,
         page: page,
         pageSize: pageSize,
         minPrice: filters.minPrice,
