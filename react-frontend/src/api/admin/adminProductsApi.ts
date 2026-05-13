@@ -55,20 +55,20 @@ export const adminProductsApi = {
     return res.data;
   },
 
-  async createVariants(id: number, data: ProductVariantPayload[]) {
-    const res = await apiClient.post(`/productvariants/product/${id}`, data);
+  async createVariants(productId: number | string, data: ProductVariantPayload[]) {
+    const res = await apiClient.post(`/productvariants/product/${productId}`, data);
     return res.data;
   },
 
-  async updateVariant(id: number | string, data: ProductVariantPayload) {
-    const res = await apiClient.put(`/productvariants/${id}`, { ...data, id });
+  async updateVariant(variantId: number | string, data: Partial<ProductVariantPayload>) {
+    const res = await apiClient.put(`/productvariants/${variantId}`, data);
     return res.data;
   },
 
-  async updateVariants(id: number | string, data: ProductVariantPayload[]) {
-    const res = await apiClient.put(`/productvariants/${id}`, { ...data, id });
-    return res.data;
-  },
+  // async updateVariants(productId: number | string, data: ProductVariantPayload[]) {
+  //   const res = await apiClient.post(`/productvariants/${productId}`, data);
+  //   return res.data;
+  // },
 
   async delete(id: number | string) {
     const res = await apiClient.delete(`/productvariants/${id}`);

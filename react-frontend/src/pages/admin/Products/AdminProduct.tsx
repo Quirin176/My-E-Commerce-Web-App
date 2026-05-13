@@ -209,16 +209,10 @@ export default function AdminProduct() {
 
         setSubmitting(true);
         try {
-            variants: hasVariant ? buildVariantPayloads() : [],
+            const variants = buildVariantPayloads();
 
-            // console.log(payload);
-            if (mode === "edit" && id) {
-                await adminProductsApi.updateVariants(id, variants);
-                toast.success("Product updated!");
-            } else {
-                await adminProductsApi.createVariants(variants);
-                toast.success("Product created!");
-            }
+            await adminProductsApi.createVariants(id, variants);
+            toast.success("Product created!");
 
             navigate("/admin/products");
         } catch {
@@ -462,11 +456,12 @@ export default function AdminProduct() {
                     <TabPanel value={value} index={2}>
                         <div className="space-y-6">
                             {/* ── Variants section ──────────────────────────────────────── */}
-                            {(mode === "edit" || form.formData.categoryId) && (
+                            {(mode === "edit" && id || form.formData.categoryId) && (
                                 <ProductVariantsSection
+                                    productId={id}
                                     filters={filters.filters}
                                     selectedOptionValueIds={selectedIds}
-                                    isViewMode={false}
+                                    mode={mode}
                                     onChange={setVariantRows}
                                     skuContext={skuContext}
                                 />
@@ -478,15 +473,17 @@ export default function AdminProduct() {
                             )}
 
                             {/* Create New Product Buttons */}
-                            <div className="flex justify-end">
-                                <button
-                                    onClick={onSubmittingVariants}
-                                    disabled={submitting}
-                                    className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    {submitting ? 'Saving...' : mode === 'edit' ? 'Update Product' : 'Create Product'}
-                                </button>
-                            </div>
+                            {mode === "create" && (
+                                <div className="flex justify-end">
+                                    <button
+                                        onClick={onSubmittingVariants}
+                                        disabled={submitting}
+                                        className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {submitting ? 'Saving...' : 'Create Product'}
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </TabPanel>
                 )}

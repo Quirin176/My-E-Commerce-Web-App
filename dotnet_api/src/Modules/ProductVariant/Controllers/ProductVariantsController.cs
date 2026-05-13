@@ -29,7 +29,7 @@ namespace WebApp_API.Controllers
             return Ok(await _service.GetAllAsync());
         }
 
-        // GET /api/productvariants/product/productId:{productId}
+        // GET /api/productvariants/product/{productId}
         [HttpGet("product/{productId:int}")]
         public async Task<IActionResult> GetByProduct(int productId)
         {
@@ -38,6 +38,7 @@ namespace WebApp_API.Controllers
 
         // POST /api/productvariants
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] ProductVariantDTOs.CreateProductVariantRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.VariantName))
@@ -60,13 +61,22 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // POST /api/productvariants/product/productId:{productId}
+        // POST /api/productvariants/product/{productId}
         [HttpPost("product/{productId:int}")]
-        public async Task<IActionResult> CreateVariants([FromBody] IEnumerable<ProductVariantDTOs.CreateProductVariantRequest> request)
+        public async Task<IActionResult> CreateVariants(int productId, [FromBody] IEnumerable<ProductVariantDTOs.CreateProductVariantRequest> requests)
         {
+            if (requests == null || !requests.Any())
+                return BadRequest(new { message = "At least one variant is required" });
+
+            var stamped = requests.Select(r =>
+            {
+                r.ProductId = productId;
+                return r;
+            });
+
             try
             {
-                await _service.CreateVariantsAsync(request);
+                await _service.CreateVariantsAsync(stamped);
                 return Ok(new { message = "Product Variants Created" });
             }
             catch (Exception ex)
@@ -75,7 +85,9 @@ namespace WebApp_API.Controllers
             }
         }
 
+        // PUT /api/productvariants/{id}  — update a single variant
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] ProductVariantDTOs.UpdateProductVariantRequest request)
         {
             try
@@ -89,7 +101,9 @@ namespace WebApp_API.Controllers
             }
         }
 
+        // DELETE /api/productvariants/{id}
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var success = await _service.DeleteAsync(id);

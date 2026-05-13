@@ -10,7 +10,10 @@ namespace WebApp_API.Services
         private readonly IProductImageRepository _productImageRepo;
         private readonly IProductVariantOptionValueRepository _productVariantOptionValueRepo;
 
-        public ProductVariantService(IProductVariantRepository productVariantRepo, IProductImageRepository productImageRepo, IProductVariantOptionValueRepository productVariantOptionValueRepo)
+        public ProductVariantService(
+            IProductVariantRepository productVariantRepo,
+            IProductImageRepository productImageRepo,
+            IProductVariantOptionValueRepository productVariantOptionValueRepo)
         {
             _productVariantRepo = productVariantRepo;
             _productImageRepo = productImageRepo;
@@ -40,97 +43,30 @@ namespace WebApp_API.Services
         // ──────────────────── Write operations ────────────────────
         public async Task CreateAsync(ProductVariantDTOs.CreateProductVariantRequest request)
         {
-            var variant = new ProductVariant
-            {
-                VariantName = request.VariantName,
-                SKU = request.SKU,
-                Price = request.Price,
-                OriginalPrice = request.OriginalPrice,
-                Stock = request.Stock,
-                ImageUrl = request.ImageUrls[0].ImageUrl,
-                ProductId = request.ProductId,
-            };
-
+            ProductVariant variant = BuildVariant(request);
             await _productVariantRepo.AddAsync(variant);
 
-            // Attach images if provided
-            if (request.ImageUrls.Count > 0)
-            {
-                var images = request.ImageUrls.Select((image, index) => new ProductImage
-                {
-                    VariantId = variant.Id,
-                    ImageUrl = image.ImageUrl,
-                    DisplayOrder = image.DisplayOrder,
-                    IsMain = image.IsMain
-                })
-                    .ToList();
+            // Attach images
+            await AttachImagesAsync(variant.Id, request.ImageUrls);
 
-                await _productImageRepo.AddRangeAsync(images);
-                await _productImageRepo.SaveChangesAsync();
-            }
-
-            if (request.OptionValueIds.Count > 0)
-            {
-                var links = request.OptionValueIds
-                    .Select(ovId => new ProductVariantOptionValue
-                    {
-                        ProductVariantId = variant.Id,
-                        ProductOptionValueId = ovId
-                    });
-
-                await _productVariantOptionValueRepo.AddRangeAsync(links);
-            }
+            await AttachOptionValuesAsync(variant.Id, request.OptionValueIds);
         }
 
         public async Task CreateVariantsAsync(IEnumerable<ProductVariantDTOs.CreateProductVariantRequest> requests)
         {
             foreach (ProductVariantDTOs.CreateProductVariantRequest request in requests)
             {
-                var variant = new ProductVariant
-                {
-                    VariantName = request.VariantName,
-                    SKU = request.SKU,
-                    Price = request.Price,
-                    OriginalPrice = request.OriginalPrice,
-                    Stock = request.Stock,
-                    ImageUrl = request.ImageUrls[0].ImageUrl,
-                    ProductId = request.ProductId,
-                };
-
+                ProductVariant variant = BuildVariant(request);
                 await _productVariantRepo.AddAsync(variant);
 
-                // Attach images if provided
-                if (request.ImageUrls.Count > 0)
-                {
-                    var images = request.ImageUrls.Select((image, index) => new ProductImage
-                    {
-                        VariantId = variant.Id,
-                        ImageUrl = image.ImageUrl,
-                        DisplayOrder = image.DisplayOrder,
-                        IsMain = image.IsMain
-                    })
-                        .ToList();
+                // Attach images
+                await AttachImagesAsync(variant.Id, request.ImageUrls);
 
-                    await _productImageRepo.AddRangeAsync(images);
-                    await _productImageRepo.SaveChangesAsync();
-                }
-
-                if (request.OptionValueIds.Count > 0)
-                {
-                    var links = request.OptionValueIds
-                        .Select(ovId => new ProductVariantOptionValue
-                        {
-                            ProductVariantId = variant.Id,
-                            ProductOptionValueId = ovId
-                        });
-
-                    await _productVariantOptionValueRepo.AddRangeAsync(links);
-                }
+                await AttachOptionValuesAsync(variant.Id, request.OptionValueIds);
             }
         }
 
-        public async Task<ProductVariantDTOs.ProductVariantResponse?> UpdateAsync(
-            int id, ProductVariantDTOs.UpdateProductVariantRequest request)
+        public async Task<ProductVariantDTOs.ProductVariantResponse?> UpdateAsync(int id, ProductVariantDTOs.UpdateProductVariantRequest request)
         {
             var variant = await _productVariantRepo.GetByIdAsync(id);
             if (variant is null) return null;
@@ -143,13 +79,15 @@ namespace WebApp_API.Services
 
             await _productVariantRepo.UpdateAsync(variant);
 
-            // Replace images if a new list was provided
+            // Replace images
             if (request.ImageUrls is not null)
             {
                 // Delete existing variant images
                 var existing = await _productImageRepo.GetByVariantAsync(id);
                 foreach (var img in existing)
+                {
                     await _productImageRepo.DeleteAsync(img);
+                }
 
                 // Add new ones
                 if (request.ImageUrls.Count > 0)
@@ -177,12 +115,11 @@ namespace WebApp_API.Services
 
                 if (request.OptionValueIds.Count > 0)
                 {
-                    var links = request.OptionValueIds
-                        .Select(ovId => new ProductVariantOptionValue
-                        {
-                            ProductVariantId = id,
-                            ProductOptionValueId = ovId
-                        });
+                    var links = request.OptionValueIds.Select(ovId => new ProductVariantOptionValue
+                    {
+                        ProductVariantId = id,
+                        ProductOptionValueId = ovId
+                    });
 
                     await _productVariantOptionValueRepo.AddRangeAsync(links);
                 }
@@ -194,9 +131,49 @@ namespace WebApp_API.Services
 
         public Task<bool> DeleteAsync(int id) => _productVariantRepo.DeleteAsync(id);
 
-        // ── Mapping helpers ────────────────────────────────────────────────────
+        // ── Private helpers ──────────────────────────────────────────────────
+        private static ProductVariant BuildVariant(ProductVariantDTOs.CreateProductVariantRequest request) => new ProductVariant
+        {
+            VariantName = request.VariantName,
+            SKU = request.SKU ?? string.Empty,
+            Price = request.Price,
+            OriginalPrice = request.OriginalPrice,
+            Stock = request.Stock,
+            ImageUrl = request.ImageUrls?.FirstOrDefault()?.ImageUrl,
+            ProductId = request.ProductId,
+        };
 
-        private static ProductVariantDTOs.ProductVariantResponse MapToResponse(ProductVariant v) => new()
+        private async Task AttachImagesAsync(int variantId, List<ProductImageDTOs.ImageUrlDto>? imageUrls)
+        {
+            if (imageUrls == null || imageUrls.Count == 0) return;
+
+            var images = imageUrls.Select((image, index) => new ProductImage
+            {
+                VariantId = variantId,
+                ImageUrl = image.ImageUrl,
+                DisplayOrder = image.DisplayOrder,
+                IsMain = image.IsMain
+            }).ToList();
+
+            await _productImageRepo.AddRangeAsync(images);
+            await _productImageRepo.SaveChangesAsync();
+        }
+
+        private async Task AttachOptionValuesAsync(int variantId, List<int>? optionValueIds)
+        {
+            if (optionValueIds == null || optionValueIds.Count == 0) return;
+
+            var links = optionValueIds.Select(ovId => new ProductVariantOptionValue
+            {
+                ProductVariantId = variantId,
+                ProductOptionValueId = ovId
+            });
+
+            await _productVariantOptionValueRepo.AddRangeAsync(links);
+        }
+
+        // ── Mapping helpers ────────────────────────────────────────────────────
+        private static ProductVariantDTOs.ProductVariantResponse MapToResponse(ProductVariant v) => new ProductVariantDTOs.ProductVariantResponse
         {
             Id = v.Id,
             VariantName = v.VariantName,

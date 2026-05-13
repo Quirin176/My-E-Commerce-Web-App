@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Plus, PackageOpen, ChevronDown, ChevronUp, ImagePlus, RefreshCw, X } from "lucide-react";
+import { adminProductsApi } from "../../../api/admin/adminProductsApi";
 import type { ProductOption } from "../../../types/models/products/ProductOption";
 
 export interface VariantRow {
@@ -22,9 +23,10 @@ export interface SkuContext {
 }
 
 interface Props {
+  productId: string | number;
   filters: ProductOption[];
   selectedOptionValueIds: number[];
-  isViewMode: boolean;
+  mode: string;
   onChange: (rows: VariantRow[]) => void;
   initialRows?: VariantRow[];
   skuContext: SkuContext;
@@ -128,14 +130,16 @@ function generateRows(
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function ProductVariantsSection({
+  productId,
   filters,
   selectedOptionValueIds,
-  isViewMode,
+  mode,
   onChange,
   initialRows = [],
   skuContext,
 }: Props) {
   const [rows, setRows] = useState<VariantRow[]>(initialRows);
+  const [submitting, setSubmitting] = useState<boolean>(false);
 
   // Re-generate rows whenever the selected option values change
   useEffect(() => {
@@ -202,6 +206,10 @@ export default function ProductVariantsSection({
     update(key, { imageUrls: row.imageUrls.filter((_, i) => i !== idx) });
   };
 
+  const onUpdateVariant = async () => {
+    await adminProductsApi.updateVariant(productId, row)
+  }
+
   // ── Early exit ─────────────────────────────────────────────────────────────
 
   if (rows.length === 0) {
@@ -226,7 +234,7 @@ export default function ProductVariantsSection({
         </div>
 
         {/* Regenerate all SKUs */}
-        {!isViewMode && (
+        {/* {!isViewMode && (
           <button
             type="button"
             onClick={regenerateAllSkus}
@@ -236,20 +244,18 @@ export default function ProductVariantsSection({
             <RefreshCw size={13} />
             Regenerate All SKUs
           </button>
-        )}
+        )} */}
       </div>
 
       {/* SKU format hint */}
-      {!isViewMode && (
-        <div className="px-5 py-2 bg-gray-800 text-gray-400 text-xs font-mono border-b border-gray-700">
-          SKU format:&nbsp;
-          <span className="text-yellow-300">{toSkuPart(skuContext.categoryName) || "CAT"}</span>
-          <span className="text-gray-500">-</span>
-          <span className="text-blue-300">{toSkuPart(skuContext.productName) || "PROD"}</span>
-          <span className="text-gray-500">-</span>
-          <span className="text-green-300">ATTRIBUTES</span>
-        </div>
-      )}
+      <div className="px-5 py-2 bg-gray-800 text-gray-400 text-xs font-mono border-b border-gray-700">
+        SKU format:&nbsp;
+        <span className="text-yellow-300">{toSkuPart(skuContext.categoryName) || "CAT"}</span>
+        <span className="text-gray-500">-</span>
+        <span className="text-blue-300">{toSkuPart(skuContext.productName) || "PROD"}</span>
+        <span className="text-gray-500">-</span>
+        <span className="text-green-300">ATTRIBUTES</span>
+      </div>
 
       {/* Rows */}
       <div className="divide-y divide-gray-200">
@@ -258,7 +264,7 @@ export default function ProductVariantsSection({
             {/* ── Row header (collapsed) ── */}
             <div
               className="flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-gray-50 transition select-none"
-              onClick={() => !isViewMode && toggleOpen(row.key)}
+              onClick={() => toggleOpen(row.key)}
             >
               {/* Expand icon */}
               <button type="button" className="text-gray-400 shrink-0" tabIndex={-1}>
@@ -303,20 +309,18 @@ export default function ProductVariantsSection({
               </div>
 
               {/* Remove button */}
-              {!isViewMode && (
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); removeRow(row.key); }}
-                  className="ml-2 p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition shrink-0"
-                  title="Remove variant"
-                >
-                  <X size={15} />
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); removeRow(row.key); }}
+                className="ml-2 p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition shrink-0"
+                title="Remove variant"
+              >
+                <X size={15} />
+              </button>
             </div>
 
             {/* ── Expanded form ── */}
-            {row.open && !isViewMode && (
+            {row.open && (
               <div className="px-5 pb-5 pt-2 bg-gray-50 border-t border-gray-200 space-y-4">
 
                 {/* Row 1: name + SKU */}
@@ -418,10 +422,6 @@ export default function ProductVariantsSection({
                             src={image.url}
                             alt={`Variant img ${idx + 1}`}
                             className="w-full h-full object-cover rounded-lg border-2 border-gray-200"
-                            onError={(e) => {
-                              (e.currentTarget as HTMLImageElement).src =
-                                "https://via.placeholder.com/80?text=?";
-                            }}
                           />
                           {/* index badge */}
                           <span className="absolute bottom-0.5 left-0.5 bg-black/60 text-white text-[9px] px-1 rounded">
@@ -439,6 +439,18 @@ export default function ProductVariantsSection({
                         </div>
                       ))}
                     </div>
+                  </div>
+                )}
+
+                {mode === "edit" && (
+                  <div className="flex justify-end">
+                    <button
+                      onClick={onUpdateVariant}
+                      disabled={submitting}
+                      className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {submitting ? 'Saving...' : 'Update Product'}
+                    </button>
                   </div>
                 )}
               </div>
