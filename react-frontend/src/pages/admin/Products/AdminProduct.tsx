@@ -8,7 +8,7 @@ import { useCategories } from "../../../hooks/products/useCategories";
 import { useProductForm } from "../../../hooks/admin/useProductForm";
 import { useProductFilters } from "../../../hooks/products/useProductFilters";
 
-import { adminProductsApi, type ProductPayload, type VariantPayload } from "../../../api/admin/adminProductsApi";
+import { adminProductsApi, type ProductPayload, type ProductVariantPayload } from "../../../api/admin/adminProductsApi";
 import { productApi } from "../../../api/products/productApi";
 
 import ToggleSwitch from "../../../components/ToggleSwitch";
@@ -53,8 +53,9 @@ export default function AdminProduct() {
         productName: form.formData.name,
     };
 
+    // Load Product data into form in edit mode
     useEffect(() => {
-        if (mode === "create") return;
+        if (mode !== "edit" || !id) return;
         (async () => {
             try {
                 const product = await productApi.getProductById(Number(id));
@@ -69,16 +70,14 @@ export default function AdminProduct() {
                     shortDescription: product.shortDescription ?? "",
                     description: product.description ?? "",
                     thumbnailUrl: product.thumbnailUrl ?? "",
-                    images: product.images?.length
-                        ? product.images
-                        : product.imageUrl
-                            ? [product.imageUrl]
-                            : [],
                     selectedOptionValueIds: [],
                 }));
 
+                setHasVariant(product.hasVariants ?? false);
+
                 if (product.categoryId) {
                     const loadedFilters = await filters.loadFilters(Number(product.categoryId));
+
                     const valueMap = new Map<string, number>();
                     loadedFilters.forEach((opt: any) =>
                         opt.optionValues.forEach((v: any) => valueMap.set(v.value, v.id))
@@ -156,19 +155,22 @@ export default function AdminProduct() {
     };
 
     // ── Build variant payload from VariantRow[] ───────────────────────────────
-    const buildVariantPayloads = (): VariantPayload[] =>
+    const buildVariantPayloads = (): ProductVariantPayload[] =>
         variantRows.map((row) => ({
             variantName: row.variantName.trim() || row.label,
             sku: row.sku.trim(),
             price: Number(row.price),
             originalPrice: Number(row.originalPrice) || Number(row.price),
             stock: Number(row.stock),
-            optionValueIds: row.optionValueIds,
+            productId: Number(id),
+
             imageUrls: row.imageUrls.map((img) => ({
                 imageUrl: img.url,
                 displayOrder: img.displayOrder,
                 isMain: img.displayOrder === 0,
             })),
+
+            optionValueIds: row.optionValueIds,
         }));
 
     const onSubmittingProduct = async () => {
@@ -211,7 +213,7 @@ export default function AdminProduct() {
         try {
             const variants = buildVariantPayloads();
 
-            await adminProductsApi.createVariants(id, variants);
+            await adminProductsApi.createVariants(Number(id), variants);
             toast.success("Product created!");
 
             navigate("/admin/products");
@@ -458,7 +460,7 @@ export default function AdminProduct() {
                             {/* ── Variants section ──────────────────────────────────────── */}
                             {(mode === "edit" && id || form.formData.categoryId) && (
                                 <ProductVariantsSection
-                                    productId={id}
+                                    productId={Number(id)}
                                     filters={filters.filters}
                                     selectedOptionValueIds={selectedIds}
                                     mode={mode}

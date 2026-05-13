@@ -9,8 +9,6 @@ interface UseProductFormReturn {
   setFormData: Dispatch<SetStateAction<ProductFormData>>;
   updateField: (field: keyof ProductFormData, value: unknown) => void;
   validateForm: () => boolean;
-  addImageUrl: () => void;
-  removeImageUrl: (index: number) => void;
   handleOptionChange: (optionValueId: number) => void;
   resetForm: () => void;
   autoGenerateSlug: (name: string) => void;
@@ -25,7 +23,6 @@ export interface ProductFormData {
   description: string;
   basePrice: number | string;
   thumbnailUrl: string;
-  images: string[];
   categoryId: number | string;
   selectedOptionValueIds: number[];
 }
@@ -39,7 +36,6 @@ const INITIAL_FORM_DATA: ProductFormData = {
   description: "",
   basePrice: "",
   thumbnailUrl: "",
-  images: [],
   categoryId: "",
   selectedOptionValueIds: [],
 };
@@ -94,66 +90,10 @@ export const useProductForm = (): UseProductFormReturn => {
     if (!formData.categoryId || Number(formData.categoryId) <= 0) {
       errors.categoryId = "Category is required";
     }
-    if (!formData.images || formData.images.length === 0) {
-      errors.images = "At least one image is required";
-    }
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   }, [formData]);
-
-  // Add a new image URL to the images array
-  const addImageUrl = useCallback(() => {
-    const trimmedUrl = formData.thumbnailUrl?.trim();
-
-    // Validate the image URL
-    if (!trimmedUrl) {
-      setFormErrors((prev) => ({
-        ...prev,
-        imageUrl: "Please enter an image URL",
-      }));
-      return;
-    }
-    if (!trimmedUrl.startsWith("http://") && !trimmedUrl.startsWith("https://")) {
-      setFormErrors((prev) => ({
-        ...prev,
-        imageUrl: "URL must start with http:// or https://",
-      }));
-      return;
-    }
-    if (formData.images.includes(trimmedUrl)) {
-      setFormErrors((prev) => ({
-        ...prev,
-        imageUrl: "This image URL already exists",
-      }));
-      return;
-    }
-
-    // Add the valid image URL to the images array
-    setFormData((prev) => ({
-      ...prev,
-      images: [...prev.images, trimmedUrl],
-      imageUrl: "",
-    }));
-
-    // Clear error
-    setFormErrors((prev) => {
-      const newErrors = { ...prev };
-      delete newErrors.imageUrl;
-      return newErrors;
-    });
-  }, [formData.thumbnailUrl, formData.images]);
-
-  // Remove an image URL from the images array by index
-  const removeImageUrl = useCallback((index: number) => {
-    setFormData((prev) => {
-      const newImages = prev.images.filter((_, i) => i !== index);
-      return {
-        ...prev,
-        images: newImages,
-      };
-    });
-  }, []);
 
   // Handle selection/deselection of product option values
   const handleOptionChange = useCallback((optionValueId: number) => {
@@ -180,8 +120,6 @@ export const useProductForm = (): UseProductFormReturn => {
     setFormData,
     updateField,
     validateForm,
-    addImageUrl,
-    removeImageUrl,
     handleOptionChange,
     resetForm,
     autoGenerateSlug,
