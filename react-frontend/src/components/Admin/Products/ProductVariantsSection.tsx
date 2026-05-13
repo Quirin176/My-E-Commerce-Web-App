@@ -207,7 +207,7 @@ export default function ProductVariantsSection({
   };
 
   const onUpdateVariant = async () => {
-    await adminProductsApi.updateVariant(productId, row)
+    await adminProductsApi.updateVariant(productId, row);
   }
 
   // ── Early exit ─────────────────────────────────────────────────────────────
