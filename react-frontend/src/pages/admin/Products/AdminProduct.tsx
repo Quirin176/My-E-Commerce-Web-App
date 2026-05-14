@@ -197,8 +197,6 @@ export default function AdminProduct() {
                 await adminProductsApi.createProduct(payload);
                 toast.success("Product created!");
             }
-
-            navigate("/admin/products");
         } catch {
             toast.error("Failed to save product");
         } finally {
@@ -225,10 +223,10 @@ export default function AdminProduct() {
     };
 
     return (
-        <div className="w-full p-6 overflow-y-auto">
+        <div className="w-full overflow-y-auto">
             <Box sx={{ width: "100%" }}>
-                <Tabs value={value} onChange={(e, nv) => setValue(nv)}>
-                    <Tab className="font-bold" label="General" />
+                <Tabs value={value} onChange={(_, nv) => setValue(nv)}>
+                    <Tab className="font-bold" label="Product" />
                     {form.formData.categoryId && filters.filters.length > 0 && <Tab className="font-bold" label="Product Attributes (Options)" />}
                     {hasVariant && <Tab className="font-bold" label="Variants" />}
                 </Tabs>

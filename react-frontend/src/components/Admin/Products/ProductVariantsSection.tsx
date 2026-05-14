@@ -15,6 +15,7 @@ export interface VariantRow {
   imageInput: string;
   open: boolean;
   optionValueIds: number[];
+  serverId?: number;
 }
 
 export interface SkuContext {
@@ -139,7 +140,7 @@ export default function ProductVariantsSection({
   skuContext,
 }: Props) {
   const [rows, setRows] = useState<VariantRow[]>(initialRows);
-  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [submittingKey, setSubmittingKey] = useState<string | null>(null);
 
   // Re-generate rows whenever the selected option values change
   useEffect(() => {
@@ -206,8 +207,35 @@ export default function ProductVariantsSection({
     update(key, { imageUrls: row.imageUrls.filter((_, i) => i !== idx) });
   };
 
-  const onUpdateVariant = async () => {
-    await adminProductsApi.updateVariant(productId, row);
+  const handleUpdateVariant = async (row: VariantRow) => {
+    if (!row.serverId) {
+      console.warn("No serverId on row — cannot update", row);
+      return;
+    }
+
+    setSubmittingKey(row.key);
+    try {
+      const payload = {
+        variantName: row.variantName.trim() || row.label,
+        sku: row.sku.trim(),
+        price: Number(row.price),
+        originalPrice: Number(row.originalPrice) || Number(row.price),
+        stock: Number(row.stock),
+        productId: Number(productId),
+        imageUrls: row.imageUrls.map((img, i) => ({
+          imageUrl: img.url,
+          displayOrder: img.displayOrder ?? i,
+          isMain: i === 0,
+        })),
+        optionValueIds: row.optionValueIds,
+      };
+
+      await adminProductsApi.updateVariant(row.serverId, payload);
+    } catch (err) {
+      console.error("Failed to update variant", err);
+    } finally {
+      setSubmittingKey(null);
+    }
   }
 
   // ── Early exit ─────────────────────────────────────────────────────────────
@@ -445,13 +473,13 @@ export default function ProductVariantsSection({
                 {mode === "edit" && (
                   <div className="flex justify-end">
                     <button
-                      onClick={onUpdateVariant}
-                      disabled={submitting}
-                      className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                      type="button"
+                      onClick={() => handleUpdateVariant(row)}
+                      disabled={submittingKey === row.key}
+                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {submitting ? 'Saving...' : 'Update Product'}
-                    </button>
-                  </div>
+                      {submittingKey === row.key ? "Saving..." : "Update Variant"}
+                    </button>                  </div>
                 )}
               </div>
             )}
