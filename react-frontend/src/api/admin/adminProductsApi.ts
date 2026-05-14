@@ -14,10 +14,20 @@ export interface ProductPayload {
   hasVariants: boolean;
 };
 
+export interface VariantImageCreatePayload {
+  imageUrl: string;
+  displayOrder: number;
+  isMain: boolean;
+  productId: number;
+  variantId: number;
+}
+
 export interface VariantImagePayload {
   imageUrl: string;
   displayOrder: number;
   isMain: boolean;
+  productId: number;
+  variantId: number;
 }
 
 export interface ProductVariantPayload {
@@ -27,6 +37,7 @@ export interface ProductVariantPayload {
   originalPrice: number;
   stock: number;
   productId: number | string;
+  imageUrl: string;
 
   imageUrls: VariantImagePayload[];
 

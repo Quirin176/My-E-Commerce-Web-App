@@ -222,11 +222,16 @@ export default function ProductVariantsSection({
         originalPrice: Number(row.originalPrice) || Number(row.price),
         stock: Number(row.stock),
         productId: Number(productId),
+        imageUrl: row.imageUrls[0].url,
+
         imageUrls: row.imageUrls.map((img, i) => ({
           imageUrl: img.url,
           displayOrder: img.displayOrder ?? i,
           isMain: i === 0,
+          productId: Number(productId),
+          variantId: Number(row.serverId)
         })),
+
         optionValueIds: row.optionValueIds,
       };
 
