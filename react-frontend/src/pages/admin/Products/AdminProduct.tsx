@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { AlertCircle, Plus, X } from "lucide-react";
+import { AlertCircle, MoveRight, Plus, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { Tabs, Tab, Box } from "@mui/material";
 
@@ -237,7 +237,8 @@ export default function AdminProduct() {
                     selectedOptionValueIds: [],
                 }));
 
-                setHasVariant(product.hasVariants ?? false);
+                setHasVariant(product.hasVariants);
+                console.log(product.hasVariants)
 
                 if (product.categoryId) {
                     const loadedFilters = await filters.loadFilters(Number(product.categoryId));
@@ -284,7 +285,7 @@ export default function AdminProduct() {
             originalPrice: Number(row.originalPrice) || Number(row.price),
             stock: Number(row.stock),
             productId: pid,
-            imageUrl: row.imageUrls[0].url,
+            imageUrl: row.imageUrls[0]?.url ?? "",
 
             imageUrls: row.imageUrls.map((img, i) => ({
                 imageUrl: img.url,
@@ -518,11 +519,11 @@ export default function AdminProduct() {
 
                         <div className="flex justify-end">
                             <button
-                                onClick={onSubmittingProduct}
+                                onClick={() => setTabIndex(1)}
                                 disabled={submitting}
                                 className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {submitting ? "Saving..." : mode === "edit" ? "Update Product" : "Create Product"}
+                                <span className="flex flex-row gap-4">Configure Attributes<MoveRight/></span>
                             </button>
                         </div>
                     </div>
@@ -612,6 +613,7 @@ export default function AdminProduct() {
                                     selectedOptionValueIds={selectedIds}
                                     mode={mode}
                                     onChange={setVariantRows}
+                                    initialRows={variantRows}
                                     skuContext={skuContext}
                                 />
                             )}

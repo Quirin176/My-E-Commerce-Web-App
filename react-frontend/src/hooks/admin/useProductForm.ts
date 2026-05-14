@@ -25,6 +25,7 @@ export interface ProductFormData {
   thumbnailUrl: string;
   categoryId: number | string;
   selectedOptionValueIds: number[];
+  hasVariants: boolean;
 }
 
 // Initial form data template
@@ -38,6 +39,7 @@ const INITIAL_FORM_DATA: ProductFormData = {
   thumbnailUrl: "",
   categoryId: "",
   selectedOptionValueIds: [],
+  hasVariants: false
 };
 
 // Custom hook to manage product form state and logic

@@ -103,7 +103,7 @@ function generateRows(
 
   const combinations = cartesian(groups);
 
-  return combinations.map((combo) => {
+  const generatedRows = combinations.map((combo) => {
     const key = combo.slice().sort((a, b) => a - b).join("-");
     const label = buildLabel(combo, filters);
     const existing = existingRows.find((r) => r.key === key);
@@ -126,6 +126,12 @@ function generateRows(
       optionValueIds: combo,
     };
   });
+
+  const manualRows = existingRows.filter(
+    (row) => row.key.startsWith("manual-") || row.optionValueIds.length === 0
+  );
+
+  return [...generatedRows, ...manualRows];
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -142,6 +148,10 @@ export default function ProductVariantsSection({
   const [rows, setRows] = useState<VariantRow[]>(initialRows);
   const [submittingKey, setSubmittingKey] = useState<string | null>(null);
 
+  useEffect(() => {
+    setRows(initialRows);
+  }, [initialRows]);
+
   // Re-generate rows whenever the selected option values change
   useEffect(() => {
     setRows((prev) => {
@@ -149,7 +159,7 @@ export default function ProductVariantsSection({
       onChange(next);
       return next;
     });
-  }, [selectedOptionValueIds.join(","), filters.length]);
+  }, [selectedOptionValueIds.join(","), filters, skuContext.categoryName, skuContext.productName]);
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -176,18 +186,6 @@ export default function ProductVariantsSection({
     const attrValues = buildAttrValues(row.optionValueIds, filters);
     const sku = buildSku(skuContext, attrValues);
     update(row.key, { sku });
-  };
-
-  /** Regenerate SKUs for ALL rows at once */
-  const regenerateAllSkus = () => {
-    setRows((prev) => {
-      const next = prev.map((r) => {
-        const attrValues = buildAttrValues(r.optionValueIds, filters);
-        return { ...r, sku: buildSku(skuContext, attrValues) };
-      });
-      onChange(next);
-      return next;
-    });
   };
 
   const addImage = (key: string) => {
@@ -222,7 +220,7 @@ export default function ProductVariantsSection({
         originalPrice: Number(row.originalPrice) || Number(row.price),
         stock: Number(row.stock),
         productId: Number(productId),
-        imageUrl: row.imageUrls[0].url,
+        imageUrl: row.imageUrls[0]?.url ?? "",
 
         imageUrls: row.imageUrls.map((img, i) => ({
           imageUrl: img.url,
