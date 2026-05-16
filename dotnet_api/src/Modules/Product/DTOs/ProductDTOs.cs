@@ -67,6 +67,7 @@ namespace WebApp_API.DTOs
             public CategoryInfo? Category { get; set; }
             public List<ProductImageDTOs.ImageUrlDto> Images { get; set; } = new();
             public List<ProductOptionGroupResponse> Options { get; set; } = new();
+            public bool HasVariants { get; set; }
         }
 
         public class ProductPaginatedResponse   // Product Detail used for ProductCard and AdminProductCard

@@ -26,8 +26,8 @@ export interface VariantImagePayload {
   imageUrl: string;
   displayOrder: number;
   isMain: boolean;
-  productId: number;
-  variantId: number;
+  productId: number | null;
+  variantId: number | null;
 }
 
 export interface ProductVariantPayload {
@@ -61,15 +61,15 @@ export const adminProductsApi = {
     return res.data;
   },
 
-  async createVariant(data: ProductVariantPayload) {
-    const res = await apiClient.post("/productvariants", data);
+  async createVariant(productId: number | string, data: ProductVariantPayload) {
+    const res = await apiClient.post(`/productvariants/product/variant/${productId}`, data);
     return res.data;
   },
 
-  async createVariants(productId: number | string, data: ProductVariantPayload[]) {
-    const res = await apiClient.post(`/productvariants/product/${productId}`, data);
-    return res.data;
-  },
+  // async createVariants(productId: number | string, data: ProductVariantPayload[]) {
+  //   const res = await apiClient.post(`/productvariants/product/variants/${productId}`, data);
+  //   return res.data;
+  // },
 
   async updateVariant(variantId: number | string, data: Partial<ProductVariantPayload>) {
     const res = await apiClient.put(`/productvariants/${variantId}`, data);

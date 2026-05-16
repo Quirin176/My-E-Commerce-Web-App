@@ -188,7 +188,8 @@ namespace WebApp_API.Services
                 ThumbnailUrl = product.ThumbnailUrl,
                 CategoryId = product.CategoryId,
                 Category = MapCategory(product.Category),
-                Options = GroupOptions(rawOpts)
+                Options = GroupOptions(rawOpts),
+                HasVariants = product.HasVariants
             };
         }
 

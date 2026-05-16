@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { AlertCircle, MoveRight, Plus, X } from "lucide-react";
+import { AlertCircle, MoveRight, Plus } from "lucide-react";
 import toast from "react-hot-toast";
 import { Tabs, Tab, Box } from "@mui/material";
 
@@ -8,167 +8,14 @@ import { useCategories } from "../../../hooks/products/useCategories";
 import { useProductForm } from "../../../hooks/admin/useProductForm";
 import { useProductFilters } from "../../../hooks/products/useProductFilters";
 
-import { adminProductsApi, type ProductPayload, type ProductVariantPayload } from "../../../api/admin/adminProductsApi";
+import { adminProductsApi, type ProductPayload } from "../../../api/admin/adminProductsApi";
 import { productApi } from "../../../api/products/productApi";
 
 import ToggleSwitch from "../../../components/ToggleSwitch";
 import ProductVariantsSection, { type VariantRow, type SkuContext } from "../../../components/Admin/Products/ProductVariantsSection";
-
-// ─── Manual variant form ───────────────────────────────────────────────────────
-
-interface ManualVariantFormProps {
-    filters: ReturnType<typeof useProductFilters>["filters"];
-    onAdd: (row: VariantRow) => void;
-    onCancel: () => void;
-}
-
-function ManualVariantForm({ filters, onAdd, onCancel }: ManualVariantFormProps) {
-    const [variantName, setVariantName] = useState("");
-    const [sku, setSku] = useState("");
-    const [price, setPrice] = useState("");
-    const [originalPrice, setOriginalPrice] = useState("");
-    const [stock, setStock] = useState("");
-    const [imageInput, setImageInput] = useState("");
-    const [imageUrls, setImageUrls] = useState<{ url: string; displayOrder: number }[]>([]);
-    const [selectedOptionValueIds, setSelectedOptionValueIds] = useState<number[]>([]);
-
-    const toggleOptionValue = (id: number) => {
-        setSelectedOptionValueIds((prev) =>
-            prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]
-        );
-    };
-
-    const addImage = () => {
-        const url = imageInput.trim();
-        if (!url) return;
-        if (imageUrls.some((i) => i.url === url)) return;
-        setImageUrls((prev) => [...prev, { url, displayOrder: prev.length }]);
-        setImageInput("");
-    };
-
-    const handleAdd = () => {
-        if (!variantName.trim()) { toast.error("Variant name is required"); return; }
-        if (!sku.trim()) { toast.error("SKU is required"); return; }
-        if (Number(price) <= 0) { toast.error("Price must be > 0"); return; }
-
-        const key = `manual-${Date.now()}`;
-        const row: VariantRow = {
-            key,
-            label: variantName.trim(),
-            variantName: variantName.trim(),
-            sku: sku.trim(),
-            originalPrice: originalPrice || price,
-            price,
-            stock,
-            imageUrls,
-            imageInput: "",
-            open: false,
-            optionValueIds: selectedOptionValueIds,
-        };
-        onAdd(row);
-    };
-
-    const inputCls = "w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm outline-none focus:border-blue-500 transition bg-white";
-
-    return (
-        <div className="border-2 border-blue-500 rounded-xl p-5 bg-blue-50 space-y-4">
-            <h3 className="font-bold text-blue-800 text-sm uppercase tracking-wide">Add Variant Manually</h3>
-
-            <div className="grid grid-cols-2 gap-3">
-                <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">Variant Name *</label>
-                    <input value={variantName} onChange={(e) => setVariantName(e.target.value)} placeholder="e.g. Red / XL" className={inputCls} />
-                </div>
-                <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">SKU *</label>
-                    <input value={sku} onChange={(e) => setSku(e.target.value)} placeholder="e.g. PROD-RED-XL" className={`${inputCls} font-mono`} />
-                </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-3">
-                <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">Original Price</label>
-                    <input type="number" min={0} value={originalPrice} onChange={(e) => setOriginalPrice(e.target.value)} placeholder="Strike-through price" className={inputCls} />
-                </div>
-                <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">Sale Price *</label>
-                    <input type="number" min={0} value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Selling price" className={inputCls} />
-                </div>
-                <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">Stock</label>
-                    <input type="number" min={0} value={stock} onChange={(e) => setStock(e.target.value)} placeholder="0" className={inputCls} />
-                </div>
-            </div>
-
-            {/* Image URL input */}
-            <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1">Add Image URL</label>
-                <div className="flex gap-2">
-                    <input
-                        value={imageInput}
-                        onChange={(e) => setImageInput(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addImage(); } }}
-                        placeholder="https://example.com/image.jpg"
-                        className={`${inputCls} flex-1`}
-                    />
-                    <button type="button" onClick={addImage} className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition shrink-0 flex items-center gap-1">
-                        <Plus size={14} /> Add
-                    </button>
-                </div>
-                {imageUrls.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-2">
-                        {imageUrls.map((img, idx) => (
-                            <div key={idx} className="relative group w-16 h-16">
-                                <img src={img.url} alt="" className="w-full h-full object-cover rounded border-2 border-gray-200" />
-                                <button
-                                    type="button"
-                                    onClick={() => setImageUrls((prev) => prev.filter((_, i) => i !== idx))}
-                                    className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
-                                >
-                                    <X size={10} />
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-
-            {/* Option values */}
-            {filters.length > 0 && (
-                <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-2">Attributes</label>
-                    <div className="space-y-2">
-                        {filters.map((opt) => (
-                            <div key={opt.optionId}>
-                                <p className="text-xs text-gray-500 mb-1">{opt.optionName}</p>
-                                <div className="flex flex-wrap gap-2">
-                                    {opt.optionValues.map((v) => (
-                                        <label key={v.id} className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border-2 cursor-pointer text-xs font-medium transition ${selectedOptionValueIds.includes(v.id) ? "border-blue-500 bg-blue-100 text-blue-800" : "border-gray-300 bg-white text-gray-700"}`}>
-                                            <input type="checkbox" checked={selectedOptionValueIds.includes(v.id)} onChange={() => toggleOptionValue(v.id)} className="sr-only" />
-                                            {v.value}
-                                        </label>
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            <div className="flex gap-3 pt-2">
-                <button type="button" onClick={handleAdd} className="px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition">
-                    Add Variant
-                </button>
-                <button type="button" onClick={onCancel} className="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-300 transition">
-                    Cancel
-                </button>
-            </div>
-        </div>
-    );
-}
+import ManualVariantForm from "../../../components/Admin/Products/ManualVariantForm";
 
 // ─── Tab panel helper ──────────────────────────────────────────────────────────
-
 interface TabPanelProps {
     children?: React.ReactNode;
     value: number;
@@ -192,15 +39,14 @@ export default function AdminProduct() {
     const { id } = useParams();
     const mode = id ? "edit" : "create";
 
-    // createdProductId tracks the ID of a freshly-created product so variants can
-    // be submitted even before the URL updates.
+    // createdProductId tracks the ID of a freshly-created product
     const [createdProductId, setCreatedProductId] = useState<number | null>(null);
 
     // Effective product ID: prefer URL param, fall back to just-created one
     const effectiveProductId = id ? Number(id) : createdProductId;
 
     const [hasVariant, setHasVariant] = useState(false);
-    const [variantRows, setVariantRows] = useState<VariantRow[]>([]);
+    const [variants, setVariants] = useState<VariantRow[]>([]);
     const [showManualForm, setShowManualForm] = useState(false);
 
     const [submitting, setSubmitting] = useState(false);
@@ -238,7 +84,7 @@ export default function AdminProduct() {
                 }));
 
                 setHasVariant(product.hasVariants);
-                console.log(product.hasVariants)
+                console.log(product);
 
                 if (product.categoryId) {
                     const loadedFilters = await filters.loadFilters(Number(product.categoryId));
@@ -267,40 +113,9 @@ export default function AdminProduct() {
         })();
     }, [id]);
 
-    // ── Validation ───────────────────────────────────────────────────────────────
-    const validate = (): boolean => {
-        if (!form.formData.name.trim()) { toast.error("Product name is required"); return false; }
-        if (!form.formData.slug.trim()) { toast.error("Product slug is required"); return false; }
-        if (Number(form.formData.basePrice) <= 0) { toast.error("Price must be greater than 0"); return false; }
-        if (!form.formData.categoryId) { toast.error("Category is required"); return false; }
-        return true;
-    };
-
-    // ── Build variant payloads ───────────────────────────────────────────────────
-    const buildVariantPayloads = (pid: number): ProductVariantPayload[] =>
-        variantRows.map((row) => ({
-            variantName: row.variantName.trim() || row.label,
-            sku: row.sku.trim(),
-            price: Number(row.price),
-            originalPrice: Number(row.originalPrice) || Number(row.price),
-            stock: Number(row.stock),
-            productId: pid,
-            imageUrl: row.imageUrls[0]?.url ?? "",
-
-            imageUrls: row.imageUrls.map((img, i) => ({
-                imageUrl: img.url,
-                displayOrder: img.displayOrder ?? i,
-                isMain: i === 0,
-                productId: Number(pid),
-                variantId: Number(row.serverId)
-            })),
-
-            optionValueIds: row.optionValueIds,
-        }));
-
     // ── Save product (tab 1 button) ──────────────────────────────────────────────
     const onSubmittingProduct = async () => {
-        if (!validate()) return;
+        if (!form.validateForm()) return;
 
         setSubmitting(true);
         try {
@@ -338,42 +153,9 @@ export default function AdminProduct() {
         }
     };
 
-    // ── Save variants (tab 2 button, create mode) ────────────────────────────────
-    const onSubmittingVariants = async () => {
-        const pid = effectiveProductId;
-        if (!pid) {
-            toast.error("Please save the product first before adding variants.");
-            return;
-        }
-
-        if (variantRows.length === 0) {
-            toast.error("Add at least one variant before saving.");
-            return;
-        }
-
-        // Basic variant validation
-        for (const row of variantRows) {
-            if (!row.sku.trim()) { toast.error(`SKU is required for variant "${row.label}"`); return; }
-            if (Number(row.price) <= 0) { toast.error(`Sale price must be > 0 for variant "${row.label}"`); return; }
-            if (Number(row.stock) < 0) { toast.error(`Stock cannot be negative for variant "${row.label}"`); return; }
-        }
-
-        setSubmitting(true);
-        try {
-            const variants = buildVariantPayloads(pid);
-            await adminProductsApi.createVariants(pid, variants);
-            toast.success("Variants created!");
-            navigate("/admin/products");
-        } catch {
-            toast.error("Failed to save variants");
-        } finally {
-            setSubmitting(false);
-        }
-    };
-
     // ── Add manually-entered variant row to the list ─────────────────────────────
     const handleAddManualVariant = (row: VariantRow) => {
-        setVariantRows((prev) => [...prev, row]);
+        setVariants((prev) => [...prev, row]);
         setShowManualForm(false);
         toast.success(`Variant "${row.label}" added`);
     };
@@ -382,8 +164,6 @@ export default function AdminProduct() {
     const showAttributesTab = !!form.formData.categoryId && filters.filters.length > 0;
     const showVariantsTab = hasVariant;
 
-    // Map logical tab index to MUI tab index (attributes tab may be hidden)
-    // Tab 0: Product, Tab 1 (if visible): Attributes, Tab 2 (if visible): Variants
     const attributesTabIndex = 1;
     const variantsTabIndex = showAttributesTab ? 2 : 1;
 
@@ -523,7 +303,7 @@ export default function AdminProduct() {
                                 disabled={submitting}
                                 className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                <span className="flex flex-row gap-4">Configure Attributes<MoveRight/></span>
+                                <span className="flex flex-row gap-4">Configure Attributes<MoveRight /></span>
                             </button>
                         </div>
                     </div>
@@ -533,7 +313,7 @@ export default function AdminProduct() {
                 {showAttributesTab && (
                     <TabPanel value={tabIndex} index={attributesTabIndex}>
                         <div className="space-y-4">
-                            <label className="block font-bold text-black mb-2">Product Attributes (Options)</label>
+                            <label className="text-2xl font-bold text-black">Product Attributes (Options)</label>
 
                             {filters.filtersLoading ? (
                                 <div className="text-center py-4">
@@ -541,9 +321,9 @@ export default function AdminProduct() {
                                     <p className="text-gray-500 text-sm mt-2">Loading attributes...</p>
                                 </div>
                             ) : (
-                                <div className="space-y-2">
+                                <div className="space-y-4">
                                     {filters.filters.map((option) => (
-                                        <div key={option.optionId} className="border-2 border-black rounded-lg p-4">
+                                        <div key={option.optionId}>
                                             <h4 className="text-sm font-semibold text-black mb-3">{option.optionName}</h4>
                                             <div className="flex flex-wrap gap-2">
                                                 {option.optionValues?.map((value) => (
@@ -612,8 +392,8 @@ export default function AdminProduct() {
                                     filters={filters.filters}
                                     selectedOptionValueIds={selectedIds}
                                     mode={mode}
-                                    onChange={setVariantRows}
-                                    initialRows={variantRows}
+                                    onChange={setVariants}
+                                    initialRows={variants}
                                     skuContext={skuContext}
                                 />
                             )}
@@ -639,26 +419,15 @@ export default function AdminProduct() {
                                     )}
                                 </>
                             )}
-
-                            {/* Submit button */}
-                            {effectiveProductId && (
-                                <div className="flex justify-end gap-3 pt-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => navigate("/admin/products")}
-                                        className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-semibold text-sm"
-                                    >
-                                        Done / Skip
-                                    </button>
-                                    <button
-                                        onClick={onSubmittingVariants}
-                                        disabled={submitting || variantRows.length === 0}
-                                        className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-                                    >
-                                        {submitting ? "Saving..." : `Save ${variantRows.length} Variant${variantRows.length !== 1 ? "s" : ""}`}
-                                    </button>
-                                </div>
-                            )}
+                            <div className="flex justify-end gap-3 pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => navigate("/admin/products")}
+                                    className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-semibold text-sm"
+                                >
+                                    Done / Skip
+                                </button>
+                            </div>
                         </div>
                     </TabPanel>
                 )}

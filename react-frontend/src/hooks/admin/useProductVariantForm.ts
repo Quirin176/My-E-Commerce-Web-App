@@ -1,13 +1,14 @@
 import { useCallback, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import { slugify } from "../../utils/slugify";
+import type { VariantImagePayload } from "../../api/admin/adminProductsApi";
 
 // Define the return type of the useProductForm hook
-interface UseProductFormReturn {
-  formData: ProductFormData;
+interface UseProductVariantFormReturn {
+  formData: ProductVariantFormData;
   formErrors: Record<string, string>;
-  setFormData: Dispatch<SetStateAction<ProductFormData>>;
-  updateField: (field: keyof ProductFormData, value: unknown) => void;
+  setFormData: Dispatch<SetStateAction<ProductVariantFormData>>;
+  updateField: (field: keyof ProductVariantFormData, value: unknown) => void;
   validateForm: () => boolean;
   handleOptionChange: (optionValueId: number) => void;
   resetForm: () => void;
@@ -15,40 +16,44 @@ interface UseProductFormReturn {
 }
 
 // Define the structure of the product form data
-export interface ProductFormData {
+export interface ProductVariantFormData {
   id: string | number;
-  name: string;
-  slug: string;
-  shortDescription: string;
-  description: string;
-  basePrice: number | string;
-  thumbnailUrl: string;
-  categoryId: number | string;
-  selectedOptionValueIds: number[];
-  hasVariants: boolean;
+  variantName: string;
+  sku: string;
+  price: number;
+  originalPrice: number;
+  stock: number;
+  productId: number | string;
+  imageUrl: string;
+
+  imageUrls: VariantImagePayload[];
+
+  optionValueIds: number[];
 }
 
 // Initial form data template
-const INITIAL_FORM_DATA: ProductFormData = {
+const INITIAL_FORM_DATA: ProductVariantFormData = {
   id: "",
-  name: "",
-  slug: "",
-  shortDescription: "",
-  description: "",
-  basePrice: "",
-  thumbnailUrl: "",
-  categoryId: "",
-  selectedOptionValueIds: [],
-  hasVariants: false
+  variantName: "",
+  sku: "",
+  price: 0,
+  originalPrice: 0,
+  stock: 0,
+  productId: "",
+  imageUrl: "",
+
+  imageUrls: [],
+
+  optionValueIds: []
 };
 
 // Custom hook to manage product form state and logic
-export const useProductForm = (): UseProductFormReturn => {
-  const [formData, setFormData]: [ProductFormData, Dispatch<SetStateAction<ProductFormData>>] = useState(INITIAL_FORM_DATA);
+export const useProductForm = (): UseProductVariantFormReturn => {
+  const [formData, setFormData]: [ProductVariantFormData, Dispatch<SetStateAction<ProductVariantFormData>>] = useState(INITIAL_FORM_DATA);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   // Update a specific field in the form data
-  const updateField = useCallback((field: keyof ProductFormData, value: unknown) => {
+  const updateField = useCallback((field: keyof ProductVariantFormData, value: unknown) => {
     // Update the form data with the new value for the specified field
     setFormData((prev) => ({
       ...prev,
@@ -79,18 +84,18 @@ export const useProductForm = (): UseProductFormReturn => {
   const validateForm = useCallback((): boolean => {
     const errors: Record<string, string> = {};
 
-    if (!formData.name.trim()) {
+    if (!formData.variantName.trim()) {
       errors.name = "Product name is required";
     }
-    if (!formData.slug.trim()) {
-      errors.slug = "Product slug is required";
-    }
-    const priceNum = Number(formData.basePrice);
+
+    const priceNum = Number(formData.price);
     if (isNaN(priceNum) || priceNum <= 0) {
       errors.price = "Valid price is required (must be greater than 0)";
     }
-    if (!formData.categoryId || Number(formData.categoryId) <= 0) {
-      errors.categoryId = "Category is required";
+
+    const priceOriginNum = Number(formData.originalPrice);
+    if (isNaN(priceOriginNum) || priceOriginNum <= 0) {
+      errors.price = "Valid price is required (must be greater than 0)";
     }
 
     setFormErrors(errors);
@@ -100,10 +105,10 @@ export const useProductForm = (): UseProductFormReturn => {
   // Handle selection/deselection of product option values
   const handleOptionChange = useCallback((optionValueId: number) => {
     setFormData((prev) => {
-      const isSelected = prev.selectedOptionValueIds.includes(optionValueId); // Check if the option value is already selected
+      const isSelected = prev.optionValueIds.includes(optionValueId); // Check if the option value is already selected
       return {
-        ...prev, selectedOptionValueIds: isSelected ?
-        prev.selectedOptionValueIds.filter((id) => id !== optionValueId) : [...prev.selectedOptionValueIds, optionValueId],
+        ...prev, optionValueIds: isSelected ?
+        prev.optionValueIds.filter((id) => id !== optionValueId) : [...prev.optionValueIds, optionValueId],
       };
     });
   }, []);

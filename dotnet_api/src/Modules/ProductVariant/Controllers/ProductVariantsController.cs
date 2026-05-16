@@ -1,15 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApp_API.DTOs;
-using WebApp_API.Entities;
 using WebApp_API.Services;
-using WebApp_API.Specifications;
 
 namespace WebApp_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductVariantsController : ControllerBase // API URL: /api/products
+    public class ProductVariantsController : ControllerBase // API URL: /api/productvariants
     {
         private readonly IProductVariantService _service;
         public ProductVariantsController(IProductVariantService service) => _service = service;
@@ -36,8 +34,8 @@ namespace WebApp_API.Controllers
             return Ok(await _service.GetByProductIdAsync(productId));
         }
 
-        // POST /api/productvariants
-        [HttpPost]
+        // POST /api/productvariants/product/variant/${productId} — create a single variant
+        [HttpPost("/product/variant/{productId:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] ProductVariantDTOs.CreateProductVariantRequest request)
         {
@@ -53,7 +51,7 @@ namespace WebApp_API.Controllers
             try
             {
                 await _service.CreateAsync(request);
-                return Ok(new { message = "Product Variants Created" });
+                return Ok(new { message = "Product Variant Created" });
             }
             catch (Exception ex)
             {
@@ -61,31 +59,45 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // POST /api/productvariants/product/{productId}
-        [HttpPost("product/{productId:int}")]
-        public async Task<IActionResult> CreateVariants(int productId, [FromBody] IEnumerable<ProductVariantDTOs.CreateProductVariantRequest> requests)
-        {
-            if (requests == null || !requests.Any())
-                return BadRequest(new { message = "At least one variant is required" });
+        // POST /api/productvariants/product/{productId} — create multiple variants at once
+        // [HttpPost("product/{productId:int}")]
+        // [Authorize(Roles = "Admin")]
+        // public async Task<IActionResult> CreateVariants(
+        //     int productId,
+        //     [FromBody] IEnumerable<ProductVariantDTOs.CreateProductVariantRequest> requests)
+        // {
+        //     if (requests == null || !requests.Any())
+        //         return BadRequest(new { message = "At least one variant is required" });
 
-            var stamped = requests.Select(r =>
-            {
-                r.ProductId = productId;
-                return r;
-            });
+        //     // Stamp the productId from the route onto every request item
+        //     var stamped = requests.Select(r =>
+        //     {
+        //         r.ProductId = productId;
+        //         return r;
+        //     }).ToList();
 
-            try
-            {
-                await _service.CreateVariantsAsync(stamped);
-                return Ok(new { message = "Product Variants Created" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error creating variant", error = ex.Message });
-            }
-        }
+        //     // Basic validation across all variants before touching the DB
+        //     foreach (var r in stamped)
+        //     {
+        //         if (string.IsNullOrWhiteSpace(r.VariantName))
+        //             return BadRequest(new { message = $"Variant name is required for every variant" });
 
-        // PUT /api/productvariants/{id}  — update a single variant
+        //         if (r.Price <= 0)
+        //             return BadRequest(new { message = $"Price must be > 0 for variant \"{r.VariantName}\"" });
+        //     }
+
+        //     try
+        //     {
+        //         await _service.CreateVariantsAsync(stamped);
+        //         return Ok(new { message = $"{stamped.Count} variant(s) created successfully" });
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return StatusCode(500, new { message = "Error creating variants", error = ex.Message });
+        //     }
+        // }
+
+        // PUT /api/productvariants/{id} — update a single variant
         [HttpPut("{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] ProductVariantDTOs.UpdateProductVariantRequest request)
