@@ -31,9 +31,8 @@ export default function ProductVariantForm({
   const [originalPrice, setOriginalPrice] = useState<number>(row.originalPrice);
   const [stock, setStock] = useState<number>(row.stock);
   const [imageInput, setImageInput] = useState("");
-  const [imageUrls, setImageUrls] = useState<VariantImagePayload[]>(
-    row.imageUrls ?? []
-  );
+  const [imageUrls, setImageUrls] = useState<VariantImagePayload[]>(row.imageUrls ?? []);
+  const [localOptionValueIds, setLocalOptionValueIds] = useState<number[]>(row.optionValueIds ?? []);
   const [submitting, setSubmitting] = useState(false);
 
   // Re-seed whenever the row changes (e.g. user collapses and expands a different row)
@@ -44,6 +43,7 @@ export default function ProductVariantForm({
     setOriginalPrice(row.originalPrice);
     setStock(row.stock);
     setImageUrls(row.imageUrls ?? []);
+    setLocalOptionValueIds(row.optionValueIds ?? []);
   }, [row.key]);
 
   // ── Resolve option value labels from filters for read-only display ──────────
@@ -67,7 +67,7 @@ export default function ProductVariantForm({
         imageUrl: url,
         displayOrder: prev.length,
         isMain: prev.length === 0, // first image is main
-        productId,
+        productId: null,
         variantId: row.serverId ?? null,
       },
     ]);
@@ -98,7 +98,7 @@ export default function ProductVariantForm({
       productId,
       imageUrl: imageUrls[0]?.imageUrl ?? "",
       imageUrls,
-      optionValueIds: row.optionValueIds,
+      optionValueIds: localOptionValueIds,
     };
 
     setSubmitting(true);
@@ -240,9 +240,8 @@ export default function ProductVariantForm({
                 <img
                   src={img.imageUrl}
                   alt=""
-                  className={`w-full h-full object-cover rounded border-2 ${
-                    img.isMain ? "border-blue-500" : "border-gray-200"
-                  }`}
+                  className={`w-full h-full object-cover rounded border-2 ${img.isMain ? "border-blue-500" : "border-gray-200"
+                    }`}
                 />
                 {img.isMain && (
                   <span className="absolute bottom-0 left-0 right-0 text-center text-white text-[9px] bg-blue-500 rounded-b">
@@ -293,8 +292,8 @@ export default function ProductVariantForm({
           {submitting
             ? "Saving…"
             : mode === "edit" && row.serverId
-            ? "Update Variant"
-            : "Create Variant"}
+              ? "Update Variant"
+              : "Create Variant"}
         </button>
       </div>
     </div>

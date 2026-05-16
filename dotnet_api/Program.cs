@@ -88,12 +88,14 @@ builder.Services.AddScoped<IProductOptionValueRepository, ProductOptionValueRepo
 builder.Services.AddScoped<IProductOptionValueService, ProductOptionValueService>();
 
 builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();
+
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
 
 builder.Services.AddScoped<IProductVariantOptionValueRepository, ProductVariantOptionValueRepository>();
+
 builder.Services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
-// builder.Services.AddScoped<IProductVariantService, ProductVariantService>();
+builder.Services.AddScoped<IProductVariantService, ProductVariantService>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();

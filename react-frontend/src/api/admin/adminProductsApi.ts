@@ -62,7 +62,10 @@ export const adminProductsApi = {
   },
 
   async createVariant(productId: number | string, data: ProductVariantPayload) {
-    const res = await apiClient.post(`/productvariants/product/variant/${productId}`, data);
+    const res = await apiClient.post(`/productvariants/product/variant/${productId}`, {
+      ...data,
+      productId: Number(productId),  // ensure it's a number, not string
+    });
     return res.data;
   },
 

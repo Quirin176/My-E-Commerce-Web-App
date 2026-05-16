@@ -35,7 +35,7 @@ namespace WebApp_API.Controllers
         }
 
         // POST /api/productvariants/product/variant/${productId} — create a single variant
-        [HttpPost("/product/variant/{productId:int}")]
+        [HttpPost("product/variant/{productId:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(int productId, [FromBody] ProductVariantDTOs.CreateProductVariantRequest request)
         {

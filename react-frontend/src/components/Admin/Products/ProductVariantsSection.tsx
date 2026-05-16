@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { PackageOpen, ChevronDown, ChevronUp, ImagePlus, X } from "lucide-react";
 import type { VariantImagePayload } from "../../../api/admin/adminProductsApi";
 import type { ProductOption } from "../../../types/models/products/ProductOption";
-import ToggleSwitch from "../../ToggleSwitch";
 import ProductVariantForm from "./ProductVariantForm";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
