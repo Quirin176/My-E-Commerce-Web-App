@@ -10,7 +10,7 @@ namespace WebApp_API.Services
     {
         private readonly IProductRepository _productRepo;
 
-        public ProductService( IProductRepository productRepo)
+        public ProductService(IProductRepository productRepo)
         {
             _productRepo = productRepo;
         }

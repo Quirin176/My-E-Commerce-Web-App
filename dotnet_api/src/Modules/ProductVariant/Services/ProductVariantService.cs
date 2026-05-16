@@ -48,7 +48,7 @@ namespace WebApp_API.Services
             await _productVariantRepo.AddAsync(variant);
 
             // Attach images using the real variant Id
-            await AttachImagesAsync(variant.Id, request.ProductId, request.ImageUrls);
+            await AttachImagesAsync(request.ImageUrls);
  
             // Attach option value links
             await AttachOptionValuesAsync(variant.Id, request.OptionValueIds);
@@ -64,7 +64,7 @@ namespace WebApp_API.Services
                 await _productVariantRepo.AddAsync(variant);
 
                 // Attach images using the real variant Id
-                await AttachImagesAsync(variant.Id, request.ProductId, request.ImageUrls);
+                await AttachImagesAsync(request.ImageUrls);
  
                 // Attach option value links
                 await AttachOptionValuesAsync(variant.Id, request.OptionValueIds);
@@ -91,7 +91,7 @@ namespace WebApp_API.Services
                 var existing = await _productImageRepo.GetByVariantAsync(id);
                 foreach (var img in existing)
                 {
-                    await _productImageRepo.DeleteAsync(img);
+                    await _productImageRepo.Remove(img);
                 }
 
                 // Add new ones
@@ -148,13 +148,13 @@ namespace WebApp_API.Services
             ProductId = request.ProductId,
         };
 
-        private async Task AttachImagesAsync(int variantId, int productId, List<ProductImageDTOs.ImageUrlDto>? imageUrls)
+        private async Task AttachImagesAsync(List<ProductImageDTOs.AddProductImageRequest>? imageUrls)
         {
             if (imageUrls == null || imageUrls.Count == 0) return;
 
             var images = imageUrls.Select((image, index) => new ProductImage
             {
-                VariantId = variantId,
+                VariantId = image.VariantId,
                 ProductId = null,
                 ImageUrl = image.ImageUrl,
                 DisplayOrder = image.DisplayOrder,

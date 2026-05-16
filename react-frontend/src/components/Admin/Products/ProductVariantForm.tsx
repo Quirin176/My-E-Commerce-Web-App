@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 import { Plus, X } from "lucide-react";
 import toast from "react-hot-toast";
-import {
-  adminProductsApi,
-  type VariantImagePayload,
-  type ProductVariantPayload,
-} from "../../../api/admin/adminProductsApi";
+import { adminProductsApi, type AddImagePayload, type ProductVariantPayload, } from "../../../api/admin/adminProductsApi";
 import type { ProductOption } from "../../../types/models/products/ProductOption";
 import type { VariantRow } from "./ProductVariantsSection";
 
@@ -31,7 +27,7 @@ export default function ProductVariantForm({
   const [originalPrice, setOriginalPrice] = useState<number>(row.originalPrice);
   const [stock, setStock] = useState<number>(row.stock);
   const [imageInput, setImageInput] = useState("");
-  const [imageUrls, setImageUrls] = useState<VariantImagePayload[]>(row.imageUrls ?? []);
+  const [imageUrls, setImageUrls] = useState<AddImagePayload[]>(row.imageUrls ?? []);
   const [localOptionValueIds, setLocalOptionValueIds] = useState<number[]>(row.optionValueIds ?? []);
   const [submitting, setSubmitting] = useState(false);
 

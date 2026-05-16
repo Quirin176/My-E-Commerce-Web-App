@@ -14,15 +14,7 @@ export interface ProductPayload {
   hasVariants: boolean;
 };
 
-export interface VariantImageCreatePayload {
-  imageUrl: string;
-  displayOrder: number;
-  isMain: boolean;
-  productId: number;
-  variantId: number;
-}
-
-export interface VariantImagePayload {
+export interface AddImagePayload {
   imageUrl: string;
   displayOrder: number;
   isMain: boolean;
@@ -39,7 +31,7 @@ export interface ProductVariantPayload {
   productId: number | string;
   imageUrl: string;
 
-  imageUrls: VariantImagePayload[];
+  imageUrls: AddImagePayload[];
 
   optionValueIds: number[];
 }
@@ -88,4 +80,10 @@ export const adminProductsApi = {
     const res = await apiClient.delete(`/productvariants/${id}`);
     return res.data;
   },
+  
+  async addProductImages(data: AddImagePayload[]) {
+    const res = await apiClient.post("/productimages/images", data);
+    return res.data;
+  },
+
 };

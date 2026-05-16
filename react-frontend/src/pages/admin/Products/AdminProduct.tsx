@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { AlertCircle, MoveRight, Plus } from "lucide-react";
+import { AlertCircle, MoveRight, Plus, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { Tabs, Tab, Box } from "@mui/material";
 
@@ -8,7 +8,7 @@ import { useCategories } from "../../../hooks/products/useCategories";
 import { useProductForm } from "../../../hooks/admin/useProductForm";
 import { useProductFilters } from "../../../hooks/products/useProductFilters";
 
-import { adminProductsApi, type ProductPayload } from "../../../api/admin/adminProductsApi";
+import { adminProductsApi, type ProductPayload, type AddImagePayload } from "../../../api/admin/adminProductsApi";
 import { productApi } from "../../../api/products/productApi";
 
 import ToggleSwitch from "../../../components/ToggleSwitch";
@@ -62,6 +62,9 @@ export default function AdminProduct() {
         categoryName: categories.find((c) => c.id === Number(form.formData.categoryId))?.name ?? "",
         productName: form.formData.name,
     };
+
+    const [imageInput, setImageInput] = useState("");
+    const [images, setImages] = useState<AddImagePayload[]>([]);
 
     // ── Load product data in edit mode ──────────────────────────────────────────
     useEffect(() => {
@@ -161,12 +164,66 @@ export default function AdminProduct() {
         toast.success(`Variant "${row.label}" added`);
     };
 
+    // ── Helpers ────────────────────────────────────────────────────────────────
+    const addImage = () => {
+        const url = imageInput.trim();
+        if (!url) return;
+        if (images.some((i) => i.imageUrl === url)) {
+            toast.error("Image URL already added");
+            return;
+        }
+        setImages((prev) => [
+            ...prev,
+            {
+                imageUrl: url,
+                displayOrder: prev.length,
+                isMain: prev.length === 0, // first image is main
+                productId: createdProductId,
+                variantId: null,
+            },
+        ]);
+        setImageInput("");
+    };
+
+    const removeImage = (idx: number) =>
+        setImages((prev) => prev.filter((_, i) => i !== idx));
+
+    // ── Save product images (tab 3 button) ──────────────────────────────────────────────
+    const onSubmittingProductImages = async () => {
+        if (!form.validateForm()) return;
+
+        setSubmitting(true);
+        try {
+            const payload = images.map((img: AddImagePayload, index) => {
+                imageUrl: img.imageUrl;
+                displayOrder: img.displayOrder;
+                isMain: img.isMain;
+                productId: createdProductId,
+                    variantId: null
+            };).ToArray();
+
+            if (mode === "edit" && id) {
+                await adminProductsApi.updateProductById(id, payload);
+                toast.success("Product updated!");
+            } else {
+                await adminProductsApi.addProductImages(payload);
+
+                toast.success("Product Images added!");
+            }
+        } catch {
+            toast.error("Failed to save product");
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
     // ── Tab visibility ────────────────────────────────────────────────────────────
     const showAttributesTab = !!form.formData.categoryId && filters.filters.length > 0;
     const showVariantsTab = hasVariant;
 
     const attributesTabIndex = 1;
-    const variantsTabIndex = showAttributesTab ? 2 : 1;
+    const addProductImagesIndex = showAttributesTab && !showVariantsTab ? 2 : 1;
+    const variantsTabIndex = showAttributesTab && showVariantsTab ? 2 : 1;
 
     return (
         <div className="w-full overflow-y-auto">
@@ -174,7 +231,7 @@ export default function AdminProduct() {
                 <Tabs value={tabIndex} onChange={(_, nv) => setTabIndex(nv)}>
                     <Tab label="Product" />
                     {showAttributesTab && <Tab label="Attributes" />}
-                    {showVariantsTab && <Tab label="Variants" />}
+                    {showVariantsTab ? <Tab label="Variants" /> : <Tab label="Product Images" />}
                 </Tabs>
 
                 {/* ── TAB 0: Product basic info ── */}
@@ -371,7 +428,7 @@ export default function AdminProduct() {
                 )}
 
                 {/* ── TAB 2: Variants ── */}
-                {showVariantsTab && (
+                {showVariantsTab ? (
                     <TabPanel value={tabIndex} index={variantsTabIndex}>
                         <div className="space-y-4">
                             <div className="flex flex-row justify-between items-center">
@@ -437,6 +494,96 @@ export default function AdminProduct() {
                                     className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-semibold text-sm"
                                 >
                                     Done / Skip
+                                </button>
+                            </div>
+                        </div>
+                    </TabPanel>
+                ) : (
+                    <TabPanel value={tabIndex} index={addProductImagesIndex}>
+                        <div className="space-y-4">
+                            <label className="text-2xl font-bold text-black">Product Images</label>
+
+                            {/* Info banner when product not yet saved */}
+                            {!effectiveProductId && (
+                                <div className="flex items-center gap-3 p-4 bg-amber-50 border-2 border-amber-300 rounded-xl text-amber-800">
+                                    <AlertCircle size={20} className="shrink-0" />
+                                    <div>
+                                        <p className="font-semibold text-sm">Product not saved yet</p>
+                                        <p className="text-xs mt-0.5">Go to the <strong>Product</strong> tab and click <strong>Create Product</strong> first. Then come back here to add variants.</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Variant rows (auto-generated from option values) */}
+                            {/* Image URL input */}
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-600 mb-1">
+                                    Add Image URL
+                                </label>
+                                <div className="flex gap-2">
+                                    <input
+                                        value={imageInput}
+                                        onChange={(e) => setImageInput(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                                e.preventDefault();
+                                                addImage();
+                                            }
+                                        }}
+                                        placeholder="https://example.com/image.jpg"
+                                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm outline-none focus:border-blue-500 transition bg-white flex-1"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={addImage}
+                                        className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition shrink-0 flex items-center gap-1"
+                                    >
+                                        <Plus size={14} /> Add
+                                    </button>
+                                </div>
+
+                                {images.length > 0 && (
+                                    <div className="flex flex-wrap gap-2 mt-2">
+                                        {images.map((img, idx) => (
+                                            <div key={idx} className="relative group w-16 h-16">
+                                                <img
+                                                    src={img.imageUrl}
+                                                    alt=""
+                                                    className={`w-full h-full object-cover rounded border-2 ${img.isMain ? "border-blue-500" : "border-gray-200"
+                                                        }`}
+                                                />
+                                                {img.isMain && (
+                                                    <span className="absolute bottom-0 left-0 right-0 text-center text-white text-[9px] bg-blue-500 rounded-b">
+                                                        Main
+                                                    </span>
+                                                )}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeImage(idx)}
+                                                    className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                                                >
+                                                    <X size={10} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="flex justify-end gap-3 pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => navigate("/admin/products")}
+                                    className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-semibold text-sm"
+                                >
+                                    Done / Skip
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => onSubmittingProductImages()}
+                                    className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-semibold text-sm"
+                                >
+                                    Save Product Images
                                 </button>
                             </div>
                         </div>
