@@ -1,210 +1,302 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, X } from "lucide-react";
 import toast from "react-hot-toast";
-import { adminProductsApi, type VariantImagePayload, type ProductVariantPayload } from "../../../api/admin/adminProductsApi";
+import {
+  adminProductsApi,
+  type VariantImagePayload,
+  type ProductVariantPayload,
+} from "../../../api/admin/adminProductsApi";
+import type { ProductOption } from "../../../types/models/products/ProductOption";
+import type { VariantRow } from "./ProductVariantsSection";
 
 interface ProductVariantFormProps {
-    mode: string;
-    productId: number;
-    selectedOptionValueIds: number[];
-    // onAdd: (row: VariantRow) => void;
-    // onCancel: () => void;
+  mode: "create" | "edit";
+  productId: number;
+  filters: ProductOption[];
+  row: VariantRow;
+  onSaveSuccess: (savedRow: VariantRow) => void;
 }
 
 export default function ProductVariantForm({
-    mode,
-    productId,
-    selectedOptionValueIds,
-    // onAdd,
-    // onCancel
+  mode,
+  productId,
+  filters,
+  row,
+  onSaveSuccess,
 }: ProductVariantFormProps) {
-    const [variantName, setVariantName] = useState("");
-    const [sku, setSku] = useState("");
-    const [price, setPrice] = useState<number>(0);
-    const [originalPrice, setOriginalPrice] = useState<number>(0);
-    const [stock, setStock] = useState<number>(0);
-    const [imageInput, setImageInput] = useState<string>("");
-    const [imageUrls, setImageUrls] = useState<VariantImagePayload[]>([]);
+  // ── Local form state — seeded from the row ─────────────────────────────────
+  const [variantName, setVariantName] = useState(row.variantName);
+  const [sku, setSku] = useState(row.sku);
+  const [price, setPrice] = useState<number>(row.price);
+  const [originalPrice, setOriginalPrice] = useState<number>(row.originalPrice);
+  const [stock, setStock] = useState<number>(row.stock);
+  const [imageInput, setImageInput] = useState("");
+  const [imageUrls, setImageUrls] = useState<VariantImagePayload[]>(
+    row.imageUrls ?? []
+  );
+  const [submitting, setSubmitting] = useState(false);
 
-    const [submitting, setSubmitting] = useState<boolean>(false);
+  // Re-seed whenever the row changes (e.g. user collapses and expands a different row)
+  useEffect(() => {
+    setVariantName(row.variantName);
+    setSku(row.sku);
+    setPrice(row.price);
+    setOriginalPrice(row.originalPrice);
+    setStock(row.stock);
+    setImageUrls(row.imageUrls ?? []);
+  }, [row.key]);
 
-    const addImage = () => {
-        const url = imageInput.trim();
-        if (!url) return;
-        if (imageUrls.some((i) => i.imageUrl === url)) return;
+  // ── Resolve option value labels from filters for read-only display ──────────
+  const attributeTags: { optionName: string; value: string }[] = filters.flatMap((opt) =>
+    opt.optionValues
+      .filter((v) => row.optionValueIds.includes(v.id))
+      .map((v) => ({ optionName: opt.optionName, value: v.value }))
+  );
 
-        setImageUrls((prev) => [...prev, {
-            imageUrl: url,
-            displayOrder: prev.length,
-            isMain: prev.length === 1,
-            productId: Number(productId),
-            variantId: Number(productId)
-        }]);
-
-        setImageInput("");
-    };
-
-    const handleAddVariant = async () => {
-        if (!variantName.trim()) { toast.error("Variant name is required"); return; }
-        if (!sku.trim()) { toast.error("SKU is required"); return; }
-        if (Number(price) <= 0) { toast.error("Price must be > 0"); return; }
-
-        const payload: ProductVariantPayload = {
-            variantName: variantName.trim(),
-            sku: sku.trim(),
-            price: Number(price),
-            originalPrice: Number(originalPrice) || Number(price),
-            stock: Number(stock),
-            productId: Number(productId),
-            imageUrl: imageUrls[0]?.imageUrl ?? "",
-
-            imageUrls: imageUrls,
-
-            optionValueIds: selectedOptionValueIds,
-        };
-
-        await adminProductsApi.createVariant(productId, payload);
-    };
-
-    const handleUpdateVariant = async () => {
-        if (!productId) {
-            return;
-        }
-
-        setSubmitting(true);
-        try {
-            const payload: ProductVariantPayload = {
-                variantName: variantName.trim(),
-                sku: sku.trim(),
-                price: Number(price),
-                originalPrice: Number(originalPrice) || Number(price),
-                stock: Number(stock),
-                productId: Number(productId),
-                imageUrl: imageUrls[0]?.imageUrl ?? "",
-
-                imageUrls: imageUrls,
-
-                optionValueIds: selectedOptionValueIds,
-            };
-
-            await adminProductsApi.updateVariant(productId, payload);
-        } catch (err) {
-            console.error("Failed to update variant", err);
-        } finally {
-            setSubmitting(false);
-        }
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  const addImage = () => {
+    const url = imageInput.trim();
+    if (!url) return;
+    if (imageUrls.some((i) => i.imageUrl === url)) {
+      toast.error("Image URL already added");
+      return;
     }
+    setImageUrls((prev) => [
+      ...prev,
+      {
+        imageUrl: url,
+        displayOrder: prev.length,
+        isMain: prev.length === 0, // first image is main
+        productId,
+        variantId: row.serverId ?? null,
+      },
+    ]);
+    setImageInput("");
+  };
 
-    const inputCls = "w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm outline-none focus:border-blue-500 transition bg-white";
+  const removeImage = (idx: number) =>
+    setImageUrls((prev) => prev.filter((_, i) => i !== idx));
 
-    return (
-        <div className="border-2 border-blue-500 rounded-xl p-5 bg-blue-50 space-y-4">
-            <h3 className="font-bold text-blue-800 text-sm uppercase tracking-wide">Add Variant Manually</h3>
+  // ── Validation ─────────────────────────────────────────────────────────────
+  const validate = (): boolean => {
+    if (!variantName.trim()) { toast.error("Variant name is required"); return false; }
+    if (!sku.trim()) { toast.error("SKU is required"); return false; }
+    if (Number(price) <= 0) { toast.error("Price must be greater than 0"); return false; }
+    return true;
+  };
 
-            <div className="grid grid-cols-2 gap-3">
-                <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">Variant Name *</label>
-                    <input value={variantName} onChange={(e) => setVariantName(e.target.value)} placeholder="e.g. Red / XL" className={inputCls} />
-                </div>
-                <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">SKU *</label>
-                    <input value={sku} onChange={(e) => setSku(e.target.value)} placeholder="e.g. PROD-RED-XL" className={`${inputCls} font-mono`} />
-                </div>
-            </div>
+  // ── Submit ─────────────────────────────────────────────────────────────────
+  const handleSubmit = async () => {
+    if (!validate()) return;
 
-            <div className="grid grid-cols-3 gap-3">
-                <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">Original Price</label>
-                    <input type="number" min={0} value={originalPrice} onChange={(e) => setOriginalPrice(Number(e.target.value))} placeholder="Strike-through price" className={inputCls} />
-                </div>
-                <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">Sale Price *</label>
-                    <input type="number" min={0} value={price} onChange={(e) => setPrice(Number(e.target.value))} placeholder="Selling price" className={inputCls} />
-                </div>
-                <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">Stock</label>
-                    <input type="number" min={0} value={stock} onChange={(e) => setStock(Number(e.target.value))} placeholder="0" className={inputCls} />
-                </div>
-            </div>
+    const payload: ProductVariantPayload = {
+      variantName: variantName.trim(),
+      sku: sku.trim(),
+      price: Number(price),
+      originalPrice: Number(originalPrice) || Number(price),
+      stock: Number(stock),
+      productId,
+      imageUrl: imageUrls[0]?.imageUrl ?? "",
+      imageUrls,
+      optionValueIds: row.optionValueIds,
+    };
 
-            {/* Image URL input */}
-            <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1">Add Image URL</label>
-                <div className="flex gap-2">
-                    <input
-                        value={imageInput}
-                        onChange={(e) => setImageInput(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addImage(); } }}
-                        placeholder="https://example.com/image.jpg"
-                        className={`${inputCls} flex-1`}
-                    />
-                    <button type="button" onClick={addImage} className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition shrink-0 flex items-center gap-1">
-                        <Plus size={14} /> Add
-                    </button>
-                </div>
-                {imageUrls.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-2">
-                        {imageUrls.map((img, idx) => (
-                            <div key={idx} className="relative group w-16 h-16">
-                                <img src={img.imageUrl} alt="" className="w-full h-full object-cover rounded border-2 border-gray-200" />
-                                <button
-                                    type="button"
-                                    onClick={() => setImageUrls((prev) => prev.filter((_, i) => i !== idx))}
-                                    className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
-                                >
-                                    <X size={10} />
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+    setSubmitting(true);
+    try {
+      if (mode === "edit" && row.serverId) {
+        await adminProductsApi.updateVariant(row.serverId, payload);
+        toast.success("Variant updated!");
+      } else {
+        await adminProductsApi.createVariant(productId, payload);
+        toast.success("Variant created!");
+      }
 
-            {/* Option values */}
-            {selectedOptionValueIds.length > 0 && (
-                <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-2">Attributes</label>
-                    <div className="space-y-2">
-                        {selectedOptionValueIds.map((opt) => (
-                            <div key={opt.optionId}>
-                                <p className="text-xs text-gray-500 mb-1">{opt.optionName}</p>
-                                <div className="flex flex-wrap gap-2">
-                                    {opt.optionValues.map((v) => (
-                                        <label key={v.id} className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border-2 cursor-pointer text-xs font-medium transition ${selectedOptionValueIds.includes(v.id) ? "border-blue-500 bg-blue-100 text-blue-800" : "border-gray-300 bg-white text-gray-700"}`}>
-                                            <input type="checkbox" checked={selectedOptionValueIds.includes(v.id)} className="sr-only" />
-                                            {v.value}
-                                        </label>
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
+      // Bubble updated data back to the parent so it can update its row list
+      onSaveSuccess({
+        ...row,
+        variantName: variantName.trim(),
+        label: variantName.trim(),
+        sku: sku.trim(),
+        price: Number(price),
+        originalPrice: Number(originalPrice) || Number(price),
+        stock: Number(stock),
+        imageUrls,
+        optionValueIds: row.optionValueIds,
+      });
+    } catch (err) {
+      console.error("Failed to save variant", err);
+      toast.error("Failed to save variant");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-            {mode === "create" ? (
-                <div className="flex justify-end">
-                    <button
-                        type="button"
-                        onClick={() => handleAddVariant()}
-                        disabled={submitting}
-                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {submitting ? "Saving..." : "Create Variant"}
-                    </button>
-                </div>
-            ) : (
-                <div className="flex justify-end">
-                    <button
-                        type="button"
-                        onClick={() => handleUpdateVariant()}
-                        disabled={submitting}
-                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {submitting ? "Saving..." : "Update Variant"}
-                    </button>
-                </div>
-            )}
+  // ── Styles ─────────────────────────────────────────────────────────────────
+  const inputCls =
+    "w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm outline-none focus:border-blue-500 transition bg-white";
+
+  return (
+    <div className="space-y-4">
+      {/* Name + SKU */}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs font-semibold text-gray-600 mb-1">
+            Variant Name <span className="text-red-500">*</span>
+          </label>
+          <input
+            value={variantName}
+            onChange={(e) => setVariantName(e.target.value)}
+            placeholder="e.g. Red / XL"
+            className={inputCls}
+          />
         </div>
-    );
+        <div>
+          <label className="block text-xs font-semibold text-gray-600 mb-1">
+            SKU <span className="text-red-500">*</span>
+          </label>
+          <input
+            value={sku}
+            onChange={(e) => setSku(e.target.value)}
+            placeholder="e.g. PROD-RED-XL"
+            className={`${inputCls} font-mono`}
+          />
+        </div>
+      </div>
+
+      {/* Prices + Stock */}
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <label className="block text-xs font-semibold text-gray-600 mb-1">
+            Original Price
+          </label>
+          <input
+            type="number"
+            min={0}
+            value={originalPrice}
+            onChange={(e) => setOriginalPrice(Number(e.target.value))}
+            placeholder="Strike-through price"
+            className={inputCls}
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-gray-600 mb-1">
+            Sale Price <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="number"
+            min={0}
+            value={price}
+            onChange={(e) => setPrice(Number(e.target.value))}
+            placeholder="Selling price"
+            className={inputCls}
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-gray-600 mb-1">
+            Stock
+          </label>
+          <input
+            type="number"
+            min={0}
+            value={stock}
+            onChange={(e) => setStock(Number(e.target.value))}
+            placeholder="0"
+            className={inputCls}
+          />
+        </div>
+      </div>
+
+      {/* Image URL input */}
+      <div>
+        <label className="block text-xs font-semibold text-gray-600 mb-1">
+          Add Image URL
+        </label>
+        <div className="flex gap-2">
+          <input
+            value={imageInput}
+            onChange={(e) => setImageInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                addImage();
+              }
+            }}
+            placeholder="https://example.com/image.jpg"
+            className={`${inputCls} flex-1`}
+          />
+          <button
+            type="button"
+            onClick={addImage}
+            className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition shrink-0 flex items-center gap-1"
+          >
+            <Plus size={14} /> Add
+          </button>
+        </div>
+
+        {imageUrls.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-2">
+            {imageUrls.map((img, idx) => (
+              <div key={idx} className="relative group w-16 h-16">
+                <img
+                  src={img.imageUrl}
+                  alt=""
+                  className={`w-full h-full object-cover rounded border-2 ${
+                    img.isMain ? "border-blue-500" : "border-gray-200"
+                  }`}
+                />
+                {img.isMain && (
+                  <span className="absolute bottom-0 left-0 right-0 text-center text-white text-[9px] bg-blue-500 rounded-b">
+                    Main
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => removeImage(idx)}
+                  className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                >
+                  <X size={10} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Read-only attribute combination display */}
+      {attributeTags.length > 0 && (
+        <div>
+          <label className="block text-xs font-semibold text-gray-600 mb-2">
+            Attributes
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {attributeTags.map((tag, idx) => (
+              <span
+                key={idx}
+                className="inline-flex items-center gap-1 px-3 py-1 rounded-lg border-2 border-blue-200 bg-blue-50 text-blue-800 text-xs font-medium"
+              >
+                <span className="text-blue-400">{tag.optionName}:</span>
+                {tag.value}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Save button */}
+      <div className="flex justify-end pt-2">
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={submitting}
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {submitting
+            ? "Saving…"
+            : mode === "edit" && row.serverId
+            ? "Update Variant"
+            : "Create Variant"}
+        </button>
+      </div>
+    </div>
+  );
 }

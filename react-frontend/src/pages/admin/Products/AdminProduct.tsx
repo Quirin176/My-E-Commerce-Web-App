@@ -56,6 +56,7 @@ export default function AdminProduct() {
     const filters = useProductFilters();
 
     const selectedIds = form.formData.selectedOptionValueIds ?? [];
+    const [autoGenerate, setAutoGenerate] = useState<boolean>(false);
 
     const skuContext: SkuContext = {
         categoryName: categories.find((c) => c.id === Number(form.formData.categoryId))?.name ?? "",
@@ -313,7 +314,7 @@ export default function AdminProduct() {
                 {showAttributesTab && (
                     <TabPanel value={tabIndex} index={attributesTabIndex}>
                         <div className="space-y-4">
-                            <label className="text-2xl font-bold text-black">Product Attributes (Options)</label>
+                            <label className="text-2xl font-bold text-black">Product Attributes</label>
 
                             {filters.filtersLoading ? (
                                 <div className="text-center py-4">
@@ -373,6 +374,13 @@ export default function AdminProduct() {
                 {showVariantsTab && (
                     <TabPanel value={tabIndex} index={variantsTabIndex}>
                         <div className="space-y-4">
+                            <div className="flex flex-row justify-between items-center">
+                                <label className="text-2xl font-bold text-black">Product Variants</label>
+                                <ToggleSwitch
+                                    label="Auto-generate?"
+                                    checked={autoGenerate}
+                                    onChange={(val) => setAutoGenerate(val)} />
+                            </div>
 
                             {/* Info banner when product not yet saved */}
                             {!effectiveProductId && (
@@ -388,6 +396,7 @@ export default function AdminProduct() {
                             {/* Variant rows (auto-generated from option values) */}
                             {effectiveProductId && (
                                 <ProductVariantsSection
+                                    autoGenerate={autoGenerate}
                                     productId={effectiveProductId}
                                     filters={filters.filters}
                                     selectedOptionValueIds={selectedIds}
@@ -413,6 +422,8 @@ export default function AdminProduct() {
                                     ) : (
                                         <ManualVariantForm
                                             filters={filters.filters}
+                                            selectedProductOptionValueIds={selectedIds}
+                                            skuContext={skuContext}
                                             onAdd={handleAddManualVariant}
                                             onCancel={() => setShowManualForm(false)}
                                         />

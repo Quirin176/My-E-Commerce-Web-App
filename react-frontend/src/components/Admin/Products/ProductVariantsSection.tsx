@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { PackageOpen, ChevronDown, ChevronUp, ImagePlus, X } from "lucide-react";
 import type { VariantImagePayload } from "../../../api/admin/adminProductsApi";
 import type { ProductOption } from "../../../types/models/products/ProductOption";
+import ToggleSwitch from "../../ToggleSwitch";
 import ProductVariantForm from "./ProductVariantForm";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface VariantRow {
   key: string;
@@ -16,6 +19,7 @@ export interface VariantRow {
   imageInput: string;
   open: boolean;
   optionValueIds: number[];
+  /** Set when this row corresponds to a saved server-side variant */
   serverId?: number;
 }
 
@@ -25,35 +29,36 @@ export interface SkuContext {
 }
 
 interface Props {
+  mode: "create" | "edit";
+  autoGenerate: boolean;
   productId: number;
   filters: ProductOption[];
   selectedOptionValueIds: number[];
-  mode: string;
   onChange: (rows: VariantRow[]) => void;
   initialRows?: VariantRow[];
   skuContext: SkuContext;
 }
 
+// ─── SKU helpers ──────────────────────────────────────────────────────────────
+
 function toSkuPart(str: string): string {
   return str
     .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")   // strip accents
+    .replace(/[\u0300-\u036f]/g, "")
     .toUpperCase()
-    .replace(/[^A-Z0-9]+/g, "")        // keep only alphanum
-    .slice(0, 8);                       // max 8 chars per part
+    .replace(/[^A-Z0-9]+/g, "")
+    .slice(0, 8);
 }
 
 function buildSku(context: SkuContext, attrValues: string[]): string {
   const cat = toSkuPart(context.categoryName) || "CAT";
   const prod = toSkuPart(context.productName) || "PROD";
-  const attrs = attrValues
-    .map((v) => toSkuPart(v))
-    .filter(Boolean)
-    .join("");
+  const attrs = attrValues.map(toSkuPart).filter(Boolean).join("");
   return `${cat}-${prod}-${attrs}`;
 }
 
-/** Cartesian product of arrays */
+// ─── Combination helpers ──────────────────────────────────────────────────────
+
 function cartesian<T>(arrays: T[][]): T[][] {
   if (arrays.length === 0) return [[]];
   return arrays.reduce<T[][]>(
@@ -64,13 +69,9 @@ function cartesian<T>(arrays: T[][]): T[][] {
 
 function buildLabel(optionValueIds: number[], filters: ProductOption[]): string {
   const parts: string[] = [];
-  for (const opt of filters) {
-    for (const val of opt.optionValues) {
-      if (optionValueIds.includes(val.id)) {
-        parts.push(val.value);
-      }
-    }
-  }
+  for (const opt of filters)
+    for (const val of opt.optionValues)
+      if (optionValueIds.includes(val.id)) parts.push(val.value);
   return parts.join(" / ") || "Variant";
 }
 
@@ -82,17 +83,12 @@ function buildAttrValues(optionValueIds: number[], filters: ProductOption[]): st
   return parts;
 }
 
-/** Given a list of selected IDs and the full filter options, group IDs by option */
 function groupByOption(selectedIds: number[], filters: ProductOption[]): number[][] {
-  const groups: number[][] = [];
-  for (const opt of filters) {
-    const matchingIds = opt.optionValues.map((v) => v.id).filter((id) => selectedIds.includes(id));
-    if (matchingIds.length > 0) groups.push(matchingIds);
-  }
-  return groups;
+  return filters
+    .map((opt) => opt.optionValues.map((v) => v.id).filter((id) => selectedIds.includes(id)))
+    .filter((g) => g.length > 0);
 }
 
-/** Generate variant rows from selected option value IDs */
 function generateRows(
   selectedIds: number[],
   filters: ProductOption[],
@@ -125,9 +121,10 @@ function generateRows(
       imageInput: "",
       open: false,
       optionValueIds: combo,
-    };
+    } satisfies VariantRow;
   });
 
+  // Preserve manual rows (no option-value combo)
   const manualRows = existingRows.filter(
     (row) => row.key.startsWith("manual-") || row.optionValueIds.length === 0
   );
@@ -136,8 +133,10 @@ function generateRows(
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
+
 export default function ProductVariantsSection({
   mode,
+  autoGenerate,
   productId,
   filters,
   selectedOptionValueIds,
@@ -147,50 +146,48 @@ export default function ProductVariantsSection({
 }: Props) {
   const [rows, setRows] = useState<VariantRow[]>(initialRows);
 
+  // Sync when parent passes down loaded rows (edit mode)
   useEffect(() => {
     setRows(initialRows);
   }, [initialRows]);
 
-  // Re-generate rows whenever the selected option values change
+  // Re-generate rows whenever selected option values change
   useEffect(() => {
-    setRows((prev) => {
-      const next = generateRows(selectedOptionValueIds, filters, prev, skuContext);
-      onChange(next);
-      return next;
-    });
-  }, [selectedOptionValueIds.join(","), filters, skuContext.categoryName, skuContext.productName]);
+    if (!autoGenerate) setRows(initialRows);
+    else {
+      setRows((prev) => {
+        const next = generateRows(selectedOptionValueIds, filters, prev, skuContext);
+        onChange(next);
+        return next;
+      });
+    }
+  }, [autoGenerate, selectedOptionValueIds.join(","), filters, skuContext.categoryName, skuContext.productName]);
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
+  // ── Row helpers ────────────────────────────────────────────────────────────
 
-  const update = (key: string, patch: Partial<VariantRow>) => {
+  const updateRow = (key: string, patch: Partial<VariantRow>) =>
     setRows((prev) => {
       const next = prev.map((r) => (r.key === key ? { ...r, ...patch } : r));
       onChange(next);
       return next;
     });
+
+  const toggleOpen = (key: string) => {
+    const row = rows.find((r) => r.key === key);
+    if (row) updateRow(key, { open: !row.open });
   };
 
-  const toggleOpen = (key: string) =>
-    update(key, { open: !rows.find((r) => r.key === key)!.open });
-
-  const removeRow = (key: string) => {
+  const removeRow = (key: string) =>
     setRows((prev) => {
       const next = prev.filter((r) => r.key !== key);
       onChange(next);
       return next;
     });
+
+  // Called by ProductVariantForm after a successful API save
+  const handleSaveSuccess = (savedRow: VariantRow) => {
+    updateRow(savedRow.key, { ...savedRow, open: false });
   };
-
-  // ── Early exit ─────────────────────────────────────────────────────────────
-
-  if (rows.length === 0) {
-    return (
-      <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center text-sm text-gray-400">
-        <PackageOpen size={28} className="mx-auto mb-2 opacity-40" />
-        Select option values above to auto-generate variants.
-      </div>
-    );
-  }
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -200,26 +197,24 @@ export default function ProductVariantsSection({
       <div className="flex items-center justify-between px-5 py-3 bg-gray-900 text-white">
         <div className="flex items-center gap-2 font-bold text-sm">
           <PackageOpen size={16} />
-          Product Variants
+          Auto-generate Variants
           <span className="text-gray-400 font-normal">({rows.length})</span>
         </div>
-      </div>
-
-      {/* SKU format hint */}
-      <div className="px-5 py-2 bg-gray-800 text-gray-400 text-xs font-mono border-b border-gray-700">
-        SKU format:&nbsp;
-        <span className="text-yellow-300">{toSkuPart(skuContext.categoryName) || "CAT"}</span>
-        <span className="text-gray-500">-</span>
-        <span className="text-blue-300">{toSkuPart(skuContext.productName) || "PROD"}</span>
-        <span className="text-gray-500">-</span>
-        <span className="text-green-300">ATTRIBUTES</span>
+        <div className="px-5 py-2 bg-gray-800 text-gray-400 text-xs font-mono border-b border-gray-700">
+          SKU format:&nbsp;
+          <span className="text-yellow-300">{toSkuPart(skuContext.categoryName) || "CAT"}</span>
+          <span className="text-gray-500">-</span>
+          <span className="text-blue-300">{toSkuPart(skuContext.productName) || "PROD"}</span>
+          <span className="text-gray-500">-</span>
+          <span className="text-green-300">ATTRIBUTES</span>
+        </div>
       </div>
 
       {/* Rows */}
       <div className="divide-y divide-gray-200">
         {rows.map((row) => (
           <div key={row.key} className="bg-white">
-            {/* ── Row header (collapsed) ── */}
+            {/* ── Collapsed header ── */}
             <div
               className="flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-gray-50 transition select-none"
               onClick={() => toggleOpen(row.key)}
@@ -229,10 +224,15 @@ export default function ProductVariantsSection({
                 {row.open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
               </button>
 
-              {/* Variant label */}
-              <span className="flex-1 font-semibold text-sm text-gray-800">
-                {row.label}
-              </span>
+              {/* Label */}
+              <span className="flex-1 font-semibold text-sm text-gray-800">{row.label}</span>
+
+              {/* Server-saved badge */}
+              {row.serverId && (
+                <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded border border-green-200 font-semibold shrink-0">
+                  Saved
+                </span>
+              )}
 
               {/* SKU badge */}
               {row.sku && (
@@ -243,16 +243,18 @@ export default function ProductVariantsSection({
 
               {/* Quick stats */}
               <div className="flex items-center gap-4 text-xs text-gray-500 shrink-0">
-                {row.price && (
+                {row.price > 0 && (
                   <span className="font-bold text-blue-700">
                     {Number(row.price).toLocaleString("vi-VN")} ₫
                   </span>
                 )}
                 {row.stock !== 0 && (
                   <span
-                    className={`px-2 py-0.5 rounded-full font-semibold
-                      ${Number(row.stock) === 0 ? "bg-red-100 text-red-700" :
-                        Number(row.stock) <= 5 ? "bg-yellow-100 text-yellow-700" : "bg-green-100 text-green-700"
+                    className={`px-2 py-0.5 rounded-full font-semibold ${Number(row.stock) === 0
+                      ? "bg-red-100 text-red-700"
+                      : Number(row.stock) <= 5
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-green-100 text-green-700"
                       }`}
                   >
                     {Number(row.stock) === 0 ? "Out of stock" : `${row.stock} in stock`}
@@ -269,7 +271,10 @@ export default function ProductVariantsSection({
               {/* Remove button */}
               <button
                 type="button"
-                onClick={(e) => { e.stopPropagation(); removeRow(row.key); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeRow(row.key);
+                }}
                 className="ml-2 p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition shrink-0"
                 title="Remove variant"
               >
@@ -279,11 +284,14 @@ export default function ProductVariantsSection({
 
             {/* ── Expanded form ── */}
             {row.open && (
-              <div className="px-5 pb-5 pt-2 bg-gray-50 border-t border-gray-200 space-y-4">
+              <div className="px-5 pb-5 pt-2 bg-gray-50 border-t border-gray-200">
                 <ProductVariantForm
-                  mode={mode}
-                productId={productId}
-                selectedOptionValueIds={selectedOptionValueIds}/>
+                  mode={row.serverId ? "edit" : mode === "edit" ? "edit" : "create"}
+                  productId={productId}
+                  filters={filters}
+                  row={row}
+                  onSaveSuccess={handleSaveSuccess}
+                />
               </div>
             )}
           </div>

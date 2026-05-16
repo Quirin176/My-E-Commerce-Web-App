@@ -37,7 +37,7 @@ namespace WebApp_API.Controllers
         // POST /api/productvariants/product/variant/${productId} — create a single variant
         [HttpPost("/product/variant/{productId:int}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([FromBody] ProductVariantDTOs.CreateProductVariantRequest request)
+        public async Task<IActionResult> Create(int productId, [FromBody] ProductVariantDTOs.CreateProductVariantRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.VariantName))
                 return BadRequest(new { message = "Variant name is required" });
@@ -47,6 +47,9 @@ namespace WebApp_API.Controllers
 
             if (request.ProductId <= 0)
                 return BadRequest(new { message = "Valid product ID is required" });
+
+            if (request.ProductId != productId)
+                return BadRequest(new { message = "Product ID is not matched" });
 
             try
             {
