@@ -21,8 +21,11 @@ namespace WebApp_API.Services
         public Task<ProductVariantOptionValue?> GetAsync(int variantId, int optionValueId)
             => _repo.GetAsync(variantId, optionValueId);
 
-        public Task<ProductVariantOptionValue> CreateAsync(ProductVariantOptionValue entity)
-            => _repo.AddAsync(entity);
+        public async Task CreateAsync(ProductVariantOptionValue entity)
+        {
+            await _repo.AddAsync(entity);
+            await _repo.SaveChangesAsync();
+        }
 
         public Task<bool> DeleteAsync(int variantId, int optionValueId)
             => _repo.DeleteAsync(variantId, optionValueId);

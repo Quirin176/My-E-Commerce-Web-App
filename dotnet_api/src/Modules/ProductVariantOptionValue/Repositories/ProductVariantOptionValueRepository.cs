@@ -36,12 +36,13 @@ namespace WebApp_API.Repositories
         public async Task<ProductVariantOptionValue> AddAsync(ProductVariantOptionValue entity)
         {
             _db.ProductVariantOptionValues.Add(entity);
-            await _db.SaveChangesAsync();
             return entity;
         }
 
         public async Task AddRangeAsync(int variantId, IEnumerable<int> optionValueIds)
         {
+            var optionValueIdsList = optionValueIds.ToList();
+            if (!optionValueIdsList.Any()) return;
 
             var optionValues = optionValueIds.Select(ovId => new ProductVariantOptionValue
             {
@@ -50,7 +51,6 @@ namespace WebApp_API.Repositories
             });
 
             await _db.ProductVariantOptionValues.AddRangeAsync(optionValues);
-            await _db.SaveChangesAsync();
         }
 
         public async Task<bool> DeleteAsync(int variantId, int optionValueId)
@@ -59,7 +59,6 @@ namespace WebApp_API.Repositories
             if (item == null) return false;
 
             _db.ProductVariantOptionValues.Remove(item);
-            await _db.SaveChangesAsync();
             return true;
         }
 
@@ -72,7 +71,6 @@ namespace WebApp_API.Repositories
             if (items.Count == 0) return;
 
             _db.ProductVariantOptionValues.RemoveRange(items);
-            await _db.SaveChangesAsync();
         }
 
         public Task SaveChangesAsync() => _db.SaveChangesAsync();

@@ -46,8 +46,11 @@ namespace WebApp_API.Services
             await _productVariantRepo.SaveChangesAsync();
 
             // Attach option value links
-            await _productVariantOptionValueRepo.AddRangeAsync(variant.Id, request.OptionValueIds);
-            await _productVariantOptionValueRepo.SaveChangesAsync();
+            if (request.OptionValueIds != null && request.OptionValueIds.Count > 0)
+            {
+                await _productVariantOptionValueRepo.AddRangeAsync(variant.Id, request.OptionValueIds);
+                await _productVariantOptionValueRepo.SaveChangesAsync();
+            }
         }
 
         // public async Task CreateVariantsAsync(IEnumerable<ProductVariantDTOs.CreateProductVariantRequest> requests)

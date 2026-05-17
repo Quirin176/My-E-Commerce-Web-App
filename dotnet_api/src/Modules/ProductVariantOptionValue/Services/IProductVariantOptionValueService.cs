@@ -8,7 +8,7 @@ namespace WebApp_API.Services
         Task<IEnumerable<ProductVariantOptionValue>> GetAllAsync();
         Task<IEnumerable<ProductVariantOptionValue>> GetByVariantIdAsync(int variantId);
         Task<ProductVariantOptionValue?> GetAsync(int variantId, int optionValueId);
-        Task<ProductVariantOptionValue> CreateAsync(ProductVariantOptionValue entity);
+        Task CreateAsync(ProductVariantOptionValue entity);
         Task<bool> DeleteAsync(int variantId, int optionValueId);
     }
 }

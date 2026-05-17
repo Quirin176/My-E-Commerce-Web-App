@@ -50,10 +50,11 @@ function toSkuPart(str: string): string {
 }
 
 function buildSku(context: SkuContext, attrValues: string[]): string {
-  const cat = toSkuPart(context.categoryName) || "CAT";
-  const prod = toSkuPart(context.productName) || "PROD";
-  const attrs = attrValues.map(toSkuPart).filter(Boolean).join("");
-  return `${cat}-${prod}-${attrs}`;
+  const cat  = toSkuPart(context.categoryName).slice(0, 6) || "CAT";
+  const prod = toSkuPart(context.productName).slice(0, 10) || "PROD";
+  const attrs = attrValues.map(toSkuPart).filter(Boolean).join("").slice(0, 20);
+  const sku = `${cat}-${prod}-${attrs}`;
+  return sku.slice(0, 99);
 }
 
 // ─── Combination helpers ──────────────────────────────────────────────────────

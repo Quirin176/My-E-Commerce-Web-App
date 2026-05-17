@@ -58,7 +58,12 @@ namespace WebApp_API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Error creating variant", error = ex.Message });
+                return StatusCode(500, new
+                {
+                    message = "Error creating variant",
+                    error = ex.Message,
+                    inner = ex.InnerException?.Message
+                });
             }
         }
 
