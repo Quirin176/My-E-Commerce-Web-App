@@ -167,18 +167,18 @@ export default function AdminProduct() {
     const addImage = () => {
         const url = imageInput.trim();
         if (!url) return;
-        if (images.some((i) => i.ImageUrl === url)) {
+        if (images.some((i) => i.imageUrl === url)) {
             toast.error("Image URL already added");
             return;
         }
         setImages((prev) => [
             ...prev,
             {
-                ImageUrl: url,
-                DisplayOrder: prev.length,
-                IsMain: prev.length === 0,
-                ProductId: effectiveProductId,
-                VariantId: null,
+                imageUrl: url,
+                displayOrder: prev.length,
+                isMain: prev.length === 0,
+                productId: effectiveProductId,
+                variantId: null,
             },
         ]);
         setImageInput("");
@@ -203,11 +203,11 @@ export default function AdminProduct() {
         try {
             // Build a clean payload — each image stamped with the real product ID
             const payload: AddImagePayload[] = images.map((img, idx) => ({
-                ImageUrl: img.ImageUrl,
-                DisplayOrder: idx,
-                IsMain: idx === 0,
-                ProductId: effectiveProductId,
-                VariantId: null,
+                imageUrl: img.imageUrl,
+                displayOrder: idx,
+                isMain: idx === 0,
+                productId: effectiveProductId,
+                variantId: null,
             }));
 
             await adminProductsApi.addProductImages(payload);
@@ -552,16 +552,16 @@ export default function AdminProduct() {
                                         {images.map((img, idx) => (
                                             <div key={idx} className="relative group w-20 h-20">
                                                 <img
-                                                    src={img.ImageUrl}
+                                                    src={img.imageUrl}
                                                     alt={`Product image ${idx + 1}`}
-                                                    className={`w-full h-full object-cover rounded border-2 ${img.IsMain ? "border-blue-500" : "border-gray-200"
+                                                    className={`w-full h-full object-cover rounded border-2 ${img.isMain ? "border-blue-500" : "border-gray-200"
                                                         }`}
                                                     onError={(e) => {
                                                         (e.target as HTMLImageElement).src =
                                                             "https://via.placeholder.com/80?text=Error";
                                                     }}
                                                 />
-                                                {img.IsMain && (
+                                                {img.isMain && (
                                                     <span className="absolute bottom-0 left-0 right-0 text-center text-white text-[9px] bg-blue-500 rounded-b">
                                                         Main
                                                     </span>

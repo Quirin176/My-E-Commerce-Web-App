@@ -88,6 +88,7 @@ builder.Services.AddScoped<IProductOptionValueRepository, ProductOptionValueRepo
 builder.Services.AddScoped<IProductOptionValueService, ProductOptionValueService>();
 
 builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();
+builder.Services.AddScoped<IProductImageService, ProductImageService>();
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();

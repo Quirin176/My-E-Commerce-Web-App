@@ -12,7 +12,7 @@ namespace WebApp_API.Controllers
         private readonly IProductImageService _service;
         public ProductImagesController(IProductImageService service) => _service = service;
 
-        // GET → /api/productimage/5
+        // GET /api/productimages/{id:int}
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -22,22 +22,22 @@ namespace WebApp_API.Controllers
             return Ok(img);
         }
 
-        // GET → /api/productimage/product/{productId:int}
+        // GET /api/productimages/product/{productId:int}
         [HttpGet("product/{productId:int}")]
         public async Task<IActionResult> GetByProduct(int productId)
         {
             return Ok(await _service.GetByProductAsync(productId));
         }
 
-        // GET → /api/productimage/variant/{variantId:int}
+        // GET /api/productimages/variant/{variantId:int}
         [HttpGet("variant/{variantId:int}")]
         public async Task<IActionResult> GetByVariant(int variantId)
         {
             return Ok(await _service.GetByVariantAsync(variantId));
         }
 
-        // POST: api/productimages/images - Accepts a list of image payloads and persists them.
-        [HttpPost("productimages/images")]
+        // POST api/productimages/images - Accepts a list of image payloads and persists them.
+        [HttpPost("images")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddProductImages([FromBody] List<ProductImageDTOs.AddProductImageRequest> requests)
         {
@@ -76,7 +76,7 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // PUT → update image
+        // PUT api/productimages/{id:int} - update image
         [HttpPut("{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, ProductImageDTOs.ProductImageUpdateRequest dto)
@@ -89,7 +89,7 @@ namespace WebApp_API.Controllers
             return Ok(updated);
         }
 
-        // DELETE → delete one
+        // DELETE api/productimages/{id:int} - delete one
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
@@ -98,7 +98,7 @@ namespace WebApp_API.Controllers
             return success ? Ok() : NotFound();
         }
 
-        // DELETE → delete all images of a product
+        // DELETE api/productimages/product/{productId:int} - delete all images of a product
         [HttpDelete("product/{productId:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteByProduct(int productId)
