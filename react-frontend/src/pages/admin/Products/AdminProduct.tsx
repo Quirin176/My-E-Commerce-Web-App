@@ -88,7 +88,6 @@ export default function AdminProduct() {
                 }));
 
                 setHasVariant(product.hasVariants);
-                console.log(product);
 
                 if (product.categoryId) {
                     const loadedFilters = await filters.loadFilters(Number(product.categoryId));
@@ -164,22 +163,22 @@ export default function AdminProduct() {
         toast.success(`Variant "${row.label}" added`);
     };
 
-    // ── Helpers ────────────────────────────────────────────────────────────────
+    // ── Image helpers ──────────────────────────────────────────────────────────
     const addImage = () => {
         const url = imageInput.trim();
         if (!url) return;
-        if (images.some((i) => i.imageUrl === url)) {
+        if (images.some((i) => i.ImageUrl === url)) {
             toast.error("Image URL already added");
             return;
         }
         setImages((prev) => [
             ...prev,
             {
-                imageUrl: url,
-                displayOrder: prev.length,
-                isMain: prev.length === 0, // first image is main
-                productId: createdProductId,
-                variantId: null,
+                ImageUrl: url,
+                DisplayOrder: prev.length,
+                IsMain: prev.length === 0,
+                ProductId: effectiveProductId,
+                VariantId: null,
             },
         ]);
         setImageInput("");
@@ -188,30 +187,33 @@ export default function AdminProduct() {
     const removeImage = (idx: number) =>
         setImages((prev) => prev.filter((_, i) => i !== idx));
 
-    // ── Save product images (tab 3 button) ──────────────────────────────────────────────
+    // ── Save product images (tab 3 button) ─────────────────────────────────────
     const onSubmittingProductImages = async () => {
-        if (!form.validateForm()) return;
+        if (!effectiveProductId) {
+            toast.error("Please save the product first before adding images.");
+            return;
+        }
+
+        if (images.length === 0) {
+            toast.error("Please add at least one image URL.");
+            return;
+        }
 
         setSubmitting(true);
         try {
-            const payload = images.map((img: AddImagePayload, index) => {
-                imageUrl: img.imageUrl;
-                displayOrder: img.displayOrder;
-                isMain: img.isMain;
-                productId: createdProductId,
-                    variantId: null
-            };).ToArray();
+            // Build a clean payload — each image stamped with the real product ID
+            const payload: AddImagePayload[] = images.map((img, idx) => ({
+                ImageUrl: img.ImageUrl,
+                DisplayOrder: idx,
+                IsMain: idx === 0,
+                ProductId: effectiveProductId,
+                VariantId: null,
+            }));
 
-            if (mode === "edit" && id) {
-                await adminProductsApi.updateProductById(id, payload);
-                toast.success("Product updated!");
-            } else {
-                await adminProductsApi.addProductImages(payload);
-
-                toast.success("Product Images added!");
-            }
+            await adminProductsApi.addProductImages(payload);
+            toast.success("Product images saved!");
         } catch {
-            toast.error("Failed to save product");
+            toast.error("Failed to save product images.");
         } finally {
             setSubmitting(false);
         }
@@ -450,7 +452,6 @@ export default function AdminProduct() {
                                 </div>
                             )}
 
-                            {/* Variant rows (auto-generated from option values) */}
                             {effectiveProductId && (
                                 <ProductVariantsSection
                                     autoGenerate={autoGenerate}
@@ -464,7 +465,6 @@ export default function AdminProduct() {
                                 />
                             )}
 
-                            {/* Manual add button + form */}
                             {effectiveProductId && (
                                 <>
                                     {!showManualForm ? (
@@ -499,6 +499,7 @@ export default function AdminProduct() {
                         </div>
                     </TabPanel>
                 ) : (
+                    /* ── TAB 2: Product Images (no-variant path) ── */
                     <TabPanel value={tabIndex} index={addProductImagesIndex}>
                         <div className="space-y-4">
                             <label className="text-2xl font-bold text-black">Product Images</label>
@@ -509,12 +510,14 @@ export default function AdminProduct() {
                                     <AlertCircle size={20} className="shrink-0" />
                                     <div>
                                         <p className="font-semibold text-sm">Product not saved yet</p>
-                                        <p className="text-xs mt-0.5">Go to the <strong>Product</strong> tab and click <strong>Create Product</strong> first. Then come back here to add variants.</p>
+                                        <p className="text-xs mt-0.5">
+                                            Go to the <strong>Product</strong> tab and click <strong>Create Product</strong> first,
+                                            then come back here to add images.
+                                        </p>
                                     </div>
                                 </div>
                             )}
 
-                            {/* Variant rows (auto-generated from option values) */}
                             {/* Image URL input */}
                             <div>
                                 <label className="block text-xs font-semibold text-gray-600 mb-1">
@@ -532,27 +535,33 @@ export default function AdminProduct() {
                                         }}
                                         placeholder="https://example.com/image.jpg"
                                         className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm outline-none focus:border-blue-500 transition bg-white flex-1"
+                                        disabled={!effectiveProductId}
                                     />
                                     <button
                                         type="button"
                                         onClick={addImage}
-                                        className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition shrink-0 flex items-center gap-1"
+                                        disabled={!effectiveProductId}
+                                        className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition shrink-0 flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         <Plus size={14} /> Add
                                     </button>
                                 </div>
 
                                 {images.length > 0 && (
-                                    <div className="flex flex-wrap gap-2 mt-2">
+                                    <div className="flex flex-wrap gap-2 mt-3">
                                         {images.map((img, idx) => (
-                                            <div key={idx} className="relative group w-16 h-16">
+                                            <div key={idx} className="relative group w-20 h-20">
                                                 <img
-                                                    src={img.imageUrl}
-                                                    alt=""
-                                                    className={`w-full h-full object-cover rounded border-2 ${img.isMain ? "border-blue-500" : "border-gray-200"
+                                                    src={img.ImageUrl}
+                                                    alt={`Product image ${idx + 1}`}
+                                                    className={`w-full h-full object-cover rounded border-2 ${img.IsMain ? "border-blue-500" : "border-gray-200"
                                                         }`}
+                                                    onError={(e) => {
+                                                        (e.target as HTMLImageElement).src =
+                                                            "https://via.placeholder.com/80?text=Error";
+                                                    }}
                                                 />
-                                                {img.isMain && (
+                                                {img.IsMain && (
                                                     <span className="absolute bottom-0 left-0 right-0 text-center text-white text-[9px] bg-blue-500 rounded-b">
                                                         Main
                                                     </span>
@@ -560,13 +569,19 @@ export default function AdminProduct() {
                                                 <button
                                                     type="button"
                                                     onClick={() => removeImage(idx)}
-                                                    className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                                                    className="absolute -top-1 -right-1 w-5 h-5 bg-red-600 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
                                                 >
                                                     <X size={10} />
                                                 </button>
                                             </div>
                                         ))}
                                     </div>
+                                )}
+
+                                {images.length > 0 && (
+                                    <p className="text-xs text-gray-500 mt-2">
+                                        {images.length} image{images.length !== 1 ? "s" : ""} queued — first image will be set as main.
+                                    </p>
                                 )}
                             </div>
 
@@ -580,10 +595,11 @@ export default function AdminProduct() {
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() => onSubmittingProductImages()}
-                                    className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-semibold text-sm"
+                                    onClick={onSubmittingProductImages}
+                                    disabled={submitting || !effectiveProductId || images.length === 0}
+                                    className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    Save Product Images
+                                    {submitting ? "Saving..." : "Save Product Images"}
                                 </button>
                             </div>
                         </div>

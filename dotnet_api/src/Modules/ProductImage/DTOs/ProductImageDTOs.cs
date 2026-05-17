@@ -12,5 +12,11 @@ namespace WebApp_API.DTOs
             public int ProductId { get; set; }
             public int VariantId { get; set; }
         }
+        public class ProductImageUpdateRequest
+        {
+            public required string ImageUrl { get; set; }
+            public int DisplayOrder { get; set; }
+            public bool IsMain { get; set; }
+        }
     }
 }

@@ -53,18 +53,18 @@ export default function ProductVariantForm({
   const addImage = () => {
     const url = imageInput.trim();
     if (!url) return;
-    if (imageUrls.some((i) => i.imageUrl === url)) {
+    if (imageUrls.some((i) => i.ImageUrl === url)) {
       toast.error("Image URL already added");
       return;
     }
     setImageUrls((prev) => [
       ...prev,
       {
-        imageUrl: url,
-        displayOrder: prev.length,
-        isMain: prev.length === 0, // first image is main
-        productId: null,
-        variantId: row.serverId ?? null,
+        ImageUrl: url,
+        DisplayOrder: prev.length,
+        IsMain: prev.length === 0, // first image is main
+        ProductId: null,
+        VariantId: row.serverId ?? null,
       },
     ]);
     setImageInput("");
@@ -92,7 +92,7 @@ export default function ProductVariantForm({
       originalPrice: Number(originalPrice) || Number(price),
       stock: Number(stock),
       productId,
-      imageUrl: imageUrls[0]?.imageUrl ?? "",
+      imageUrl: imageUrls[0]?.ImageUrl ?? "",
       imageUrls,
       optionValueIds: localOptionValueIds,
     };
@@ -234,12 +234,12 @@ export default function ProductVariantForm({
             {imageUrls.map((img, idx) => (
               <div key={idx} className="relative group w-16 h-16">
                 <img
-                  src={img.imageUrl}
+                  src={img.ImageUrl}
                   alt=""
-                  className={`w-full h-full object-cover rounded border-2 ${img.isMain ? "border-blue-500" : "border-gray-200"
+                  className={`w-full h-full object-cover rounded border-2 ${img.IsMain ? "border-blue-500" : "border-gray-200"
                     }`}
                 />
-                {img.isMain && (
+                {img.IsMain && (
                   <span className="absolute bottom-0 left-0 right-0 text-center text-white text-[9px] bg-blue-500 rounded-b">
                     Main
                   </span>

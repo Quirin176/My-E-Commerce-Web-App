@@ -15,11 +15,11 @@ export interface ProductPayload {
 };
 
 export interface AddImagePayload {
-  imageUrl: string;
-  displayOrder: number;
-  isMain: boolean;
-  productId: number | null;
-  variantId: number | null;
+  ImageUrl: string;
+  DisplayOrder: number;
+  IsMain: boolean;
+  ProductId: number | null;
+  VariantId: number | null;
 }
 
 export interface ProductVariantPayload {

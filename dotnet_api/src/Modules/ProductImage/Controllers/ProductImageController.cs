@@ -12,15 +12,55 @@ namespace WebApp_API.Controllers
         private readonly IProductImageService _service;
         public ProductImagesController(IProductImageService service) => _service = service;
 
-        // POST: api/productimages/images
+        // GET → /api/productimage/5
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var img = await _service.GetByIdAsync(id);
+            if (img == null) return NotFound();
+
+            return Ok(img);
+        }
+
+        // GET → /api/productimage/product/{productId:int}
+        [HttpGet("product/{productId:int}")]
+        public async Task<IActionResult> GetByProduct(int productId)
+        {
+            return Ok(await _service.GetByProductAsync(productId));
+        }
+
+        // GET → /api/productimage/variant/{variantId:int}
+        [HttpGet("variant/{variantId:int}")]
+        public async Task<IActionResult> GetByVariant(int variantId)
+        {
+            return Ok(await _service.GetByVariantAsync(variantId));
+        }
+
+        // POST: api/productimages/images - Accepts a list of image payloads and persists them.
         [HttpPost("productimages/images")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> CreateOptionValue([FromBody] List<ProductImageDTOs.AddProductImageRequest> requests)
+        public async Task<IActionResult> AddProductImages([FromBody] List<ProductImageDTOs.AddProductImageRequest> requests)
         {
+            if (requests == null || requests.Count == 0)
+                return BadRequest(new { message = "At least one image is required." });
+
+            // Validate that each request targets exactly one of Product or Variant
+            var invalid = requests.Where(r =>
+                (r.ProductId == 0 && r.VariantId == 0) ||
+                (r.ProductId != 0 && r.VariantId != 0)
+            ).ToList();
+
+            if (invalid.Count > 0)
+                return BadRequest(new
+                {
+                    message = "Each image must target either a Product or a Variant, not both and not neither.",
+                    invalidCount = invalid.Count
+                });
+
             try
             {
-                await _service.AddProductImagesAsync(requests);
-                return Ok(new { message = "Option Value created" });
+                await _service.AddRangeAsync(requests);
+                return Ok(new { message = $"{requests.Count} image(s) saved successfully." });
             }
             catch (KeyNotFoundException ex)
             {
@@ -32,43 +72,39 @@ namespace WebApp_API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Error creating option value", error = ex.Message });
+                return StatusCode(500, new { message = "Error saving images.", error = ex.Message });
             }
         }
 
-        // PUT: api/productimages/optionvalues/{id} - Update an existing option value
-        // [HttpPut("optionvalues/{id}")]
-        // [Authorize(Roles = "Admin")]
-        // public async Task<IActionResult> UpdateOptionValue(int id, [FromBody] ProductOptionValueDTOs.UpdateOptionValueRequest request)
-        // {
-        //     if (string.IsNullOrWhiteSpace(request.Value))
-        //         return BadRequest(new { message = "Option value is required" });
+        // PUT → update image
+        [HttpPut("{id:int}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Update(int id, ProductImageDTOs.ProductImageUpdateRequest dto)
+        {
+            // if (string.IsNullOrWhiteSpace(dto.ImageUrl)) return BadRequest(new { message = "Image URL is required." });
 
-        //     try
-        //     {
-        //         await _service.UpdateProductOptionValueAsync(id, request);
-        //         return Ok(new { message = "Option value updated successfully" });
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         return StatusCode(500, new { message = "Error updating option value", error = ex.Message });
-        //     }
-        // }
+            var updated = await _service.UpdateAsync(id, dto);
+            if (updated == null) return NotFound();
 
-        // DELETE: api/productimages/optionvalues/{id} - Delete a ProductOptionValue
-        // [HttpDelete("optionvalues/{id}")]
-        // [Authorize(Roles = "Admin")]
-        // public async Task<IActionResult> DeleteOptionValue(int id)
-        // {
-        //     try
-        //     {
-        //         await _service.DeleteProductOptionValueAsync(id);
-        //         return Ok(new { message = "Option value deleted successfully" });
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         return StatusCode(500, new { message = "Error deleting option value", error = ex.Message });
-        //     }
-        // }
+            return Ok(updated);
+        }
+
+        // DELETE → delete one
+        [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var success = await _service.DeleteAsync(id);
+            return success ? Ok() : NotFound();
+        }
+
+        // DELETE → delete all images of a product
+        [HttpDelete("product/{productId:int}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteByProduct(int productId)
+        {
+            await _service.RemoveRangeByProductAsync(productId);
+            return Ok();
+        }
     }
 }
