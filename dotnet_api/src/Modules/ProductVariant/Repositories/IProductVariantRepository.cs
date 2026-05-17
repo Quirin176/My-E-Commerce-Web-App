@@ -12,10 +12,12 @@ namespace WebApp_API.Repositories
         Task<IEnumerable<ProductVariant>> GetByProductIdAsync(int productId);
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
-        Task<ProductVariant> AddAsync(ProductVariant variant);
-        Task AddRangeAsync(IEnumerable<ProductVariant> variant);
-        Task<ProductVariant> UpdateAsync(ProductVariant variant);
+        Task AddAsync(ProductVariant variant);
+        // Task AddRangeAsync(IEnumerable<ProductVariant> variant);
+        Task UpdateAsync(ProductVariant variant);
         Task<bool> DeleteAsync(int id);
         Task DeleteByProductIdAsync(int productId);
+
+        Task SaveChangesAsync();
     }
 }

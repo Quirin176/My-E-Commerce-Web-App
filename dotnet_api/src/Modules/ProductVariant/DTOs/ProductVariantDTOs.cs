@@ -13,8 +13,6 @@ namespace WebApp_API.DTOs
             public decimal OriginalPrice { get; set; }
             public int Stock { get; set; }
             public required int ProductId { get; set; }
-            public required int VariantId { get; set; }
-            public List<ProductImageDTOs.AddProductImageRequest> ImageUrls { get; set; } = new();
             public List<int> OptionValueIds { get; set; } = new();
         }
 

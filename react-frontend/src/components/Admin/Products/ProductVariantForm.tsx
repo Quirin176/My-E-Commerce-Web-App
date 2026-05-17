@@ -63,8 +63,8 @@ export default function ProductVariantForm({
         imageUrl: url,
         displayOrder: prev.length,
         isMain: prev.length === 0, // first image is main
-        productId: null,
-        variantId: row.serverId ?? null,
+        productId: 0,
+        variantId: row.serverId,
       },
     ]);
     setImageInput("");
@@ -92,8 +92,6 @@ export default function ProductVariantForm({
       originalPrice: Number(originalPrice) || Number(price),
       stock: Number(stock),
       productId,
-      imageUrl: imageUrls[0]?.imageUrl ?? "",
-      imageUrls,
       optionValueIds: localOptionValueIds,
     };
 
@@ -104,6 +102,7 @@ export default function ProductVariantForm({
         toast.success("Variant updated!");
       } else {
         await adminProductsApi.createVariant(productId, payload);
+        await adminProductsApi.addProductImages(imageUrls);
         toast.success("Variant created!");
       }
 
@@ -120,7 +119,6 @@ export default function ProductVariantForm({
         optionValueIds: row.optionValueIds,
       });
     } catch (err) {
-      console.error("Failed to save variant", err);
       toast.error("Failed to save variant");
     } finally {
       setSubmitting(false);

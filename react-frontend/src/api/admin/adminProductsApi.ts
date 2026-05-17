@@ -29,9 +29,6 @@ export interface ProductVariantPayload {
   originalPrice: number;
   stock: number;
   productId: number | string;
-  imageUrl: string;
-
-  imageUrls: AddImagePayload[];
 
   optionValueIds: number[];
 }

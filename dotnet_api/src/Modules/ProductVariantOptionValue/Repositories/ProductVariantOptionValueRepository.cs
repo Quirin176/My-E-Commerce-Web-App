@@ -40,9 +40,16 @@ namespace WebApp_API.Repositories
             return entity;
         }
 
-        public async Task AddRangeAsync(IEnumerable<ProductVariantOptionValue> entities)
+        public async Task AddRangeAsync(int variantId, IEnumerable<int> optionValueIds)
         {
-            await _db.ProductVariantOptionValues.AddRangeAsync(entities);
+
+            var optionValues = optionValueIds.Select(ovId => new ProductVariantOptionValue
+            {
+                ProductVariantId = variantId,
+                ProductOptionValueId = ovId
+            });
+
+            await _db.ProductVariantOptionValues.AddRangeAsync(optionValues);
             await _db.SaveChangesAsync();
         }
 
@@ -67,5 +74,7 @@ namespace WebApp_API.Repositories
             _db.ProductVariantOptionValues.RemoveRange(items);
             await _db.SaveChangesAsync();
         }
+
+        public Task SaveChangesAsync() => _db.SaveChangesAsync();
     }
 }

@@ -1,15 +1,21 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useParams, Link } from "react-router-dom";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
+
 import { productApi } from "../../api/products/productApi";
+import { productimageApi } from "../../api/products/productimageApi";
+
 import { useAuth } from "../../hooks/auth/useAuth";
 import { useCart } from "../../hooks/cart/useCart";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+
 import type { Product } from "../../types/models/products/Product";
+import type { ProductImage } from "../../types/models/products/ProductImage";
 
 export default function ProductDetails() {
   const { slug } = useParams();
   const [product, setProduct] = useState<Product | null>(null);
+  const [images, setImages] = useState<ProductImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showImageModal, setShowImageModal] = useState(false);
@@ -34,8 +40,8 @@ export default function ProductDetails() {
       id: product.id,
       name: product.name,
       slug: product.slug,
-      price: product.price,
-      image: product.images[0] || product.imageUrl || "https://via.placeholder.com/400",
+      price: product.basePrice,
+      image: product.thumbnailUrl,
       options: product.options || [],
     };
 
@@ -58,6 +64,10 @@ export default function ProductDetails() {
       try {
         const data = await productApi.getProductBySlug(slug);
         setProduct(data);
+
+        const res = await productimageApi.GetByProduct(data.id);
+        setImages(res);
+
       } catch (error) {
         toast.error("Failed to load product details");
       } finally {
@@ -95,13 +105,8 @@ export default function ProductDetails() {
   if (loading) return <p className="text-center p-6">Loading product...</p>;
   if (!product) return <p className="text-lg text-center p-6 text-red-500">Product not found.</p>;
 
-  // Get images array - ensure it's always an array
-const images: string[] = product.images && product.images.length > 0
-    ? product.images
-    : (product.imageUrl ? [product.imageUrl] : ["https://via.placeholder.com/400x400?text=No+Image"]);
-
-  const currentImage = images[currentImageIndex];
-  const modalImage = images[modalImageIndex];
+  const currentImage = images[currentImageIndex].imageUrl;
+  const modalImage = images[modalImageIndex].imageUrl;
 
   const goToPrevImage = () => {
     setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
@@ -129,7 +134,7 @@ const images: string[] = product.images && product.images.length > 0
   return (
     <div className="p-8 max-w-6xl mx-auto">
       <div className="flex flex-col lg:flex-row gap-8 mt-6">
-        
+
         {/* Product Images Gallery */}
         <div className="w-full lg:w-1/2">
           <div className="relative bg-gray-100 rounded-lg overflow-hidden group cursor-pointer">
@@ -175,23 +180,22 @@ const images: string[] = product.images && product.images.length > 0
           {/* Thumbnail Strip - Show only if multiple images */}
           {images.length > 1 && (
             <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
-              {images.map((img: string, index: number) => (
+              {images.map((img: ProductImage, index: number) => (
                 <button
                   key={index}
                   onClick={() => setCurrentImageIndex(index)}
-                  className={`shrink-0 w-20 h-20 rounded border-2 transition ${
-                    currentImageIndex === index
-                      ? "border-blue-600"
-                      : "border-gray-300 hover:border-gray-400"
-                  }`}
+                  className={`shrink-0 w-20 h-20 rounded border-2 transition ${currentImageIndex === index
+                    ? "border-blue-600"
+                    : "border-gray-300 hover:border-gray-400"
+                    }`}
                 >
                   <img
-                    src={img}
+                    src={img.imageUrl}
                     alt={`Thumbnail ${index + 1}`}
                     className="w-full h-full object-cover rounded cursor-pointer hover:opacity-80"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
-                      target.src = "https://via.placeholder.com/80?text=No+Image";
+                      target.src = "";
                     }}
                   />
                 </button>
@@ -228,10 +232,10 @@ const images: string[] = product.images && product.images.length > 0
               </div>
             </div>
           )}
-          
+
           {/* Price */}
           <p className="text-2xl font-bold text-blue-600 mb-4">
-            {product.price?.toLocaleString() || "N/A"} VND
+            {product.basePrice?.toLocaleString() || "N/A"} VND
           </p>
 
           {/* Add to Cart Button */}
@@ -256,13 +260,13 @@ const images: string[] = product.images && product.images.length > 0
 
       {/* IMAGE MODAL */}
       {showImageModal && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
           onClick={handleBackdropClick}
         >
           {/* Modal Container */}
           <div className={`relative max-w-4xl w-full max-h-[90vh] flex ${thumbStyle === 'vertical' ? 'flex-row' : 'flex-col'} bg-black rounded-lg overflow-hidden`}>
-            
+
             {/* Close Button */}
             <button
               onClick={() => setShowImageModal(false)}
@@ -313,23 +317,22 @@ const images: string[] = product.images && product.images.length > 0
             {/* Vertical Thumbnail Strip on Right */}
             {images.length > 1 && (
               <div className={`bg-black/50 p-3 flex ${thumbStyle === 'vertical' ? 'flex-col overflow-y-auto' : 'flex-row overflow-x-auto'} gap-2`}>
-                {images.map((img: string, index: number) => (
+                {images.map((img: ProductImage, index: number) => (
                   <button
                     key={index}
                     onClick={() => setModalImageIndex(index)}
-                    className={`shrink-0 w-16 h-16 rounded border-2 transition ${
-                      modalImageIndex === index
-                        ? "border-blue-400"
-                        : "border-gray-600 hover:border-gray-400"
-                    }`}
+                    className={`shrink-0 w-16 h-16 rounded border-2 transition ${modalImageIndex === index
+                      ? "border-blue-400"
+                      : "border-gray-600 hover:border-gray-400"
+                      }`}
                   >
                     <img
-                      src={img}
+                      src={img.imageUrl}
                       alt={`Thumbnail ${index + 1}`}
                       className="w-full h-full object-cover rounded"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        target.src = "https://via.placeholder.com/64?text=No+Image";
+                        target.src = "";
                       }}
                     />
                   </button>

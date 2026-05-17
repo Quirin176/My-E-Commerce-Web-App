@@ -43,24 +43,20 @@ namespace WebApp_API.Repositories
                 .ToListAsync();
         }
 
-        public async Task<ProductVariant> AddAsync(ProductVariant variant)
+        // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
+        public async Task AddAsync(ProductVariant variant)
         {
             _db.ProductVariants.Add(variant);
-            await _db.SaveChangesAsync();
-            return variant;
         }
 
-        public async Task AddRangeAsync(IEnumerable<ProductVariant> variants)
-        {
-            _db.ProductVariants.AddRange(variants);
-            await _db.SaveChangesAsync();
-        }
+        // public async Task AddRangeAsync(IEnumerable<ProductVariant> variants)
+        // {
+        //     _db.ProductVariants.AddRange(variants);
+        // }
 
-        public async Task<ProductVariant> UpdateAsync(ProductVariant variant)
+        public async Task UpdateAsync(ProductVariant variant)
         {
             _db.ProductVariants.Update(variant);
-            await _db.SaveChangesAsync();
-            return variant;
         }
 
         public async Task<bool> DeleteAsync(int id)
@@ -69,7 +65,6 @@ namespace WebApp_API.Repositories
             if (variant == null) return false;
 
             _db.ProductVariants.Remove(variant);
-            await _db.SaveChangesAsync();
             return true;
         }
 
@@ -82,7 +77,8 @@ namespace WebApp_API.Repositories
             if (variants.Count == 0) return;
 
             _db.ProductVariants.RemoveRange(variants);
-            await _db.SaveChangesAsync();
         }
+
+        public Task SaveChangesAsync() => _db.SaveChangesAsync();
     }
 }

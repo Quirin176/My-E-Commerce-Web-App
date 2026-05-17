@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { PackageOpen, ChevronDown, ChevronUp, ImagePlus, X } from "lucide-react";
-import type { VariantImagePayload } from "../../../api/admin/adminProductsApi";
+import type { AddImagePayload } from "../../../api/admin/adminProductsApi";
 import type { ProductOption } from "../../../types/models/products/ProductOption";
 import ProductVariantForm from "./ProductVariantForm";
 
@@ -14,12 +14,12 @@ export interface VariantRow {
   originalPrice: number;
   price: number;
   stock: number;
-  imageUrls: VariantImagePayload[];
+  imageUrls: AddImagePayload[];
   imageInput: string;
   open: boolean;
   optionValueIds: number[];
   /** Set when this row corresponds to a saved server-side variant */
-  serverId?: number;
+  serverId: number;
 }
 
 export interface SkuContext {
@@ -120,6 +120,7 @@ function generateRows(
       imageInput: "",
       open: false,
       optionValueIds: combo,
+      serverId: 0,
     } satisfies VariantRow;
   });
 

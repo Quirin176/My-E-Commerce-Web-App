@@ -178,7 +178,7 @@ export default function AdminProduct() {
                 displayOrder: prev.length,
                 isMain: prev.length === 0,
                 productId: effectiveProductId,
-                variantId: null,
+                variantId: 0,
             },
         ]);
         setImageInput("");
@@ -201,13 +201,12 @@ export default function AdminProduct() {
 
         setSubmitting(true);
         try {
-            // Build a clean payload — each image stamped with the real product ID
             const payload: AddImagePayload[] = images.map((img, idx) => ({
                 imageUrl: img.imageUrl,
                 displayOrder: idx,
                 isMain: idx === 0,
                 productId: effectiveProductId,
-                variantId: null,
+                variantId: 0,
             }));
 
             await adminProductsApi.addProductImages(payload);
@@ -518,72 +517,73 @@ export default function AdminProduct() {
                                 </div>
                             )}
 
-                            {/* Image URL input */}
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-600 mb-1">
-                                    Add Image URL
-                                </label>
-                                <div className="flex gap-2">
-                                    <input
-                                        value={imageInput}
-                                        onChange={(e) => setImageInput(e.target.value)}
-                                        onKeyDown={(e) => {
-                                            if (e.key === "Enter") {
-                                                e.preventDefault();
-                                                addImage();
-                                            }
-                                        }}
-                                        placeholder="https://example.com/image.jpg"
-                                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm outline-none focus:border-blue-500 transition bg-white flex-1"
-                                        disabled={!effectiveProductId}
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={addImage}
-                                        disabled={!effectiveProductId}
-                                        className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition shrink-0 flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        <Plus size={14} /> Add
-                                    </button>
-                                </div>
-
-                                {images.length > 0 && (
-                                    <div className="flex flex-wrap gap-2 mt-3">
-                                        {images.map((img, idx) => (
-                                            <div key={idx} className="relative group w-20 h-20">
-                                                <img
-                                                    src={img.imageUrl}
-                                                    alt={`Product image ${idx + 1}`}
-                                                    className={`w-full h-full object-cover rounded border-2 ${img.isMain ? "border-blue-500" : "border-gray-200"
-                                                        }`}
-                                                    onError={(e) => {
-                                                        (e.target as HTMLImageElement).src =
-                                                            "https://via.placeholder.com/80?text=Error";
-                                                    }}
-                                                />
-                                                {img.isMain && (
-                                                    <span className="absolute bottom-0 left-0 right-0 text-center text-white text-[9px] bg-blue-500 rounded-b">
-                                                        Main
-                                                    </span>
-                                                )}
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeImage(idx)}
-                                                    className="absolute -top-1 -right-1 w-5 h-5 bg-red-600 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
-                                                >
-                                                    <X size={10} />
-                                                </button>
-                                            </div>
-                                        ))}
+                            {effectiveProductId && (
+                                <>
+                                    <label className="block text-xs font-semibold text-gray-600 mb-1">
+                                        Add Image URL
+                                    </label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            value={imageInput}
+                                            onChange={(e) => setImageInput(e.target.value)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                    e.preventDefault();
+                                                    addImage();
+                                                }
+                                            }}
+                                            placeholder="https://example.com/image.jpg"
+                                            className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm outline-none focus:border-blue-500 transition bg-white flex-1"
+                                            disabled={!effectiveProductId}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={addImage}
+                                            disabled={!effectiveProductId}
+                                            className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition shrink-0 flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            <Plus size={14} /> Add
+                                        </button>
                                     </div>
-                                )}
 
-                                {images.length > 0 && (
-                                    <p className="text-xs text-gray-500 mt-2">
-                                        {images.length} image{images.length !== 1 ? "s" : ""} queued — first image will be set as main.
-                                    </p>
-                                )}
-                            </div>
+                                    {images.length > 0 && (
+                                        <div className="flex flex-wrap gap-2 mt-3">
+                                            {images.map((img, idx) => (
+                                                <div key={idx} className="relative group w-20 h-20">
+                                                    <img
+                                                        src={img.imageUrl}
+                                                        alt={`Product image ${idx + 1}`}
+                                                        className={`w-full h-full object-cover rounded border-2 ${img.isMain ? "border-blue-500" : "border-gray-200"
+                                                            }`}
+                                                        onError={(e) => {
+                                                            (e.target as HTMLImageElement).src =
+                                                                "https://via.placeholder.com/80?text=Error";
+                                                        }}
+                                                    />
+                                                    {img.isMain && (
+                                                        <span className="absolute bottom-0 left-0 right-0 text-center text-white text-[9px] bg-blue-500 rounded-b">
+                                                            Main
+                                                        </span>
+                                                    )}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeImage(idx)}
+                                                        className="absolute -top-1 -right-1 w-5 h-5 bg-red-600 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                                                    >
+                                                        <X size={10} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {images.length > 0 && (
+                                        <p className="text-xs text-gray-500 mt-2">
+                                            {images.length} image{images.length !== 1 ? "s" : ""} queued — first image will be set as main.
+                                        </p>
+                                    )}
+                                </>
+                            )}
 
                             <div className="flex justify-end gap-3 pt-2">
                                 <button
@@ -606,6 +606,6 @@ export default function AdminProduct() {
                     </TabPanel>
                 )}
             </Box>
-        </div>
+        </div >
     );
 }

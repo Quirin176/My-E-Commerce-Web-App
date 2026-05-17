@@ -163,8 +163,13 @@ namespace WebApp_API.Repositories
             var existing = await _db.ProductFilters.Where(pf => pf.ProductId == productId).ToListAsync();
             _db.ProductFilters.RemoveRange(existing);
 
-            await _db.ProductFilters.AddRangeAsync(
-                optionValueIds.Select(id => new ProductFilter { ProductId = productId, OptionValueId = id }));
+            var filters = optionValueIds.Select(id => new ProductFilter
+            {
+                ProductId = productId,
+                OptionValueId = id
+            });
+
+            await _db.ProductFilters.AddRangeAsync(filters);
         }
 
         public Task SaveChangesAsync() => _db.SaveChangesAsync();
