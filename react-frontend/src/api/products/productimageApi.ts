@@ -19,5 +19,4 @@ export const productimageApi = {
         const res = await apiClient.get(`/productimages/variant/${id}`);
         return res.data;
     },
-
 };

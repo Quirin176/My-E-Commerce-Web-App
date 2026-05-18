@@ -73,7 +73,7 @@ export const adminProductsApi = {
   //   return res.data;
   // },
 
-  async delete(id: number | string) {
+  async deleteVariant(id: number | string) {
     const res = await apiClient.delete(`/productvariants/${id}`);
     return res.data;
   },

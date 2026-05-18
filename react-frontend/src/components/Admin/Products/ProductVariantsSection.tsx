@@ -1,32 +1,15 @@
 import { useEffect, useState } from "react";
 import { PackageOpen, ChevronDown, ChevronUp, ImagePlus, X } from "lucide-react";
-import type { AddImagePayload } from "../../../api/admin/adminProductsApi";
+
 import type { ProductOption } from "../../../types/models/products/ProductOption";
+import type { VariantRow, SkuContext } from "../../../types/models/products/variantTypes";
+import { generateRows } from "../../../utils/variantGenerators";
+import { toSkuPart } from "../../../utils/variantGenerators";
+
 import ProductVariantForm from "./ProductVariantForm";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-export interface VariantRow {
-  key: string;
-  variantName: string;
-  sku: string;
-  originalPrice: number;
-  price: number;
-  stock: number;
-  images: AddImagePayload[];
-  imageInput: string;
-  open: boolean;
-  optionValueIds: number[];
-  serverId: number;
-}
-
-export interface SkuContext {
-  categoryName: string;
-  productName: string;
-}
-
 interface Props {
-  mode: "create" | "edit";
+  mode: string;
   autoGenerate: boolean;
   productId: number;
   filters: ProductOption[];
@@ -34,100 +17,6 @@ interface Props {
   onChange: (rows: VariantRow[]) => void;
   initialRows?: VariantRow[];
   skuContext: SkuContext;
-}
-
-// ─── SKU helpers ──────────────────────────────────────────────────────────────
-
-function toSkuPart(str: string): string {
-  return str
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toUpperCase()
-    .replace(/[^A-Z0-9]+/g, "")
-    .slice(0, 8);
-}
-
-function buildSku(context: SkuContext, attrValues: string[]): string {
-  const cat = toSkuPart(context.categoryName).slice(0, 6) || "CAT";
-  const prod = toSkuPart(context.productName).slice(0, 10) || "PROD";
-  const attrs = attrValues.map(toSkuPart).filter(Boolean).join("").slice(0, 20);
-  const sku = `${cat}-${prod}-${attrs}`;
-  return sku.slice(0, 99);
-}
-
-// ─── Combination helpers ──────────────────────────────────────────────────────
-
-function cartesian<T>(arrays: T[][]): T[][] {
-  if (arrays.length === 0) return [[]];
-  return arrays.reduce<T[][]>(
-    (acc, arr) => acc.flatMap((combo) => arr.map((item) => [...combo, item])),
-    [[]]
-  );
-}
-
-function buildLabel(optionValueIds: number[], filters: ProductOption[]): string {
-  const parts: string[] = [];
-  for (const opt of filters)
-    for (const val of opt.optionValues)
-      if (optionValueIds.includes(val.id)) parts.push(val.value);
-  return parts.join(" / ") || "Variant";
-}
-
-function buildAttrValues(optionValueIds: number[], filters: ProductOption[]): string[] {
-  const parts: string[] = [];
-  for (const opt of filters)
-    for (const val of opt.optionValues)
-      if (optionValueIds.includes(val.id)) parts.push(val.value);
-  return parts;
-}
-
-function groupByOption(selectedIds: number[], filters: ProductOption[]): number[][] {
-  return filters
-    .map((opt) => opt.optionValues.map((v) => v.id).filter((id) => selectedIds.includes(id)))
-    .filter((g) => g.length > 0);
-}
-
-function generateRows(
-  selectedIds: number[],
-  filters: ProductOption[],
-  existingRows: VariantRow[],
-  skuContext: SkuContext
-): VariantRow[] {
-  const groups = groupByOption(selectedIds, filters);
-  if (groups.length === 0) return [];
-
-  const combinations = cartesian(groups);
-
-  const generatedRows = combinations.map((combo) => {
-    const key = combo.slice().sort((a, b) => a - b).join("-");
-    const label = buildLabel(combo, filters);
-    const existing = existingRows.find((r) => r.key === key);
-    if (existing) return existing;
-
-    const attrValues = buildAttrValues(combo, filters);
-    const sku = buildSku(skuContext, attrValues);
-
-    return {
-      key,
-      variantName: label,
-      sku,
-      originalPrice: 0,
-      price: 0,
-      stock: 0,
-      images: [],
-      imageInput: "",
-      open: false,
-      optionValueIds: combo,
-      serverId: 0,
-    } satisfies VariantRow;
-  });
-
-  // Preserve manual rows (no option-value combo)
-  const manualRows = existingRows.filter(
-    (row) => row.key.startsWith("manual-") || row.optionValueIds.length === 0
-  );
-
-  return [...generatedRows, ...manualRows];
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -146,15 +35,29 @@ export default function ProductVariantsSection({
 
   // Re-generate rows whenever selected option values change
   useEffect(() => {
-    if (!autoGenerate) setRows(initialRows);
-    else {
-      setRows((prev) => {
-        const next = generateRows(selectedOptionValueIds, filters, prev, skuContext);
-        onChange(next);
-        return next;
-      });
+    if (!autoGenerate) {
+      setRows(initialRows);
+      return;
     }
-  }, [autoGenerate, selectedOptionValueIds.join(","), filters, skuContext.categoryName, skuContext.productName]);
+
+    setRows((existingRows) => {
+      const next = generateRows({
+        selectedOptionValueIds,
+        filters,
+        existingRows,
+        skuContext
+      }
+      );
+      onChange(next);
+      return next;
+    });
+  }, [
+    autoGenerate,
+    selectedOptionValueIds.join(","),
+    filters,
+    skuContext.categoryName,
+    skuContext.productName,
+  ]);
 
   // ── Row helpers ────────────────────────────────────────────────────────────
 

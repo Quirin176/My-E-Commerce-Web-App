@@ -2,7 +2,9 @@ import { useState, useCallback } from "react";
 import toast from "react-hot-toast";
 import { productvariantApi } from "../../api/products/productvariantApi";
 import type { ProductVariant, ProductVariantForm } from "../../types/models/products/ProductVariant";
+import type { ProductVariantPayload } from "../../api/admin/adminProductsApi";
 import { EMPTY_VARIANT_FORM } from "../../types/models/products/ProductVariant";
+import { adminProductsApi } from "../../api/admin/adminProductsApi";
 
 export const useProductVariants = (productId: number | null) => {
   const [variants, setVariants] = useState<ProductVariant[]>([]);
@@ -33,23 +35,23 @@ export const useProductVariants = (productId: number | null) => {
   ): Promise<boolean> => {
     // Basic validation
     if (!form.variantName.trim()) { toast.error("Variant name is required"); return false; }
-    if (!form.sku.trim())         { toast.error("SKU is required");           return false; }
-    if (Number(form.price) <= 0)  { toast.error("Price must be > 0");         return false; }
-    if (Number(form.stock) < 0)   { toast.error("Stock cannot be negative");  return false; }
+    if (!form.sku.trim()) { toast.error("SKU is required"); return false; }
+    if (Number(form.price) <= 0) { toast.error("Price must be > 0"); return false; }
+    if (Number(form.stock) < 0) { toast.error("Stock cannot be negative"); return false; }
 
-    const payload = {
-      variantName:   form.variantName.trim(),
-      sku:           form.sku.trim(),
-      price:         Number(form.price),
+    const payload: ProductVariantPayload = {
+      variantName: form.variantName.trim(),
+      sku: form.sku.trim(),
+      price: Number(form.price),
       originalPrice: Number(form.originalPrice) || Number(form.price),
-      stock:         Number(form.stock),
-      imageUrl:      form.imageUrl.trim() || undefined,
-      productId:     pid,
+      stock: Number(form.stock),
+      productId: pid,
+      optionValueIds: form.optionValueIds
     };
 
     try {
       if (form.id) {
-        const updated = await productvariantApi.update(form.id, payload);
+        const updated = await adminProductsApi.updateVariant(form.id, payload);
 
         // Re-sync option-value links: delete all then re-add
         const existing = await productvariantApi.getOptionValuesByVariant(form.id);
@@ -67,7 +69,7 @@ export const useProductVariants = (productId: number | null) => {
         setVariants(prev => prev.map(v => v.id === form.id ? updated : v));
         toast.success("Variant updated!");
       } else {
-        const created: ProductVariant = await productvariantApi.create(payload);
+        const created: ProductVariant = await adminProductsApi.createVariant(Number(productId), payload);
 
         await Promise.all(
           form.optionValueIds.map(ovId =>
@@ -90,7 +92,7 @@ export const useProductVariants = (productId: number | null) => {
   const deleteVariant = useCallback(async (id: number): Promise<void> => {
     if (!window.confirm("Delete this variant? This cannot be undone.")) return;
     try {
-      await productvariantApi.delete(id);
+      await adminProductsApi.deleteVariant(id);
       setVariants(prev => prev.filter(v => v.id !== id));
       toast.success("Variant deleted");
     } catch {

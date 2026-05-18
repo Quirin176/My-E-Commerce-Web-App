@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import { slugify } from "../../utils/slugify";
-import type { VariantImagePayload } from "../../api/admin/adminProductsApi";
+import type { AddImagePayload } from "../../api/admin/adminProductsApi";
 
 // Define the return type of the useProductForm hook
 interface UseProductVariantFormReturn {
@@ -26,7 +26,7 @@ export interface ProductVariantFormData {
   productId: number | string;
   imageUrl: string;
 
-  imageUrls: VariantImagePayload[];
+  imageUrls: AddImagePayload[];
 
   optionValueIds: number[];
 }

@@ -3,7 +3,7 @@ import { Plus, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { adminProductsApi, type AddImagePayload, type ProductVariantPayload, } from "../../../api/admin/adminProductsApi";
 import type { ProductOption } from "../../../types/models/products/ProductOption";
-import type { VariantRow } from "./ProductVariantsSection";
+import type { VariantRow } from "../../../types/models/products/variantTypes";
 
 interface ProductVariantFormProps {
   mode: "create" | "edit";

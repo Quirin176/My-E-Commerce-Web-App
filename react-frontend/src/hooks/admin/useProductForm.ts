@@ -21,9 +21,9 @@ export interface ProductFormData {
   slug: string;
   shortDescription: string;
   description: string;
-  basePrice: number | string;
+  basePrice: number;
   thumbnailUrl: string;
-  categoryId: number | string;
+  categoryId: number;
   selectedOptionValueIds: number[];
   hasVariants: boolean;
 }
@@ -35,9 +35,9 @@ const INITIAL_FORM_DATA: ProductFormData = {
   slug: "",
   shortDescription: "",
   description: "",
-  basePrice: "",
+  basePrice: 0,
   thumbnailUrl: "",
-  categoryId: "",
+  categoryId: 0,
   selectedOptionValueIds: [],
   hasVariants: false
 };
