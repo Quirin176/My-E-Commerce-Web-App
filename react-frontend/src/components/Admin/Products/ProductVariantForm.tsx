@@ -28,9 +28,11 @@ export default function ProductVariantForm({
   const [stock, setStock] = useState<number>(row.stock);
   const [imageInput, setImageInput] = useState("");
   const [imageUrls, setImageUrls] = useState<AddImagePayload[]>(row.images ?? []);
-  const [selectedOptionValue, setSelectedOptionValue] = useState<{ optionName: string; value: string }[]>([]);
-
-  const [localOptionValueIds, setLocalOptionValueIds] = useState<number[]>(row.optionValueIds ?? []);
+  const [localOptionValueIds, setLocalOptionValueIds] = useState<number[]>(
+    (row.optionValueIds ?? []).length > 0
+      ? row.optionValueIds
+      : (row as any).optionValues?.map((ov: any) => ov.optionValueId ?? ov.id) ?? []
+  );
   const [submitting, setSubmitting] = useState(false);
 
   // Re-seed whenever the row changes (e.g. user collapses and expands a different row)
@@ -45,12 +47,23 @@ export default function ProductVariantForm({
     setLocalOptionValueIds(row.optionValueIds ?? []);
   }, [row.key]);
 
+  // Server-loaded variants may have `optionValues` (objects) instead of `optionValueIds` (numbers)
+  const resolvedOptionValueIds: number[] = (row.optionValueIds ?? []).length > 0
+    ? row.optionValueIds
+    : (row as any).optionValues?.map((ov: any) => ov.optionValueId ?? ov.id) ?? [];
+
   // ── Resolve option value labels from filters for read-only display ──────────
-  const attributeTags: { optionName: string; value: string }[] = filters.flatMap((opt) =>
-    opt.optionValues
-      .filter((v) => row.optionValueIds.includes(v.id))
-      .map((v) => ({ optionName: opt.optionName, value: v.value }))
-  );
+  const attributeTags: { optionName: string; value: string }[] =
+    resolvedOptionValueIds.length > 0 && filters.length > 0
+      ? filters.flatMap((opt) =>
+        opt.optionValues
+          .filter((v) => resolvedOptionValueIds.includes(v.id))
+          .map((v) => ({ optionName: opt.optionName, value: v.value }))
+      )
+      : (row as any).optionValues?.map((ov: any) => ({
+        optionName: ov.optionName,
+        value: ov.value,
+      })) ?? [];
 
   // ── Helpers ────────────────────────────────────────────────────────────────
   const addImage = () => {

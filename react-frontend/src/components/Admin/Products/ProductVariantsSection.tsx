@@ -20,19 +20,6 @@ export interface VariantRow {
   serverId: number;
 }
 
-export interface VariantRowResponse {
-  id: number;
-  variantName: string;
-  sku: string;
-  originalPrice: number;
-  price: number;
-  stock: number;
-  images: AddImagePayload[];
-  open: boolean;
-  optionValues: { optionValueId: number, optionName: string, value: string }[];
-  productId: number;
-}
-
 export interface SkuContext {
   categoryName: string;
   productName: string;

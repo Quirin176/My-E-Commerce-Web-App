@@ -113,7 +113,16 @@ export default function AdminProduct() {
                 }
 
                 const allVariant = await productvariantApi.getByProductId(product.id);
-                setVariants(allVariant);
+                const mappedVariants = allVariant.map((v: any) => ({
+                    ...v,
+                    key: String(v.id),
+                    open: false,
+                    imageInput: "",
+                    images: v.images ?? [],
+                    optionValueIds: v.optionValues?.map((ov: any) => ov.optionValueId ?? ov.id) ?? [],
+                    serverId: v.id,
+                }));
+                setVariants(mappedVariants);
                 console.log(allVariant);
             } catch {
                 toast.error("Failed to load product");
