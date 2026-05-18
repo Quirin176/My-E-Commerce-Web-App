@@ -8,18 +8,29 @@ import ProductVariantForm from "./ProductVariantForm";
 
 export interface VariantRow {
   key: string;
-  label: string;
   variantName: string;
   sku: string;
   originalPrice: number;
   price: number;
   stock: number;
-  imageUrls: AddImagePayload[];
+  images: AddImagePayload[];
   imageInput: string;
   open: boolean;
   optionValueIds: number[];
-  /** Set when this row corresponds to a saved server-side variant */
   serverId: number;
+}
+
+export interface VariantRowResponse {
+  id: number;
+  variantName: string;
+  sku: string;
+  originalPrice: number;
+  price: number;
+  stock: number;
+  images: AddImagePayload[];
+  open: boolean;
+  optionValues: { optionValueId: number, optionName: string, value: string }[];
+  productId: number;
 }
 
 export interface SkuContext {
@@ -50,7 +61,7 @@ function toSkuPart(str: string): string {
 }
 
 function buildSku(context: SkuContext, attrValues: string[]): string {
-  const cat  = toSkuPart(context.categoryName).slice(0, 6) || "CAT";
+  const cat = toSkuPart(context.categoryName).slice(0, 6) || "CAT";
   const prod = toSkuPart(context.productName).slice(0, 10) || "PROD";
   const attrs = attrValues.map(toSkuPart).filter(Boolean).join("").slice(0, 20);
   const sku = `${cat}-${prod}-${attrs}`;
@@ -111,13 +122,12 @@ function generateRows(
 
     return {
       key,
-      label,
       variantName: label,
       sku,
       originalPrice: 0,
       price: 0,
       stock: 0,
-      imageUrls: [],
+      images: [],
       imageInput: "",
       open: false,
       optionValueIds: combo,
@@ -145,12 +155,7 @@ export default function ProductVariantsSection({
   initialRows = [],
   skuContext,
 }: Props) {
-  const [rows, setRows] = useState<VariantRow[]>(initialRows);
-
-  // Sync when parent passes down loaded rows (edit mode)
-  useEffect(() => {
-    setRows(initialRows);
-  }, [initialRows]);
+  const [rows, setRows] = useState<VariantRow[]>([]);
 
   // Re-generate rows whenever selected option values change
   useEffect(() => {
@@ -226,7 +231,7 @@ export default function ProductVariantsSection({
               </button>
 
               {/* Label */}
-              <span className="flex-1 font-semibold text-sm text-gray-800">{row.label}</span>
+              <span className="flex-1 font-semibold text-sm text-gray-800">{row.variantName}</span>
 
               {/* Server-saved badge */}
               {row.serverId && (
@@ -261,10 +266,10 @@ export default function ProductVariantsSection({
                     {Number(row.stock) === 0 ? "Out of stock" : `${row.stock} in stock`}
                   </span>
                 )}
-                {row.imageUrls.length > 0 && (
+                {row.images.length > 0 && (
                   <span className="flex items-center gap-1 text-gray-400">
                     <ImagePlus size={12} />
-                    {row.imageUrls.length}
+                    {row.images.length}
                   </span>
                 )}
               </div>

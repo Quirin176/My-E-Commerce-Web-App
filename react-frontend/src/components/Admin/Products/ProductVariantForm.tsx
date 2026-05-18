@@ -27,7 +27,9 @@ export default function ProductVariantForm({
   const [originalPrice, setOriginalPrice] = useState<number>(row.originalPrice);
   const [stock, setStock] = useState<number>(row.stock);
   const [imageInput, setImageInput] = useState("");
-  const [imageUrls, setImageUrls] = useState<AddImagePayload[]>(row.imageUrls ?? []);
+  const [imageUrls, setImageUrls] = useState<AddImagePayload[]>(row.images ?? []);
+  const [selectedOptionValue, setSelectedOptionValue] = useState<{ optionName: string; value: string }[]>([]);
+
   const [localOptionValueIds, setLocalOptionValueIds] = useState<number[]>(row.optionValueIds ?? []);
   const [submitting, setSubmitting] = useState(false);
 
@@ -38,7 +40,8 @@ export default function ProductVariantForm({
     setPrice(row.price);
     setOriginalPrice(row.originalPrice);
     setStock(row.stock);
-    setImageUrls(row.imageUrls ?? []);
+    setImageUrls(row.images ?? []);
+    // setSelectedOptionValue(row.optionValues);
     setLocalOptionValueIds(row.optionValueIds ?? []);
   }, [row.key]);
 
@@ -104,12 +107,10 @@ export default function ProductVariantForm({
         onSaveSuccess({
           ...row,
           variantName: variantName.trim(),
-          label: variantName.trim(),
           sku: sku.trim(),
           price: Number(price),
           originalPrice: Number(originalPrice) || Number(price),
           stock: Number(stock),
-          imageUrls,
           optionValueIds: row.optionValueIds,
         });
       } else {
@@ -127,7 +128,7 @@ export default function ProductVariantForm({
               imageUrl: img.imageUrl,
               displayOrder: idx,
               isMain: idx === 0,
-              productId: 0,        // must be 0/null for variant images
+              productId: 0,
               variantId: newVariantId,
             }));
             await adminProductsApi.addProductImages(stampedImages);
@@ -139,12 +140,10 @@ export default function ProductVariantForm({
       onSaveSuccess({
         ...row,
         variantName: variantName.trim(),
-        label: variantName.trim(),
         sku: sku.trim(),
         price: Number(price),
         originalPrice: Number(originalPrice) || Number(price),
         stock: Number(stock),
-        imageUrls,
         optionValueIds: row.optionValueIds,
       });
     } catch (err) {

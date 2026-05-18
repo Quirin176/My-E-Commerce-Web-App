@@ -60,24 +60,25 @@ namespace WebApp_API.Data
                 .IsUnique();
 
             builder.Entity<ProductVariant>()
-                .HasOne(pf => pf.Product)
-                .WithMany()
-                .HasForeignKey(pf => pf.ProductId);
+                .HasOne(pv => pv.Product)
+                .WithMany(p => p.Variants)
+                .HasForeignKey(pv => pv.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<ProductVariantOptionValue>()
+                .HasKey(x => new { x.ProductVariantId, x.ProductOptionValueId });
 
             builder.Entity<ProductVariantOptionValue>()
                 .HasOne(pvov => pvov.ProductVariant)
-                .WithMany()
+                .WithMany(v => v.ProductVariantOptionValues)
                 .HasForeignKey(pvov => pvov.ProductVariantId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<ProductVariantOptionValue>()
                 .HasOne(pvov => pvov.ProductOptionValue)
-                .WithMany()
+                .WithMany(ov => ov.ProductVariantOptionValues)
                 .HasForeignKey(pvov => pvov.ProductOptionValueId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<ProductVariantOptionValue>()
-                .HasKey(x => new { x.ProductVariantId, x.ProductOptionValueId });
 
             builder.Entity<ProductFilter>()
                 .HasOne(pf => pf.Product)

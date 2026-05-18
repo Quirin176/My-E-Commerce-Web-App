@@ -10,6 +10,7 @@ import { useProductFilters } from "../../../hooks/products/useProductFilters";
 
 import { adminProductsApi, type ProductPayload, type AddImagePayload } from "../../../api/admin/adminProductsApi";
 import { productApi } from "../../../api/products/productApi";
+import { productvariantApi } from "../../../api/products/productvariantApi";
 
 import ToggleSwitch from "../../../components/ToggleSwitch";
 import ProductVariantsSection, { type VariantRow, type SkuContext } from "../../../components/Admin/Products/ProductVariantsSection";
@@ -110,6 +111,10 @@ export default function AdminProduct() {
                         selectedOptionValueIds: preSelectedIds,
                     }));
                 }
+
+                const allVariant = await productvariantApi.getByProductId(product.id);
+                setVariants(allVariant);
+                console.log(allVariant);
             } catch {
                 toast.error("Failed to load product");
             }
@@ -160,7 +165,7 @@ export default function AdminProduct() {
     const handleAddManualVariant = (row: VariantRow) => {
         setVariants((prev) => [...prev, row]);
         setShowManualForm(false);
-        toast.success(`Variant "${row.label}" added`);
+        toast.success(`Variant "${row.variantName}" added`);
     };
 
     // ── Image helpers ──────────────────────────────────────────────────────────
