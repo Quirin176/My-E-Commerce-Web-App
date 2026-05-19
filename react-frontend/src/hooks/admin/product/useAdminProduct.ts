@@ -9,7 +9,7 @@ import { useProductFilters } from "../../products/useProductFilters";
 import { productApi } from "../../../api/products/productApi";
 import { productvariantApi } from "../../../api/products/productvariantApi";
 import { adminProductsApi, type ProductPayload } from "../../../api/admin/adminProductsApi";
-import type { VariantRow } from "../../../components/Admin/Products/ProductVariantsSection";
+import type { VariantRow } from "../../../types/models/products/variantTypes";
 import type { ProductImage } from "../../../types/models/products/ProductImage";
 import { productimageApi } from "../../../api/products/productimageApi";
 

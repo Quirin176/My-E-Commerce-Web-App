@@ -12,7 +12,7 @@ import Search from "./pages/search/Search";
 
 import AdminDashboard from "./pages/admin/Dashboard/Dashboard";
 import AdminProducts from "./pages/admin/Products/AdminProducts";
-import AdminProduct from "./pages/admin/Products/AdminProduct";
+import AdminProduct from "./pages/admin/Product/AdminProduct";
 import AdminAttributes from "./pages/admin/Attributes/AdminAttributes"
 import AdminOrders from "./pages/admin/Orders/AdminOrders";
 import AdminUsers from "./pages/admin/Users/AdminUsers";

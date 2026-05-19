@@ -3,7 +3,7 @@ import type { Dispatch, SetStateAction } from "react";
 import { slugify } from "../../utils/slugify";
 
 // Define the return type of the useProductForm hook
-interface UseProductFormReturn {
+export interface UseProductFormReturn {
   formData: ProductFormData;
   formErrors: Record<string, string>;
   setFormData: Dispatch<SetStateAction<ProductFormData>>;

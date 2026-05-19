@@ -5,10 +5,10 @@ import type { AddImagePayload } from "../../../api/admin/adminProductsApi";
 export function useProductImages() {
     const [imageInput, setImageInput] = useState("");
     const [images, setImages] = useState<AddImagePayload[]>([]);
-    const [productId, setProductId] = useState<number>(0);
 
     const addImage = () => {
         if (!imageInput.trim()) return;
+
         if (images.some((i) => i.imageUrl === imageInput)) {
             toast.error("Image URL already added");
             return;
@@ -20,9 +20,10 @@ export function useProductImages() {
                 imageUrl: imageInput,
                 displayOrder: prev.length,
                 isMain: prev.length === 0,
-                productId: productId,
+                productId: 0,
                 variantId: 0,
             }]);
+
         setImageInput("");
     };
 
@@ -36,8 +37,6 @@ export function useProductImages() {
         imageInput,
         setImageInput,
         images,
-        productId,
-        setProductId,
         addImage,
         removeImage,
         clearImages,

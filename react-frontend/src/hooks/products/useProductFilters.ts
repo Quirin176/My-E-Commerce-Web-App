@@ -3,7 +3,14 @@ import toast from "react-hot-toast";
 import { categoryApi } from "../../api/products/categoryApi";
 import type { ProductOption } from "../../types/models/products/ProductOption";
 
-export const useProductFilters = () => {
+export interface UserProductFiltersReturn {
+  filters: ProductOption[];
+  filtersLoading: boolean;
+  loadFilters: (categoryId: number) => Promise<ProductOption[]>;
+  setFilters: React.Dispatch<React.SetStateAction<ProductOption[]>>;
+}
+
+export const useProductFilters = (): UserProductFiltersReturn => {
   const [filters, setFilters] = useState<ProductOption[]>([]);
   const [filtersLoading, setFiltersLoading] = useState(false);
 
