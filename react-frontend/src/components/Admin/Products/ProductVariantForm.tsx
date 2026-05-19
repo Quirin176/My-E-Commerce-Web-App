@@ -43,7 +43,6 @@ export default function ProductVariantForm({
     setOriginalPrice(row.originalPrice);
     setStock(row.stock);
     setImageUrls(row.images ?? []);
-    // setSelectedOptionValue(row.optionValues);
     setLocalOptionValueIds(row.optionValueIds ?? []);
   }, [row.key]);
 

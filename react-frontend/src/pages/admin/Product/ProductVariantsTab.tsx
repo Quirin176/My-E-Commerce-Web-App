@@ -139,11 +139,14 @@ export default function ProductVariantsTab({
                         ({variants.length})
                     </span>
                 </label>
-                <ToggleSwitch
-                    label="Auto-generate?"
-                    checked={autoGenerate}
-                    onChange={(val) => setAutoGenerate(val)}
-                />
+                
+                {variants.length === 0 &&
+                    <ToggleSwitch
+                        label="Auto-generate?"
+                        checked={autoGenerate}
+                        onChange={(val) => setAutoGenerate(val)}
+                    />
+                }
             </div>
 
             {/* Variant rows */}
@@ -205,10 +208,10 @@ export default function ProductVariantsTab({
                                 {row.stock !== 0 && (
                                     <span
                                         className={`px-2 py-0.5 rounded-full font-semibold ${Number(row.stock) === 0
-                                                ? "bg-red-100 text-red-700"
-                                                : Number(row.stock) <= 5
-                                                    ? "bg-yellow-100 text-yellow-700"
-                                                    : "bg-green-100 text-green-700"
+                                            ? "bg-red-100 text-red-700"
+                                            : Number(row.stock) <= 5
+                                                ? "bg-yellow-100 text-yellow-700"
+                                                : "bg-green-100 text-green-700"
                                             }`}
                                     >
                                         {Number(row.stock) === 0

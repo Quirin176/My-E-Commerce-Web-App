@@ -10,7 +10,7 @@ import { productApi } from "../../../api/products/productApi";
 import { productvariantApi } from "../../../api/products/productvariantApi";
 import { adminProductsApi, type ProductPayload } from "../../../api/admin/adminProductsApi";
 import type { VariantRow } from "../../../types/models/products/variantTypes";
-import type { ProductImage } from "../../../types/models/products/ProductImage";
+import type { AddImagePayload } from "../../../api/admin/adminProductsApi";
 import { productimageApi } from "../../../api/products/productimageApi";
 
 export function useAdminProduct() {
@@ -24,7 +24,7 @@ export function useAdminProduct() {
         [id, createdProductId]
     );
 
-    const [images, setImages] = useState<ProductImage[]>([])
+    const [recentProductImages, setRecentProductImages] = useState<AddImagePayload[]>([])
 
     const [hasVariant, setHasVariant] = useState(false);
     const [variants, setVariants] = useState<VariantRow[]>([]);
@@ -38,14 +38,10 @@ export function useAdminProduct() {
     const selectedIds = form.formData.selectedOptionValueIds ?? [];
     const [autoGenerate, setAutoGenerate] = useState<boolean>(false);
 
-    const skuContext = useMemo(
-        () => ({
-            categoryName:
-                categories.find((c) => c.id === Number(form.formData.categoryId))?.name ?? "",
-            productName: form.formData.name,
-        }),
-        [categories, form.formData]
-    );
+    const skuContext = useMemo(() => ({
+        categoryName: categories.find((c) => c.id === Number(form.formData.categoryId))?.name ?? "",
+        productName: form.formData.name,
+    }), [categories, form.formData]);
 
     // ─────────────────────────────────────────────
     // Load product in edit mode
@@ -97,7 +93,7 @@ export function useAdminProduct() {
                 }
 
                 const allImages = await productimageApi.GetByProduct(product.id);
-                setImages(allImages)
+                setRecentProductImages(allImages);
 
                 // Load variants
                 const allVariant = await productvariantApi.getByProductId(product.id);
@@ -156,7 +152,7 @@ export function useAdminProduct() {
         form,
         filters,
         categories,
-        images,
+        recentProductImages,
         hasVariant,
         setHasVariant,
         variants,

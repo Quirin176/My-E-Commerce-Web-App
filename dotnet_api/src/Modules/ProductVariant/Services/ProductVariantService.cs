@@ -37,7 +37,7 @@ namespace WebApp_API.Services
         }
 
         // ──────────────────── Write operations ────────────────────
-        public async Task CreateAsync(ProductVariantDTOs.CreateProductVariantRequest request)
+        public async Task<ProductVariantDTOs.ProductVariantResponse> CreateAsync(ProductVariantDTOs.CreateProductVariantRequest request)
         {
             ProductVariant variant = BuildVariant(request);
 
@@ -51,6 +51,7 @@ namespace WebApp_API.Services
                 await _productVariantOptionValueRepo.AddRangeAsync(variant.Id, request.OptionValueIds);
                 await _productVariantOptionValueRepo.SaveChangesAsync();
             }
+            return MapToResponse(variant);
         }
 
         // public async Task CreateVariantsAsync(IEnumerable<ProductVariantDTOs.CreateProductVariantRequest> requests)

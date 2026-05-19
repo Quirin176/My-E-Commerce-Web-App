@@ -12,7 +12,7 @@ namespace WebApp_API.Services
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
 
-        Task CreateAsync(ProductVariantDTOs.CreateProductVariantRequest variant);
+        Task<ProductVariantDTOs.ProductVariantResponse> CreateAsync(ProductVariantDTOs.CreateProductVariantRequest variant);
         // Task CreateVariantsAsync(IEnumerable<ProductVariantDTOs.CreateProductVariantRequest> variants);
         Task<ProductVariantDTOs.ProductVariantResponse?> UpdateAsync(int id, ProductVariantDTOs.UpdateProductVariantRequest request);
         Task<bool> DeleteAsync(int id);

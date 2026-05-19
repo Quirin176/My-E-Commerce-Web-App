@@ -24,7 +24,7 @@ export default function ImagesTab(props: ImagesTabProps) {
         submittingImages,
         onSave
     } = props;
-    
+
     const navigate = useNavigate();
 
     return (
@@ -75,31 +75,52 @@ export default function ImagesTab(props: ImagesTabProps) {
                     </div>
 
                     {images.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-3">
+                        <div className="flex flex-col gap-2 mt-3">
                             {images.map((img, idx) => (
-                                <div key={idx} className="relative group w-20 h-20">
-                                    <img
-                                        src={img.imageUrl}
-                                        alt={`Product image ${idx + 1}`}
-                                        className={`w-full h-full object-cover rounded border-2 ${img.isMain ? "border-blue-500" : "border-gray-200"
-                                            }`}
-                                        onError={(e) => {
-                                            (e.target as HTMLImageElement).src =
-                                                "https://via.placeholder.com/80?text=Error";
+                                <div className="flex flex-row gap-2">
+                                    <div key={idx} className="relative group w-20 h-20">
+                                        <p
+                                            className="absolute top-0 left-0 w-5 h-5 bg-gray-600 text-white rounded text-xs flex items-center justify-center"
+                                        >
+                                            {img.displayOrder}
+                                        </p>
+                                        <img
+                                            src={img.imageUrl}
+                                            alt={`Product image ${idx + 1}`}
+                                            className={`w-full h-full object-cover rounded border-2 ${img.isMain ? "border-blue-500" : "border-gray-200"
+                                                }`}
+                                            onError={(e) => {
+                                                (e.target as HTMLImageElement).src =
+                                                    "https://via.placeholder.com/80?text=Error";
+                                            }}
+                                        />
+                                        {img.isMain && (
+                                            <span className="absolute bottom-0 left-0 right-0 text-center text-white text-[9px] bg-blue-500 rounded-b">
+                                                Main
+                                            </span>
+                                        )}
+                                        <button
+                                            type="button"
+                                            onClick={() => removeImage(idx)}
+                                            className="absolute -top-1 -right-1 w-5 h-5 bg-red-600 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                                        >
+                                            <X size={10} />
+                                        </button>
+                                    </div>
+
+                                    <input
+                                        value={img.imageUrl}
+                                        onChange={(e) => setImageInput(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                                e.preventDefault();
+                                                addImage();
+                                            }
                                         }}
+                                        placeholder="https://example.com/image.jpg"
+                                        className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm outline-none focus:border-blue-500 transition bg-white flex-1"
+                                        disabled={!productId}
                                     />
-                                    {img.isMain && (
-                                        <span className="absolute bottom-0 left-0 right-0 text-center text-white text-[9px] bg-blue-500 rounded-b">
-                                            Main
-                                        </span>
-                                    )}
-                                    <button
-                                        type="button"
-                                        onClick={() => removeImage(idx)}
-                                        className="absolute -top-1 -right-1 w-5 h-5 bg-red-600 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
-                                    >
-                                        <X size={10} />
-                                    </button>
                                 </div>
                             ))}
                         </div>

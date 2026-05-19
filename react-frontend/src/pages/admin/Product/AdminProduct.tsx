@@ -35,6 +35,7 @@ export default function AdminProduct() {
         form,
         filters,
         categories,
+        recentProductImages,
         hasVariant,
         setHasVariant,
         variants,
@@ -54,7 +55,7 @@ export default function AdminProduct() {
         setTabIndex(1);
     };
 
-    const productImages = useProductImages();
+    const productImages = useProductImages(recentProductImages);
     const { submittingImages, saveImages } = useSaveProductImages();
 
     const handleSaveImages = () => saveImages(effectiveProductId, productImages.images);

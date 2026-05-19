@@ -16,8 +16,8 @@ namespace WebApp_API.Repositories
             return await _db.ProductVariants
                 .Include(v => v.Images)
                 .Include(v => v.ProductVariantOptionValues)
-                    .ThenInclude(pvov => pvov.ProductOptionValue)
-                        .ThenInclude(pov => pov.ProductOption)
+                .ThenInclude(pvov => pvov.ProductOptionValue)
+                .ThenInclude(pov => pov.ProductOption)
                 .FirstOrDefaultAsync(v => v.Id == id);
         }
 
@@ -27,8 +27,8 @@ namespace WebApp_API.Repositories
             return await _db.ProductVariants
                 .Include(v => v.Images)
                 .Include(v => v.ProductVariantOptionValues)
-                    .ThenInclude(pvov => pvov.ProductOptionValue)
-                        .ThenInclude(pov => pov.ProductOption)
+                .ThenInclude(pvov => pvov.ProductOptionValue)
+                .ThenInclude(pov => pov.ProductOption)
                 .ToListAsync();
         }
 
@@ -38,8 +38,8 @@ namespace WebApp_API.Repositories
                 .Where(v => v.ProductId == productId)
                 .Include(v => v.Images)
                 .Include(v => v.ProductVariantOptionValues)
-                    .ThenInclude(pvov => pvov.ProductOptionValue)
-                        .ThenInclude(pov => pov.ProductOption)
+                .ThenInclude(pvov => pvov.ProductOptionValue)
+                .ThenInclude(pov => pov.ProductOption)
                 .ToListAsync();
         }
 
