@@ -1,27 +1,27 @@
 import { AlertCircle, MoveRight } from "lucide-react";
-import { useCategories } from "../../../hooks/products/useCategories";
-import { useProductForm } from "../../../hooks/admin/useProductForm";
-// import type { UserProductFiltersReturn } from "../../../hooks/products/useProductFilters";
-// import type { UseProductFormReturn } from "../../../hooks/admin/useProductForm";
+import type { UseProductFormReturn } from "../../../hooks/admin/useProductForm";
+import type { UserProductFiltersReturn } from "../../../hooks/products/useProductFilters";
+import type { Category } from "../../../types/models/products/Category";
 
 interface ProductInfoTabProps {
     mode: string;
+    form: UseProductFormReturn;
+    filters: UserProductFiltersReturn;
+    categories: Category[];
     submitting: boolean;
     onSubmit: () => void;
     onCategoryChange: (categoryId: number) => void;
 }
 
-export default function ProductInfoTab(props: ProductInfoTabProps) {
-    const {
-        mode,
-        submitting,
-        onSubmit,
-        onCategoryChange
-    } = props;
-
-    const { categories } = useCategories();
-    const form = useProductForm();
-
+export default function ProductInfoTab({
+    mode,
+    form,
+    filters,
+    categories,
+    submitting,
+    onSubmit,
+    onCategoryChange,
+}: ProductInfoTabProps) {
     return (
         <div className="space-y-6">
             <h2 className="text-2xl font-bold text-black">
@@ -37,7 +37,8 @@ export default function ProductInfoTab(props: ProductInfoTabProps) {
                         value={form.formData.name}
                         onChange={(e) => form.autoGenerateSlug(e.target.value)}
                         placeholder="Enter product name"
-                        className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${form.formErrors.name ? "border-red-500" : "border-black"}`}
+                        className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${form.formErrors.name ? "border-red-500" : "border-black"
+                            }`}
                     />
                     {form.formErrors.name && (
                         <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
@@ -47,14 +48,17 @@ export default function ProductInfoTab(props: ProductInfoTabProps) {
                 </div>
 
                 <div>
-                    <label className="block font-bold text-black mb-2">Product Slug (Auto-generated)</label>
+                    <label className="block font-bold text-black mb-2">
+                        Product Slug (Auto-generated)
+                    </label>
                     <input
                         type="text"
                         value={form.formData.slug}
                         placeholder="product-slug"
                         disabled
                         readOnly
-                        className={`w-full px-4 py-2 border-2 rounded-lg outline-none cursor-not-allowed bg-gray-200 text-gray-600 ${form.formErrors.slug ? "border-red-500" : "border-black"}`}
+                        className={`w-full px-4 py-2 border-2 rounded-lg outline-none cursor-not-allowed bg-gray-200 text-gray-600 ${form.formErrors.slug ? "border-red-500" : "border-black"
+                            }`}
                     />
                 </div>
             </div>
@@ -68,7 +72,8 @@ export default function ProductInfoTab(props: ProductInfoTabProps) {
                         value={form.formData.basePrice}
                         onChange={(e) => form.updateField("basePrice", e.target.value)}
                         placeholder="Enter product price"
-                        className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${form.formErrors.price ? "border-red-500" : "border-black"}`}
+                        className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${form.formErrors.price ? "border-red-500" : "border-black"
+                            }`}
                     />
                     {form.formErrors.price && (
                         <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
@@ -85,14 +90,17 @@ export default function ProductInfoTab(props: ProductInfoTabProps) {
                             const categoryId = parseInt(e.target.value) || 0;
                             form.updateField("categoryId", categoryId);
                             form.updateField("selectedOptionValueIds", []);
-                            // filters.loadFilters(categoryId);
+                            filters.loadFilters(categoryId);
                             onCategoryChange(categoryId);
                         }}
-                        className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${form.formErrors.categoryId ? "border-red-500" : "border-black"}`}
+                        className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${form.formErrors.categoryId ? "border-red-500" : "border-black"
+                            }`}
                     >
                         <option value="">Select a category</option>
                         {categories.map((cat) => (
-                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                            <option key={cat.id} value={cat.id}>
+                                {cat.name}
+                            </option>
                         ))}
                     </select>
                     {form.formErrors.categoryId && (
@@ -105,10 +113,18 @@ export default function ProductInfoTab(props: ProductInfoTabProps) {
                 <div className="lg:col-span-2">
                     <div className="flex flex-col md:flex-row items-center gap-4 p-3 border-2 border-black rounded-lg bg-gray-50">
                         <div className="relative w-20 h-20 shrink-0 bg-white border-2 border-black rounded-md overflow-hidden">
-                            <img src={form.formData.thumbnailUrl} className="w-full h-full object-cover" alt="" />
+                            {form.formData.thumbnailUrl && (
+                                <img
+                                    src={form.formData.thumbnailUrl}
+                                    className="w-full h-full object-cover"
+                                    alt=""
+                                />
+                            )}
                         </div>
                         <div className="flex-1 w-full">
-                            <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Thumbnail URL</label>
+                            <label className="block text-xs font-bold uppercase text-gray-500 mb-1">
+                                Thumbnail URL
+                            </label>
                             <input
                                 type="text"
                                 value={form.formData.thumbnailUrl}
@@ -145,11 +161,14 @@ export default function ProductInfoTab(props: ProductInfoTabProps) {
 
             <div className="flex justify-end">
                 <button
-                    onClick={() => onSubmit()}
+                    onClick={onSubmit}
                     disabled={submitting}
                     className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    <span className="flex flex-row gap-4">Configure Attributes<MoveRight /></span>
+                    <span className="flex flex-row gap-4">
+                        {submitting ? "Saving..." : "Configure Attributes"}
+                        {!submitting && <MoveRight />}
+                    </span>
                 </button>
             </div>
         </div>
