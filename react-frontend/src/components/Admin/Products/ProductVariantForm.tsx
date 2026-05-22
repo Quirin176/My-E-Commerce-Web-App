@@ -115,22 +115,13 @@ export default function ProductVariantForm({
       if (mode === "edit" && row.serverId) {
         await adminProductsApi.updateVariant(row.serverId, payload);
         toast.success("Variant updated!");
-
-        onSaveSuccess({
-          ...row,
-          variantName: variantName.trim(),
-          sku: sku.trim(),
-          price: Number(price),
-          originalPrice: Number(originalPrice) || Number(price),
-          stock: Number(stock),
-          optionValueIds: row.optionValueIds,
-        });
       } else {
         //
         const created = await adminProductsApi.createVariant(productId, payload);
+
         const newVariantId: number = created?.id;
 
-        //
+        // Add variant images
         if (imageUrls.length > 0) {
           if (!newVariantId) {
             toast.error("Variant created but could not attach images: missing variant ID.");
@@ -145,7 +136,9 @@ export default function ProductVariantForm({
             }));
             await adminProductsApi.addProductImages(stampedImages);
           }
-        } toast.success("Variant created!");
+        }
+
+        toast.success("Variant created!");
       }
 
       // Bubble updated data back to the parent so it can update its row list

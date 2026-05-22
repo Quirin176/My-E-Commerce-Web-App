@@ -53,8 +53,8 @@ namespace WebApp_API.Controllers
 
             try
             {
-                await _service.CreateAsync(request);
-                return Ok(new { message = "Product Variant Created" });
+                var created = await _service.CreateAsync(request);
+                return Ok(new { message = "Product Variant Created", id = created.Id });
             }
             catch (Exception ex)
             {

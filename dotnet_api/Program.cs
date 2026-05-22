@@ -8,34 +8,25 @@ using WebApp_API.Data;
 using WebApp_API.Repositories;
 using WebApp_API.Services;
 
+// ──────────────────────────────────────── 1. DI (DEPENDENCY INJECTION) SERVICE CONTAINER ────────────────────────────────────────
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.ReferenceHandler =
-            System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
-    });
-
+// ──────────────────────────────────────── 2. CONFIGURE SERVICES (DEPENDENCIES INJECTION REGISTRATION) ────────────────────────────────────────
+// Configure JSON options to handle reference loops
+builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
+// Generate API documentation with Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-// DbContext
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-// CORS (Cross-Origin Resource Sharing) - allow frontend origin
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowFrontend", policy =>
-        policy.WithOrigins("http://localhost:5173", "http://localhost:3000", "https://your-prod-frontend.com")
-              //   .WithHeaders("Authorization", "Content-Type")
-              .WithMethods("GET", "POST", "PUT", "DELETE")
-              .AllowAnyHeader()
-              //   .AllowAnyMethod()
-              .AllowCredentials());
-});
-
+// Configure DbContext with SQL Server (set the connection string in appsettings.json)
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Configure CORS to allow requests from the frontend
+builder.Services.AddCors(options => options.AddPolicy("AllowFrontend", policy => policy.WithOrigins("http://localhost:5173", "http://localhost:3000", "https://your-prod-frontend.com")
+                                                                                        //   .WithHeaders("Authorization", "Content-Type")
+                                                                                        .WithMethods("GET", "POST", "PUT", "DELETE")
+                                                                                        .AllowAnyHeader()
+                                                                                        //   .AllowAnyMethod()
+                                                                                        .AllowCredentials()));
+// Rate Limiting - limit to 3 login attempts per minute per IP
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = 429;
@@ -45,8 +36,7 @@ builder.Services.AddRateLimiter(options =>
     {
         if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
         {
-            context.HttpContext.Response.Headers.RetryAfter =
-                ((int)retryAfter.TotalSeconds).ToString();
+            context.HttpContext.Response.Headers.RetryAfter = ((int)retryAfter.TotalSeconds).ToString();
         }
         else
         {
@@ -54,10 +44,7 @@ builder.Services.AddRateLimiter(options =>
         }
 
         context.HttpContext.Response.StatusCode = 429;
-        await context.HttpContext.Response.WriteAsync(
-            "{\"message\":\"Too many login attempts. Please try again later.\"}",
-            cancellationToken
-        );
+        await context.HttpContext.Response.WriteAsync("{\"message\":\"Too many login attempts. Please try again later.\"}", cancellationToken);
     };
 
     options.AddPolicy("auth", httpContext =>
@@ -77,7 +64,7 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 
-// Add DI (Dependency Injection) for repositories and services
+// Add custom DI (Dependency Injection)
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 
@@ -154,16 +141,19 @@ builder.Services.AddAuthentication(options =>
 
             return Task.CompletedTask;
         },
+
         OnAuthenticationFailed = context =>
         {
             // Console.WriteLine($"[JWT] Authentication Failed: {context.Exception.Message}");
             return Task.CompletedTask;
         },
+
         OnTokenValidated = context =>
         {
             // Console.WriteLine("[JWT] Token Validated Successfully");
             return Task.CompletedTask;
         },
+
         OnChallenge = context =>
         {
             Console.WriteLine($"[JWT] Challenge: {context.ErrorDescription}");
@@ -172,10 +162,11 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// ──────────────────────────────────────── 3. BUILD THE APPLICATION ────────────────────────────────────────
 var app = builder.Build();
 
-// Enable Swagger only in Development
-if (app.Environment.IsDevelopment())
+// ──────────────────────────────────────── 4. CONFIGURE THE HTTP REQUEST PIPELINE (CONFIGURE MIDDLEWARE) ────────────────────────────────────────
+if (app.Environment.IsDevelopment())    // Enable Swagger only in Development
 {
     // Swagger JSON is available at http://localhost:5159/swagger/v1/swagger.json
     // Swagger UI is available at http://localhost:5159/swagger/index.html
@@ -190,19 +181,30 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// app.Use(async (context, next) => {
-//     context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
-//     context.Response.Headers.Add("X-Frame-Options", "DENY");
-//     context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
-//     context.Response.Headers.Add("Referrer-Policy", "strict-origin-when-cross-origin");
-//     context.Response.Headers.Remove("Server"); // Don't expose server info
-//     await next();
-// });
+// Security Headers Middleware
+app.Use(async (context, next) =>
+{
+    var headers = context.Response.Headers;
 
+    headers["XContentTypeOptions"] = "nosniff";                     // Prevent MIME type sniffing
+    headers["XFrameOptions"] = "DENY";                              // Prevent clickjacking by disallowing framing
+    headers["Referrer-Policy"] = "strict-origin-when-cross-origin"; // Control referrer information sent with requests
+    headers["Permissions-Policy"] = "geolocation=()";               // Disable geolocation API for all origins
+
+    headers["ContentSecurityPolicy"] = "default-src 'self'";        // Restrict content to same origin to mitigate XSS and data injection attacks
+
+    headers["XXSSProtection"] = "1; mode=block";                    // Enable XSS protection in browsers (deprecated but still supported by some)
+
+    headers.Remove("Server");                                       // Hide server information for security
+    await next();
+});
+
+// ──────────────────────────────────────── 5. ENDPOINT MAPPING METHOD ────────────────────────────────────────
 app.MapControllers();
 
 app.MapHub<ChatHub>("/chatHub");
 
+// ──────────────────────────────────────── 6. RUN THE APPLICATION ────────────────────────────────────────
 // Log startup info
 Console.WriteLine("Starting WebApp API...");
 Console.WriteLine($"Listening on: http://localhost:5159");

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebApp_API.Entities;
 using WebApp_API.Services;
 
 namespace WebApp_API.Controllers

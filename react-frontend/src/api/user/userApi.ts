@@ -3,7 +3,7 @@ import { apiClient } from "../apiClient";
 export const userApi = {
 
   getProfile: async () => {
-    const res = await apiClient.get("/user/profile");
+    const res = await apiClient.get("/user/profile", { noCache: true });
     return res.data;
   },
 
