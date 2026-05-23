@@ -1,9 +1,12 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send } from "lucide-react";
+import { Bot, MessageCircle, X, Send } from "lucide-react";
 import { useAuth } from "../hooks/auth/useAuth";
 import { useChat } from "../hooks/chat/useChat";
 import { chatApi } from "../api/chatApi";
 import { siteConfig } from "../config/siteConfig";
+import { useChatStore } from "../store/chatStore";
+
+const BOT_SENDER_ID = 1;
 
 export default function ChatBubble() {
     const { user } = useAuth();
@@ -13,6 +16,8 @@ export default function ChatBubble() {
     const [starting, setStarting] = useState(false);
     const bottomRef = useRef<HTMLDivElement>(null);
     const colors = siteConfig.colors;
+
+    const { setMessages } = useChatStore();
 
     if (!user || user.role !== "Customer") return null;
 
@@ -31,11 +36,23 @@ export default function ChatBubble() {
                 // Create or resume a chat session
                 const existing = await chatApi.getMyChat();
                 const chats = existing.data;
+
+                let resolvedChatId: number;
+
                 if (chats.length > 0) {
-                    setChatId(chats[0].id);
+                    resolvedChatId = chats[0].id;
+                    setChatId(resolvedChatId);
+
+                    // Load history from DB into the store
+                    const chatDetail = await chatApi.getChatByChatId(resolvedChatId);
+                    const history = chatDetail?.data?.messages ?? [];
+                    if (history.length > 0) {
+                        setMessages(history);
+                    }
                 } else {
                     const res = await chatApi.createChat();
-                    setChatId(res.data.id);
+                    resolvedChatId = res.data.id;
+                    setChatId(resolvedChatId);
                 }
             } catch (err) {
                 console.error("Failed to init chat:", err);
@@ -60,7 +77,6 @@ export default function ChatBubble() {
 
     return (
         <>
-            {/* Chat window */}
             {open && (
                 <div
                     className="fixed bottom-24 right-6 z-50 w-80 bg-white rounded-2xl shadow-2xl border flex flex-col overflow-hidden"
@@ -71,7 +87,10 @@ export default function ChatBubble() {
                         className="flex items-center justify-between px-4 py-3 text-white"
                         style={{ background: colors.primarycolor }}
                     >
-                        <span className="font-bold">Support Chat</span>
+                        <div className="flex items-center gap-2">
+                            <Bot size={18} />
+                            <span className="font-bold">Support Chat</span>
+                        </div>
                         <button onClick={() => setOpen(false)} className="hover:opacity-75 transition">
                             <X size={20} />
                         </button>
@@ -89,19 +108,38 @@ export default function ChatBubble() {
                         )}
                         {messages.map((msg, i) => {
                             const isMe = msg.senderId === user.id;
+                            const isBot = msg.senderId === BOT_SENDER_ID;
+
                             return (
                                 <div
                                     key={i}
                                     className={`flex ${isMe ? "justify-end" : "justify-start"}`}
                                 >
-                                    <div
-                                        className={`px-3 py-2 rounded-xl text-sm max-w-[75%] wrap-break-word ${isMe
-                                                ? "text-white rounded-br-none"
-                                                : "bg-white border text-gray-800 rounded-bl-none"
-                                            }`}
-                                        style={isMe ? { background: colors.primarycolor } : {}}
-                                    >
-                                        {msg.content}
+                                    {/* Bot avatar */}
+                                    {isBot && (
+                                        <div
+                                            className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mr-1 mt-1"
+                                            style={{ background: colors.primarycolor }}
+                                        >
+                                            <Bot size={13} color="white" />
+                                        </div>
+                                    )}
+
+                                    <div className="flex flex-col gap-0.5 max-w-[75%]">
+                                        {isBot && (
+                                            <span className="text-[10px] text-gray-400 ml-1">AI Assistant</span>
+                                        )}
+                                        <div
+                                            className={`px-3 py-2 rounded-xl text-sm wrap-break-word ${isMe
+                                                    ? "text-white rounded-br-none"
+                                                    : isBot
+                                                        ? "bg-blue-50 border border-blue-100 text-gray-800 rounded-bl-none"
+                                                        : "bg-white border text-gray-800 rounded-bl-none"
+                                                }`}
+                                            style={isMe ? { background: colors.primarycolor } : {}}
+                                        >
+                                            {msg.content}
+                                        </div>
                                     </div>
                                 </div>
                             );
@@ -132,7 +170,7 @@ export default function ChatBubble() {
                 </div>
             )}
 
-            {/* Floating bubble button */}
+            {/* Floating bubble */}
             <button
                 onClick={open ? () => setOpen(false) : handleOpen}
                 className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-lg text-white flex items-center justify-center transition-transform hover:scale-110 active:scale-95"

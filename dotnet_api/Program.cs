@@ -102,7 +102,7 @@ builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 
-builder.Services.AddHttpClient<GeminiClient>();
+// builder.Services.AddHttpClient<GeminiClient>();
 builder.Services.AddHttpClient<IGeminiAgentService, GeminiAgentService>(client =>
 {
     client.Timeout = TimeSpan.FromSeconds(30);

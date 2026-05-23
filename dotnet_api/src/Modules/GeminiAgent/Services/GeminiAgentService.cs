@@ -36,7 +36,7 @@ namespace WebApp_API.Services
         public async Task<string> GetChatReplyAsync(string customerMessage, int chatId)
         {
             var systemPrompt = await BuildSystemPromptAsync();
-            var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={_apiKey}";
+            var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={_apiKey}";
 
             var payload = new
             {

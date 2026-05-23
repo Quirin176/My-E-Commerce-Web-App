@@ -9,29 +9,23 @@ namespace WebApp_API.Services
     {
         private readonly IMessageRepository _repo;
         private readonly IHubContext<ChatHub> _hub;
-        private readonly IGeminiAgentService _geminiAgent;
         private readonly IChatRepository _chatRepo;
-        private readonly IUserRepository _userRepo;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<MessageService> _logger;
 
-        // Synthetic sender ID used for all AI-generated messages.
-        // Store a real User row with Id=1 and Role="Bot" so the FK is valid,
-        // OR adjust the DB schema to allow NULL SenderId for bot messages.
-        private const int BotSenderId = 1; // ← change to your actual bot user ID
+        private const int BotSenderId = 1;
 
         public MessageService(
             IMessageRepository repo,
             IHubContext<ChatHub> hub,
-            IGeminiAgentService geminiAgent,
             IChatRepository chatRepo,
-            IUserRepository userRepo,
+            IServiceScopeFactory scopeFactory,
             ILogger<MessageService> logger)
         {
             _repo = repo;
             _hub = hub;
-            _geminiAgent = geminiAgent;
             _chatRepo = chatRepo;
-            _userRepo = userRepo;
+            _scopeFactory = scopeFactory;
             _logger = logger;
         }
 
@@ -52,30 +46,44 @@ namespace WebApp_API.Services
                 .SendAsync("ReceiveMessage", BuildMessagePayload(msg, isBot: false));
 
             // Trigger Gemini auto-reply only when:
-            //    - the sender is NOT the bot itself  (prevent infinite loops)
-            //    - the chat has no admin assigned yet  (human agent not present)
+            //   - sender is NOT the bot (prevent infinite loops)
+            //   - chat has no human admin assigned yet
             var chat = await _chatRepo.GetByIdAsync(chatId);
             bool hasHumanAgent = chat?.AdminId != null;
 
             if (!hasHumanAgent && senderId != BotSenderId)
             {
-                // Fire-and-forget so the HTTP response is not delayed
+                // Fire-and-forget in a fresh DI scope so the DbContext is never disposed
+                // underneath us when the HTTP request scope ends.
                 _ = Task.Run(() => SendBotReplyAsync(chatId, content));
             }
 
             return msg;
         }
 
-        // Generates and broadcasts the Gemini reply
         private async Task SendBotReplyAsync(int chatId, string customerMessage)
         {
             try
             {
-                // Small delay so the customer sees their own message first
                 await Task.Delay(800);
 
-                // Get AI reply
-                var replyText = await _geminiAgent.GetChatReplyAsync(customerMessage, chatId);
+                // Create a brand-new DI scope — this gives us a fresh DbContext
+                // and fresh scoped services that live until we dispose the scope.
+                await using var scope = _scopeFactory.CreateAsyncScope();
+
+                var geminiAgent  = scope.ServiceProvider.GetRequiredService<IGeminiAgentService>();
+                var messageRepo  = scope.ServiceProvider.GetRequiredService<IMessageRepository>();
+                var chatRepo     = scope.ServiceProvider.GetRequiredService<IChatRepository>();
+
+                var replyText = await geminiAgent.GetChatReplyAsync(customerMessage, chatId);
+
+                // Verify the chat still exists (user may have deleted it)
+                var chat = await chatRepo.GetByIdAsync(chatId);
+                if (chat is null)
+                {
+                    _logger.LogWarning("[GeminiAgent] Chat {ChatId} no longer exists; skipping bot reply.", chatId);
+                    return;
+                }
 
                 var botMsg = new Message
                 {
@@ -85,9 +93,8 @@ namespace WebApp_API.Services
                     Type     = "bot",
                 };
 
-                await _repo.CreateAsync(botMsg);
+                await messageRepo.CreateAsync(botMsg);
 
-                // Broadcast AI reply to the group
                 await _hub.Clients
                     .Group($"convo-{chatId}")
                     .SendAsync("ReceiveMessage", BuildMessagePayload(botMsg, isBot: true));
@@ -100,7 +107,6 @@ namespace WebApp_API.Services
             }
         }
 
-        // Helper: anonymous object sent over SignalR
         private static object BuildMessagePayload(Message msg, bool isBot) => new
         {
             id        = msg.Id,
