@@ -10,8 +10,6 @@ namespace WebApp_API.Services
         private readonly HttpClient _http;
         private readonly string _apiKey;
         private readonly IGeminiAgentRepository _geminiAgentRepo;
-        private readonly IProductRepository _productRepo;
-        private readonly ICategoryRepository _categoryRepo;
         private readonly ILogger<GeminiAgentService> _logger;
 
         // Bot user ID – reserve a fixed ID in your DB for the AI assistant account.
@@ -22,16 +20,12 @@ namespace WebApp_API.Services
             HttpClient http,
             IConfiguration config,
             IGeminiAgentRepository geminiAgentRepo,
-            IProductRepository productRepo,
-            ICategoryRepository categoryRepo,
             ILogger<GeminiAgentService> logger)
         {
             _http = http;
             _apiKey = config["Gemini:ApiKey"]
                       ?? throw new InvalidOperationException("Gemini:ApiKey is not configured.");
             _geminiAgentRepo = geminiAgentRepo;
-            _productRepo = productRepo;
-            _categoryRepo = categoryRepo;
             _logger = logger;
         }
 
@@ -41,7 +35,7 @@ namespace WebApp_API.Services
             var systemPrompt = await BuildSystemPromptAsync();
 
             // Fetch chat history from DB
-            var history      = await BuildHistoryContentsAsync(chatId, customerMessage);
+            var history = await BuildHistoryContentsAsync(chatId, customerMessage);
 
             // var historyContents = new List<object>();
 
@@ -81,7 +75,7 @@ namespace WebApp_API.Services
                 generationConfig = new
                 {
                     temperature = 0.7,
-                    maxOutputTokens = 800,
+                    maxOutputTokens = 2048,
                     topP = 0.9
                 },
 
@@ -124,30 +118,30 @@ namespace WebApp_API.Services
         private async Task<object[]> BuildHistoryContentsAsync(int chatId, string latestCustomerMessage)
         {
             var history = await _geminiAgentRepo.GetChatHistoryAsync(chatId);
- 
+
             var contents = history
                 .Select(m => (object)new
                 {
-                    role  = m.Role,
+                    role = m.Role,
                     parts = new[] { new { text = m.Content } }
                 })
                 .ToList();
- 
+
             // Ensure the very latest customer message is the last turn.
             // (It will already be there if MessageRepository.CreateAsync ran first.)
             bool alreadyAppended = history.Count > 0
-                && history[^1].Role    == "user"
+                && history[^1].Role == "user"
                 && history[^1].Content == latestCustomerMessage;
- 
+
             if (!alreadyAppended)
             {
                 contents.Add(new
                 {
-                    role  = "user",
+                    role = "user",
                     parts = new[] { new { text = latestCustomerMessage } }
                 });
             }
- 
+
             return contents.ToArray();
         }
 
@@ -157,53 +151,38 @@ namespace WebApp_API.Services
             var sb = new StringBuilder();
 
             sb.AppendLine("""
-                You are a friendly and knowledgeable shopping assistant for our e-commerce store.
-                Your goals:
-                  1. Answer customer questions about products, categories, pricing, availability, and orders.
-                  2. Suggest relevant products that match the customer's needs or preferences.
-                  3. Be concise, warm, and helpful. Avoid jargon.
-                  4. If you cannot answer something (e.g. live order tracking), politely say so and offer to connect the customer with a human agent.
-                  5. Never make up product details that are not listed below.
-                  6. Format prices in Vietnamese Dong (VND) when known.
+        You are a friendly and knowledgeable shopping assistant for our e-commerce store.
+        Your goals:
+          1. Answer customer questions about products, categories, pricing, availability, and orders.
+          2. Suggest relevant products that match the customer's needs or preferences.
+          3. Be concise, warm, and helpful. Avoid jargon.
+          4. If you cannot answer something (e.g. live order tracking), politely say so and offer to connect the customer with a human agent.
+          5. Never make up product details that are not listed below.
+          6. Format prices in Vietnamese Dong (VND) when known.
 
-                === STORE CATALOGUE (live snapshot) ===
-                """);
+        === STORE CATALOGUE (live snapshot) ===
+        """);
 
             // ── Categories ──────────────────────────────────────────────────
-            var categories = await _categoryRepo.GetAllCategoriesAsync();
+            var categories = await _geminiAgentRepo.GetCategorySnapshotAsync();
             sb.AppendLine($"\nCategories ({categories.Count} total):");
             foreach (var cat in categories)
                 sb.AppendLine($"  - [{cat.Id}] {cat.Name} (slug: {cat.Slug})");
 
-            // ── Products (top 80 to stay within token budget) ────────────────
-            var spec = new Specifications.ProductFilterSpec();   // default: newest, no filter
-            var (products, total) = await _productRepo.GetPaginatedAsync(
-                new Specifications.ProductFilterSpec
-                {
-                    Page = 1,
-                    PageSize = 80,
-                    SortOrder = "newest"
-                });
-
-            sb.AppendLine($"\nProducts ({total} total; showing up to 80 most recent):");
+            // ── Products ─────────────────────────────────────────────────────
+            var products = await _geminiAgentRepo.GetProductSnapshotAsync(5);
+            sb.AppendLine($"\nProducts ({products.Count} total; showing up to 5 most recent):");
             foreach (var p in products)
             {
-                sb.AppendLine($"""
-                      • [{p.Id}] {p.Name}
-                          Category : {p.Category?.Name ?? "N/A"}
-                          Base Price: {p.BasePrice:N0} VND
-                          Has Variants: {p.HasVariants}
-                          Short Desc: {p.ShortDescription ?? "—"}
-                          Slug: {p.Slug}
-                    """);
+                sb.AppendLine($"• {p.Name} | {p.BasePrice:N0} VND");
             }
 
             sb.AppendLine("""
-                =========================================
-                When recommending products, always mention the product name and price.
-                If the customer asks for a comparison, list pros/cons based on the description.
-                If you are unsure about stock or shipping times, say you don't have real-time data.
-                """);
+        =========================================
+        When recommending products, always mention the product name and price.
+        If the customer asks for a comparison, list pros/cons based on the description.
+        If you are unsure about stock or shipping times, say you don't have real-time data.
+        """);
 
             return sb.ToString();
         }
