@@ -20,12 +20,14 @@ builder.Services.AddSwaggerGen();
 // Configure DbContext with SQL Server (set the connection string in appsettings.json)
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 // Configure CORS to allow requests from the frontend
-builder.Services.AddCors(options => options.AddPolicy("AllowFrontend", policy => policy.WithOrigins("http://localhost:5173", "http://localhost:3000", "https://your-prod-frontend.com")
-                                                                                        //   .WithHeaders("Authorization", "Content-Type")
-                                                                                        .WithMethods("GET", "POST", "PUT", "DELETE")
-                                                                                        .AllowAnyHeader()
-                                                                                        //   .AllowAnyMethod()
-                                                                                        .AllowCredentials()));
+builder.Services.AddCors(options =>
+                            options.AddPolicy("AllowFrontend", policy =>
+                                                                    policy.WithOrigins("http://localhost:5173", "http://localhost:3000", "https://your-prod-frontend.com")
+                                                                    //   .WithHeaders("Authorization", "Content-Type")
+                                                                    .WithMethods("GET", "POST", "PUT", "DELETE")
+                                                                    .AllowAnyHeader()
+                                                                    //   .AllowAnyMethod()
+                                                                    .AllowCredentials()));
 // Rate Limiting - limit to 3 login attempts per minute per IP
 builder.Services.AddRateLimiter(options =>
 {
@@ -99,11 +101,16 @@ builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+
+builder.Services.AddHttpClient<GeminiClient>();
+builder.Services.AddHttpClient<IGeminiAgentService, GeminiAgentService>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
+
 builder.Services.AddScoped<MessageService>();
 
 builder.Services.AddSignalR();
-
-builder.Services.AddHttpClient<GeminiClient>();
 
 // JWT auth
 if (string.IsNullOrEmpty(builder.Configuration["Jwt:Key"]))
@@ -125,7 +132,7 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)),
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
     };
