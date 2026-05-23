@@ -103,6 +103,8 @@ builder.Services.AddScoped<MessageService>();
 
 builder.Services.AddSignalR();
 
+builder.Services.AddHttpClient<GeminiClient>();
+
 // JWT auth
 if (string.IsNullOrEmpty(builder.Configuration["Jwt:Key"]))
 {
