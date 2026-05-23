@@ -6,7 +6,7 @@ import { chatApi } from "../api/chatApi";
 import { siteConfig } from "../config/siteConfig";
 import { useChatStore } from "../store/chatStore";
 
-const BOT_SENDER_ID = 1;
+const BOT_SENDER_ID = 0;
 
 export default function ChatBubble() {
     const { user } = useAuth();

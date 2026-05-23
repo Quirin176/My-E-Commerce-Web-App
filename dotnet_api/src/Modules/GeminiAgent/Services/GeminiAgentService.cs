@@ -9,17 +9,19 @@ namespace WebApp_API.Services
     {
         private readonly HttpClient _http;
         private readonly string _apiKey;
+        private readonly IGeminiAgentRepository _geminiAgentRepo;
         private readonly IProductRepository _productRepo;
         private readonly ICategoryRepository _categoryRepo;
         private readonly ILogger<GeminiAgentService> _logger;
 
         // Bot user ID – reserve a fixed ID in your DB for the AI assistant account.
         // If you prefer a config value, inject IConfiguration and read "GeminiBot:UserId".
-        public const int BotUserId = 0; // 0 = synthetic / never a real FK in Users
+        public const int BotUserId = 1; // 0 = synthetic / never a real FK in Users
 
         public GeminiAgentService(
             HttpClient http,
             IConfiguration config,
+            IGeminiAgentRepository geminiAgentRepo,
             IProductRepository productRepo,
             ICategoryRepository categoryRepo,
             ILogger<GeminiAgentService> logger)
@@ -27,6 +29,7 @@ namespace WebApp_API.Services
             _http = http;
             _apiKey = config["Gemini:ApiKey"]
                       ?? throw new InvalidOperationException("Gemini:ApiKey is not configured.");
+            _geminiAgentRepo = geminiAgentRepo;
             _productRepo = productRepo;
             _categoryRepo = categoryRepo;
             _logger = logger;
@@ -36,6 +39,34 @@ namespace WebApp_API.Services
         public async Task<string> GetChatReplyAsync(string customerMessage, int chatId)
         {
             var systemPrompt = await BuildSystemPromptAsync();
+
+            // Fetch chat history from DB
+            var history      = await BuildHistoryContentsAsync(chatId, customerMessage);
+
+            // var historyContents = new List<object>();
+
+            // if (Messages != null)
+            // {
+            //     foreach (var msg in Messages)
+            //     {
+            //         // Skip the current message (last one) to avoid duplication
+            //         if (msg.Content == customerMessage && msg == Messages.Last()) continue;
+
+            //         historyContents.Add(new
+            //         {
+            //             role = msg.SenderId == BotUserId ? "model" : "user",
+            //             parts = new[] { new { text = msg.Content } }
+            //         });
+            //     }
+            // }
+
+            // // Add the current message
+            // historyContents.Add(new
+            // {
+            //     role = "user",
+            //     parts = new[] { new { text = customerMessage } }
+            // });
+
             var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={_apiKey}";
 
             var payload = new
@@ -44,20 +75,16 @@ namespace WebApp_API.Services
                 {
                     parts = new[] { new { text = systemPrompt } }
                 },
-                contents = new[]
-                {
-                    new
-                    {
-                        role = "user",
-                        parts = new[] { new { text = customerMessage } }
-                    }
-                },
+
+                contents = history,
+
                 generationConfig = new
                 {
                     temperature = 0.7,
                     maxOutputTokens = 800,
                     topP = 0.9
                 },
+
                 safetySettings = new[]
                 {
                     new { category = "HARM_CATEGORY_HARASSMENT",        threshold = "BLOCK_MEDIUM_AND_ABOVE" },
@@ -87,9 +114,44 @@ namespace WebApp_API.Services
             }
         }
 
+        // Build Gemini `contents` array from persisted history + latest message.
+        //
+        // History already contains the stored messages (including the customer's
+        // latest one if it was persisted before this method is called).
+        // If the latest message is not yet in the DB we append it so the model
+        // always sees it as the final user turn.
         // ─────────────────────────────────────────────────────────────────────
+        private async Task<object[]> BuildHistoryContentsAsync(int chatId, string latestCustomerMessage)
+        {
+            var history = await _geminiAgentRepo.GetChatHistoryAsync(chatId);
+ 
+            var contents = history
+                .Select(m => (object)new
+                {
+                    role  = m.Role,
+                    parts = new[] { new { text = m.Content } }
+                })
+                .ToList();
+ 
+            // Ensure the very latest customer message is the last turn.
+            // (It will already be there if MessageRepository.CreateAsync ran first.)
+            bool alreadyAppended = history.Count > 0
+                && history[^1].Role    == "user"
+                && history[^1].Content == latestCustomerMessage;
+ 
+            if (!alreadyAppended)
+            {
+                contents.Add(new
+                {
+                    role  = "user",
+                    parts = new[] { new { text = latestCustomerMessage } }
+                });
+            }
+ 
+            return contents.ToArray();
+        }
+
         // Build a product-aware system prompt from live DB data
-        // ─────────────────────────────────────────────────────────────────────
         private async Task<string> BuildSystemPromptAsync()
         {
             var sb = new StringBuilder();
@@ -114,11 +176,11 @@ namespace WebApp_API.Services
                 sb.AppendLine($"  - [{cat.Id}] {cat.Name} (slug: {cat.Slug})");
 
             // ── Products (top 80 to stay within token budget) ────────────────
-            var spec = new WebApp_API.Specifications.ProductFilterSpec();   // default: newest, no filter
+            var spec = new Specifications.ProductFilterSpec();   // default: newest, no filter
             var (products, total) = await _productRepo.GetPaginatedAsync(
-                new WebApp_API.Specifications.ProductFilterSpec
+                new Specifications.ProductFilterSpec
                 {
-                    Page     = 1,
+                    Page = 1,
                     PageSize = 80,
                     SortOrder = "newest"
                 });
