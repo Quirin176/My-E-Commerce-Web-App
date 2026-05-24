@@ -10,14 +10,13 @@ namespace WebApp_API.Repositories
         Task<Product?> GetBySlugAsync(string slug);
 
         // ────────────────────────────────────────────────── List queries ──────────────────────────────────────────────────
-        Task<List<Product>> GetFilteredAsync(ProductFilterSpec spec, int? resolvedCategoryId);
-        Task<(List<Product> Items, int TotalCount)> GetPaginatedAsync(ProductFilterSpec spec);
+        Task<List<Product>> GetFilteredAsync(ProductFilterSpec spec, int? resolvedCategoryId, List<(int, List<int>)> optionGroups);
+        Task<(List<Product> Items, int TotalCount)> GetPaginatedAsync(ProductFilterSpec spec, List<(int, List<int>)> optionGroups);
         Task<(List<Product> Items, int TotalCount)> SearchAsync(ProductSearchSpec spec);
         Task<List<Product>> GetByCategoryAsync(int categoryId);
 
         // ────────────────────────────────────────────────── Related data ──────────────────────────────────────────────────
         Task<List<(int OptionId, string OptionName, int ValueId, string Value)>> GetOptionsRawAsync(int productId);
-        // Task<List<(int OptionId, List<int> ValueIds)>> GetOptionGroupsForValuesAsync(List<int> valueIds);
         Task<List<int>> GetProductIdsByOptionValuesAsync(List<int> optionValueIds);
 
         // ────────────────────────────────────────────────── Category resolution ──────────────────────────────────────────────────

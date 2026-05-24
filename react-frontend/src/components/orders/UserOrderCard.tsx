@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { useAuth } from "../../../../hooks/auth/useAuth";
+import { useAuth } from "../../hooks/auth/useAuth";
 import { Clock, CheckCircle, Download, SquarePen, Truck, Package, X } from "lucide-react";
-import { adminOrdersApi } from "../../../../api/admin/adminOrdersApi";
-import type { OrderResponseModel } from "../../../../types/models/order/OrderResponseModel";
-import UseOrderDetailForm from "./UserOrderDetailForm";
-import UpdateOrderStatusForm from "../../../Admin/Orders/UpdateOrderStatusForm";
+import { adminOrdersApi } from "../../api/admin/adminOrdersApi";
+import type { OrderResponseModel } from "../../types/models/order/OrderResponseModel";
+import UserOrderDetailModal from "./UserOrderDetailModal";
+import UpdateOrderStatusForm from "../admin/orders/UpdateOrderStatusForm";
 
 // Extend Model
 interface UserOrderCardProps extends OrderResponseModel {
@@ -191,7 +191,7 @@ export default function UserOrderCard(order: UserOrderCardProps) {
             </div>
             
             {showForm && (
-                <UseOrderDetailForm
+                <UserOrderDetailModal
                     showForm={showForm}
                     order={order}
                     setShowForm={setShowForm}

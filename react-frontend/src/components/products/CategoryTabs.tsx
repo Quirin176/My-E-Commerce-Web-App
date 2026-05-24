@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import toast from "react-hot-toast";
-import { useCategories } from "../../../../hooks/products/useCategories";
-import { productApi } from "../../../../api/products/productApi";
-import { siteConfig } from "../../../../config/siteConfig";
+import { useCategories } from "../../hooks/products/useCategories";
+import { productApi } from "../../api/products/productApi";
+import { siteConfig } from "../../config/siteConfig";
 import ProductCard from "./ProductCard";
-import type { Product } from "../../../../types/models/products/Product";
+import type { Product } from "../../types/models/products/Product";
 
 const CategoryTabs = () => {
   const colors = siteConfig.colors;

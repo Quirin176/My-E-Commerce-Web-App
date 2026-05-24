@@ -7,8 +7,8 @@ import { useUserUrlFilters } from "../../../hooks/useUserUrlFilters";
 import { usePagination } from "../../../hooks/usePagination";
 
 import toast from "react-hot-toast";
-import AdminUserCard from "../../../components/Admin/Users/AdminUserCard";
-import PaginationControl from "../../../components/MainLayout/PaginationControl";
+import AdminUserCard from "../../../components/admin/users/AdminUserCard";
+import PaginationControl from "../../../components/mainlayout/PaginationControl";
 
 const ROLE = [
     { Id: 1, Role: "Admin" },

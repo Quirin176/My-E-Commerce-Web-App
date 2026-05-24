@@ -4,10 +4,10 @@ import toast from "react-hot-toast";
 import { CircleDollarSign, Handbag, User2 } from "lucide-react";
 import { useAuth } from "../../../hooks/auth/useAuth";
 import { adminDashboardApi } from "../../../api/admin/adminDashboardApi";
-import DashboardCard from "../../../components/Admin/Dashboards/DashboardCard";
-import RecentOrdersTable from "../../../components/Admin/Dashboards/RecentOrdersTable";
-import TopProductsTable from "../../../components/Admin/Dashboards/TopProductsTable";
-import DashboardLineChart from "../../../components/Admin/Dashboards/DashboardLineChart";
+import DashboardCard from "../../../components/admin/dashboard/DashboardCard";
+import RecentOrdersTable from "../../../components/admin/dashboard/RecentOrdersTable";
+import TopProductsTable from "../../../components/admin/dashboard/TopProductsTable";
+import DashboardLineChart from "../../../components/admin/dashboard/DashboardLineChart";
 import type { RecentOrder, TopProduct, LineChartPoints } from "../../../types/dto/AdminDashboardDTOs";
 
 export default function AdminDashboard() {

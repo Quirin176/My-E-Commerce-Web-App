@@ -28,7 +28,7 @@ interface AttributeModalProps {
     onSuccess: () => void;
 }
 
-export default function AdminAttributesModal({ config, onClose, onSuccess }: AttributeModalProps) {
+export default function AttributeModal({ config, onClose, onSuccess }: AttributeModalProps) {
     const [value, setValue] = useState("");
     const [loading, setLoading] = useState(false);
 

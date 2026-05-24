@@ -9,9 +9,9 @@ import { usePagination } from "../../../hooks/usePagination";
 
 import { adminProductsApi } from "../../../api/admin/adminProductsApi";
 
-import AdminProductCard from "../../../components/Admin/Products/AdminProductCard";
-import AdminDynamicFilters from "../../../components/Admin/Products/AdminDynamicFilters";
-import PaginationControl from "../../../components/MainLayout/PaginationControl";
+import AdminProductCard from "../../../components/admin/products/AdminProductCard";
+import AdminDynamicFilters from "../../../components/admin/products/AdminDynamicFilters";
+import PaginationControl from "../../../components/mainlayout/PaginationControl";
 
 const PAGE_SIZE = 10;
 

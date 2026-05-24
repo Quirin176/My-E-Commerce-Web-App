@@ -5,7 +5,7 @@ import { ShoppingBag } from "lucide-react";
 import { useAuth } from "../../hooks/auth/useAuth";
 import { useCart } from "../../hooks/cart/useCart";
 import { siteConfig } from "../../config/siteConfig";
-import CheckoutOrderSummary from "../../components/MainLayout/Customer/Orders/CheckoutOrderSummary";
+import CheckoutOrderSummary from "../../components/cart/CheckoutOrderSummary";
 import { checkoutApi } from "../../api/checkoutApi";
 
 export default function Checkout() {

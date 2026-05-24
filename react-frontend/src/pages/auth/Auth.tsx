@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import LoginForm from "../../components/Auth/LoginForm";
-import SignupForm from "../../components/Auth/SignupForm";
+import LoginForm from "../../components/auth/LoginForm";
+import SignupForm from "../../components/auth/SignupForm";
 
 export default function Auth() {
   const [searchParams] = useSearchParams();

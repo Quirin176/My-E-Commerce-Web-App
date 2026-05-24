@@ -8,7 +8,7 @@ import { generateRows } from "../../../utils/variantGenerators";
 import { adminProductsApi } from "../../../api/admin/adminProductsApi";
 
 import ToggleSwitch from "../../../components/ToggleSwitch";
-import ProductVariantForm from "../../../components/Admin/Products/ProductVariantForm";
+import ProductVariantForm from "../../../components/admin/products/ProductVariantForm";
 import toast from "react-hot-toast";
 
 interface ProductVariantsTabProps {

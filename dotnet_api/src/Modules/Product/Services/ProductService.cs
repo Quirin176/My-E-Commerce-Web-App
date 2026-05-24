@@ -9,14 +9,14 @@ namespace WebApp_API.Services
     public class ProductService : IProductService
     {
         private readonly IProductRepository _productRepo;
-
-        public ProductService(IProductRepository productRepo)
+        private readonly IProductOptionValueRepository _productOptionValueRepo;
+        public ProductService(IProductRepository productRepo, IProductOptionValueRepository productOptionValueRepo)
         {
             _productRepo = productRepo;
+            _productOptionValueRepo = productOptionValueRepo;
         }
 
-        // ──────────────────── Public queries ────────────────────
-
+        // ────────────────────────────────────────────────── Public queries ──────────────────────────────────────────────────
         public async Task<ProductDTOs.ProductDetailResponse?> GetByIdAsync(int id)
         {
             var product = await _productRepo.GetByIdAsync(id);
@@ -43,7 +43,9 @@ namespace WebApp_API.Services
             if (!string.IsNullOrWhiteSpace(spec.Category) && categoryId is null)
                 return new List<ProductListDTOs.ProductSummaryResponse>();
 
-            var products = await _productRepo.GetFilteredAsync(spec, categoryId);
+            var optionGroups = await _productOptionValueRepo.GetOptionGroupsForValuesAsync(spec.SelectedOptionValueIds);
+
+            var products = await _productRepo.GetFilteredAsync(spec, categoryId, optionGroups);
             return await MapToSummaryListAsync(products);
         }
 
@@ -81,11 +83,11 @@ namespace WebApp_API.Services
             return items.Select(p => p.Name).Distinct().Take(limit).ToList();
         }
 
-        // ──────────────────── Admin queries ────────────────────
-
         public async Task<PaginatedResponse<ProductDTOs.ProductPaginatedResponse>> GetPaginatedAsync(ProductFilterSpec spec)
         {
-            var (items, totalCount) = await _productRepo.GetPaginatedAsync(spec);
+            var optionGroups = await _productOptionValueRepo.GetOptionGroupsForValuesAsync(spec.SelectedOptionValueIds);
+
+            var (items, totalCount) = await _productRepo.GetPaginatedAsync(spec, optionGroups);
 
             var data = await MapToAdminListAsync(items);
             return new PaginatedResponse<ProductDTOs.ProductPaginatedResponse>
@@ -96,7 +98,8 @@ namespace WebApp_API.Services
             };
         }
 
-        // ──────────────────── Write operations ────────────────────
+        // ────────────────────────────────────────────────── Admin Services ──────────────────────────────────────────────────
+        // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
         public async Task CreateAsync(ProductDTOs.CreateProductRequest request)
         {
             if (!await _productRepo.CategoryExistsAsync(request.CategoryId))
@@ -172,7 +175,7 @@ namespace WebApp_API.Services
             return true;
         }
 
-        // ──────────────────── Mapping helpers ────────────────────
+        // ────────────────────────────────────────────────── Mapping helpers ──────────────────────────────────────────────────
         private async Task<ProductDTOs.ProductDetailResponse> MapToDetailAsync(Product product)
         {
             var rawOpts = await _productRepo.GetOptionsRawAsync(product.Id);
@@ -195,7 +198,7 @@ namespace WebApp_API.Services
 
         private static ProductDTOs.CategoryInfo? MapCategory(Category? c) =>
             c is null ? null : new ProductDTOs.CategoryInfo { Id = c.Id, Name = c.Name, Slug = c.Slug };
-            
+
         private async Task<List<ProductListDTOs.ProductSummaryResponse>> MapToSummaryListAsync(List<Product> products)
         {
             var result = new List<ProductListDTOs.ProductSummaryResponse>(products.Count);

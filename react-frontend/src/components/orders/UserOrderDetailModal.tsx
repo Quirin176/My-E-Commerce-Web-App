@@ -1,16 +1,16 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Download, X } from "lucide-react";
-import { useAuth } from "../../../../hooks/auth/useAuth";
-import type { OrderResponseModel } from "../../../../types/models/order/OrderResponseModel";
+import { useAuth } from "../../hooks/auth/useAuth";
+import type { OrderResponseModel } from "../../types/models/order/OrderResponseModel";
 
-interface UserOrderDetailFormProps {
+interface UserOrderDetailModalProps {
     showForm: boolean;
     order: OrderResponseModel;
     setShowForm: (show: boolean) => void;
 }
 
-export default function UserOrderDetailForm({ showForm, order, setShowForm }: UserOrderDetailFormProps) {
+export default function UserOrderDetailModal({ showForm, order, setShowForm }: UserOrderDetailModalProps) {
     if (!showForm) return null;
 
     const navigate = useNavigate();

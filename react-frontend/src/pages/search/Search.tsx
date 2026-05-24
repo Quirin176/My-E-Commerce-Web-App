@@ -1,8 +1,8 @@
 import { useProductSearch } from "../../hooks/products/useProductSearch";
 import { useProductUrlFilters } from "../../hooks/useProductUrlFilters";
 import { usePagination } from "../../hooks/usePagination";
-import ProductCard from "../../components/MainLayout/Customer/Product/ProductCard";
-import PaginationControl from "../../components/MainLayout/PaginationControl";
+import ProductCard from "../../components/products/ProductCard";
+import PaginationControl from "../../components/mainlayout/PaginationControl";
 
 const PAGE_SIZE = 10;
 

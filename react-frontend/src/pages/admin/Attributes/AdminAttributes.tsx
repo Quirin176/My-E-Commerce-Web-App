@@ -7,10 +7,8 @@ import { productoptionvalueApi } from "../../../api/products/productoptionvalueA
 import type { Category } from "../../../types/models/products/Category";
 import type { ProductOption } from "../../../types/models/products/ProductOption";
 
-import type { ModalConfig } from "../../../components/Admin/Attributes/AdminAttributesAddEditForm";
-import AdminAttributesModal from "../../../components/Admin/Attributes/AdminAttributesAddEditForm";
-import type { DeleteConfig } from "../../../components/Admin/Attributes/AdminAttributesDeleteForm";
-import AdminAttributesDeleteModal from "../../../components/Admin/Attributes/AdminAttributesDeleteForm";
+import AttributeModal, {type ModalConfig } from "../../../components/admin/attributes/AttributeModal";
+import AttributeDeleteModal, { type DeleteConfig } from "../../../components/admin/attributes/AttributeDeleteModal";
 
 export default function AdminAttributes() {
     const { categories } = useCategories();;
@@ -228,13 +226,13 @@ export default function AdminAttributes() {
                 )}
             </div>
 
-            <AdminAttributesModal
+            <AttributeModal
                 config={modalConfig}
                 onClose={() => setModalConfig(null)}
                 onSuccess={refresh}
             />
 
-            <AdminAttributesDeleteModal
+            <AttributeDeleteModal
                 config={deleteConfig}
                 onClose={() => setDeleteConfig(null)}
             />

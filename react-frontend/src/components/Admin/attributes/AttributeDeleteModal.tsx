@@ -7,7 +7,7 @@ export interface DeleteConfig {
     onConfirm: () => Promise<void>;
 }
  
-export default function AdminAttributesDeleteModal({ config, onClose }: { config: DeleteConfig | null; onClose: () => void }) {
+export default function AttributeDeleteModal({ config, onClose }: { config: DeleteConfig | null; onClose: () => void }) {
     const [loading, setLoading] = useState(false);
  
     if (!config) return null;

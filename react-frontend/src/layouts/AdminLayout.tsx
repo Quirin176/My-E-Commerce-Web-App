@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
-import AdminHeader from "../components/MainLayout/Admin/AdminHeader";
-import AdminSidePanel from "../components/MainLayout/Admin/AdminSidePanel";
-import Footer from "../components/MainLayout/Customer/Footer";
+import AdminHeader from "../components/mainlayout/Admin/AdminHeader";
+import AdminSidePanel from "../components/mainlayout/Admin/AdminSidePanel";
+import Footer from "../components/mainlayout/Customer/Footer";
 import { siteConfig } from "../config/siteConfig";
 
 export default function AdminLayout() {

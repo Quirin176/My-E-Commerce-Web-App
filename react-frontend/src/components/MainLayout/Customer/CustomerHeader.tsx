@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import { useAuth } from "../../../hooks/auth/useAuth";
-import UserDropDown from "./User/UserDropDown";
+import UserDropDown from "./user/UserDropDown";
 import CategoriesDropdown from "./CategoriesDropdown";
 import ThemeToggle from "../../ThemeToggle";
 import { siteConfig } from "../../../config/siteConfig";

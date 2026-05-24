@@ -62,7 +62,6 @@ namespace WebApp_API.Controllers
             return Ok(suggestions);
         }
 
-        // ────────────────────────────────────────────────── Admin endpoints ──────────────────────────────────────────────────
         // GET /api/products/paginated
         [HttpGet("paginated")]
         public async Task<IActionResult> GetProductsPaginated([FromQuery] ProductListDTOs.AdminProductFilterParams filterParams)
@@ -72,7 +71,8 @@ namespace WebApp_API.Controllers
             return Ok(result);
         }
 
-        // POST /api/products
+        // ────────────────────────────────────────────────── Admin endpoints ──────────────────────────────────────────────────
+        // POST /api/products - Create a new Product
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] ProductDTOs.CreateProductRequest request)
@@ -108,7 +108,7 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // PUT /api/products/{id}
+        // PUT /api/products/{id} - Update an existing Product
         [HttpPut("{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] ProductDTOs.UpdateProductRequest request)
@@ -124,7 +124,7 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // DELETE /api/products/{id}
+        // DELETE /api/products/{id} - Remove an existing Product from database
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)

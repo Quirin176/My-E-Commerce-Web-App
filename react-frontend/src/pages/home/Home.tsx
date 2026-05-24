@@ -4,10 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { useCategories } from "../../hooks/products/useCategories";
 import { useProductFiltersBySlug } from "../../hooks/products/useProductFiltersBySlug";
 
-import CategoryPanel from "../../components/MainLayout/Home/CategoryPanel.tsx";
-import CategoryFiltersPanel from "../../components/MainLayout/Home/CategoryFiltersPanel.tsx";
-import CenterPanel from "../../components/MainLayout/Home/CenterPanel.tsx";
-import CategoryTabs from "../../components/MainLayout/Customer/Product/CategoryTabs.tsx";
+import CategoryPanel from "../../components/mainlayout/Home/CategoryPanel.tsx";
+import CategoryFiltersPanel from "../../components/mainlayout/Home/CategoryFiltersPanel.tsx";
+import CenterPanel from "../../components/mainlayout/Home/CenterPanel.tsx";
+import CategoryTabs from "../../components/products/CategoryTabs.tsx";
 
 export default function Home() {
   const { categories } = useCategories();
