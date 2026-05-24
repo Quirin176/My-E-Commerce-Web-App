@@ -1,6 +1,4 @@
-using System.Net.Http.Json;
 using System.Text;
-using System.Text.Json;
 using WebApp_API.Repositories;
 
 namespace WebApp_API.Services
@@ -9,12 +7,11 @@ namespace WebApp_API.Services
     {
         private readonly HttpClient _http;
         private readonly string _apiKey;
+        private readonly string _agentModel;
         private readonly IGeminiAgentRepository _geminiAgentRepo;
         private readonly ILogger<GeminiAgentService> _logger;
 
-        // Bot user ID – reserve a fixed ID in your DB for the AI assistant account.
-        // If you prefer a config value, inject IConfiguration and read "GeminiBot:UserId".
-        public const int BotUserId = 1; // 0 = synthetic / never a real FK in Users
+        private readonly int _botUserId;
 
         public GeminiAgentService(
             HttpClient http,
@@ -23,10 +20,11 @@ namespace WebApp_API.Services
             ILogger<GeminiAgentService> logger)
         {
             _http = http;
-            _apiKey = config["Gemini:ApiKey"]
-                      ?? throw new InvalidOperationException("Gemini:ApiKey is not configured.");
+            _apiKey = config["Gemini:ApiKey"] ?? throw new InvalidOperationException("Gemini:ApiKey is not configured.");
+            _agentModel = config["Gemini:Model"] ?? throw new InvalidOperationException("Gemini:Model is not configured.");
             _geminiAgentRepo = geminiAgentRepo;
             _logger = logger;
+            _botUserId = config.GetValue("Gemini:BotUserId", 1);
         }
 
         // ─────────────────────────────────────────────────────────────────────
@@ -37,31 +35,7 @@ namespace WebApp_API.Services
             // Fetch chat history from DB
             var history = await BuildHistoryContentsAsync(chatId, customerMessage);
 
-            // var historyContents = new List<object>();
-
-            // if (Messages != null)
-            // {
-            //     foreach (var msg in Messages)
-            //     {
-            //         // Skip the current message (last one) to avoid duplication
-            //         if (msg.Content == customerMessage && msg == Messages.Last()) continue;
-
-            //         historyContents.Add(new
-            //         {
-            //             role = msg.SenderId == BotUserId ? "model" : "user",
-            //             parts = new[] { new { text = msg.Content } }
-            //         });
-            //     }
-            // }
-
-            // // Add the current message
-            // historyContents.Add(new
-            // {
-            //     role = "user",
-            //     parts = new[] { new { text = customerMessage } }
-            // });
-
-            var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={_apiKey}";
+            var url = $"https://generativelanguage.googleapis.com/v1beta/models/{_agentModel}:generateContent?key={_apiKey}";
 
             var payload = new
             {
@@ -74,9 +48,9 @@ namespace WebApp_API.Services
 
                 generationConfig = new
                 {
-                    temperature = 0.7,
-                    maxOutputTokens = 2048,
-                    topP = 0.9
+                    temperature = 0.7,      // Adjust creativity
+                    maxOutputTokens = 2048, // Adjust Request/Response length
+                    topP = 0.9              // Nucleus sampling parameter
                 },
 
                 safetySettings = new[]
@@ -109,12 +83,7 @@ namespace WebApp_API.Services
         }
 
         // Build Gemini `contents` array from persisted history + latest message.
-        //
-        // History already contains the stored messages (including the customer's
-        // latest one if it was persisted before this method is called).
-        // If the latest message is not yet in the DB we append it so the model
-        // always sees it as the final user turn.
-        // ─────────────────────────────────────────────────────────────────────
+        // History already contains the stored messages
         private async Task<object[]> BuildHistoryContentsAsync(int chatId, string latestCustomerMessage)
         {
             var history = await _geminiAgentRepo.GetChatHistoryAsync(chatId);
@@ -151,17 +120,20 @@ namespace WebApp_API.Services
             var sb = new StringBuilder();
 
             sb.AppendLine("""
-        You are a friendly and knowledgeable shopping assistant for our e-commerce store.
-        Your goals:
-          1. Answer customer questions about products, categories, pricing, availability, and orders.
-          2. Suggest relevant products that match the customer's needs or preferences.
-          3. Be concise, warm, and helpful. Avoid jargon.
-          4. If you cannot answer something (e.g. live order tracking), politely say so and offer to connect the customer with a human agent.
-          5. Never make up product details that are not listed below.
-          6. Format prices in Vietnamese Dong (VND) when known.
+                You are a friendly and knowledgeable shopping assistant for our e-commerce store.
 
-        === STORE CATALOGUE (live snapshot) ===
-        """);
+                Your goals:
+                    1. Answer customer questions about products, categories, pricing, availability, and orders.
+                    2. Suggest relevant products that match the customer's needs or preferences.
+                    3. Keep every reply SHORT — 1 to 3 sentences max for general questions.
+                    4. When recommending or listing products, show ONLY the product name and price. Format each as: "• {Name} — {Price} VND"
+                    5. Be concise, warm, and helpful. Avoid jargon.
+                    6. If you cannot answer something (e.g. live order tracking), politely say so and offer to connect the customer with a human agent.
+                    7. Never make up product details that are not listed below.
+                    8. Format prices in Vietnamese Dong (VND) when known.
+                    9. IMPORTANT: Only say a product or category does not exist if it is truly absent from the catalogue below. Search the full list carefully before concluding something is unavailable.
+                === STORE CATALOGUE (live snapshot) ===
+            """);
 
             // ── Categories ──────────────────────────────────────────────────
             var categories = await _geminiAgentRepo.GetCategorySnapshotAsync();
@@ -170,19 +142,26 @@ namespace WebApp_API.Services
                 sb.AppendLine($"  - [{cat.Id}] {cat.Name} (slug: {cat.Slug})");
 
             // ── Products ─────────────────────────────────────────────────────
-            var products = await _geminiAgentRepo.GetProductSnapshotAsync(5);
-            sb.AppendLine($"\nProducts ({products.Count} total; showing up to 5 most recent):");
+            var products = await _geminiAgentRepo.GetProductSnapshotAsync(200);
+            sb.AppendLine($"\nProducts ({products.Count} total):");
             foreach (var p in products)
             {
-                sb.AppendLine($"• {p.Name} | {p.BasePrice:N0} VND");
+                sb.AppendLine($"""
+                      • [{p.Id}] {p.Name}
+                          Category  : {p.CategoryName ?? "N/A"}
+                          Base Price: {p.BasePrice:N0} VND
+                          Has Variants: {p.HasVariants}
+                          Short Desc: {p.ShortDescription ?? "—"}
+                          Slug      : {p.Slug}
+                    """);
             }
 
             sb.AppendLine("""
-        =========================================
-        When recommending products, always mention the product name and price.
-        If the customer asks for a comparison, list pros/cons based on the description.
-        If you are unsure about stock or shipping times, say you don't have real-time data.
-        """);
+                =========================================
+                REMINDER: Recommendations → name + price only, one line each.
+                Only add detail if the customer asks for it about a specific product.
+                If unsure about stock or shipping, say so in one short sentence.
+                """);
 
             return sb.ToString();
         }

@@ -17,7 +17,7 @@ namespace WebApp_API.Repositories
 
         // ────────────────────────────────────────────────── Related data ──────────────────────────────────────────────────
         Task<List<(int OptionId, string OptionName, int ValueId, string Value)>> GetOptionsRawAsync(int productId);
-        Task<List<(int OptionId, List<int> ValueIds)>> GetOptionGroupsForValuesAsync(List<int> valueIds);
+        // Task<List<(int OptionId, List<int> ValueIds)>> GetOptionGroupsForValuesAsync(List<int> valueIds);
         Task<List<int>> GetProductIdsByOptionValuesAsync(List<int> optionValueIds);
 
         // ────────────────────────────────────────────────── Category resolution ──────────────────────────────────────────────────

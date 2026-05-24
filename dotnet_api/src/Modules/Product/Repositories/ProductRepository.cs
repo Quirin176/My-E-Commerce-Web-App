@@ -44,7 +44,7 @@ namespace WebApp_API.Repositories
                     p.Slug.ToLower().Contains(term));
             }
 
-            if (spec.Category != null) query = query.Where(p => p.Category.Slug == spec.Category);
+            if (spec.Category != null) query = query.Where(p => p.Category!.Slug == spec.Category);
 
             query = ApplyPriceFilter(query, spec.MinPrice, spec.MaxPrice);
             query = await ApplyOptionFilter(query, spec.SelectedOptionValueIds);
@@ -112,14 +112,14 @@ namespace WebApp_API.Repositories
                 .ToListAsync()
                 .ContinueWith(t => t.Result.Select(x => (x.Id, x.Name, x.ValueId, x.Value)).ToList());
 
-        public async Task<List<(int OptionId, List<int> ValueIds)>> GetOptionGroupsForValuesAsync(List<int> valueIds) =>
-            (await _db.ProductOptionValues
-                .Where(pov => valueIds.Contains(pov.Id))
-                .GroupBy(pov => pov.ProductOptionId)
-                .Select(g => new { OptionId = g.Key, ValueIds = g.Select(pov => pov.Id).ToList() })
-                .ToListAsync())
-            .Select(x => (x.OptionId, x.ValueIds))
-            .ToList();
+        // public async Task<List<(int OptionId, List<int> ValueIds)>> GetOptionGroupsForValuesAsync(List<int> valueIds) =>
+        //     (await _db.ProductOptionValues
+        //         .Where(pov => valueIds.Contains(pov.Id))
+        //         .GroupBy(pov => pov.ProductOptionId)
+        //         .Select(g => new { OptionId = g.Key, ValueIds = g.Select(pov => pov.Id).ToList() })
+        //         .ToListAsync())
+        //     .Select(x => (x.OptionId, x.ValueIds))
+        //     .ToList();
 
         public async Task<List<int>> GetProductIdsByOptionValuesAsync(List<int> optionValueIds) =>
             await _db.ProductFilters

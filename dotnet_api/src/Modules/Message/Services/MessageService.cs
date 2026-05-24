@@ -13,20 +13,22 @@ namespace WebApp_API.Services
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<MessageService> _logger;
 
-        private const int BotSenderId = 1;
+        private readonly int _botUserId;
 
         public MessageService(
             IMessageRepository repo,
             IHubContext<ChatHub> hub,
             IChatRepository chatRepo,
             IServiceScopeFactory scopeFactory,
-            ILogger<MessageService> logger)
+            ILogger<MessageService> logger,
+            IConfiguration config)
         {
             _repo = repo;
             _hub = hub;
             _chatRepo = chatRepo;
             _scopeFactory = scopeFactory;
             _logger = logger;
+            _botUserId = config.GetValue("Gemini:BotUserId", 1);
         }
 
         public async Task<Message> SendMessageAsync(int chatId, int senderId, string content)
@@ -34,9 +36,9 @@ namespace WebApp_API.Services
             // Persist the customer message
             var msg = new Message
             {
-                ChatId   = chatId,
+                ChatId = chatId,
                 SenderId = senderId,
-                Content  = content,
+                Content = content,
             };
             await _repo.CreateAsync(msg);
 
@@ -51,7 +53,7 @@ namespace WebApp_API.Services
             var chat = await _chatRepo.GetByIdAsync(chatId);
             bool hasHumanAgent = chat?.AdminId != null;
 
-            if (!hasHumanAgent && senderId != BotSenderId)
+            if (!hasHumanAgent && senderId != _botUserId)
             {
                 // Fire-and-forget in a fresh DI scope so the DbContext is never disposed
                 // underneath us when the HTTP request scope ends.
@@ -71,9 +73,9 @@ namespace WebApp_API.Services
                 // and fresh scoped services that live until we dispose the scope.
                 await using var scope = _scopeFactory.CreateAsyncScope();
 
-                var geminiAgent  = scope.ServiceProvider.GetRequiredService<IGeminiAgentService>();
-                var messageRepo  = scope.ServiceProvider.GetRequiredService<IMessageRepository>();
-                var chatRepo     = scope.ServiceProvider.GetRequiredService<IChatRepository>();
+                var geminiAgent = scope.ServiceProvider.GetRequiredService<IGeminiAgentService>();
+                var messageRepo = scope.ServiceProvider.GetRequiredService<IMessageRepository>();
+                var chatRepo = scope.ServiceProvider.GetRequiredService<IChatRepository>();
 
                 var replyText = await geminiAgent.GetChatReplyAsync(customerMessage, chatId);
 
@@ -87,10 +89,10 @@ namespace WebApp_API.Services
 
                 var botMsg = new Message
                 {
-                    ChatId   = chatId,
-                    SenderId = BotSenderId,
-                    Content  = replyText,
-                    Type     = "bot",
+                    ChatId = chatId,
+                    SenderId = _botUserId,
+                    Content = replyText,
+                    Type = "bot",
                 };
 
                 await messageRepo.CreateAsync(botMsg);
@@ -109,14 +111,14 @@ namespace WebApp_API.Services
 
         private static object BuildMessagePayload(Message msg, bool isBot) => new
         {
-            id        = msg.Id,
-            chatId    = msg.ChatId,
-            senderId  = msg.SenderId,
-            content   = msg.Content,
-            type      = msg.Type,
-            read      = msg.Read,
+            id = msg.Id,
+            chatId = msg.ChatId,
+            senderId = msg.SenderId,
+            content = msg.Content,
+            type = msg.Type,
+            read = msg.Read,
             createdAt = msg.CreatedAt,
-            isBot     = isBot
+            isBot = isBot
         };
     }
 }

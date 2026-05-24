@@ -193,6 +193,9 @@ namespace WebApp_API.Services
             };
         }
 
+        private static ProductDTOs.CategoryInfo? MapCategory(Category? c) =>
+            c is null ? null : new ProductDTOs.CategoryInfo { Id = c.Id, Name = c.Name, Slug = c.Slug };
+            
         private async Task<List<ProductListDTOs.ProductSummaryResponse>> MapToSummaryListAsync(List<Product> products)
         {
             var result = new List<ProductListDTOs.ProductSummaryResponse>(products.Count);
@@ -232,19 +235,11 @@ namespace WebApp_API.Services
                     Slug = p.Slug,
                     Price = p.BasePrice,
                     ImageUrl = p.ThumbnailUrl,
-                    // ShortDescription = p.ShortDescription,
-                    // Description = p.Description,
-                    // CategoryId = p.CategoryId,
-                    // Category = MapCategory(p.Category),
-                    // Images = images,
                     Options = GroupOptions(rawOpts)
                 });
             }
             return result;
         }
-
-        private static ProductDTOs.CategoryInfo? MapCategory(Category? c) =>
-            c is null ? null : new ProductDTOs.CategoryInfo { Id = c.Id, Name = c.Name, Slug = c.Slug };
 
         private static List<ProductDTOs.ProductOptionGroupResponse> GroupOptions(
             List<(int OptionId, string OptionName, int ValueId, string Value)> raw) =>

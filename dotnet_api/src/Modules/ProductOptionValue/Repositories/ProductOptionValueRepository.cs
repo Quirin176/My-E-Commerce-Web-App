@@ -20,6 +20,15 @@ namespace WebApp_API.Repositories
             return await _db.ProductOptionValues.FirstOrDefaultAsync(optVal => optVal.Id == optionValueId);
         }
 
+        public async Task<List<(int OptionId, List<int> ValueIds)>> GetOptionGroupsForValuesAsync(List<int> valueIds) =>
+            (await _db.ProductOptionValues
+                .Where(pov => valueIds.Contains(pov.Id))
+                .GroupBy(pov => pov.ProductOptionId)
+                .Select(g => new { OptionId = g.Key, ValueIds = g.Select(pov => pov.Id).ToList() })
+                .ToListAsync())
+            .Select(x => (x.OptionId, x.ValueIds))
+            .ToList();
+
         public async Task CreateProductOptionValueAsync(ProductOptionValue productOptionValue)
         {
             await _db.ProductOptionValues.AddAsync(productOptionValue);
@@ -40,7 +49,7 @@ namespace WebApp_API.Repositories
         {
             var optionValue = await GetProductOptionValueByIdAsync(optionValueId);
             if (optionValue is null) return;
-            
+
             _db.ProductOptionValues.Remove(optionValue);
             await _db.SaveChangesAsync();
         }

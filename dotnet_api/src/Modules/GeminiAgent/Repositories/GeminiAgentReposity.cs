@@ -6,17 +6,15 @@ namespace WebApp_API.Repositories
 {
     public class GeminiAgentRepository : IGeminiAgentRepository
     {
-        // BotSenderId must match MessageService.BotSenderId (= 1).
-        // Messages sent by this sender get role "model" so Gemini treats them
-        // as its own prior turns rather than user input.
-        private const int BotSenderId = 1;
+        private readonly int _botUserId;
 
         private readonly AppDbContext _db;
-
-        public GeminiAgentRepository(AppDbContext db) => _db = db;
-
+        public GeminiAgentRepository(AppDbContext db, IConfiguration config)
+        {
+            _db = db;
+            _botUserId = config.GetValue("Gemini:BotUserId", 1);
+        }
         // ── Catalogue snapshot ────────────────────────────────────────────────
-
         public async Task<List<GeminiAgentDTOs.CategorySnapshot>> GetCategorySnapshotAsync()
         {
             return await _db.Categories
@@ -26,7 +24,7 @@ namespace WebApp_API.Repositories
                 .ToListAsync();
         }
 
-        public async Task<List<GeminiAgentDTOs.ProductSnapshot>> GetProductSnapshotAsync(int limit = 80)
+        public async Task<List<GeminiAgentDTOs.ProductSnapshot>> GetProductSnapshotAsync(int limit = 200)
         {
             return await _db.Products
                 .AsNoTracking()
@@ -45,7 +43,6 @@ namespace WebApp_API.Repositories
         }
 
         // ── Chat history ─────────────────────────────────────────────────────
-
         public async Task<List<GeminiAgentDTOs.MessageSnapshot>> GetChatHistoryAsync(int chatId)
         {
             return await _db.Messages
@@ -54,7 +51,7 @@ namespace WebApp_API.Repositories
                 .OrderBy(m => m.CreatedAt)
                 .Select(m => new GeminiAgentDTOs.MessageSnapshot(
                     m.SenderId,
-                    m.SenderId == BotSenderId ? "model" : "user",
+                    m.SenderId == _botUserId ? "model" : "user",
                     m.Content,
                     m.CreatedAt))
                 .ToListAsync();
