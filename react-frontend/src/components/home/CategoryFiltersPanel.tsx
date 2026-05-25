@@ -1,5 +1,5 @@
-import { siteConfig } from "../../../config/siteConfig";
-import type { ProductOption } from "../../../types/models/products/ProductOption";
+import { siteConfig } from "../../config/siteConfig";
+import type { ProductOption } from "../../types/models/products/ProductOption";
 
 interface Props {
   selectedCategory: string;

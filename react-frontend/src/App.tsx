@@ -1,5 +1,6 @@
 import "./App.css";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { useEffect } from "react";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
 import CustomerLayout from "./layouts/CustomerLayout";
@@ -10,13 +11,13 @@ import CategoryProducts from "./pages/category/Category";
 import ProductDetail from "./pages/productdetail/ProductDetail";
 import Search from "./pages/search/Search";
 
-import AdminDashboard from "./pages/admin/Dashboard/Dashboard";
-import AdminProducts from "./pages/admin/Products/AdminProducts";
-import AdminProduct from "./pages/admin/Product/AdminProduct";
-import AdminAttributes from "./pages/admin/Attributes/AdminAttributes"
-import AdminOrders from "./pages/admin/Orders/AdminOrders";
-import AdminUsers from "./pages/admin/Users/AdminUsers";
-import AdminChats from "./pages/admin/Chats/AdminChats";
+import AdminDashboard from "./pages/admin/dashboard/Dashboard";
+import AdminProducts from "./pages/admin/products/AdminProducts";
+import AdminProduct from "./pages/admin/product/AdminProduct";
+import AdminAttributes from "./pages/admin/attributes/AdminAttributes"
+import AdminOrders from "./pages/admin/orders/AdminOrders";
+import AdminUsers from "./pages/admin/users/AdminUsers";
+import AdminChats from "./pages/admin/chats/AdminChats";
 
 import About from "./pages/about/About";
 import Cart from "./pages/user/Cart"
@@ -45,13 +46,34 @@ interface ProtectedProps {
 // Protected Route Component
 function CustomerProtected({ children }: ProtectedProps) {
   const { user } = useAuth();
-  return user ? children : <Navigate to="/home" replace />;
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/home", { replace: true });
+    }
+  }, [user]);
+
+  if (!user) return null;
+  return children;
 }
 
 function AdminProtected({ children }: ProtectedProps) {
   const { user } = useAuth();
-  if (!user) return <Navigate to="/auth?mode=login" replace />;
-  if (user.role !== "Admin") return <Navigate to="/home" replace />;
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/auth?mode=login", { replace: true });
+      return;
+    }
+
+    if (user.role !== "Admin") {
+      navigate("/home", { replace: true });
+    }
+  }, [user]);
+
+  if (!user || user.role !== "Admin") return null;
   return children;
 }
 

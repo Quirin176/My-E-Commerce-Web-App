@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { BellRing, MessageCircleMore, Settings } from "lucide-react";
 import { siteConfig } from "../../../config/siteConfig";
 import { useAuth } from "../../../hooks/auth/useAuth";
-import AdminDropDown from "./Admin/AdminDropDown";
+import AdminDropDown from "./AdminDropDown";
 
 const navigationItems = [
     { label: "Chats", icon: <MessageCircleMore size={20} />, to: "/admin/chats" },

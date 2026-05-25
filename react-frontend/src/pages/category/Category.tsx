@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import DynamicFilters from "../../components/products/DynamicFilters";
 import ProductCard from "../../components/products/ProductCard";
-import PaginationControl from "../../components/mainlayout/PaginationControl";
+import PaginationControl from "../../components/PaginationControl";
 import { useProductUrlFilters } from "../../hooks/useProductUrlFilters";
 import { usePagination } from "../../hooks/usePagination";
 import { useProducts } from "../../hooks/products/useProducts";

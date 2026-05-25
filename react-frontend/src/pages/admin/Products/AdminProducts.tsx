@@ -11,7 +11,7 @@ import { adminProductsApi } from "../../../api/admin/adminProductsApi";
 
 import AdminProductCard from "../../../components/admin/products/AdminProductCard";
 import AdminDynamicFilters from "../../../components/admin/products/AdminDynamicFilters";
-import PaginationControl from "../../../components/mainlayout/PaginationControl";
+import PaginationControl from "../../../components/PaginationControl";
 
 const PAGE_SIZE = 10;
 

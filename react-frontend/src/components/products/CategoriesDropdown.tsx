@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { ChevronDown, LayoutGrid } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useCategories } from "../../../hooks/products/useCategories";
-import { useProductFiltersBySlug } from "../../../hooks/products/useProductFiltersBySlug";
+import { useCategories } from "../../hooks/products/useCategories";
+import { useProductFiltersBySlug } from "../../hooks/products/useProductFiltersBySlug";
 
-import { siteConfig } from "../../../config/siteConfig";
-import CategoryFiltersPanel from "../Home/CategoryFiltersPanel";
-import CategoryPanel from "../Home/CategoryPanel";
+import { siteConfig } from "../../config/siteConfig";
+import CategoryFiltersPanel from "../home/CategoryFiltersPanel";
+import CategoryPanel from "../home/CategoryPanel";
 
 export default function CategoriesDropdown() {
   const colors = siteConfig.colors;

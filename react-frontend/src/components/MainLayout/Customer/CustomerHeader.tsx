@@ -1,26 +1,27 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search } from "lucide-react";
 import { useAuth } from "../../../hooks/auth/useAuth";
-import UserDropDown from "./user/UserDropDown";
-import CategoriesDropdown from "./CategoriesDropdown";
+import { productApi } from "../../../api/products/productApi";
+import UserDropDown from "./UserDropDown";
+import CategoriesDropdown from "../../products/CategoriesDropdown";
+import SearchBar from "../../SearchBar";
 import ThemeToggle from "../../ThemeToggle";
 import { siteConfig } from "../../../config/siteConfig";
 
 export default function CustomerHeader() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState<string>("");
 
-  const handleSearchSubmit = () => {
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+
+  const handleSuggest = async (query: string) => {
+    const sugs = await productApi.getSuggestions(query, 10);
+    setSuggestions(sugs);
+  }
+
+  const handleSearchSubmit = (searchQuery: string) => {
     if (searchQuery.trim()) {
       navigate(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleSearchSubmit();
     }
   };
 
@@ -38,23 +39,7 @@ export default function CustomerHeader() {
         </div>
 
         {/* SEARCH BAR */}
-        <div className="flex items-center bg-white rounded-4xl gap-4 pl-4 pr-2 py-2">
-          <input
-            className="text-lg rounded-full px-4"
-            style={{ width: 500 }}
-            type="text"
-            placeholder="Search For Products"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
-          <button
-            onClick={handleSearchSubmit}
-            className="rounded-full px-2 py-2 cursor-pointer text-(--text-primary) hover:text-(--text-secondary) bg-(--brand-primary)"
-          >
-            <Search size={20} />
-          </button>
-        </div>
+        <SearchBar onSuggest={(searchQuery) => handleSuggest(searchQuery)} suggestions={suggestions} onSearchSubmit={(searchQuery) => handleSearchSubmit(searchQuery)} />
 
         {/* NAVIGATION LINKS */}
         <div className="flex items-center gap-6">
@@ -62,11 +47,6 @@ export default function CustomerHeader() {
             to="/about"
             className="font-semibold text-white">
             About us
-          </Link>
-          <Link
-            to="/cart"
-            className="font-semibold text-white">
-            Cart
           </Link>
         </div>
 
@@ -91,7 +71,7 @@ export default function CustomerHeader() {
             </div>)}
 
           {user && (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center px-12">
               <UserDropDown />
             </div>)}
         </div>

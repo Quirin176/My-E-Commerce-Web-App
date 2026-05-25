@@ -106,7 +106,7 @@ const CategoryTabs = () => {
               setActiveTab(cat.slug);
               setPageIndex(0);
             }}
-            className={`min-w-38 rounded-t-2xl cursor-pointer px-2 py-4 text-2xl font-bold ${activeTab === cat.slug ? "text-white bg-(--brand-primary)" : "text-black bg-(--bg-surface)"}`}
+            className={`min-w-38 rounded-t-2xl cursor-pointer px-2 py-4 text-2xl font-bold ${activeTab === cat.slug ? "text-(--text-secondary) bg-(--brand-primary)" : "text-(--text-primary) bg-(--bg-surface)"}`}
           >
             {cat.name}
           </button>

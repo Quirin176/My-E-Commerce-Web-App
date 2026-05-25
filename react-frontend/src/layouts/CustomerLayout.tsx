@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 import CustomerHeader from "../components/mainlayout/Customer/CustomerHeader";
-import Footer from "../components/mainlayout/Customer/Footer";
+import Footer from "../components/mainlayout/Footer";
 import ChatBubble from "../components/ChatBubble";
 
 export default function CustomerLayout() {

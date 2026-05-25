@@ -1,4 +1,4 @@
-import { siteConfig } from "../../../config/siteConfig";
+import { siteConfig } from "../../config/siteConfig";
 
 export default function WelcomePanel() {
   const colors = siteConfig.colors;

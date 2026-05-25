@@ -2,6 +2,7 @@ import { useUrlFilters } from "./useUrlFilters";
 
 export function useProductUrlFilters() {
   return useUrlFilters({
+    query: "",
     category: "",
     page: 1,
     sortBy: "newest",

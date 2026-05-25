@@ -105,8 +105,8 @@ export default function ProductDetails() {
   if (loading) return <p className="text-center p-6">Loading product...</p>;
   if (!product) return <p className="text-lg text-center p-6 text-red-500">Product not found.</p>;
 
-  const currentImage = images[currentImageIndex].imageUrl;
-  const modalImage = images[modalImageIndex].imageUrl;
+  const currentImage = images.length > 0 ? images[currentImageIndex].imageUrl : product.thumbnailUrl;
+  const modalImage = images.length > 0 ? images[modalImageIndex].imageUrl : product.thumbnailUrl;
 
   const goToPrevImage = () => {
     setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));

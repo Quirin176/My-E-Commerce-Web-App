@@ -1,5 +1,5 @@
 import { LayoutGrid } from "lucide-react";
-import { categoriesIcon, siteConfig } from "../../../config/siteConfig";
+import { categoriesIcon } from "../../config/siteConfig";
 
 interface Props {
   categories: any[];
@@ -14,7 +14,6 @@ export default function CategoryPanel({
   onHover,
   onClick
 }: Props) {
-  const colors = siteConfig.colors;
 
   const getCategoryIcon = (slug: string) => {
     const Icon = categoriesIcon[slug.toLowerCase()];
@@ -29,7 +28,7 @@ export default function CategoryPanel({
             key={item.id}
             onMouseEnter={() => onHover(item.slug)}
             onClick={() => onClick(item.slug)}
-            className={`flex items-center gap-3 px-4 py-2 rounded-lg transition
+            className={`flex items-center gap-3 px-4 py-2 rounded-lg transition cursor-pointer
               ${selectedCategory === item.slug ? "text-(--text-secondary) bg-(--brand-primary)" : "text-(--text-primary) bg-(--bg-surface)"}`}
           >
             <div

@@ -8,7 +8,7 @@ import { usePagination } from "../../../hooks/usePagination";
 
 import toast from "react-hot-toast";
 import AdminUserCard from "../../../components/admin/users/AdminUserCard";
-import PaginationControl from "../../../components/mainlayout/PaginationControl";
+import PaginationControl from "../../../components/PaginationControl";
 
 const ROLE = [
     { Id: 1, Role: "Admin" },
