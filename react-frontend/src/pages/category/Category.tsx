@@ -1,10 +1,15 @@
 import { useParams } from "react-router-dom";
-import DynamicFilters from "../../components/products/DynamicFilters";
-import ProductCard from "../../components/products/ProductCard";
-import PaginationControl from "../../components/PaginationControl";
+
 import { useProductUrlFilters } from "../../hooks/useProductUrlFilters";
 import { usePagination } from "../../hooks/usePagination";
 import { useProducts } from "../../hooks/products/useProducts";
+import { toTitleCase } from "../../utils/format";
+
+import DynamicFilters from "../../components/products/DynamicFilters";
+import ProductCard from "../../components/products/ProductCard";
+import PaginationControl from "../../components/PaginationControl";
+import LoadingState from "../../components/pageState/LoadingState";
+import ErrorState from "../../components/pageState/ErrorState";
 
 const PAGE_SIZE = 10;
 
@@ -26,19 +31,6 @@ export default function Category() {
     onPageChange: (p) => updateUrl({ page: p }),
   });
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
-  const handleMinPrice = (val: string | number) =>
-    updateUrl({ minPrice: String(val), page: 1 });
-
-  const handleMaxPrice = (val: string | number) =>
-    updateUrl({ maxPrice: String(val), page: 1 });
-
-  const handleSortChange = (newSort: string) =>
-    updateUrl({ sortOrder: newSort, page: 1 });
-
-  const handleFilterChange = (newOptions: (string | number)[]) =>
-    updateUrl({ selectedOptions: newOptions, page: 1 });
-
   // ── Guard ─────────────────────────────────────────────────────────────────
   if (!selectedCategory) {
     return (
@@ -49,80 +41,59 @@ export default function Category() {
     );
   }
 
-  const formattedName = selectedCategory
-    .split("-")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
+  const formattedName = toTitleCase(selectedCategory);
+
+  if (loading)
+    return (
+      <LoadingState
+        message="Loading products..."
+        subMessage="Please wait while we fetch the products."
+      />
+    );
+
+  if (error)
+    return (
+      <ErrorState
+        title="Unable to load products"
+        message={error}
+        retry={refetch}
+      />
+    );
 
   return (
     <div className="container mx-auto">
       {/* Category Title */}
-      <h1 className="text-3xl font-bold py-12">{formattedName}</h1>
+      <h1 className="text-3xl font-bold py-4">{formattedName}</h1>
 
       {/* Filters */}
       <DynamicFilters
         loadedOptions={loadedOptions}
         selectedOptions={selectedOptions}
-        setSelectedOptions={handleFilterChange}
+        setSelectedOptions={(newOptions: (string | number)[]) => updateUrl({ selectedOptions: newOptions, page: 1 })}
         minPrice={minPrice}
-        setMinPrice={handleMinPrice}
+        setMinPrice={(val: string | number) => updateUrl({ minPrice: String(val), page: 1 })}
         maxPrice={maxPrice}
-        setMaxPrice={handleMaxPrice}
+        setMaxPrice={(val: string | number) => updateUrl({ maxPrice: String(val), page: 1 })}
         sortOrder={sortOrder}
-        setSortOrder={handleSortChange}
+        setSortOrder={(newSort: string) => updateUrl({ sortOrder: newSort, page: 1 })}
       />
 
-      {/* Handle Loading, Error, and Empty States */}
-      {loading ? (
-        <div className="flex flex-col items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
-          <p className="text-gray-600 mt-4">Loading products...</p>
-        </div>
-      ) : error ? (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-          <h3 className="text-lg font-semibold text-red-800 mb-2">Error Loading Products</h3>
-          <p className="text-red-700 mb-4">{error}</p>
-          <button
-            onClick={refetch}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
-          >
-            Try Again
-          </button>
-        </div>
-      ) : products.length === 0 ? (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center">
-          <h3 className="text-lg font-semibold text-blue-800 mb-2">No Products Found</h3>
-          <p className="text-blue-700 mb-4">
-            No products in <strong>{formattedName}</strong> match the selected filters.
-          </p>
-          {selectedOptions.length > 0 && (
-            <button
-              onClick={() => handleFilterChange([])}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-            >
-              Clear Filters
-            </button>
-          )}
-        </div>
-      ) : (
-        <>
-          {/* Main Content */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+      {/* Products Display */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-4">
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
+      </div>
 
-          <PaginationControl
-            currentPage={page}
-            totalPages={totalPages}
-            totalCount={totalCount}
-            pageSize={PAGE_SIZE}
-            onPageChange={goToPage}
-            showGoTo
-          />
-        </>
-      )}
+      {/* Pagination Control */}
+      <PaginationControl
+        currentPage={page}
+        totalPages={totalPages}
+        totalCount={totalCount}
+        pageSize={PAGE_SIZE}
+        onPageChange={goToPage}
+        showGoTo
+      />
     </div>
   );
 }

@@ -6,6 +6,8 @@ import { orderApi } from "../../api/user/orderApi";
 import { useAuth } from "../../hooks/auth/useAuth";
 import type { OrderResponseModel } from "../../types/models/order/OrderResponseModel";
 
+import LoadingState from "../../components/pageState/LoadingState";
+
 export default function OrderDetail() {
   const { orderId } = useParams();
   const navigate = useNavigate();
@@ -91,12 +93,10 @@ export default function OrderDetail() {
 
   if (loading) {
     return (
-      <div className="container mx-auto p-6 text-center">
-        <div className="inline-block">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
-        <p className="text-gray-500 mt-4">Loading order details...</p>
-      </div>
+      <LoadingState
+        message="Loading order details..."
+        subMessage="Please wait while we fetch the order details."
+      />
     );
   }
 

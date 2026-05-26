@@ -95,7 +95,7 @@ const CategoryTabs = () => {
 
   return (
     <div className="flex flex-col w-full h-full rounded-2xl bg-(--bg-surface)">
-      <h2 className="text-4xl font-bold my-8 text-center text-(--text-primary)">Featured Products</h2>
+      <h2 className="text-4xl font-bold my-8 text-center text-(--text-primary)">Newest Products</h2>
 
       {/* CATEGORY TABS */}
       <div className="flex justify-start rounded-t-2xl bg-(--bg-surface)">

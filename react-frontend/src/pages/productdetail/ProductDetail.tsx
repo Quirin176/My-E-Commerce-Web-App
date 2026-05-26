@@ -12,6 +12,9 @@ import { useCart } from "../../hooks/cart/useCart";
 import type { Product } from "../../types/models/products/Product";
 import type { ProductImage } from "../../types/models/products/ProductImage";
 
+import LoadingState from "../../components/pageState/LoadingState";
+import ErrorState from "../../components/pageState/ErrorState";
+
 export default function ProductDetails() {
   const { slug } = useParams();
   const [product, setProduct] = useState<Product | null>(null);
@@ -102,8 +105,10 @@ export default function ProductDetails() {
     };
   }, [showImageModal]);
 
-  if (loading) return <p className="text-center p-6">Loading product...</p>;
-  if (!product) return <p className="text-lg text-center p-6 text-red-500">Product not found.</p>;
+  if (!product)
+    return (
+      <ErrorState title="Product not found." />
+    );
 
   const currentImage = images.length > 0 ? images[currentImageIndex].imageUrl : product.thumbnailUrl;
   const modalImage = images.length > 0 ? images[modalImageIndex].imageUrl : product.thumbnailUrl;
@@ -130,6 +135,14 @@ export default function ProductDetails() {
   };
 
   const categoryName = product.category?.name || "Unknown Category";
+
+  if (loading)
+    return (
+      <LoadingState
+        message="Loading product's detail..."
+        subMessage="Please wait while we fetch the product's detail."
+      />
+    );
 
   return (
     <div className="p-8 max-w-6xl mx-auto">

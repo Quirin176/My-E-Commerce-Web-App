@@ -1,5 +1,7 @@
 import { Mail, NotebookText, Phone, User2, Star } from "lucide-react";
 import { useUser } from "../../hooks/users/useUser";
+import LoadingState from "../../components/pageState/LoadingState";
+import ErrorState from "../../components/pageState/ErrorState";
 
 export default function Profile() {
   const { user: profileData, loading: isLoading, error: errorMessage } = useUser();
@@ -18,19 +20,19 @@ export default function Profile() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto max-w-4xl p-6">
-        <h1 className="text-3xl font-bold mb-6">My Profile</h1>
-        <p>Loading profile data...</p>
-      </div>
+      <LoadingState
+        message="Loading profile data..."
+        subMessage="Please wait while we fetch the profile data."
+      />
     );
   }
 
   if (errorMessage) {
     return (
-      <div className="container mx-auto max-w-4xl p-6">
-        <h1 className="text-3xl font-bold mb-6">My Profile</h1>
-        <p className="text-red-500">{errorMessage}</p>
-      </div>
+      <ErrorState
+        title="Unable to load profile data"
+        message={errorMessage}
+      />
     );
   }
 

@@ -1,4 +1,3 @@
-import { siteConfig } from "../../config/siteConfig";
 import type { ProductOption } from "../../types/models/products/ProductOption";
 
 interface Props {
@@ -18,7 +17,6 @@ export default function CategoryFiltersPanel({
   onFilterClick,
   onViewAll
 }: Props) {
-  const colors = siteConfig.colors;
 
   return (
     <div onMouseLeave={onLeave}>
@@ -27,8 +25,9 @@ export default function CategoryFiltersPanel({
           <div className="text-center py-12">Loading...</div>
         ) : filters?.length > 0 ? (
           <div className="space-y-3">
+
             {filters.map((option) => (
-              <div key={option.optionId}>
+              <div className="text-(--text-primary)" key={option.optionId}>
                 <h4 className="font-bold text-sm pb-1">{option.optionName}</h4>
 
                 <div className="flex flex-wrap gap-2">
@@ -49,8 +48,7 @@ export default function CategoryFiltersPanel({
 
             <button
               onClick={onViewAll}
-              className="w-full py-2 text-white rounded-lg cursor-pointer"
-              style={{ background: colors.primarycolor }}
+              className="w-full py-2 text-white bg-(--brand-primary) rounded-lg cursor-pointer"
             >
               View All
             </button>

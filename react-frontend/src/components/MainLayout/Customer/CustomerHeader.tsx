@@ -39,15 +39,11 @@ export default function CustomerHeader() {
         </div>
 
         {/* SEARCH BAR */}
-        <SearchBar onSuggest={(searchQuery) => handleSuggest(searchQuery)} suggestions={suggestions} onSearchSubmit={(searchQuery) => handleSearchSubmit(searchQuery)} />
-
-        {/* NAVIGATION LINKS */}
-        <div className="flex items-center gap-6">
-          <Link
-            to="/about"
-            className="font-semibold text-white">
-            About us
-          </Link>
+        <div className="flex-1 flex justify-center">
+          <SearchBar
+            onSuggest={(searchQuery) => handleSuggest(searchQuery)}
+            suggestions={suggestions}
+            onSearchSubmit={(searchQuery) => handleSearchSubmit(searchQuery)} />
         </div>
 
         <div className="flex flex-row items-center gap-4">

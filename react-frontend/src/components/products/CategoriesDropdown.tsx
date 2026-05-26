@@ -44,15 +44,15 @@ export default function CategoriesDropdown() {
   };
 
   return (
-    <div className="relative inline-block font-semibold">
+    <div className="relative inline-block font-semibold text-(--text-secondary)">
       <button
-        className="flex items-center gap-2 px-4 py-2 border-2 rounded-4xl font-semibold hover:shadow-md transition cursor-pointer"
+        className="flex items-center gap-2 px-4 py-2 border-2 border-(--text-secondary) rounded-4xl font-semibold hover:shadow-md transition cursor-pointer"
         style={{ color: "White" }}
         onClick={() => setOpen(!open)}
       >
-        <LayoutGrid size={18} />
-        <span className="text-base pr-20">All Categories</span>
-        <ChevronDown size={18} className={`${open ? "rotate-180" : ""} transition`} />
+        <LayoutGrid size={18} className="text-(--text-secondary)" />
+        <span className="text-(--text-secondary) pr-20">All Categories</span>
+        <ChevronDown size={18} className={`text-(--text-secondary) ${open ? "rotate-180" : ""} transition`} />
       </button>
 
       {/* DARK OVERLAY */}
@@ -66,11 +66,11 @@ export default function CategoriesDropdown() {
       {/* DROPDOWN PANEL - HORIZONTALLY CENTERED, VERTICALLY CENTERED ON PAGE */}
       {open && (
         <div
-          className="w-375 h-175 fixed left-1/2 transform -translate-x-1/2 bg-white border-0 rounded-xl shadow-2xl z-50 flex overflow-hidden"
+          className="w-375 h-175 fixed left-1/2 transform -translate-x-1/2 bg-(--bg-surface) border-0 rounded-xl shadow-2xl z-50 flex overflow-hidden"
           onMouseLeave={handleClose}
         >
           {/* LEFT SIDE: CATEGORIES LIST */}
-          <div className={`${selectedCategory ? "w-1/5" : "w-full"} border-r border-gray-200 overflow-y-auto bg-white transition-all duration-300`}>
+          <div className={`${selectedCategory ? "w-1/5" : "w-full"} border-r border-gray-200 overflow-y-auto transition-all duration-300`}>
             <div
               className="sticky bg-linear-to-b text-white pl-4 py-2"
               style={{ background: colors.primarycolor }}
@@ -88,7 +88,7 @@ export default function CategoriesDropdown() {
 
           {/* RIGHT SIDE: FILTERS FOR SELECTED CATEGORY */}
           {selectedCategory && (
-            <div className="w-4/5 overflow-y-auto bg-white">
+            <div className="w-4/5 overflow-y-auto">
 
               {/* HEADER */}
               <div

@@ -36,6 +36,8 @@ import Weather from "./pages/games/Weather";
 import WhosThatPokemon from "./pages/games/WhosThatPokemon";
 import Wordle from "./pages/games/Wordle";
 
+import NotFoundPage from "./pages/NotFoundPage";
+
 import { useAuth } from "./hooks/auth/useAuth";
 
 // Protected Route Component
@@ -97,7 +99,7 @@ export default function App() {
 
       <Routes>
         {/* -------------------- CUSTOMER LAYOUT -------------------- */}
-        <Route path="/*" element={<CustomerLayout />}>
+        <Route path="/" element={<CustomerLayout />}>
           {/* Customer Pages */}
           <Route path="home" element={<Home />} />
           <Route path="" element={<Navigate to="/home" replace />} />
@@ -148,6 +150,8 @@ export default function App() {
         <Route path="/weather" element={<Weather />} />
         <Route path="/whosthatpokemon" element={<WhosThatPokemon />} />
         <Route path="/wordle" element={<Wordle />} />
+
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </>
   );

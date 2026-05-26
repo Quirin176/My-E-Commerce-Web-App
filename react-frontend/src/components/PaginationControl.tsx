@@ -29,11 +29,11 @@ export default function PaginationControl({
   );
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between p-6 gap-4 bg-white">
+    <div className="flex flex-col sm:flex-row items-center justify-between p-6 gap-4 rounded-2xl bg-(--bg-surface)">
 
       {/* Summary */}
       {showSummary && (
-        <p className="text-gray-600 text-sm">
+        <p className="text-(--text-primary) text-sm">
           Showing <strong>{startIndex}</strong> to <strong>{endIndex}</strong> of{" "}
           <strong>{totalCount}</strong>
         </p>
@@ -70,7 +70,7 @@ export default function PaginationControl({
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          className="p-2 border border-(--text-primary) rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
         >
           <ChevronRight size={20} />
         </button>
@@ -79,7 +79,10 @@ export default function PaginationControl({
       {/* Go to page */}
       {showGoTo && (
         <div className="flex items-center gap-2">
-          <label className="text-gray-600 text-sm">Go to:</label>
+          <label className="text-(--text-primary) text-sm">
+            Go to:<br />
+            (Enter to Apply)
+            </label>
           <input
             type="number"
             min="1"
@@ -91,7 +94,7 @@ export default function PaginationControl({
                 if (!isNaN(value)) onPageChange(value);
               }
             }}
-            className="w-16 px-2 py-2 border border-gray-300 rounded-lg text-center text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+            className="w-16 px-2 py-2 border border-(--text-primary) rounded-lg text-center text-sm focus:ring-2 focus:ring-blue-500 outline-none"
           />
         </div>
       )}

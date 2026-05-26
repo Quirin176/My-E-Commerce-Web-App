@@ -8,6 +8,7 @@ import DashboardCard from "../../../components/admin/dashboard/DashboardCard";
 import RecentOrdersTable from "../../../components/admin/dashboard/RecentOrdersTable";
 import TopProductsTable from "../../../components/admin/dashboard/TopProductsTable";
 import DashboardLineChart from "../../../components/admin/dashboard/DashboardLineChart";
+import LoadingState from "../../../components/pageState/LoadingState";
 import type { RecentOrder, TopProduct, LineChartPoints } from "../../../types/dto/AdminDashboardDTOs";
 
 export default function AdminDashboard() {
@@ -46,8 +47,13 @@ export default function AdminDashboard() {
     fetchData();
   }, [])
 
-  if (user?.role !== "Admin") {
-  }
+  if (loading)
+    return (
+      <LoadingState
+        message="Loading Dashboard..."
+        subMessage="Please wait while we fetch the dashboard's data."
+      />
+    );
 
   return (
     <div className="flex flex-col w-full py-8 px-8 gap-y-8">

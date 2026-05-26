@@ -42,19 +42,33 @@ export default function SearchBar({ onSuggest, suggestions = [], onSearchSubmit 
 
     return (
         <div ref={containerRef} className="relative">
-            <div className="flex items-center bg-(--bg-surface) rounded-4xl gap-4 pl-4 pr-2 py-2">
+            <div className={`flex items-center bg-(--bg-surface) rounded-full gap-4 pl-4 pr-2 py-2
+                border-2 ${open ? "border-(--text-primary)" : "border-transparent"}`}>
+
                 {open && <Search className="text-(--text-primary)" size={20} />}
 
-                <input
-                    className="text-lg text-(--text-primary) rounded-full px-4"
-                    style={{ width: 500 }}
-                    type="text"
-                    placeholder="Search For Products"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    onClick={() => setOpen(true)}
-                />
+                <div className="flex items-center">
+                    <input
+                        className="items-center text-lg text-(--text-primary) w-125 focus:outline-none"
+                        type="text"
+                        placeholder="Search For Products"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        onClick={() => setOpen(true)}
+                    />
+
+                    {query && (
+                        <button
+                            onClick={() => setQuery("")}
+                            className="pr-4 text-2xl cursor-pointer"
+                        >
+                            ✕
+                        </button>
+
+                    )}
+                </div>
+
                 <button
                     onClick={() => onSearchSubmit(query)}
                     className="rounded-full px-2 py-2 cursor-pointer text-(--text-secondary) hover:text-(--text-primary) bg-(--brand-primary)"
@@ -62,8 +76,8 @@ export default function SearchBar({ onSuggest, suggestions = [], onSearchSubmit 
                     <Search size={20} />
                 </button>
             </div>
-            
-            {open && suggestions.length > 0 && (
+
+            {open && query !== "" && suggestions.length > 0 && (
                 <div className="absolute top-full left-0 mt-2 w-full bg-(--bg-surface) shadow-lg rounded-xl p-2 z-10">
                     {suggestions.map((s) => (
                         <div

@@ -5,10 +5,8 @@ import toast from "react-hot-toast";
 import CartItemCard from "../../components/cart/CartItemCard";
 import { useAuth } from "../../hooks/auth/useAuth";
 import { useCart } from "../../hooks/cart/useCart";
-import { siteConfig } from "../../config/siteConfig"
 
 export default function Cart() {
-  const colors = siteConfig.colors;
   const navigate = useNavigate();
   const { cartItems, clearCart, getTotalPrice } = useCart();
   const { user } = useAuth();
@@ -49,14 +47,14 @@ export default function Cart() {
         <p className="text-gray-600 mb-8">Please log in to view your cart</p>
         <Link
           to="/auth?mode=login"
-          className="inline-block px-6 py-3 text-white rounded-lg hover:brightness-75 transition"
-          style={{ background: colors.primarycolor }}
+          className="inline-block px-6 py-3 text-white bg-(--brand-primary) rounded-lg hover:brightness-75 transition"
         >
           Go to Login
         </Link>
       </div>
     )
   }
+
   if (cartItems.length === 0) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
@@ -65,8 +63,7 @@ export default function Cart() {
         <p className="text-xl text-gray-600 mb-8">Add some products to get started!</p>
         <Link
           to="/home"
-          className="inline-block px-6 py-3 text-white rounded-lg hover:brightness-75 transition"
-          style={{ background: colors.primarycolor }}
+          className="inline-block px-6 py-3 text-white bg-(--brand-primary) rounded-lg hover:brightness-75 transition"
         >
           Back to Home Page
         </Link>
@@ -80,7 +77,7 @@ export default function Cart() {
       {/* Cart Actions */}
       <div className="flex items-center justify-between pb-6">
         {/* Header */}
-        <h1 className="text-3xl font-bold" style={{ color: colors.primarycolor }}>
+        <h1 className="text-3xl font-bold text-(--brand-primary)">
           Shopping Cart
         </h1>
 
@@ -117,7 +114,7 @@ export default function Cart() {
         {/* Order Summary */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-lg shadow-lg p-6 sticky top-24">
-            <h2 className="text-2xl font-bold mb-6" style={{ color: colors.primarycolor }}>
+            <h2 className="text-2xl font-bold text-(--brand-primary) mb-6">
               Order Summary
             </h2>
 
@@ -142,7 +139,7 @@ export default function Cart() {
 
               <div className="border-t pt-4 flex justify-between text-xl font-bold">
                 <span>Total:</span>
-                <span style={{ color: colors.pricecolor }}>
+                <span className="text-(--brand-primary)">
                   {totalPrice.toLocaleString()} VND
                 </span>
               </div>
@@ -152,8 +149,7 @@ export default function Cart() {
             <button
               onClick={handleCheckout}
               disabled={isCheckingOut || cartItems.length === 0}
-              className="w-full py-3 text-white font-bold rounded-lg hover:brightness-75 transition disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ background: colors.primarycolor }}
+              className="w-full py-3 text-white font-bold bg-(--brand-primary) rounded-lg hover:brightness-75 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isCheckingOut ? "Processing..." : "Proceed to Checkout"}
             </button>
@@ -161,8 +157,7 @@ export default function Cart() {
             {/* Continue Shopping Link */}
             <Link
               to="/home"
-              className="block text-center mt-4 py-2 border-2 rounded-lg font-semibold transition hover:bg-gray-50"
-              style={{ borderColor: colors.primarycolor, color: colors.primarycolor }}
+              className="block text-center mt-4 py-2 border-2 border-(--brand-primary) rounded-lg font-semibold text-(--brand-primary) transition hover:bg-gray-50"
             >
               Continue Shopping
             </Link>
