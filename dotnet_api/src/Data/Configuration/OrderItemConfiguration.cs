@@ -8,8 +8,6 @@ namespace WebApp_API.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<OrderItem> builder)
         {
-            builder.Property(i => i.Quantity)
-                   .IsRequired();
             builder.HasOne(oi => oi.Order)
                     .WithMany(o => o.OrderItems)
                     .HasForeignKey(oi => oi.OrderId)

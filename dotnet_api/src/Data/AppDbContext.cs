@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WebApp_API.Entities;
+using WebApp_API.Data.Configurations;
 
 namespace WebApp_API.Data
 {
@@ -22,134 +23,30 @@ namespace WebApp_API.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
 
-
         public DbSet<Chat> Chats { get; set; }
         public DbSet<Message> Messages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             // Apply configurations
+            builder.ApplyConfiguration(new UserConfiguration());
+
+            builder.ApplyConfiguration(new CategoryConfiguration());
+            builder.ApplyConfiguration(new ProductOptionValueConfiguration());
+            builder.ApplyConfiguration(new ProductFilterConfiguration());
+
+            builder.ApplyConfiguration(new ProductConfiguration());
+            builder.ApplyConfiguration(new ProductVariantConfiguration());
+            builder.ApplyConfiguration(new ProductVariantOptionValueConfiguration());
             builder.ApplyConfiguration(new ProductImageConfiguration());
 
+            builder.ApplyConfiguration(new OrderConfiguration());
+            builder.ApplyConfiguration(new OrderItemConfiguration());
+            
+            builder.ApplyConfiguration(new ChatConfiguration());
+            builder.ApplyConfiguration(new MessageConfiguration());
+
             base.OnModelCreating(builder);
-
-            // User Model
-            builder.Entity<User>()
-                .Property(u => u.Email)
-                .IsRequired();
-
-            builder.Entity<User>()
-                .Property(u => u.Phone)
-                .IsRequired();
-
-            builder.Entity<User>()
-                .HasIndex(u => u.Email)
-                .IsUnique();
-
-            builder.Entity<User>()
-                .HasIndex(u => u.Phone)
-                .IsUnique();
-
-            // Category Model
-            builder.Entity<Category>()
-                .HasIndex(c => c.Slug)
-                .IsUnique();
-
-            builder.Entity<Product>()
-                .HasIndex(p => p.Slug)
-                .IsUnique();
-
-            builder.Entity<ProductVariant>()
-                .HasOne(pv => pv.Product)
-                .WithMany(p => p.Variants)
-                .HasForeignKey(pv => pv.ProductId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<ProductVariantOptionValue>()
-                .HasKey(x => new { x.ProductVariantId, x.ProductOptionValueId });
-
-            builder.Entity<ProductVariantOptionValue>()
-                .HasOne(pvov => pvov.ProductVariant)
-                .WithMany(v => v.ProductVariantOptionValues)
-                .HasForeignKey(pvov => pvov.ProductVariantId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<ProductVariantOptionValue>()
-                .HasOne(pvov => pvov.ProductOptionValue)
-                .WithMany(ov => ov.ProductVariantOptionValues)
-                .HasForeignKey(pvov => pvov.ProductOptionValueId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<ProductFilter>()
-                .HasOne(pf => pf.Product)
-                .WithMany()
-                .HasForeignKey(pf => pf.ProductId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<ProductFilter>()
-                .HasOne(pf => pf.OptionValue)
-                .WithMany()
-                .HasForeignKey(pf => pf.OptionValueId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<ProductOptionValue>()
-                .HasOne(v => v.ProductOption)
-                .WithMany()
-                .HasForeignKey(v => v.ProductOptionId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Order model
-            builder.Entity<Order>()
-                .HasOne(o => o.User)
-                .WithMany()
-                .HasForeignKey(o => o.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<OrderItem>()
-                .HasOne(oi => oi.Order)
-                .WithMany(o => o.OrderItems)
-                .HasForeignKey(oi => oi.OrderId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Chat + Message model
-            builder.Entity<Chat>()
-                .HasMany(c => c.Messages)
-                .WithOne(m => m.Chat)
-                .HasForeignKey(m => m.ChatId)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            // Chat.CustomerId → Users.Id
-            builder.Entity<Chat>()
-                .HasOne<User>()
-                .WithMany()
-                .HasForeignKey(c => c.CustomerId)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            // Chat.AdminId → Users.Id
-            builder.Entity<Chat>()
-                .HasOne<User>()
-                .WithMany()
-                .HasForeignKey(c => c.AdminId)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            // Message.SenderId → Users.Id
-            builder.Entity<Message>()
-                .HasOne<User>()
-                .WithMany()
-                .HasForeignKey(m => m.SenderId)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            // Indexes
-            builder.Entity<Order>().HasIndex(o => o.UserId);
-            builder.Entity<Order>().HasIndex(o => o.OrderDate);
-            builder.Entity<Order>().HasIndex(o => o.Status);
-
-            builder.Entity<Chat>().HasIndex(c => c.CustomerId);
-            builder.Entity<Chat>().HasIndex(c => c.AdminId);
-
-            builder.Entity<Message>().HasIndex(m => m.ChatId);
-            builder.Entity<Message>().HasIndex(m => m.SenderId);
-            builder.Entity<Message>().HasIndex(m => m.CreatedAt);
         }
     }
 }

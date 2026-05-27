@@ -8,10 +8,6 @@ namespace WebApp_API.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Order> builder)
         {
-            builder.HasMany(o => o.OrderItems)
-                   .WithOne(i => i.Order)
-                   .HasForeignKey(i => i.OrderId);
-
             builder.HasOne(o => o.User)
                     .WithMany()
                     .HasForeignKey(o => o.UserId)
