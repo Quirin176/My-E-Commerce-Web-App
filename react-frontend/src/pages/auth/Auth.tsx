@@ -4,8 +4,9 @@ import LoginForm from "../../components/auth/LoginForm";
 import SignupForm from "../../components/auth/SignupForm";
 
 export default function Auth() {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  const [searchParams] = useSearchParams();
   const mode = searchParams.get("mode");
   const [isLogin, setIsLogin] = useState<boolean>(mode !== "signup");
 

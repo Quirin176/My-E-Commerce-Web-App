@@ -70,6 +70,7 @@ export const useAuthStore = create<AuthState>()(
 
       clearError: () => set({ error: null }),
     }),
+    
     {
       name: "auth",
       // Only persist the user object, not loading/error state
