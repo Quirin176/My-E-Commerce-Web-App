@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { AlertCircle, Plus, X } from "lucide-react";
-import type { AddImagePayload } from "../../../api/admin/adminProductsApi";
+import type { ImagePayload } from "../../../api/admin/adminProductsApi";
 
 interface ImagesTabProps {
     productId: number | null;
-    images: AddImagePayload[];
+    images: ImagePayload[];
     imageInput: string;
     setImageInput: (v: string) => void;
     addImage: () => void;

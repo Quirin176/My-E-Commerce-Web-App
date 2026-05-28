@@ -19,6 +19,13 @@ namespace WebApp_API.Repositories
         public Task<List<Category>> GetAllCategoriesAsync() =>
         _db.Categories.ToListAsync();
 
+        public Task<bool> CheckCategoryExistsByIdAsync(int id) =>
+            _db.Categories.AnyAsync(c => c.Id == id);
+
+        public Task<bool> CheckCategoryExistsBySlugAsync(string slug) =>
+            _db.Categories.AnyAsync(c => c.Slug == slug);
+
+        // ──────────────────── Write operations ────────────────────
         public async Task AddCategoryAsync(Category category)
         {
             await _db.Categories.AddAsync(category);

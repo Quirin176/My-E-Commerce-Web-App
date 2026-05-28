@@ -18,12 +18,8 @@ namespace WebApp_API.Repositories
         Task<List<(int OptionId, string OptionName, int ValueId, string Value)>> GetOptionsRawAsync(int productId);
         Task<List<int>> GetProductIdsByOptionValuesAsync(List<int> optionValueIds);
 
-        // ────────────────────────────────────────────────── Category resolution ──────────────────────────────────────────────────
-        Task<int?> ResolveCategoryIdAsync(string slug);
-        Task<bool> CategoryExistsAsync(int id);
-
         // ────────────────────────────────────────────────── Validation helpers ──────────────────────────────────────────────────
-        Task<bool> SlugExistsAsync(string slug);
+        Task<bool> CheckProductExistsBySlugAsync(string slug);
         Task<List<int>> GetValidOptionValueIdsForCategoryAsync(int categoryId);
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────

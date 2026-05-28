@@ -48,16 +48,6 @@ namespace WebApp_API.DTOs
             public bool HasVariants { get; set; }
         }
 
-        public class ProductPaginatedResponse   // Product Detail used for ProductCard and AdminProductCard
-        {
-            public int Id { get; set; }
-            public string Name { get; set; } = "";
-            public string Slug { get; set; } = "";
-            public decimal Price { get; set; }
-            public string? ImageUrl { get; set; }
-            public List<ProductOptionGroupResponse> Options { get; set; } = new();
-        }
-
         // ────────────────────────────────────────────────── Nested types ──────────────────────────────────────────────────
 
         public class CategoryInfo

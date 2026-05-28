@@ -14,7 +14,7 @@ export interface ProductPayload {
   hasVariants: boolean;
 };
 
-export interface AddImagePayload {
+export interface ImagePayload {
   imageUrl: string;
   displayOrder: number;
   isMain: boolean;
@@ -78,7 +78,7 @@ export const adminProductsApi = {
     return res.data;
   },
   
-  async addProductImages(data: AddImagePayload[]) {
+  async addProductImages(data: ImagePayload[]) {
     const res = await apiClient.post("/productimages/images", data);
     return res.data;
   },

@@ -17,11 +17,7 @@ export default function AdminProductCard({
     <div className="flex justify-between items-center">
       <div className="flex flex-row items-center gap-2">
         <img
-          src={
-            product.imageUrl ||
-            product.images[0] ||
-            "https://via.placeholder.com/200x150?text=No+Image"
-          }
+          src={product.thumbnailUrl || "https://via.placeholder.com/200x150?text=No+Image"}
           alt={product.name}
           className="w-20 h-20 object-cover rounded shrink-0"
         />
@@ -36,7 +32,7 @@ export default function AdminProductCard({
 
       <div className="flex flex-row gap-20">
         <span className="text-lg font-bold text-blue-600">
-          {product.price?.toLocaleString("vi-VN")} VND
+          {product.basePrice?.toLocaleString("vi-VN")} VND
         </span>
 
         <div className="flex flex-row gap-2">

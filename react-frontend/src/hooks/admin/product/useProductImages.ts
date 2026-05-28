@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import type { AddImagePayload } from "../../../api/admin/adminProductsApi";
+import type { ImagePayload } from "../../../api/admin/adminProductsApi";
 
-export function useProductImages(existingProductImages: AddImagePayload[]) {
+export function useProductImages(existingProductImages: ImagePayload[]) {
     const [imageInput, setImageInput] = useState("");
-    const [images, setImages] = useState<AddImagePayload[]>([]);
+    const [images, setImages] = useState<ImagePayload[]>([]);
 
     useEffect(() => {
         setImages(existingProductImages);

@@ -9,6 +9,7 @@ import { usePagination } from "../../../hooks/usePagination";
 
 import { adminProductsApi } from "../../../api/admin/adminProductsApi";
 
+import SearchBar from "../../../components/SearchBar";
 import AdminProductCard from "../../../components/admin/products/AdminProductCard";
 import AdminDynamicFilters from "../../../components/admin/products/AdminDynamicFilters";
 import PaginationControl from "../../../components/PaginationControl";
@@ -126,6 +127,12 @@ export default function AdminProducts() {
             <Search size={20} />
           </button>
         </div>
+        {/* <div className="flex-1 flex justify-center">
+          <SearchBar
+            onSuggest={(searchQuery) => handleSuggest(searchQuery)}
+            suggestions={suggestions}
+            onSearchSubmit={(searchQuery) => handleSearchSubmit(searchQuery)} />
+        </div> */}
 
         <button
           // onClick={() => modal.openCreateForm()}

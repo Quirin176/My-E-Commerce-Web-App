@@ -8,17 +8,17 @@ namespace WebApp_API.DTOs
             public int Id { get; set; }
             public string Name { get; set; } = "";
             public string Slug { get; set; } = "";
-            public decimal Price { get; set; }
-            public string? ImageUrl { get; set; }
+            public decimal BasePrice { get; set; }
+            public string? ThumbnailUrl { get; set; }
             public string? ShortDescription { get; set; }
             public int CategoryId { get; set; }
-            public List<ProductOptionFlatResponse> Options { get; set; } = new();
+            public List<ProductOptionGroupResponse> Options { get; set; } = new();
         }
 
-        public class ProductOptionFlatResponse
+        public class ProductOptionGroupResponse
         {
             public string OptionName { get; set; } = "";
-            public string Value { get; set; } = "";
+            public List<string> Values { get; set; } = new List<string>();
         }
 
         /// Query parameters shared by public filter and admin paginated endpoints.

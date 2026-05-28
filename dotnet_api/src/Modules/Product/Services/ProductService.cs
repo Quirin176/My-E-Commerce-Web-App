@@ -9,10 +9,12 @@ namespace WebApp_API.Services
     public class ProductService : IProductService
     {
         private readonly IProductRepository _productRepo;
+        private readonly ICategoryRepository _categoryRepo;
         private readonly IProductOptionValueRepository _productOptionValueRepo;
-        public ProductService(IProductRepository productRepo, IProductOptionValueRepository productOptionValueRepo)
+        public ProductService(IProductRepository productRepo, ICategoryRepository categoryRepo, IProductOptionValueRepository productOptionValueRepo)
         {
             _productRepo = productRepo;
+            _categoryRepo = categoryRepo;
             _productOptionValueRepo = productOptionValueRepo;
         }
 
@@ -71,14 +73,14 @@ namespace WebApp_API.Services
             return items.Select(p => p.Name).Distinct().Take(limit).ToList();
         }
 
-        public async Task<PaginatedResponse<ProductDTOs.ProductPaginatedResponse>> GetPaginatedAsync(ProductFilterSpec spec)
+        public async Task<PaginatedResponse<ProductListDTOs.ProductSummaryResponse>> GetPaginatedAsync(ProductFilterSpec spec)
         {
             var optionGroups = await _productOptionValueRepo.GetOptionGroupsForValuesAsync(spec.SelectedOptionValueIds);
 
             var (items, totalCount) = await _productRepo.GetPaginatedAsync(spec, optionGroups);
 
-            var data = await MapToAdminListAsync(items);
-            return new PaginatedResponse<ProductDTOs.ProductPaginatedResponse>
+            var data = await MapToSummaryListAsync(items);
+            return new PaginatedResponse<ProductListDTOs.ProductSummaryResponse>
             {
                 Success = true,
                 Data = data,
@@ -86,14 +88,13 @@ namespace WebApp_API.Services
             };
         }
 
-        // ────────────────────────────────────────────────── Admin Services ──────────────────────────────────────────────────
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
         public async Task CreateAsync(ProductDTOs.CreateProductRequest request)
         {
-            if (!await _productRepo.CategoryExistsAsync(request.CategoryId))
+            if (!await _categoryRepo.CheckCategoryExistsByIdAsync(request.CategoryId))
                 throw new ArgumentException($"Category with ID {request.CategoryId} does not exist.");
 
-            if (await _productRepo.SlugExistsAsync(request.Slug))
+            if (await _productRepo.CheckProductExistsBySlugAsync(request.Slug))
                 throw new InvalidOperationException($"A product with slug '{request.Slug}' already exists.");
 
             if (request.SelectedOptionValueIds.Count > 0)
@@ -193,40 +194,27 @@ namespace WebApp_API.Services
             foreach (var p in products)
             {
                 var rawOpts = await _productRepo.GetOptionsRawAsync(p.Id);
+
+                // Group by OptionName
+                var groupedOpts = rawOpts
+                    .GroupBy(o => o.OptionName)
+                    .Select(g => new ProductListDTOs.ProductOptionGroupResponse
+                    {
+                        OptionName = g.Key,
+                        Values = g.Select(x => x.Value).ToList()
+                    })
+                    .ToList();
+
                 result.Add(new ProductListDTOs.ProductSummaryResponse
                 {
                     Id = p.Id,
                     Name = p.Name,
                     Slug = p.Slug,
-                    Price = p.BasePrice,
-                    ImageUrl = p.ThumbnailUrl,
+                    BasePrice = p.BasePrice,
+                    ThumbnailUrl = p.ThumbnailUrl,
                     ShortDescription = p.ShortDescription,
                     CategoryId = p.CategoryId,
-                    Options = rawOpts.Select(o => new ProductListDTOs.ProductOptionFlatResponse
-                    {
-                        OptionName = o.OptionName,
-                        Value = o.Value
-                    }).ToList()
-                });
-            }
-            return result;
-        }
-
-        private async Task<List<ProductDTOs.ProductPaginatedResponse>> MapToAdminListAsync(List<Product> products)
-        {
-            var result = new List<ProductDTOs.ProductPaginatedResponse>(products.Count);
-            foreach (var p in products)
-            {
-                // var images = await _productImageRepo.GetImageUrlsByProductAsync(p.Id);
-                var rawOpts = await _productRepo.GetOptionsRawAsync(p.Id);
-                result.Add(new ProductDTOs.ProductPaginatedResponse
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Slug = p.Slug,
-                    Price = p.BasePrice,
-                    ImageUrl = p.ThumbnailUrl,
-                    Options = GroupOptions(rawOpts)
+                    Options = groupedOpts
                 });
             }
             return result;

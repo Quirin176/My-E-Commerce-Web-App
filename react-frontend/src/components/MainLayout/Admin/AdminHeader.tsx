@@ -3,6 +3,7 @@ import { BellRing, MessageCircleMore, Settings } from "lucide-react";
 import { siteConfig } from "../../../config/siteConfig";
 import { useAuth } from "../../../hooks/auth/useAuth";
 import AdminDropDown from "./AdminDropDown";
+import ThemeToggle from "../../ThemeToggle";
 
 const navigationItems = [
     { label: "Chats", icon: <MessageCircleMore size={20} />, to: "/admin/chats" },
@@ -31,6 +32,8 @@ export default function AdminHeader() {
             <h1 className="text-2xl text-white font-bold">{getSegment()}</h1>
 
             <div className="flex items-center justify-end w-full gap-6">
+                <ThemeToggle />
+
                 <div className="flex items-center gap-6">
                     {navigationItems.map((item) => (
                         <Link

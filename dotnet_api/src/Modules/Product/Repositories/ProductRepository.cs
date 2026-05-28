@@ -109,26 +109,13 @@ namespace WebApp_API.Repositories
                 .Distinct()
                 .ToListAsync();
 
-        // ────────────────────────────────────────────────── Category resolution ──────────────────────────────────────────────────
-        public async Task<int?> ResolveCategoryIdAsync(string slug)
-        {
-            var category = await _db.Categories.FirstOrDefaultAsync(c => c.Slug == slug);
-            return category?.Id;
-        }
-
-        public Task<bool> CategoryExistsAsync(int id) =>
-            _db.Categories.AnyAsync(c => c.Id == id);
-
         // ────────────────────────────────────────────────── Validation helpers ──────────────────────────────────────────────────
-        public Task<bool> SlugExistsAsync(string slug) =>
+        public Task<bool> CheckProductExistsBySlugAsync(string slug) =>
             _db.Products.AnyAsync(p => p.Slug == slug);
 
         public async Task<List<int>> GetValidOptionValueIdsForCategoryAsync(int categoryId) =>
             await _db.ProductOptionValues
-                .Where(pov => _db.ProductOptions
-                    .Where(po => po.CategoryId == categoryId)
-                    .Select(po => po.Id)
-                    .Contains(pov.ProductOptionId))
+                .Where(pov => pov.ProductOption.CategoryId == categoryId)
                 .Select(pov => pov.Id)
                 .ToListAsync();
 

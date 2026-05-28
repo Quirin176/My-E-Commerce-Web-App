@@ -4,9 +4,5 @@ export interface CartItem {
     slug: string;
     price: number;
     image: string;
-    option?: Array<{
-        optionName: string;
-        value: string;
-    }>;
     quantity: number;
 }
