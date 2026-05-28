@@ -34,6 +34,15 @@ namespace WebApp_API.Repositories
             if (!string.IsNullOrWhiteSpace(spec.Role))
                 query = query.Where(u => u.Role == spec.Role);
 
+            if (!string.IsNullOrWhiteSpace(spec.Search))
+            {
+                var term = spec.Search.Trim().ToLower();
+                query = query.Where(u =>
+                    u.Username.ToLower().Contains(term) ||
+                    u.Email.ToLower().Contains(term) ||
+                    u.Phone.Contains(term));
+            }
+
             // Normalize sort order
             var sortOrder = spec.SortOrder?.ToLower() == "desc" ? "desc" : "asc";
 

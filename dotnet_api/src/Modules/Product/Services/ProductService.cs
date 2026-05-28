@@ -31,21 +31,9 @@ namespace WebApp_API.Services
             return await MapToDetailAsync(product);
         }
 
-        public async Task<List<ProductListDTOs.ProductSummaryResponse>> GetFilteredAsync(
-            ProductListDTOs.ProductFilterParams filterParams)
+        public async Task<List<ProductListDTOs.ProductSummaryResponse>> GetCategoryNewestAsync(int categoryId)
         {
-            var spec = ProductFilterSpec.From(filterParams);
-            int? categoryId = string.IsNullOrWhiteSpace(spec.Category)
-                ? null
-                : await _productRepo.ResolveCategoryIdAsync(spec.Category);
-
-            // If a category slug was provided but not found, return empty
-            if (!string.IsNullOrWhiteSpace(spec.Category) && categoryId is null)
-                return new List<ProductListDTOs.ProductSummaryResponse>();
-
-            var optionGroups = await _productOptionValueRepo.GetOptionGroupsForValuesAsync(spec.SelectedOptionValueIds);
-
-            var products = await _productRepo.GetFilteredAsync(spec, categoryId, optionGroups);
+            var products = await _productRepo.GetCategoryNewestAsync(categoryId);
             return await MapToSummaryListAsync(products);
         }
 

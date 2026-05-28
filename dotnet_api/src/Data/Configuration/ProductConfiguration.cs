@@ -10,11 +10,6 @@ namespace WebApp_API.Data.Configurations
         {
             builder.HasIndex(p => p.Slug)
                    .IsUnique();
-
-            builder.HasMany(p => p.Images)
-                   .WithOne(i => i.Product)
-                   .HasForeignKey(i => i.ProductId)
-                   .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

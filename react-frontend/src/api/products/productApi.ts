@@ -1,12 +1,12 @@
 import { apiClient } from "../apiClient";
 import type { Product } from "../../types/models/products/Product";
 
-export interface Filters {
-  minPrice: number,
-  maxPrice: number,
-  sortOrder: string,
-  options: string,
-};
+// export interface Filters {
+//   minPrice: number,
+//   maxPrice: number,
+//   sortOrder: string,
+//   options: string,
+// };
 
 export interface SearchFilters {
   minPrice: number,
@@ -42,16 +42,12 @@ export const productApi = {
   },
 
   // GET: /api/products/filters with filters
-  async getProductsByFilters(category: string, filters: Filters) {
+  async getCategoryNewestProducts(category: number) {
     const params = {
-      category: category,
-      minPrice: filters.minPrice,
-      maxPrice: filters.maxPrice,
-      sortOrder: filters.sortOrder,
-      options: filters.options,
+      categoryId: category,
     };
 
-    const res = await apiClient.get("/products/filters", { params });
+    const res = await apiClient.get("/products/newest", { params });
     return res.data;
   },
 

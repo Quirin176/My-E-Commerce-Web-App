@@ -7,12 +7,12 @@ import { siteConfig } from "../../config/siteConfig";
 import ProductCard from "./ProductCard";
 import type { Product } from "../../types/models/products/Product";
 
-const CategoryTabs = () => {
+export default function CategoryTabs() {
   const colors = siteConfig.colors;
 
   const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
 
-  const [activeTab, setActiveTab] = useState(categories[0]?.name || "");
+  const [activeTab, setActiveTab] = useState(1);
   const [items, setItems] = useState<Product[]>([]);
   const [productsLoading, setProductsLoading] = useState(false);
   const [pageIndex, setPageIndex] = useState(0);
@@ -23,7 +23,7 @@ const CategoryTabs = () => {
   // Load categories on mount
   useEffect(() => {
     if (categories.length > 0) {
-      setActiveTab(categories[0].slug);
+      setActiveTab(1);
     }
   }, [categories]);
 
@@ -35,20 +35,12 @@ const CategoryTabs = () => {
       setProductsLoading(true);
 
       try {
-        const res = await productApi.getProductsByFilters(
-          activeTab,
-          {
-            minPrice: 0,
-            maxPrice: 100000000,
-            sortOrder: "newest",
-            options: "",
-          },
-        );
+        const res = await productApi.getCategoryNewestProducts(activeTab);
 
         const list = res?.data?.products || res?.data || res;
 
         if (!list || !Array.isArray(list)) {
-          console.error("Invalid product list:", list);
+          toast.error("Invalid product list");
           setItems([]);
           return;
         }
@@ -103,10 +95,10 @@ const CategoryTabs = () => {
           <button
             key={cat.id}
             onClick={() => {
-              setActiveTab(cat.slug);
+              setActiveTab(cat.id);
               setPageIndex(0);
             }}
-            className={`min-w-38 rounded-t-2xl cursor-pointer px-2 py-4 text-2xl font-bold ${activeTab === cat.slug ? "text-(--text-secondary) bg-(--brand-primary)" : "text-(--text-primary) bg-(--bg-surface)"}`}
+            className={`min-w-38 rounded-t-2xl cursor-pointer px-2 py-4 text-2xl font-bold ${activeTab === cat.id ? "text-(--text-secondary) bg-(--brand-primary)" : "text-(--text-primary) bg-(--bg-surface)"}`}
           >
             {cat.name}
           </button>
@@ -172,5 +164,3 @@ const CategoryTabs = () => {
     </div>
   );
 };
-
-export default CategoryTabs;

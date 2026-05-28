@@ -12,11 +12,6 @@ namespace WebApp_API.Data.Configurations
                     .WithMany(p => p.Variants)
                     .HasForeignKey(pv => pv.ProductId)
                     .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasMany(p => p.Images)
-                   .WithOne(i => i.ProductVariant)
-                   .HasForeignKey(i => i.ProductId)
-                   .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

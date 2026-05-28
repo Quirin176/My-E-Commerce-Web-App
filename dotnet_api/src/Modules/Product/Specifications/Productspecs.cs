@@ -28,16 +28,6 @@ namespace WebApp_API.Specifications
         public int PageSize { get; init; } = 10;
         public string? Search { get; init; }
 
-        // Use in Customer Viewing Product Pages
-        public static ProductFilterSpec From(ProductListDTOs.ProductFilterParams p) => new()
-        {
-            Category = p.Category,
-            MinPrice = p.MinPrice,
-            MaxPrice = p.MaxPrice,
-            SelectedOptionValueIds = ParseOptionIds(p.Options),
-            SortOrder = p.SortOrder
-        };
-
         // Use in Admin Product Management Page
         public static ProductFilterSpec From(ProductListDTOs.AdminProductFilterParams p) => new()
         {

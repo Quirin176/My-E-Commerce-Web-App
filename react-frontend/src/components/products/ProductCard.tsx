@@ -22,12 +22,9 @@ export default function ProductCard({ product }: { product: Product }) {
       id: product.id,
       name: product.name,
       slug: product.slug,
-      price: product.price,
-      image: product.imageUrl || product.images[0] || "https://via.placeholder.com/200x150?text=No+Image",
-      option: (product.options || []).map(opt =>
-        'optionValues' in opt
-          ? opt.optionValues.map(v => ({ optionName: opt.optionName, value: v.value }))
-          : [{ optionName: opt.optionName, value: opt.value }]
+      price: product.basePrice,
+      image: product.thumbnailUrl || "https://via.placeholder.com/200x150?text=No+Image",
+      option: (product.options || []).map(opt => opt.optionValues.map(v => ({ optionName: opt.optionName, value: v.value }))
       ).flat(),
     };
 
@@ -45,8 +42,7 @@ export default function ProductCard({ product }: { product: Product }) {
         <div className="flex justify-center pt-2">
           <img
             src={
-              product.imageUrl ||
-              product.images[0] ||
+              product.thumbnailUrl ||
               "https://via.placeholder.com/200x150?text=No+Image"
             }
             alt={product.name}
@@ -66,11 +62,8 @@ export default function ProductCard({ product }: { product: Product }) {
 
           <div className="h-40 mt-2 overflow-y-auto rounded-xl p-2 text-sm text-left bg-(--bg-muted)">
             {product.options && product.options.length > 0 ? (
-              product.options.map((opt, i) => {
-                if ('optionValues' in opt) {
+              product.options.map((opt) => {
                   return <p key={opt.optionId}><strong>{opt.optionName}:</strong> {opt.optionValues.map(v => v.value).join(", ")}</p>;
-                }
-                return <p key={i}><strong>{opt.optionName}:</strong> {opt.value}</p>;
               })
             ) : (
               <p>No option data available</p>
@@ -84,7 +77,7 @@ export default function ProductCard({ product }: { product: Product }) {
           className="text-end font-bold mb-3 border-t border-b border-gray-100"
           style={{ color: colors.pricecolor }}
         >
-          {product.price?.toLocaleString() || "N/A"} VND
+          {product.basePrice?.toLocaleString() || "N/A"} VND
         </p>
         <button
           onClick={handleAdd}

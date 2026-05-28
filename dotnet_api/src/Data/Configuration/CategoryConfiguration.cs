@@ -8,6 +8,7 @@ namespace WebApp_API.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Category> builder)
         {
+            // Category Slug is unique
             builder.HasIndex(c => c.Slug)
                    .IsUnique();
         }

@@ -18,16 +18,12 @@ namespace WebApp_API.Repositories
             _db.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Slug == slug);
 
         // ────────────────────────────────────────────────── List queries ──────────────────────────────────────────────────
-        public async Task<List<Product>> GetFilteredAsync(ProductFilterSpec spec, int? resolvedCategoryId, List<(int, List<int>)> optionGroups)
+        public async Task<List<Product>> GetCategoryNewestAsync(int categoryId)
         {
-            var query = _db.Products.Include(p => p.Category).AsQueryable();
+            var query = _db.Products.Include(p => p.Category).AsQueryable()
+                                    .Where(p => p.CategoryId == categoryId);
 
-            if (resolvedCategoryId.HasValue)
-                query = query.Where(p => p.CategoryId == resolvedCategoryId.Value);
-
-            query = ApplyPriceFilter(query, spec.MinPrice, spec.MaxPrice);
-            query = await ApplyOptionFilter(query, optionGroups);
-            query = ProductSortSpec.Apply(query, spec.SortOrder);
+            query = ProductSortSpec.Apply(query, "newest");
 
             return await query.ToListAsync();
         }
@@ -91,13 +87,6 @@ namespace WebApp_API.Repositories
 
             return (items, totalCount);
         }
-
-        public async Task<List<Product>> GetByCategoryAsync(int categoryId) =>
-            await _db.Products
-                .Where(p => p.CategoryId == categoryId)
-                .Include(p => p.Category)
-                .OrderByDescending(p => p.Id)
-                .ToListAsync();
 
         // ────────────────────────────────────────────────── Related data ──────────────────────────────────────────────────
         public async Task<List<(int OptionId, string OptionName, int ValueId, string Value)>> GetOptionsRawAsync(int productId) =>

@@ -11,6 +11,15 @@ namespace WebApp_API.Data.Configurations
             builder.Property(m => m.Content)
                    .IsRequired();
 
+            builder.Property(m => m.Type)
+                   .IsRequired()
+                   .HasMaxLength(20)
+                   .HasDefaultValue("text");
+
+            builder.Property(m => m.Read)
+                   .IsRequired()
+                   .HasDefaultValue(false);
+
             builder.HasOne<User>()
                     .WithMany()
                     .HasForeignKey(m => m.SenderId)

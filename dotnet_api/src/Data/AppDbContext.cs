@@ -32,6 +32,7 @@ namespace WebApp_API.Data
             builder.ApplyConfiguration(new UserConfiguration());
 
             builder.ApplyConfiguration(new CategoryConfiguration());
+            builder.ApplyConfiguration(new ProductOptionConfiguration());
             builder.ApplyConfiguration(new ProductOptionValueConfiguration());
             builder.ApplyConfiguration(new ProductFilterConfiguration());
 
@@ -42,7 +43,7 @@ namespace WebApp_API.Data
 
             builder.ApplyConfiguration(new OrderConfiguration());
             builder.ApplyConfiguration(new OrderItemConfiguration());
-            
+
             builder.ApplyConfiguration(new ChatConfiguration());
             builder.ApplyConfiguration(new MessageConfiguration());
 

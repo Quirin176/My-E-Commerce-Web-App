@@ -10,7 +10,7 @@ namespace WebApp_API.Services
         Task<ProductDTOs.ProductDetailResponse?> GetByIdAsync(int id);
         Task<ProductDTOs.ProductDetailResponse?> GetBySlugAsync(string slug);
 
-        Task<List<ProductListDTOs.ProductSummaryResponse>> GetFilteredAsync(ProductListDTOs.ProductFilterParams filterParams);
+        Task<List<ProductListDTOs.ProductSummaryResponse>> GetCategoryNewestAsync(int categoryId);
 
         Task<ProductDTOs.SearchResponse> SearchAsync(ProductListDTOs.ProductSearchParams searchParams);
         Task<List<string>> GetSuggestionsAsync(string q, int limit = 10);

@@ -22,13 +22,9 @@ namespace WebApp_API.DTOs
         }
 
         /// Query parameters shared by public filter and admin paginated endpoints.
-        public class ProductFilterParams
+        public class NewestProductRequest
         {
-            public string? Category { get; set; }
-            public decimal MinPrice { get; set; } = 0;
-            public decimal MaxPrice { get; set; } = decimal.MaxValue;
-            public string? Options { get; set; }    // Comma-separated ProductOptionValue IDs, e.g. "1,3,7".
-            public string SortOrder { get; set; } = "newest";
+            public required string Category { get; set; }
         }
 
         /// Admin-only extensions on top of the base filter.

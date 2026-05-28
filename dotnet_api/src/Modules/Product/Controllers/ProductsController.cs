@@ -32,14 +32,11 @@ namespace WebApp_API.Controllers
             return product is null ? NotFound() : Ok(product);
         }
 
-        // GET /api/products/filters
-        [HttpGet("filters")]
-        public async Task<IActionResult> FilterProducts([FromQuery] ProductListDTOs.ProductFilterParams filterParams)
+        // GET /api/products/newest
+        [HttpGet("newest")]
+        public async Task<IActionResult> FilterProducts([FromQuery] int categoryId)
         {
-            if (string.IsNullOrWhiteSpace(filterParams.Category))
-                return BadRequest(new { message = "Category is required" });
-
-            var products = await _service.GetFilteredAsync(filterParams);
+            var products = await _service.GetCategoryNewestAsync(categoryId);
             return Ok(products);
         }
 
