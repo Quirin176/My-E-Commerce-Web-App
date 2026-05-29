@@ -10,7 +10,7 @@ import { productApi } from "../../../api/products/productApi";
 import { productvariantApi } from "../../../api/products/productvariantApi";
 import { adminProductsApi, type ProductPayload } from "../../../api/admin/adminProductsApi";
 import type { VariantRow } from "../../../types/models/products/variantTypes";
-import type { AddImagePayload } from "../../../api/admin/adminProductsApi";
+import type { ImagePayload } from "../../../api/admin/adminProductsApi";
 import { productimageApi } from "../../../api/products/productimageApi";
 
 export function useAdminProduct() {
@@ -24,7 +24,7 @@ export function useAdminProduct() {
         [id, createdProductId]
     );
 
-    const [recentProductImages, setRecentProductImages] = useState<AddImagePayload[]>([])
+    const [recentProductImages, setRecentProductImages] = useState<ImagePayload[]>([])
 
     const [hasVariant, setHasVariant] = useState(false);
     const [variants, setVariants] = useState<VariantRow[]>([]);
@@ -135,7 +135,7 @@ export function useAdminProduct() {
                 result = await adminProductsApi.createProduct(payload);
                 setCreatedProductId(result.id);
                 toast.success("Product created");
-                navigate(`/admin/products/${result.id}`);
+                navigate(`/admin/products/${result.id}/edit`);
             } else {
                 await adminProductsApi.updateProductById(effectiveProductId!, payload);
                 toast.success("Product updated");
