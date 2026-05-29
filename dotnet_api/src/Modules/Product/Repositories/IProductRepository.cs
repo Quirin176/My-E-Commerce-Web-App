@@ -23,7 +23,7 @@ namespace WebApp_API.Repositories
         Task<List<int>> GetValidOptionValueIdsForCategoryAsync(int categoryId);
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
-        Task AddAsync(Product product);
+        Task<Product> AddAsync(Product product);
         void Update(Product product);
         void Remove(Product product);
 

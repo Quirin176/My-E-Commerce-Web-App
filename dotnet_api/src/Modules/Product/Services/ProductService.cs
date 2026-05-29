@@ -89,7 +89,7 @@ namespace WebApp_API.Services
         }
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
-        public async Task CreateAsync(ProductDTOs.CreateProductRequest request)
+        public async Task<ProductDTOs.ProductDetailResponse> CreateAsync(ProductDTOs.CreateProductRequest request)
         {
             if (!await _categoryRepo.CheckCategoryExistsByIdAsync(request.CategoryId))
                 throw new ArgumentException($"Category with ID {request.CategoryId} does not exist.");
@@ -119,7 +119,7 @@ namespace WebApp_API.Services
                 UpdatedAt = DateTime.UtcNow
             };
 
-            await _productRepo.AddAsync(product);
+            var created = await _productRepo.AddAsync(product);
             await _productRepo.SaveChangesAsync();
 
             // ── Option values (filters) ───────────────────────────────────────────
@@ -127,6 +127,19 @@ namespace WebApp_API.Services
                 await _productRepo.SetOptionValuesAsync(product.Id, request.SelectedOptionValueIds);
 
             await _productRepo.SaveChangesAsync();
+
+            return new ProductDTOs.ProductDetailResponse
+            {
+                Id = created.Id,
+                Name = created.Name,
+                Slug = created.Slug,
+                ShortDescription = created.ShortDescription,
+                Description = created.Description,
+                BasePrice = created.BasePrice,
+                ThumbnailUrl = created.ThumbnailUrl,
+                CategoryId = created.CategoryId,
+                HasVariants = created.HasVariants
+            };
         }
 
         public async Task<bool> UpdateAsync(int id, ProductDTOs.UpdateProductRequest request)

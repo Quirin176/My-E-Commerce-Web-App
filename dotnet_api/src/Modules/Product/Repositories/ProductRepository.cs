@@ -120,7 +120,13 @@ namespace WebApp_API.Repositories
                 .ToListAsync();
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
-        public async Task AddAsync(Product product) => await _db.Products.AddAsync(product);
+        public async Task<Product> AddAsync(Product product)
+        {
+            await _db.Products.AddAsync(product);
+
+            return product;
+        }
+        
         public void Update(Product product) => _db.Products.Update(product);
         public void Remove(Product product) => _db.Products.Remove(product);
 
