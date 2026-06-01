@@ -1,33 +1,33 @@
-import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { In, Repository } from "typeorm";
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { In, Repository, SelectQueryBuilder } from 'typeorm';
 
-import { Product } from "./entities/product.entity";
-import { ProductOption } from "../product-options/entities/option.entity";
-import { ProductOptionValue } from "../product-option-values/entities/option-value.entity";
-import { ProductFilter } from "../product-filters/entities/product-filter.entity";
+import { Product } from './entities/product.entity';
+import { ProductOption } from '../product-options/entities/option.entity';
+import { ProductOptionValue } from '../product-option-values/entities/option-value.entity';
+import { ProductFilter } from '../product-filters/entities/product-filter.entity';
 
-import { CategoriesService } from "../categories/categories.service";
-import { ProductFiltersService } from "../product-filters/product-filters.service";
+import { ProductFiltersService } from '../product-filters/product-filters.service';
 
-import { CreateProductRequest } from "./dtos/products.dtos"
-
-export interface Filters {
-  minPrice: number,
-  maxPrice: number,
-  sortOrder: string,
-  options: string,
-}
-
-export interface EnrichedOption {
-  optionId: number;
-  optionName: string;
-  optionValues: { optionValueId: number; value: string }[];
-}
+import {
+  AdminProductFilterParams,
+  CategoryInfo,
+  CreateProductRequest,
+  OptionGroupResponse,
+  PaginatedResponse,
+  ProductDetailResponse,
+  ProductSearchParams,
+  ProductSummaryResponse,
+  SearchResponse,
+  UpdateProductRequest,
+} from './dtos/products.dtos';
 
 @Injectable()
 export class ProductsService {
-
   constructor(
     @InjectRepository(Product)
     private readonly productRepo: Repository<Product>,
@@ -41,262 +41,422 @@ export class ProductsService {
     @InjectRepository(ProductOption)
     private readonly optionRepo: Repository<ProductOption>,
 
-    private readonly categoriesService: CategoriesService,
     private readonly productFiltersService: ProductFiltersService,
-  ) { }
+  ) {}
 
-  // // Enrich Products with Options Data
-  // private async enrichWithOptions(products: Product[]): Promise<(Product & { options: EnrichedOption[] })[]> {
-  //   if (!products.length) return [];
+  // ─── Public queries ────────────────────────────────────────────────────────
 
-  //   const productIds = products.map((p) => p.id);
+  async getById(id: number): Promise<ProductDetailResponse | null> {
+    const product = await this.productRepo.findOne({ where: { id } });
+    if (!product) throw new NotFoundException('Product not found');
+    return this.mapToDetail(product, await this.fetchOptions([product.id]));
+  }
 
-  //   // Fetch all ProductFilter rows for products
-  //   const filters = await this.productFilterRepo.find({
-  //     where: { productId: In(productIds) },
-  //   });
+  async getBySlug(slug: string): Promise<ProductDetailResponse | null> {
+    const product = await this.productRepo.findOne({ where: { slug } });
+    if (!product) throw new NotFoundException('Product not found');
+    return this.mapToDetail(product, await this.fetchOptions([product.id]));
+  }
 
-  //   if (!filters.length) {
-  //     return products.map((p) => ({ ...p, options: [] }));
-  //   }
-
-  //   // Fetch all ProductOptionValues used by these filters
-  //   const optionValueIds = [...new Set(filters.map((f) => f.optionValueId))];
-  //   const optionValues = await this.optionValueRepo.find({
-  //     where: { id: In(optionValueIds) },
-  //   });
-
-  //   // Fetch all relevant ProductOptions
-  //   const optionIds = [...new Set(optionValues.map((v) => v.productOptionId))];
-  //   const options = await this.optionRepo.find({
-  //     where: { id: In(optionIds) },
-  //   });
-
-  //   // Build lookup maps for O(1) access
-  //   const optionValueMap = new Map(optionValues.map((v) => [v.id, v]));
-  //   const optionMap = new Map(options.map((o) => [o.id, o]));
-
-  //   // Group filters by productId
-  //   const filtersByProduct = new Map<number, ProductFilter[]>();
-  //   for (const f of filters) {
-  //     if (!filtersByProduct.has(f.productId)) {
-  //       filtersByProduct.set(f.productId, []);
-  //     }
-  //     filtersByProduct.get(f.productId)!.push(f);
-  //   }
-
-  //   // Assemble enriched products
-  //   return products.map((product) => {
-  //     const productFilters = filtersByProduct.get(product.id) ?? [];
-
-  //     // Group option values under their parent option
-  //     const optionGroupMap = new Map<number, EnrichedOption>();
-
-  //     for (const pf of productFilters) {
-  //       const ov = optionValueMap.get(pf.optionValueId);
-  //       if (!ov) continue;
-
-  //       const opt = optionMap.get(ov.productOptionId);
-  //       if (!opt) continue;
-
-  //       if (!optionGroupMap.has(opt.id)) {
-  //         optionGroupMap.set(opt.id, {
-  //           optionId: opt.id,
-  //           optionName: opt.name,
-  //           optionValues: [],
-  //         });
-  //       }
-
-  //       optionGroupMap.get(opt.id)!.optionValues.push({
-  //         optionValueId: ov.id,
-  //         value: ov.value,
-  //       });
-  //     }
-
-  //     return {
-  //       ...product,
-  //       options: [...optionGroupMap.values()],
-  //     };
-  //   });
-  // }
-
-  // Enrich Products with Options Data
-  private async enrichWithOptions(product: Product): Promise<Product & { options: EnrichedOption[] }> {
-
-    const productId = product.id;
-
-    // Fetch all ProductFilter rows for products
-    const filters = await this.productFilterRepo.find({
-      where: { productId: productId },
+  /** Newest products in a category (no pagination, matches ASP.NET GetCategoryNewestAsync) */
+  async getCategoryNewest(categoryId: number): Promise<ProductSummaryResponse[]> {
+    const products = await this.productRepo.find({
+      where: { categoryId },
+      order: { id: 'DESC' },
     });
+    return this.mapToSummaryList(products, await this.fetchOptions(products.map((p) => p.id)));
+  }
 
-    // Fetch all ProductOptionValues used by these filters
-    const optionValueIds = [...new Set(filters.map((f) => f.optionValueId))];
-    const optionValues = await this.optionValueRepo.find({
-      where: { id: In(optionValueIds) },
-    });
+  /** Full-text search across name / shortDescription / description / category name */
+  async search(params: ProductSearchParams): Promise<SearchResponse> {
+    const q = (params.queryPhrase ?? '').trim().toLowerCase().slice(0, 200);
+    if (!q) throw new NotFoundException('Search query is required');
 
-    // Fetch all relevant ProductOptions
-    const optionIds = [...new Set(optionValues.map((v) => v.productOptionId))];
-    const options = await this.optionRepo.find({
-      where: { id: In(optionIds) },
-    });
+    const page = Math.max(1, params.page);
+    const pageSize = Math.min(Math.max(1, params.pageSize), 100);
 
-    // Build lookup maps for O(1) access
-    const optionValueMap = new Map(optionValues.map((v) => [v.id, v]));
-    const optionMap = new Map(options.map((o) => [o.id, o]));
+    let query = this.productRepo
+      .createQueryBuilder('p')
+      .where(
+        `(LOWER(p.name) LIKE :q
+          OR LOWER(p.shortDescription) LIKE :q
+          OR LOWER(p.description)       LIKE :q)`,
+        { q: `%${q}%` },
+      );
 
-    // Group filters by productId
-    const filtersByProduct = new Map<number, ProductFilter[]>();
-    for (const f of filters) {
-      if (!filtersByProduct.has(f.productId)) {
-        filtersByProduct.set(f.productId, []);
-      }
-      filtersByProduct.get(f.productId)!.push(f);
+    query = this.applyPriceFilter(query, params.minPrice, params.maxPrice);
+
+    switch (params.sortOrder) {
+      case 'price_asc':
+        query.orderBy('p.basePrice', 'ASC');
+        break;
+      case 'price_desc':
+        query.orderBy('p.basePrice', 'DESC');
+        break;
+      case 'newest':
+        query.orderBy('p.id', 'DESC');
+        break;
+      case 'name':
+        query.orderBy('p.name', 'ASC');
+        break;
+      default:
+        query.orderBy('p.id', 'DESC'); // relevance fallback
     }
 
-    // Assemble enriched products
-      const productFilters = filtersByProduct.get(product.id) ?? [];
+    const totalCount = await query.getCount();
+    const items = await query
+      .skip((page - 1) * pageSize)
+      .take(pageSize)
+      .getMany();
 
-      // Group option values under their parent option
-      const optionGroupMap = new Map<number, EnrichedOption>();
+    const totalPages = Math.ceil(totalCount / pageSize);
+    const optionMap = await this.fetchOptions(items.map((p) => p.id));
 
-      for (const pf of productFilters) {
-        const ov = optionValueMap.get(pf.optionValueId);
+    return {
+      success: true,
+      query: params.queryPhrase,
+      totalCount,
+      pageNumber: page,
+      pageSize,
+      totalPages,
+      hasNextPage: (page - 1) * pageSize + items.length < totalCount,
+      hasPreviousPage: page > 1,
+      products: this.mapToSummaryList(items, optionMap),
+    };
+  }
+
+  /** Autocomplete suggestions — returns product names matching the query */
+  async getSuggestions(q: string, limit: number = 10): Promise<string[]> {
+    if (!q || q.length < 2) return [];
+
+    const items = await this.productRepo
+      .createQueryBuilder('p')
+      .where('LOWER(p.name) LIKE :q', { q: `%${q.toLowerCase()}%` })
+      .orderBy('p.id', 'DESC')
+      .take(Math.min(limit, 100))
+      .getMany();
+
+    return [...new Set(items.map((p) => p.name))].slice(0, limit);
+  }
+
+  // ─── Admin queries ─────────────────────────────────────────────────────────
+
+  /** Paginated list with category / price / option / sort / search filters */
+  async getPaginated(
+    params: AdminProductFilterParams,
+  ): Promise<PaginatedResponse<ProductSummaryResponse>> {
+    const page = Math.max(1, params.page);
+    const pageSize = Math.min(Math.max(1, params.pageSize), 100);
+
+    let query = this.productRepo.createQueryBuilder('p');
+
+    // ── Search ──────────────────────────────────────────────────────────────
+    if (params.search) {
+      const term = params.search.trim().toLowerCase();
+      query.andWhere(
+        '(LOWER(p.name) LIKE :term OR LOWER(p.slug) LIKE :term)',
+        { term: `%${term}%` },
+      );
+    }
+
+    // ── Category filter ──────────────────────────────────────────────────────
+    if (params.category) {
+      // Join category once to filter by slug
+      query
+        .innerJoin('Categories', 'cat', 'cat.id = p.categoryId')
+        .andWhere('cat.slug = :slug', { slug: params.category });
+    }
+
+    // ── Price filter ─────────────────────────────────────────────────────────
+    query = this.applyPriceFilter(query, params.minPrice, params.maxPrice);
+
+    // ── Option value filter (AND across option groups, OR within each group) ─
+    if (params.options) {
+      const optionValueIds = this.parseOptionIds(params.options);
+      if (optionValueIds.length > 0) {
+        const matchingProductIds =
+          await this.productFiltersService.getProductIdsByOptionValueIds(optionValueIds);
+
+        if (matchingProductIds.length === 0) {
+          return {
+            success: true,
+            data: [],
+            pagination: {
+              currentPage: page,
+              pageSize,
+              totalCount: 0,
+              totalPages: 0,
+              hasNextPage: false,
+              hasPreviousPage: false,
+            },
+          };
+        }
+        query.andWhere('p.id IN (:...matchingProductIds)', { matchingProductIds });
+      }
+    }
+
+    // ── Sort ─────────────────────────────────────────────────────────────────
+    switch (params.sortOrder) {
+      case 'ascending':
+        query.orderBy('p.basePrice', 'ASC');
+        break;
+      case 'descending':
+        query.orderBy('p.basePrice', 'DESC');
+        break;
+      case 'oldest':
+        query.orderBy('p.id', 'ASC');
+        break;
+      default:
+        query.orderBy('p.id', 'DESC'); // newest
+    }
+
+    // ── Pagination ───────────────────────────────────────────────────────────
+    const totalCount = await query.getCount();
+    const items = await query
+      .skip((page - 1) * pageSize)
+      .take(pageSize)
+      .getMany();
+
+    const totalPages = Math.ceil(totalCount / pageSize);
+    const optionMap = await this.fetchOptions(items.map((p) => p.id));
+
+    return {
+      success: true,
+      data: this.mapToSummaryList(items, optionMap),
+      pagination: {
+        currentPage: page,
+        pageSize,
+        totalCount,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+    };
+  }
+
+  // ─── Write operations ──────────────────────────────────────────────────────
+
+  async create(request: CreateProductRequest): Promise<number> {
+    const slugExists = await this.productRepo.findOne({
+      where: { slug: request.slug },
+    });
+    if (slugExists) {
+      throw new ConflictException(
+        `A product with slug '${request.slug}' already exists.`,
+      );
+    }
+
+    const product = this.productRepo.create({
+      name: request.name,
+      slug: request.slug,
+      shortDescription: request.shortDescription,
+      description: request.description,
+      basePrice: request.basePrice,
+      thumbnailUrl: request.thumbnailUrl,
+      categoryId: request.categoryId,
+      hasVariants: request.hasVariants ?? false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const saved = await this.productRepo.save(product);
+
+    if (request.selectedOptionValueIds?.length) {
+      await this.setOptionValues(saved.id, request.selectedOptionValueIds);
+    }
+
+    return saved.id;
+  }
+
+  async update(id: number, request: UpdateProductRequest): Promise<boolean> {
+    const product = await this.productRepo.findOne({ where: { id } });
+    if (!product) return false;
+
+    if (request.name) product.name = request.name;
+    if (request.slug) product.slug = request.slug;
+    if (request.shortDescription !== undefined)
+      product.shortDescription = request.shortDescription;
+    if (request.description !== undefined) product.description = request.description;
+    if (request.basePrice != null && request.basePrice > 0)
+      product.basePrice = request.basePrice;
+    if (request.thumbnailUrl !== undefined) product.thumbnailUrl = request.thumbnailUrl;
+    if (request.categoryId != null) product.categoryId = request.categoryId;
+    if (request.hasVariants !== undefined) product.hasVariants = request.hasVariants;
+    product.updatedAt = new Date();
+
+    await this.productRepo.save(product);
+
+    if (request.selectedOptionValueIds !== undefined) {
+      await this.setOptionValues(id, request.selectedOptionValueIds);
+    }
+
+    return true;
+  }
+
+  async delete(id: number): Promise<boolean> {
+    const product = await this.productRepo.findOne({ where: { id } });
+    if (!product) return false;
+    await this.productRepo.remove(product);
+    return true;
+  }
+
+  // ─── Private helpers ───────────────────────────────────────────────────────
+
+  /**
+   * Batch-fetch all ProductFilter → OptionValue → Option rows for a list of
+   * product IDs and return a Map<productId, OptionGroupResponse[]>.
+   * This is a single round-trip per entity type (3 queries total) instead of
+   * N+1 per product.
+   */
+  private async fetchOptions(
+    productIds: number[],
+  ): Promise<Map<number, OptionGroupResponse[]>> {
+    const result = new Map<number, OptionGroupResponse[]>();
+    if (!productIds.length) return result;
+
+    // 1. All ProductFilter rows for these products
+    const filters = await this.productFilterRepo.find({
+      where: { productId: In(productIds) },
+    });
+    if (!filters.length) {
+      productIds.forEach((id) => result.set(id, []));
+      return result;
+    }
+
+    // 2. All referenced OptionValues
+    const ovIds = [...new Set(filters.map((f) => f.optionValueId))];
+    const optionValues = await this.optionValueRepo.find({
+      where: { id: In(ovIds) },
+    });
+
+    // 3. All referenced Options
+    const optIds = [...new Set(optionValues.map((v) => v.productOptionId))];
+    const options = await this.optionRepo.find({ where: { id: In(optIds) } });
+
+    const ovMap = new Map(optionValues.map((v) => [v.id, v]));
+    const optMap = new Map(options.map((o) => [o.id, o]));
+
+    // Group filters by productId
+    const byProduct = new Map<number, typeof filters>();
+    for (const f of filters) {
+      if (!byProduct.has(f.productId)) byProduct.set(f.productId, []);
+      byProduct.get(f.productId)!.push(f);
+    }
+
+    // Build OptionGroupResponse[] for each product
+    for (const productId of productIds) {
+      const pFilters = byProduct.get(productId) ?? [];
+      const groupMap = new Map<number, OptionGroupResponse>();
+
+      for (const pf of pFilters) {
+        const ov = ovMap.get(pf.optionValueId);
         if (!ov) continue;
-
-        const opt = optionMap.get(ov.productOptionId);
+        const opt = optMap.get(ov.productOptionId);
         if (!opt) continue;
 
-        if (!optionGroupMap.has(opt.id)) {
-          optionGroupMap.set(opt.id, {
+        if (!groupMap.has(opt.id)) {
+          groupMap.set(opt.id, {
             optionId: opt.id,
             optionName: opt.name,
             optionValues: [],
           });
         }
-
-        optionGroupMap.get(opt.id)!.optionValues.push({
+        groupMap.get(opt.id)!.optionValues.push({
           optionValueId: ov.id,
           value: ov.value,
         });
       }
 
-      return {
-        ...product,
-        options: [...optionGroupMap.values()],
-      };
+      result.set(productId, [...groupMap.values()]);
+    }
+
+    return result;
   }
 
-  // Get a product's data by ID
-  async getById(id: number) {
-    const product = await this.productRepo.findOne({ where: { id } });
-    if (!product) throw new NotFoundException('Product not found');
+  /** Replace all ProductFilter rows for a product with the new set */
+  private async setOptionValues(productId: number, optionValueIds: number[]): Promise<void> {
+    // Remove existing
+    const existing = await this.productFilterRepo.find({ where: { productId } });
+    if (existing.length) await this.productFilterRepo.remove(existing);
 
-    const enriched = await this.enrichWithOptions(product);
-
-    // return the first element from enriched
-    return enriched[0];
+    // Insert new
+    if (optionValueIds.length) {
+      const filters = optionValueIds.map((ovId) =>
+        this.productFilterRepo.create({ productId, optionValueId: ovId }),
+      );
+      await this.productFilterRepo.save(filters);
+    }
   }
 
-  // Get a product's data by slug
-  async getBySlug(slug: string) {
-    const product = await this.productRepo.findOne({ where: { slug } });
-    if (!product) throw new NotFoundException('Product not found');
-
-    const enriched = await this.enrichWithOptions(product);
-
-    // return the first element from enriched
-    return enriched[0];
+  private applyPriceFilter(
+    query: SelectQueryBuilder<Product>,
+    min?: number,
+    max?: number,
+  ): SelectQueryBuilder<Product> {
+    if (min != null && min > 0) query.andWhere('p.basePrice >= :min', { min });
+    if (max != null && max < Number.MAX_SAFE_INTEGER)
+      query.andWhere('p.basePrice <= :max', { max });
+    return query;
   }
 
-  // Get products by filters (category, minPrice, maxPrice, sortOrder, options)
-  async getByFilters(category: string, filters: Filters) {
-    const categoryData = await this.categoriesService.getBySlug(category);
-
-    if (!categoryData) {
-      throw new NotFoundException('Category not found');
-    }
-
-    // Filter products by category
-    const query = this.productRepo.createQueryBuilder('product')
-      .where('product.categoryId = :categoryId', { categoryId: categoryData.id })
-
-    // Filter products by price range
-    if (filters.minPrice) {
-      query.andWhere('product.price >= :minPrice', { minPrice: filters.minPrice });
-    }
-
-    if (filters.maxPrice) {
-      query.andWhere('product.price <= :maxPrice', { maxPrice: filters.maxPrice });
-    }
-
-    // ── Option values filter ──────────────────────────────────────────────────
-    // The frontend sends a comma-separated string of optionValueIds, e.g. "3,7,12"
-    if (filters.options && filters.options.trim() !== '') {
-      const optionValueIds = filters.options
-        .split(',')
-        .map((v) => parseInt(v.trim(), 10))
-        .filter((n) => !isNaN(n));
-
-      if (optionValueIds.length > 0) {
-        // Ask ProductFiltersService for the matching product IDs
-        const matchingProductIds =
-          await this.productFiltersService.getProductIdsByOptionValueIds(optionValueIds);
-
-        if (matchingProductIds.length === 0) {
-          // No products match the selected options — return empty early
-          return [];
-        }
-
-        query.andWhere('product.id IN (:...matchingProductIds)', { matchingProductIds });
-      }
-    }
-
-    // Filter products by sort order
-    let sortField = 'product.id';  // default sort → newest
-    let sortDirection: 'ASC' | 'DESC' = 'DESC';
-
-    if (filters.sortOrder) {
-      const order = filters.sortOrder.toLowerCase();
-
-      switch (order) {
-        case 'ascending':
-          sortField = 'product.price';
-          sortDirection = 'ASC';
-          break;
-
-        case 'descending':
-          sortField = 'product.price';
-          sortDirection = 'DESC';
-          break;
-
-        case 'oldest':
-          sortField = 'product.id';
-          sortDirection = 'ASC';
-          break;
-      }
-    }
-    query.orderBy(sortField, sortDirection);
-
-    // Return products matching the filters
-    const products = await query.getMany();
-    return products.map((product) => this.enrichWithOptions(product));
+  private parseOptionIds(raw?: string): number[] {
+    if (!raw) return [];
+    return raw
+      .split(',')
+      .map((s) => parseInt(s.trim(), 10))
+      .filter((n) => !isNaN(n));
   }
 
-  // Create a new category
-  async create(request: CreateProductRequest) {
-    if (await this.productRepo.findOne({ where: { slug: request.slug } }))
-      throw new ConflictException(`A category with slug '${request.slug}' already exists.`);
+  // ─── Mapping helpers ───────────────────────────────────────────────────────
 
-    if (request.selectedOptionValueIds.length > 0) {
-    }
-    // var category = this.categoryRepo.create({
-    //   name: request.name,
-    //   slug: request.slug
-    // })
+  private mapCategory(product: Product): CategoryInfo | undefined {
+    if (!product.category) return undefined;
+    return {
+      id: product.category.id,
+      name: product.category.name,
+      slug: product.category.slug,
+    };
+  }
 
-    // return await this.categoryRepo.save(category);
-    return await this.productRepo.save(request);
+  private mapToDetail(
+    product: Product,
+    optionMap: Map<number, OptionGroupResponse[]>,
+  ): ProductDetailResponse {
+    return {
+      id: product.id,
+      name: product.name,
+      slug: product.slug,
+      shortDescription: product.shortDescription,
+      description: product.description,
+      basePrice: Number(product.basePrice),
+      thumbnailUrl: product.thumbnailUrl,
+      categoryId: product.categoryId,
+      category: this.mapCategory(product),
+      hasVariants: product.hasVariants,
+      options: optionMap.get(product.id) ?? [],
+    };
+  }
+
+  private mapToSummary(
+    product: Product,
+    optionMap: Map<number, OptionGroupResponse[]>,
+  ): ProductSummaryResponse {
+    return {
+      id: product.id,
+      name: product.name,
+      slug: product.slug,
+      basePrice: Number(product.basePrice),
+      thumbnailUrl: product.thumbnailUrl,
+      shortDescription: product.shortDescription,
+      categoryId: product.categoryId,
+      options: optionMap.get(product.id) ?? [],
+    };
+  }
+
+  private mapToSummaryList(
+    products: Product[],
+    optionMap: Map<number, OptionGroupResponse[]>,
+  ): ProductSummaryResponse[] {
+    return products.map((p) => this.mapToSummary(p, optionMap));
   }
 }
