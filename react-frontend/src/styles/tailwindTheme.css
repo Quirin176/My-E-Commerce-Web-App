@@ -9,6 +9,7 @@
     --text-primary: black;
     --text-secondary: white;
     --border: gray;
+    --price: red;
     --shadow: 0 1px 3px rgba(0, 0, 0, .08);
   }
 
@@ -21,6 +22,7 @@
     --text-primary: white;
     --text-secondary: black;
     --border: gray;
+    --price: red;
     --shadow: 0 1px 3px rgba(0, 0, 0, .4);
   }
 

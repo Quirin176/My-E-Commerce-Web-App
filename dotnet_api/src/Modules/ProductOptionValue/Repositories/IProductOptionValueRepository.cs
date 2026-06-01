@@ -10,6 +10,9 @@ namespace WebApp_API.Repositories
         Task CreateProductOptionValueAsync(ProductOptionValue optionValue);
         Task UpdateProductOptionValueByIdAsync(int id, ProductOptionValue optionValue);
         Task DeleteProductOptionValueByIdAsync(int id);
+
+        // ────────────────────────────────────────────────── Validation helpers ──────────────────────────────────────────────────
         Task<bool> OptionExistsAsync(int optionId);
+        Task<List<int>> GetValidOptionValueIdsForCategoryAsync(int categoryId);
     }
 }

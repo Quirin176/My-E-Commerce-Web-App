@@ -19,7 +19,7 @@ namespace WebApp_API.Services
         Task<PaginatedResponse<ProductListDTOs.ProductSummaryResponse>> GetPaginatedAsync(ProductFilterSpec spec);
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
-        Task<ProductDTOs.ProductDetailResponse> CreateAsync(ProductDTOs.CreateProductRequest request);
+        Task<int> CreateAsync(ProductDTOs.CreateProductRequest request);
         Task<bool> UpdateAsync(int id, ProductDTOs.UpdateProductRequest request);
         Task<bool> DeleteAsync(int id);
     }

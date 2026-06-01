@@ -50,10 +50,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
         <div className="p-2 flex flex-col">
           <div className="h-12 overflow-hidden">
-            <h3
-              className="font-bold leading-6 text-center"
-              style={{ color: colors.primarycolor }}
-            >
+            <h3 className="font-bold leading-6 text-center text-(--brand-primary)">
               {product.name}
             </h3>
           </div>
@@ -74,16 +71,12 @@ export default function ProductCard({ product }: { product: Product }) {
       </Link>
 
       <div className="p-2">
-        <p
-          className="text-end font-bold mb-3 border-t border-b border-gray-100"
-          style={{ color: colors.pricecolor }}
-        >
+        <p className="text-end font-bold mb-3 border-t border-b border-gray-100 text-(--price)">
           {product.basePrice?.toLocaleString() || "N/A"} VND
         </p>
         <button
           onClick={handleAdd}
-          className="w-full font-semibold text-white py-3 rounded-lg hover:brightness-75 transition duration-150 transform hover:scale-[1.01]"
-          style={{ background: colors.primarycolor }}
+          className="w-full font-semibold text-white bg-(--brand-primary) py-3 rounded-lg hover:brightness-75 transition duration-150 transform hover:scale-[1.01]"
         >
           Add to Cart
         </button>

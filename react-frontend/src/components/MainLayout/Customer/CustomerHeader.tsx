@@ -6,6 +6,7 @@ import UserDropDown from "./UserDropDown";
 import CategoriesDropdown from "../../products/CategoriesDropdown";
 import SearchBar from "../../SearchBar";
 import ThemeToggle from "../../ThemeToggle";
+import reactLogo from "../../../assets/react.svg";
 import { siteConfig } from "../../../config/siteConfig";
 
 export default function CustomerHeader() {
@@ -31,7 +32,8 @@ export default function CustomerHeader() {
 
         {/* LOGO AND SITE NAME */}
         <div className="flex items-center gap-6 shrink-0">
-          <Link to="/" className="text-white text-2xl font-bold">
+          <Link to="/" className="flex items-center gap-2 text-white text-2xl font-bold">
+            <img src={reactLogo} alt="logo" className="w-8 h-8" />
             {siteConfig.webName}
           </Link>
 

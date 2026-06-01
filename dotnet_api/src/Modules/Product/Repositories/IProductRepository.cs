@@ -20,7 +20,6 @@ namespace WebApp_API.Repositories
 
         // ────────────────────────────────────────────────── Validation helpers ──────────────────────────────────────────────────
         Task<bool> CheckProductExistsBySlugAsync(string slug);
-        Task<List<int>> GetValidOptionValueIdsForCategoryAsync(int categoryId);
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
         Task<Product> AddAsync(Product product);

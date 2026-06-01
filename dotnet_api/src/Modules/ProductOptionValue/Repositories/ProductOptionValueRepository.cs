@@ -56,5 +56,11 @@ namespace WebApp_API.Repositories
 
         public Task<bool> OptionExistsAsync(int optionId) =>
         _db.ProductOptions.AnyAsync(o => o.Id == optionId);
+
+        public async Task<List<int>> GetValidOptionValueIdsForCategoryAsync(int categoryId) =>
+            await _db.ProductOptionValues
+                .Where(pov => pov.ProductOption.CategoryId == categoryId)
+                .Select(pov => pov.Id)
+                .ToListAsync();
     }
 }

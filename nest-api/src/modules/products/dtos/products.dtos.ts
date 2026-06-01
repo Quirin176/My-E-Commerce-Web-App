@@ -1,4 +1,4 @@
-import { IsArray, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsArray, IsDate, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateProductRequest {
     @IsString()
@@ -16,15 +16,11 @@ export class CreateProductRequest {
     description?: string;
 
     @IsNumber()
-    price!: number;
+    basePrice!: number;
 
     @IsOptional()
     @IsString()
-    imageUrl?: string;
-
-    @IsArray()
-    @IsString({ each: true })
-    imageUrls!: string[];
+    thumbnailUrl?: string;
 
     @IsString()
     categoryId!: string;

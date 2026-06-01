@@ -113,12 +113,6 @@ namespace WebApp_API.Repositories
         public Task<bool> CheckProductExistsBySlugAsync(string slug) =>
             _db.Products.AnyAsync(p => p.Slug == slug);
 
-        public async Task<List<int>> GetValidOptionValueIdsForCategoryAsync(int categoryId) =>
-            await _db.ProductOptionValues
-                .Where(pov => pov.ProductOption.CategoryId == categoryId)
-                .Select(pov => pov.Id)
-                .ToListAsync();
-
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
         public async Task<Product> AddAsync(Product product)
         {

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Tabs, Tab, Box } from "@mui/material";
 
 import { useAdminProduct } from "../../../hooks/admin/product/useAdminProduct";
@@ -29,6 +30,7 @@ function TabPanel({ children, value, index }: TabPanelProps) {
 
 export default function AdminProduct() {
     const [tabIndex, setTabIndex] = useState(0);
+    const navigate = useNavigate();
 
     const {
         mode,
@@ -55,11 +57,18 @@ export default function AdminProduct() {
         setTabIndex(1);
     };
 
+    const handleAttibutesSubmit = () => {
+        submitProduct();
+        setTabIndex(2);
+    };
+
     const productImages = useProductImages(recentProductImages);
     const { submittingImages, saveImages } = useSaveProductImages();
 
-    const handleSaveImages = () => saveImages(effectiveProductId, productImages.images);
-
+    const handleSaveImages = () => {
+        saveImages(effectiveProductId, productImages.images);
+        navigate(`/admin/products`);
+    }
     // ── Tab visibility ────────────────────────────────────────────────────────────
     const showAttributesTab = !!form.formData.categoryId && filters.filters.length > 0;
     const showVariantsTab = hasVariant;
@@ -104,7 +113,7 @@ export default function AdminProduct() {
                             hasVariant={hasVariant}
                             setHasVariant={setHasVariant}
                             submittingProduct={submitting}
-                            submitProduct={submitProduct}
+                            submitProduct={handleAttibutesSubmit}
                         />
                     </TabPanel>
                 )}

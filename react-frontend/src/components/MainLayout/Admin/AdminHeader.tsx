@@ -1,6 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
 import { BellRing, MessageCircleMore, Settings } from "lucide-react";
-import { siteConfig } from "../../../config/siteConfig";
 import { useAuth } from "../../../hooks/auth/useAuth";
 import AdminDropDown from "./AdminDropDown";
 import ThemeToggle from "../../ThemeToggle";
@@ -26,8 +25,7 @@ export default function AdminHeader() {
 
     return (
         <header
-            className="h-16 flex items-center px-8"
-            style={{ backgroundColor: siteConfig.colors.primarycolor }}
+            className="h-16 flex items-center px-8 bg-(--brand-primary)"
         >
             <h1 className="text-2xl text-white font-bold">{getSegment()}</h1>
 

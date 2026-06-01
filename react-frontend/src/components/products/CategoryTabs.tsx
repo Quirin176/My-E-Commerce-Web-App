@@ -115,7 +115,7 @@ export default function CategoryTabs() {
         </div>
       ) : (
         <>
-          <div className="bg-(--brand-primary)" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 10, padding: 10 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 p-4 bg-(--brand-primary)">
             {paginatedItems.length > 0 ? (
               paginatedItems.map((item) => (
                 <ProductCard key={item.id} product={item} />

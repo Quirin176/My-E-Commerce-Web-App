@@ -89,7 +89,7 @@ namespace WebApp_API.Services
         }
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
-        public async Task<ProductDTOs.ProductDetailResponse> CreateAsync(ProductDTOs.CreateProductRequest request)
+        public async Task<int> CreateAsync(ProductDTOs.CreateProductRequest request)
         {
             if (!await _categoryRepo.CheckCategoryExistsByIdAsync(request.CategoryId))
                 throw new ArgumentException($"Category with ID {request.CategoryId} does not exist.");
@@ -99,7 +99,7 @@ namespace WebApp_API.Services
 
             if (request.SelectedOptionValueIds.Count > 0)
             {
-                var valid = await _productRepo.GetValidOptionValueIdsForCategoryAsync(request.CategoryId);
+                var valid = await _productOptionValueRepo.GetValidOptionValueIdsForCategoryAsync(request.CategoryId);
                 var invalid = request.SelectedOptionValueIds.Except(valid).ToList();
                 if (invalid.Count > 0)
                     throw new ArgumentException($"Option value ID(s) {string.Join(", ", invalid)} are not valid for this category.");
@@ -128,18 +128,7 @@ namespace WebApp_API.Services
 
             await _productRepo.SaveChangesAsync();
 
-            return new ProductDTOs.ProductDetailResponse
-            {
-                Id = created.Id,
-                Name = created.Name,
-                Slug = created.Slug,
-                ShortDescription = created.ShortDescription,
-                Description = created.Description,
-                BasePrice = created.BasePrice,
-                ThumbnailUrl = created.ThumbnailUrl,
-                CategoryId = created.CategoryId,
-                HasVariants = created.HasVariants
-            };
+            return created.Id;
         }
 
         public async Task<bool> UpdateAsync(int id, ProductDTOs.UpdateProductRequest request)

@@ -5,24 +5,6 @@ import { ProductsService } from './products.service';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) { }
 
-  // // GET api/products
-  // @Get()
-  // getAll() {
-  //   return this.productsService.getAll();
-  // }
-
-  // GET api/products/categories/:id
-  @Get('categories/id/:id')
-  getByCategoryId(@Param('id') id: number) {
-    return this.productsService.getByCategoryId(id);
-  }
-
-  // GET api/products/categories/:slug
-  @Get('categories/slug/:slug')
-  getByCategorySlug(@Param('slug') slug: string) {
-    return this.productsService.getByCategorySlug(slug);
-  }
-
   // GET api/products/id/:id
   @Get('id/:id')
   getById(@Param('id') id: number) {

@@ -15,10 +15,7 @@ const menuItems = [
 export default function AdminSidePanel() {
     const { logout } = useAuth();
     return (
-        <div
-            className="group text-white fixed flex flex-col transition-all duration-300 h-full overflow-hidden z-40 rounded-br w-60"
-            style={{ background: siteConfig.colors.primarycolor }}
-        >
+        <div className="group text-white bg-(--brand-primary) fixed flex flex-col transition-all duration-300 h-full overflow-hidden z-40">
             {/* LOGO AND SITE NAME */}
             <Link to="/admin/dashboard" className="flex items-center gap-2 text-white text-2xl font-bold h-12 px-4 py-2">
                 <img src={reactLogo} alt="logo" className="w-8 h-8" />

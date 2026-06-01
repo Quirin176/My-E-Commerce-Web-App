@@ -25,10 +25,19 @@ export class Product {
   description?: string;
 
   @Column('decimal', { precision: 10, scale: 2 })
-  price!: number;
+  basePrice!: number;
 
   @Column({ nullable: true })
-  imageUrl?: string;
+  thumbnailUrl?: string;
+
+  @Column()
+  hasVariants!: boolean;
+
+  @Column()
+  createdAt!: Date;
+
+  @Column()
+  updatedAt!: Date;
 
   @ManyToOne(() => Category)
   @JoinColumn({ name: 'categoryId' })
