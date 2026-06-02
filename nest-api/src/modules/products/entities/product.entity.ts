@@ -5,9 +5,10 @@ import {
   PrimaryGeneratedColumn,
   Column,
 } from 'typeorm';
+
 import { Category } from '../../categories/entities/category.entity';
 
-@Entity('Products')
+@Entity('Products')  // Table name in the database
 export class Product {
   @PrimaryGeneratedColumn()
   id!: number;

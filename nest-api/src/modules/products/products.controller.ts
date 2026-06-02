@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import {
-  AdminProductFilterParams,
+  ProductFilterParams,
   CreateProductRequest,
   ProductSearchParams,
   UpdateProductRequest,
@@ -24,7 +24,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 
 @Controller('products') // API endpoint: /api/products
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(private readonly productsService: ProductsService) { }
 
   // ─── Public read endpoints ──────────────────────────────────────────────────
 
@@ -42,8 +42,11 @@ export class ProductsController {
 
   /** GET /api/products/newest?categoryId=1 */
   @Get('newest')
-  getCategoryNewest(@Query('categoryId', ParseIntPipe) categoryId: number) {
-    return this.productsService.getCategoryNewest(categoryId);
+  getCategoryNewest(
+    @Query('categoryId', ParseIntPipe) categoryId: number,
+    @Query('amount', ParseIntPipe) amount: number,
+  ) {
+    return this.productsService.getCategoryNewestProducts(categoryId, amount);
   }
 
   /** GET /api/products/search?queryPhrase=...&page=1&pageSize=10&... */
@@ -66,7 +69,7 @@ export class ProductsController {
 
   /** GET /api/products/paginated?category=&page=1&pageSize=10&... */
   @Get('paginated')
-  getPaginated(@Query() params: AdminProductFilterParams) {
+  getPaginated(@Query() params: ProductFilterParams) {
     return this.productsService.getPaginated(params);
   }
 

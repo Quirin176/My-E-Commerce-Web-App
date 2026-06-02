@@ -1,17 +1,23 @@
 import {
   Entity,
+  JoinColumn,
   PrimaryGeneratedColumn,
   Column,
 } from 'typeorm';
 
+import { ProductOption } from '../../product-options/entities/option.entity';
+
 @Entity('ProductOptionValues')  // Table name in the database
 export class ProductOptionValue {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ length: 255 })
-  value: string;
+  value!: string;
 
   @Column()
-  productOptionId: number;
+  productOptionId!: number;
+
+  @JoinColumn({ name: 'productOptionId' })
+  productOption!: ProductOption;
 }

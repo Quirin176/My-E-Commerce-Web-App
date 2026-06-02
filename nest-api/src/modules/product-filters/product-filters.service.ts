@@ -16,7 +16,7 @@ export class ProductFiltersService {
     if (!optionValueIds || optionValueIds.length === 0) {
       return [];
     }
- 
+
     // Raw query: group by productId, count how many of the requested
     // option values are matched, then keep only products that match all of them.
     const rows = await this.productFilterRepo
@@ -26,7 +26,24 @@ export class ProductFiltersService {
       .groupBy('pf.productId')
       .having('COUNT(DISTINCT pf.optionValueId) = :count', { count: optionValueIds.length })
       .getRawMany();
- 
+
     return rows.map((r) => Number(r.productId));
+  }
+  
+  // ─── Admin Write operations ──────────────────────────────────────────────────────
+
+  /** Replace all ProductFilter rows for a product with the new set when editing a product or not when creating a new product */
+  async setOptionValues(productId: number, optionValueIds: number[]): Promise<void> {
+    // Remove existing
+    const existing = await this.productFilterRepo.find({ where: { productId } });
+    if (existing.length) await this.productFilterRepo.remove(existing);
+
+    // Insert new
+    if (optionValueIds.length) {
+      const filters = optionValueIds.map((ovId) =>
+        this.productFilterRepo.create({ productId, optionValueId: ovId }),
+      );
+      await this.productFilterRepo.save(filters);
+    }
   }
 }

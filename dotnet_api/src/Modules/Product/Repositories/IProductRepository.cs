@@ -10,7 +10,7 @@ namespace WebApp_API.Repositories
         Task<Product?> GetBySlugAsync(string slug);
 
         // ────────────────────────────────────────────────── List queries ──────────────────────────────────────────────────
-        Task<List<Product>> GetCategoryNewestAsync(int categoryId);
+        Task<List<Product>> GetCategoryNewestAsync(int categoryId, int amount);
         Task<(List<Product> Items, int TotalCount)> GetPaginatedAsync(ProductFilterSpec spec, List<(int, List<int>)> optionGroups);
         Task<(List<Product> Items, int TotalCount)> SearchAsync(ProductSearchSpec spec);
 

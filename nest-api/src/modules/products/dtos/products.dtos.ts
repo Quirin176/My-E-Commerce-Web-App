@@ -83,7 +83,7 @@ export class UpdateProductRequest {
 }
 
 /** Query params for the public filter / admin paginated endpoint */
-export class AdminProductFilterParams {
+export class ProductFilterParams {
   @IsOptional()
   @IsString()
   category?: string;
@@ -166,15 +166,9 @@ export interface CategoryInfo {
   slug: string;
 }
 
-export interface OptionValueItem {
-  optionValueId: number;
-  value: string;
-}
-
 export interface OptionGroupResponse {
-  optionId: number;
   optionName: string;
-  optionValues: OptionValueItem[];
+  values: string[];
 }
 
 // ─── Response shapes ────────────────────────────────────────────────────────

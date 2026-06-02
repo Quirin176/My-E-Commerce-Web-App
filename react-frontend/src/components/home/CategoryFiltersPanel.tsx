@@ -34,9 +34,7 @@ export default function CategoryFiltersPanel({
                   {option.optionValues.map((v) => (
                     <button
                       key={v.id}
-                      onClick={() =>
-                        onFilterClick(selectedCategory, v.id)
-                      }
+                      onClick={() => onFilterClick(selectedCategory, v.id)}
                       className="px-3 py-1 border rounded-lg text-sm cursor-pointer"
                     >
                       {v.value}

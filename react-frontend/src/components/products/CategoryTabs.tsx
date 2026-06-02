@@ -35,7 +35,7 @@ export default function CategoryTabs() {
       setProductsLoading(true);
 
       try {
-        const res = await productApi.getCategoryNewestProducts(activeTab);
+        const res = await productApi.getCategoryNewestProducts(activeTab, ITEMS_PER_TAB);
 
         const list = res?.data?.products || res?.data || res;
 

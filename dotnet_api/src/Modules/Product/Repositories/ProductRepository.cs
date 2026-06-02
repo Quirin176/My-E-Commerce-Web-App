@@ -18,14 +18,17 @@ namespace WebApp_API.Repositories
             _db.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Slug == slug);
 
         // ────────────────────────────────────────────────── List queries ──────────────────────────────────────────────────
-        public async Task<List<Product>> GetCategoryNewestAsync(int categoryId)
+        public async Task<List<Product>> GetCategoryNewestAsync(int categoryId, int amount)
         {
-            var query = _db.Products.Include(p => p.Category).AsQueryable()
-                                    .Where(p => p.CategoryId == categoryId);
+            if (amount <= 0) return [];
 
-            query = ProductSortSpec.Apply(query, "newest");
+            var products = _db.Products.AsNoTracking()
+                                    .Where(p => p.CategoryId == categoryId)
+                                    .OrderByDescending(p => p.CreatedAt)
+                                    .Take(amount)
+                                    .ToListAsync();
 
-            return await query.ToListAsync();
+            return await products;
         }
 
         public async Task<(List<Product> Items, int TotalCount)> GetPaginatedAsync(ProductFilterSpec spec, List<(int, List<int>)> optionGroups)
@@ -120,7 +123,7 @@ namespace WebApp_API.Repositories
 
             return product;
         }
-        
+
         public void Update(Product product) => _db.Products.Update(product);
         public void Remove(Product product) => _db.Products.Remove(product);
 

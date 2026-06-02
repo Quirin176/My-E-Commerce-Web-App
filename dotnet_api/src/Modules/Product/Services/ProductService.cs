@@ -33,9 +33,9 @@ namespace WebApp_API.Services
             return await MapToDetailAsync(product);
         }
 
-        public async Task<List<ProductListDTOs.ProductSummaryResponse>> GetCategoryNewestAsync(int categoryId)
+        public async Task<List<ProductListDTOs.ProductSummaryResponse>> GetCategoryNewestAsync(int categoryId, int amount)
         {
-            var products = await _productRepo.GetCategoryNewestAsync(categoryId);
+            var products = await _productRepo.GetCategoryNewestAsync(categoryId, amount);
             return await MapToSummaryListAsync(products);
         }
 

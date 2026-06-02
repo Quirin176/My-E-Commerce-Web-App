@@ -56,8 +56,8 @@ export function useProducts({ categorySlug, pageSize }: UseProductsOptions, filt
         category: categorySlug || undefined,
         minPrice: Number(filters.minPrice) || undefined,
         maxPrice: Number(filters.maxPrice) || undefined,
-        options: filters.selectedOptions.length > 0 ? filters.selectedOptions : undefined,
-        sortOrder: filters.sortOrder as "newest" | "oldest" | "ascending" | "descending",}
+        options: filters.selectedOptions.length > 0 ? filters.selectedOptions : undefined}
+        // sortOrder: filters.sortOrder as "newest" | "oldest" | "ascending" | "descending",}
       );
 
       const list: Product[] = Array.isArray(response.data) ? response.data : [];

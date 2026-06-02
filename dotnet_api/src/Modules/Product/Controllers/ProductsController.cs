@@ -34,9 +34,9 @@ namespace WebApp_API.Controllers
 
         // GET /api/products/newest
         [HttpGet("newest")]
-        public async Task<IActionResult> FilterProducts([FromQuery] int categoryId)
+        public async Task<IActionResult> GetCategoryNewestProducts([FromQuery] int categoryId, int amount)
         {
-            var products = await _service.GetCategoryNewestAsync(categoryId);
+            var products = await _service.GetCategoryNewestAsync(categoryId, amount);
             return Ok(products);
         }
 
@@ -61,7 +61,7 @@ namespace WebApp_API.Controllers
 
         // GET /api/products/paginated
         [HttpGet("paginated")]
-        public async Task<IActionResult> GetProductsPaginated([FromQuery] ProductListDTOs.AdminProductFilterParams filterParams)
+        public async Task<IActionResult> GetProductsPaginated([FromQuery] ProductListDTOs.ProductFilterParams filterParams)
         {
             var spec = ProductFilterSpec.From(filterParams);
             var result = await _service.GetPaginatedAsync(spec);

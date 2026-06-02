@@ -29,7 +29,7 @@ namespace WebApp_API.Specifications
         public string? Search { get; init; }
 
         // Use in Admin Product Management Page
-        public static ProductFilterSpec From(ProductListDTOs.AdminProductFilterParams p) => new()
+        public static ProductFilterSpec From(ProductListDTOs.ProductFilterParams p) => new()
         {
             Category = p.Category,
             MinPrice = p.MinPrice,

@@ -21,14 +21,8 @@ namespace WebApp_API.DTOs
             public List<string> Values { get; set; } = new List<string>();
         }
 
-        /// Query parameters shared by public filter and admin paginated endpoints.
-        public class NewestProductRequest
-        {
-            public required string Category { get; set; }
-        }
-
         /// Admin-only extensions on top of the base filter.
-        public class AdminProductFilterParams
+        public class ProductFilterParams
         {
             public string? Category { get; set; }
             public decimal MinPrice { get; set; } = 0;

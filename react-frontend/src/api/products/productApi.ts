@@ -42,10 +42,8 @@ export const productApi = {
   },
 
   // GET: /api/products/filters with filters
-  async getCategoryNewestProducts(category: number) {
-    const params = {
-      categoryId: category,
-    };
+  async getCategoryNewestProducts(category: number, amount: number) {
+    const params = { categoryId: category, amount };
 
     const res = await apiClient.get("/products/newest", { params });
     return res.data;
@@ -63,7 +61,7 @@ export const productApi = {
       minPrice?: number;
       maxPrice?: number;
       options?: (string | number)[];
-      sortOrder?: "newest" | "oldest" | "ascending" | "descending";
+      // sortOrder?: "newest" | "oldest" | "ascending" | "descending";
     }
   ) {
     const params = new URLSearchParams();
@@ -77,7 +75,7 @@ export const productApi = {
       if (filters.minPrice !== undefined) params.append("minPrice", String(filters.minPrice));
       if (filters.maxPrice !== undefined) params.append("maxPrice", String(filters.maxPrice));
       if (filters.options && filters.options.length > 0) params.append("options", filters.options.join(","));
-      if (filters.sortOrder) params.append("sortOrder", filters.sortOrder);
+      // if (filters.sortOrder) params.append("sortOrder", filters.sortOrder);
     }
     const res = await apiClient.get<PaginatedResponse<Product>>(`/products/paginated?${params.toString()}`);
     return res.data;

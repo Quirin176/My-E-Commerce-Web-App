@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { ChevronDown, LayoutGrid } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+
 import { useCategories } from "../../hooks/products/useCategories";
 import { useProductFiltersBySlug } from "../../hooks/products/useProductFiltersBySlug";
 
-import { siteConfig } from "../../config/siteConfig";
 import CategoryFiltersPanel from "../home/CategoryFiltersPanel";
 import CategoryPanel from "../home/CategoryPanel";
 
 export default function CategoriesDropdown() {
-  const colors = siteConfig.colors;
   const [open, setOpen] = useState(false);
   const { categories } = useCategories();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -71,10 +70,7 @@ export default function CategoriesDropdown() {
         >
           {/* LEFT SIDE: CATEGORIES LIST */}
           <div className={`${selectedCategory ? "w-1/5" : "w-full"} border-r border-gray-200 overflow-y-auto transition-all duration-300`}>
-            <div
-              className="sticky bg-linear-to-b text-white pl-4 py-2"
-              style={{ background: colors.primarycolor }}
-            >
+            <div className="sticky bg-linear-to-b text-white bg-(--brand-primary) pl-4 py-2">
               <h3 className="text-lg font-bold">Categories</h3>
             </div>
 
@@ -91,10 +87,7 @@ export default function CategoriesDropdown() {
             <div className="w-4/5 overflow-y-auto">
 
               {/* HEADER */}
-              <div
-                className="sticky bg-linear-to-r border-b border-gray-200 pl-4 py-2"
-                style={{ background: colors.primarycolor }}
-              >
+              <div className="sticky bg-(--brand-primary) bg-linear-to-r border-b border-gray-200 pl-4 py-2">
                 <p className="text-lg font-bold text-white">Filters</p>
               </div>
 
