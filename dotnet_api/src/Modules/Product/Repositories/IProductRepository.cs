@@ -13,11 +13,7 @@ namespace WebApp_API.Repositories
         Task<List<Product>> GetCategoryNewestAsync(int categoryId, int amount);
         Task<(List<Product> Items, int TotalCount)> GetPaginatedAsync(ProductFilterSpec spec, List<(int, List<int>)> optionGroups);
         Task<(List<Product> Items, int TotalCount)> SearchAsync(ProductSearchSpec spec);
-
-        // ────────────────────────────────────────────────── Related data ──────────────────────────────────────────────────
-        Task<List<(int OptionId, string OptionName, int ValueId, string Value)>> GetOptionsRawAsync(int productId);
-        Task<List<int>> GetProductIdsByOptionValuesAsync(List<int> optionValueIds);
-
+        
         // ────────────────────────────────────────────────── Validation helpers ──────────────────────────────────────────────────
         Task<bool> CheckProductExistsBySlugAsync(string slug);
 
@@ -26,6 +22,9 @@ namespace WebApp_API.Repositories
         void Update(Product product);
         void Remove(Product product);
 
+        // ────────────────────────────────────────────────── Related data ──────────────────────────────────────────────────
+        Task<List<(int OptionId, string OptionName, int ValueId, string Value)>> GetOptionsRawAsync(int productId);
+        Task<List<int>> GetProductIdsByOptionValuesAsync(List<int> optionValueIds);
         Task SetOptionValuesAsync(int productId, IEnumerable<int> optionValueIds);
 
         Task SaveChangesAsync();

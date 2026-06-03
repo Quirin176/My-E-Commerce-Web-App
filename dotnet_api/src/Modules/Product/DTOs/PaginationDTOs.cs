@@ -2,20 +2,6 @@ namespace WebApp_API.DTOs
 {
     public class PaginationDTOs
     {
-        public class PaginationParams
-        {
-            private const int MaxPageSize = 100;
-            private int _pageSize = 10;
-
-            public int Page { get; set; } = 1;
-
-            public int PageSize
-            {
-                get => _pageSize;
-                set => _pageSize = value < 1 ? 10 : value > MaxPageSize ? MaxPageSize : value;
-            }
-        }
-
         public class PaginatedResponse<T>
         {
             public bool Success { get; set; } = true;

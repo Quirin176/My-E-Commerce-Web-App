@@ -60,8 +60,7 @@ export const productApi = {
       category?: string | null;
       minPrice?: number;
       maxPrice?: number;
-      options?: (string | number)[];
-      // sortOrder?: "newest" | "oldest" | "ascending" | "descending";
+      selectedOptions?: (string | number)[];
     }
   ) {
     const params = new URLSearchParams();
@@ -74,8 +73,7 @@ export const productApi = {
       if (filters.category) params.append("category", filters.category);
       if (filters.minPrice !== undefined) params.append("minPrice", String(filters.minPrice));
       if (filters.maxPrice !== undefined) params.append("maxPrice", String(filters.maxPrice));
-      if (filters.options && filters.options.length > 0) params.append("options", filters.options.join(","));
-      // if (filters.sortOrder) params.append("sortOrder", filters.sortOrder);
+      if (filters.selectedOptions && filters.selectedOptions.length > 0) params.append("selectedOptions", filters.selectedOptions.join(","));
     }
     const res = await apiClient.get<PaginatedResponse<Product>>(`/products/paginated?${params.toString()}`);
     return res.data;

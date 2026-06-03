@@ -20,8 +20,10 @@ export default function Category() {
   const { page, sortOrder, minPrice, maxPrice, selectedOptions, updateUrl } = useProductUrlFilters();
 
   // ── Data fetching ─────────────────────────────────────────────────────────
-  const { products, totalCount, loading, error, loadedOptions, refetch } =
-    useProducts({ categorySlug: selectedCategory, pageSize: PAGE_SIZE }, { searchTerm: "", minPrice, maxPrice, sortOrder, selectedOptions, currentPage: page });
+  const { products, totalCount, loading, error, loadedOptions, refetch } = useProducts(
+    { categorySlug: selectedCategory, pageSize: PAGE_SIZE },
+    { searchTerm: "", minPrice, maxPrice, sortOrder, selectedOptions, currentPage: page }
+  );
 
   // ── Pagination ────────────────────────────────────────────────────────────
   const { totalPages, goToPage } = usePagination({

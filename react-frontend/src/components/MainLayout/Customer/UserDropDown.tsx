@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { LogOut, ShoppingCart, ShoppingBag, User2 } from "lucide-react";
 import toast from "react-hot-toast"
 import { useAuth } from "../../../hooks/auth/useAuth";
 
@@ -32,23 +33,35 @@ export default function UserDropDown() {
         >
           <Link
             to={"/profile"}
-            className="block w-full px-3 py-2 rounded font-medium hover:font-bold hover:text-(--text-primary) hover:bg-(--bg-muted)"
+            className="flex items-center justify-between w-full px-3 py-2 rounded font-medium hover:font-bold hover:text-(--text-primary) hover:bg-(--bg-muted)"
           >
             My Account
+            <User2 size={20} />
           </Link>
 
           {user?.role === "Customer" && (
-            <Link
-              to={"/orders"}
-              className="block w-full px-3 py-2 rounded font-medium hover:font-bold hover:text-(--text-primary) hover:bg-(--bg-muted)"
-            >
-              My Orders
-            </Link>)}
+            <div>
+              <Link
+                to={"/cart"}
+                className="flex items-center justify-between w-full px-3 py-2 rounded font-medium hover:font-bold hover:text-(--text-primary) hover:bg-(--bg-muted)"
+              >
+                My Cart
+                <ShoppingCart size={20} />
+              </Link>
+              <Link
+                to={"/orders"}
+                className="flex items-center justify-between w-full px-3 py-2 rounded font-medium hover:font-bold hover:text-(--text-primary) hover:bg-(--bg-muted)"
+              >
+                My Orders
+                <ShoppingBag size={20} />
+              </Link>
+            </div>
+          )}
 
           {user?.role === "Admin" && (
             <Link
               to={"/admin/dashboard"}
-              className="block w-full px-3 py-2 rounded font-medium hover:font-bold hover:text-(--text-primary) hover:bg-(--bg-muted)"
+              className="flex items-center justify-between w-full px-3 py-2 rounded font-medium hover:font-bold hover:text-(--text-primary) hover:bg-(--bg-muted)"
             >
               Admin Panel
             </Link>)}
@@ -61,9 +74,10 @@ export default function UserDropDown() {
               navigate("/home");
               setOpen(false);
             }}
-            className="block w-full px-3 py-2 rounded font-medium hover:font-bold hover:text-(--text-primary) hover:bg-(--bg-muted) text-start"
+            className="flex items-center justify-between w-full px-3 py-2 rounded font-medium hover:font-bold hover:text-(--text-primary) hover:bg-(--bg-muted)"
           >
             Log Out
+            <LogOut size={20} />
           </button>
         </div>
       )}

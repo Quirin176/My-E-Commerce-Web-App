@@ -2,7 +2,8 @@ namespace WebApp_API.DTOs
 {
     public class ProductListDTOs
     {
-        /// Lightweight summary used in list / filter / search results
+        // ────────────────────────────────────────────────── Responses ──────────────────────────────────────────────────
+        // Lightweight summary used in list / filter / search results
         public class ProductSummaryResponse
         {
             public int Id { get; set; }
@@ -21,20 +22,20 @@ namespace WebApp_API.DTOs
             public List<string> Values { get; set; } = new List<string>();
         }
 
-        /// Admin-only extensions on top of the base filter.
+        // Product Filter Params
         public class ProductFilterParams
         {
             public string? Category { get; set; }
             public decimal MinPrice { get; set; } = 0;
             public decimal MaxPrice { get; set; } = decimal.MaxValue;
-            public string? Options { get; set; }    // Comma-separated ProductOptionValue IDs, e.g. "1,3,7".
+            public string? selectedOptions { get; set; }    // Comma-separated ProductOptionValue IDs, e.g. "1,3,7".
             public string SortOrder { get; set; } = "newest";
             public int Page { get; set; } = 1;
             public int PageSize { get; set; } = 10;
             public string? Search { get; set; }
         }
 
-        /// Query parameters for the public search endpoint.
+        // Query parameters for the public search endpoint.
         public class ProductSearchParams
         {
             public string QueryPhrase { get; set; } = "";

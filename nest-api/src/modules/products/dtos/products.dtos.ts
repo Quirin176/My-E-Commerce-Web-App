@@ -101,6 +101,10 @@ export class ProductFilterParams {
 
   /** Comma-separated ProductOptionValue IDs, e.g. "1,3,7" */
   @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null) return undefined;
+    return String(value); // Return number → string before @IsString validates
+  })
   @IsString()
   options?: string;
 

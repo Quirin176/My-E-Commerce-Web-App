@@ -300,12 +300,7 @@ export class ProductsService {
 
   // ─── Private helpers ───────────────────────────────────────────────────────
 
-  /**
-   * Batch-fetch all ProductFilter → OptionValue → Option rows for a list of
-   * product IDs and return a Map<productId, OptionGroupResponse[]>.
-   * This is a single round-trip per entity type (3 queries total) instead of
-   * N+1 per product.
-   */
+  // Batch-fetch all ProductFilter → OptionValue → Option rows for a list of
   private async fetchOptions(productIds: number[]): Promise<Map<number, OptionGroupResponse[]>> {
     const result = new Map<number, OptionGroupResponse[]>();
     if (!productIds.length) return result;

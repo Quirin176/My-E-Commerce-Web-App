@@ -30,7 +30,6 @@ namespace WebApp_API.DTOs
         }
 
         // ────────────────────────────────────────────────── Responses ──────────────────────────────────────────────────
-
         // Full product detail (Product's detail page, admin product edit)
         public class ProductDetailResponse
         {

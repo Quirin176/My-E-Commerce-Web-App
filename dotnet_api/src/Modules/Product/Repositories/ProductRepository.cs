@@ -47,7 +47,7 @@ namespace WebApp_API.Repositories
 
             query = ApplyPriceFilter(query, spec.MinPrice, spec.MaxPrice);
             query = await ApplyOptionFilter(query, optionGroups);
-            query = ProductSortSpec.Apply(query, spec.SortOrder);
+            query = ApplySortOrder(query, spec.SortOrder);
 
             // Pagination
             var totalCount = await query.CountAsync();
@@ -91,6 +91,20 @@ namespace WebApp_API.Repositories
             return (items, totalCount);
         }
 
+        // ────────────────────────────────────────────────── Validation helpers ──────────────────────────────────────────────────
+        public Task<bool> CheckProductExistsBySlugAsync(string slug) =>
+            _db.Products.AnyAsync(p => p.Slug == slug);
+
+        // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
+        public async Task<Product> AddAsync(Product product)
+        {
+            await _db.Products.AddAsync(product);
+            return product;
+        }
+
+        public void Update(Product product) => _db.Products.Update(product);
+        public void Remove(Product product) => _db.Products.Remove(product);
+
         // ────────────────────────────────────────────────── Related data ──────────────────────────────────────────────────
         public async Task<List<(int OptionId, string OptionName, int ValueId, string Value)>> GetOptionsRawAsync(int productId) =>
             await _db.ProductFilters
@@ -111,21 +125,6 @@ namespace WebApp_API.Repositories
                 .Select(pf => pf.ProductId)
                 .Distinct()
                 .ToListAsync();
-
-        // ────────────────────────────────────────────────── Validation helpers ──────────────────────────────────────────────────
-        public Task<bool> CheckProductExistsBySlugAsync(string slug) =>
-            _db.Products.AnyAsync(p => p.Slug == slug);
-
-        // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
-        public async Task<Product> AddAsync(Product product)
-        {
-            await _db.Products.AddAsync(product);
-
-            return product;
-        }
-
-        public void Update(Product product) => _db.Products.Update(product);
-        public void Remove(Product product) => _db.Products.Remove(product);
 
         public async Task SetOptionValuesAsync(int productId, IEnumerable<int> optionValueIds)
         {
@@ -165,6 +164,17 @@ namespace WebApp_API.Repositories
             }
 
             return query.Where(p => productIds.Contains(p.Id));
+        }
+        
+        private static IQueryable<Product> ApplySortOrder(IQueryable<Product> query, string sortOrder)
+        {
+            return sortOrder switch
+            {
+                "ascending" => query.OrderBy(p => p.BasePrice),
+                "descending" => query.OrderByDescending(p => p.BasePrice),
+                "oldest" => query.OrderBy(p => p.Id),
+                _ => query.OrderByDescending(p => p.Id) // "newest" default
+            };
         }
     }
 }

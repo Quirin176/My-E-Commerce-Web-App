@@ -17,19 +17,19 @@ export class ProductFiltersService {
       return [];
     }
 
-    // Raw query: group by productId, count how many of the requested
-    // option values are matched, then keep only products that match all of them.
     const rows = await this.productFilterRepo
       .createQueryBuilder('pf')
-      .select('pf.productId', 'productId')
+      .select('pf.productId', 'productId')   // explicit SQL alias
       .where('pf.optionValueId IN (:...optionValueIds)', { optionValueIds })
       .groupBy('pf.productId')
       .having('COUNT(DISTINCT pf.optionValueId) = :count', { count: optionValueIds.length })
-      .getRawMany();
+      .getRawMany<{ productId: number }>();   // ← type the raw result
 
-    return rows.map((r) => Number(r.productId));
+    // getRawMany with an aliased select still returns `productId` correctly,
+    // but Number() cast is needed because MSSQL may return it as a string
+    return rows.map((r) => Number(r.productId)).filter((n) => !isNaN(n));
   }
-  
+
   // ─── Admin Write operations ──────────────────────────────────────────────────────
 
   /** Replace all ProductFilter rows for a product with the new set when editing a product or not when creating a new product */

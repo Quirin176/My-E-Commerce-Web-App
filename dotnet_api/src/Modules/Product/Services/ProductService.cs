@@ -222,18 +222,19 @@ namespace WebApp_API.Services
             return result;
         }
 
-        private static List<ProductDTOs.ProductOptionGroupResponse> GroupOptions(
-            List<(int OptionId, string OptionName, int ValueId, string Value)> raw) =>
-            raw.GroupBy(o => new { o.OptionId, o.OptionName })
-               .Select(g => new ProductDTOs.ProductOptionGroupResponse
-               {
-                   OptionId = g.Key.OptionId,
-                   OptionName = g.Key.OptionName,
-                   OptionValues = g.Select(v => new ProductDTOs.ProductOptionValueItem
-                   {
-                       OptionValueId = v.ValueId,
-                       Value = v.Value
-                   }).ToList()
-               }).ToList();
+        private static List<ProductDTOs.ProductOptionGroupResponse> GroupOptions(List<(int OptionId, string OptionName, int ValueId, string Value)> raw)
+        {
+            return raw.GroupBy(o => new { o.OptionId, o.OptionName })
+                        .Select(g => new ProductDTOs.ProductOptionGroupResponse
+                        {
+                            OptionId = g.Key.OptionId,
+                            OptionName = g.Key.OptionName,
+                            OptionValues = g.Select(v => new ProductDTOs.ProductOptionValueItem
+                            {
+                                OptionValueId = v.ValueId,
+                                Value = v.Value
+                            }).ToList()
+                        }).ToList();
+        }
     }
 }

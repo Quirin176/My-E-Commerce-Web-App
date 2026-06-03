@@ -1,5 +1,6 @@
 import {
   Entity,
+  ManyToOne,
   JoinColumn,
   PrimaryGeneratedColumn,
   Column,
@@ -19,9 +20,11 @@ export class ProductFilter {
   @Column()
   optionValueId!: number;
 
+  @ManyToOne(() => Product)
   @JoinColumn({ name: 'productId' })
   product!: Product;
 
+  @ManyToOne(() => ProductOptionValue)
   @JoinColumn({ name: 'optionValueId' })
   optionValue!: ProductOptionValue;
 }

@@ -1,22 +1,8 @@
 using WebApp_API.DTOs;
-using WebApp_API.Entities;
 
 namespace WebApp_API.Specifications
 {
-    // Reusable Product Sort Order Method
-    public static class ProductSortSpec
-    {
-        public static IQueryable<Product> Apply(IQueryable<Product> query, string sortOrder) =>
-            sortOrder switch
-            {
-                "ascending" => query.OrderBy(p => p.BasePrice),
-                "descending" => query.OrderByDescending(p => p.BasePrice),
-                "oldest" => query.OrderBy(p => p.Id),
-                _ => query.OrderByDescending(p => p.Id) // "newest" default
-            };
-    }
-
-    // Reusable Product Filter By Category, Min Price, Max Price, OptionValues, Sort Order Specifications
+    // Product Filter By Category, Min Price, Max Price, OptionValues, Sort Order Specifications
     public class ProductFilterSpec
     {
         public string? Category { get; init; }
@@ -24,17 +10,17 @@ namespace WebApp_API.Specifications
         public decimal MaxPrice { get; init; }
         public List<int> SelectedOptionValueIds { get; init; } = new();
         public string SortOrder { get; init; } = "newest";
+        public string? Search { get; init; }
         public int Page { get; init; } = 1;
         public int PageSize { get; init; } = 10;
-        public string? Search { get; init; }
 
-        // Use in Admin Product Management Page
+        // Converts client's query parameters ProductFilterParams into a ProductFilterSpec instance used in service/repository layers.
         public static ProductFilterSpec From(ProductListDTOs.ProductFilterParams p) => new()
         {
             Category = p.Category,
             MinPrice = p.MinPrice,
             MaxPrice = p.MaxPrice,
-            SelectedOptionValueIds = ParseOptionIds(p.Options),
+            SelectedOptionValueIds = ParseOptionIds(p.selectedOptions),
             SortOrder = p.SortOrder,
             Search = p.Search,
             Page = p.Page,
@@ -81,13 +67,5 @@ namespace WebApp_API.Specifications
                 SortOrder = p.SortOrder
             };
         }
-    }
-
-    // Encapsulates filtering by category slug for the public category endpoint.
-    public class ProductByCategorySpec
-    {
-        public string CategorySlug { get; init; } = "";
-
-        public static ProductByCategorySpec From(string slug) => new() { CategorySlug = slug };
     }
 }
