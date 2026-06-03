@@ -9,12 +9,12 @@ namespace WebApp_API.Data.Configurations
         public void Configure(EntityTypeBuilder<ProductFilter> builder)
         {
             builder.HasOne(pf => pf.Product)
-                .WithMany()
+                .WithMany(p => p.ProductFilters)
                 .HasForeignKey(pf => pf.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(pf => pf.OptionValue)
-                .WithMany()
+                .WithMany(ov => ov.ProductFilters)
                 .HasForeignKey(pf => pf.OptionValueId)
                 .OnDelete(DeleteBehavior.Cascade);
         }

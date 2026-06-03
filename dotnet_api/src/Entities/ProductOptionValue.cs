@@ -9,6 +9,8 @@ namespace WebApp_API.Entities
         [Required, MaxLength(200)] public required string Value { get; set; }
         public int ProductOptionId { get; set; }
         [ForeignKey("ProductOptionId")] public ProductOption ProductOption { get; set; }
-        public ICollection<ProductVariantOptionValue> ProductVariantOptionValues { get; set; }
+
+        public ICollection<ProductVariantOptionValue> ProductVariantOptionValues { get; set; } = new List<ProductVariantOptionValue>();
+        public ICollection<ProductFilter> ProductFilters { get; set; } = new List<ProductFilter>();
     }
 }

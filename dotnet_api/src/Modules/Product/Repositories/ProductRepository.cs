@@ -12,47 +12,46 @@ namespace WebApp_API.Repositories
 
         // ────────────────────────────────────────────────── Single product lookups ──────────────────────────────────────────────────
         public Task<Product?> GetByIdAsync(int id) =>
-            _db.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == id);
+            _db.Products.AsNoTracking().Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == id);
 
         public Task<Product?> GetBySlugAsync(string slug) =>
-            _db.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Slug == slug);
+            _db.Products.AsNoTracking().Include(p => p.Category).FirstOrDefaultAsync(p => p.Slug == slug);
 
         // ────────────────────────────────────────────────── List queries ──────────────────────────────────────────────────
         public async Task<List<Product>> GetCategoryNewestAsync(int categoryId, int amount)
         {
             if (amount <= 0) return [];
 
-            var products = _db.Products.AsNoTracking()
-                                    .Where(p => p.CategoryId == categoryId)
-                                    .OrderByDescending(p => p.CreatedAt)
-                                    .Take(amount)
-                                    .ToListAsync();
-
-            return await products;
+            return await _db.Products.AsNoTracking()
+                                     .Where(p => p.CategoryId == categoryId)
+                                     .OrderByDescending(p => p.CreatedAt)
+                                     .Take(amount)
+                                     .ToListAsync();
         }
 
-        public async Task<(List<Product> Items, int TotalCount)> GetPaginatedAsync(ProductFilterSpec spec, List<(int, List<int>)> optionGroups)
+        public async Task<(List<Product> Items, int TotalCount)> GetPaginatedAsync(ProductFilterSpec spec)
         {
-            var query = _db.Products.Include(p => p.Category).AsQueryable();
+            var query = _db.Products.AsNoTracking();
 
             if (!string.IsNullOrWhiteSpace(spec.Search))
             {
-                var term = spec.Search.ToLower().Trim();
+                var term = spec.Search.Trim();
                 query = query.Where(p =>
-                    p.Name.ToLower().Contains(term) ||
-                    p.Slug.ToLower().Contains(term));
+                            EF.Functions.Like(p.Name, $"%{term}%") ||
+                            EF.Functions.Like(p.Slug, $"%{term}%"));
             }
 
-            if (spec.Category != null) query = query.Where(p => p.Category!.Slug == spec.Category);
+            if (spec.Category != null) query = query.Where(p => p.Category != null && p.Category.Slug == spec.Category);
 
             query = ApplyPriceFilter(query, spec.MinPrice, spec.MaxPrice);
-            query = await ApplyOptionFilter(query, optionGroups);
+            query = await ApplyOptionFilter(query, spec.SelectedOptionValueIds);
             query = ApplySortOrder(query, spec.SortOrder);
 
             // Pagination
             var totalCount = await query.CountAsync();
 
             var items = await query
+                .Include(p => p.Category)
                 .Skip((spec.Page - 1) * spec.PageSize)
                 .Take(spec.PageSize)
                 .ToListAsync();
@@ -63,13 +62,14 @@ namespace WebApp_API.Repositories
         public async Task<(List<Product> Items, int TotalCount)> SearchAsync(ProductSearchSpec spec)
         {
             // Search matches query from name, description, and category name
-            var query = _db.Products
-                .Include(p => p.Category)
-                .Where(p =>
-                    p.Name.ToLower().Contains(spec.Query) ||
-                    (p.ShortDescription != null && p.ShortDescription.ToLower().Contains(spec.Query)) ||
-                    (p.Description != null && p.Description.ToLower().Contains(spec.Query)) ||
-                    (p.Category != null && p.Category.Name.ToLower().Contains(spec.Query)));
+            var term = spec.Query.Trim();
+
+            var query = _db.Products.AsNoTracking()
+                                    .Include(p => p.Category)
+                                    .Where(p => EF.Functions.Like(p.Name, $"%{term}%") ||
+                                          (p.ShortDescription != null && EF.Functions.Like(p.ShortDescription, $"%{term}%")) ||
+                                          (p.Description != null && EF.Functions.Like(p.Description, $"%{term}%")) ||
+                                          (p.Category != null && EF.Functions.Like(p.Category.Name, $"%{term}%")));
 
             query = ApplyPriceFilter(query, spec.MinPrice, spec.MaxPrice);
 
@@ -92,6 +92,7 @@ namespace WebApp_API.Repositories
         }
 
         // ────────────────────────────────────────────────── Validation helpers ──────────────────────────────────────────────────
+        // Checks if a product with the same slug already exists when creating a new product
         public Task<bool> CheckProductExistsBySlugAsync(string slug) =>
             _db.Products.AnyAsync(p => p.Slug == slug);
 
@@ -102,12 +103,13 @@ namespace WebApp_API.Repositories
             return product;
         }
 
-        public void Update(Product product) => _db.Products.Update(product);
-        public void Remove(Product product) => _db.Products.Remove(product);
+        public void Update(Product product) => _db.Products.Update(product);    // Update the entire product data
+        public void Remove(Product product) => _db.Products.Remove(product);    // Remove the product
 
         // ────────────────────────────────────────────────── Related data ──────────────────────────────────────────────────
-        public async Task<List<(int OptionId, string OptionName, int ValueId, string Value)>> GetOptionsRawAsync(int productId) =>
-            await _db.ProductFilters
+        public async Task<List<(int OptionId, string OptionName, int ValueId, string Value)>> GetOptionsRawAsync(int productId)
+        {
+            var data = await _db.ProductFilters
                 .Where(pf => pf.ProductId == productId)
                 .Select(pf => new
                 {
@@ -116,15 +118,30 @@ namespace WebApp_API.Repositories
                     ValueId = pf.OptionValue.Id,
                     pf.OptionValue.Value
                 })
-                .ToListAsync()
-                .ContinueWith(t => t.Result.Select(x => (x.Id, x.Name, x.ValueId, x.Value)).ToList());
-
-        public async Task<List<int>> GetProductIdsByOptionValuesAsync(List<int> optionValueIds) =>
-            await _db.ProductFilters
-                .Where(pf => optionValueIds.Contains(pf.OptionValueId))
-                .Select(pf => pf.ProductId)
-                .Distinct()
                 .ToListAsync();
+
+            return data.Select(d => (d.Id, d.Name, d.ValueId, d.Value))
+                       .ToList();
+        }
+
+        // Returns a list of option groups: List of (OptionId + its List of OptionValueIds)
+        public async Task<List<(int OptionId, List<int> OptionValueIds)>> GetOptionGroupsForValuesAsync(List<int> optionValueIds)
+        {
+            return (await _db.ProductOptionValues.Where(ov => optionValueIds.Contains(ov.Id))   // Get all the option values matching the provided Ids
+                                                 .GroupBy(ov => ov.ProductOptionId)             // Group them by their OptionId
+                                                 .Select(g => new { OptionId = g.Key, OptionValueIds = g.Select(ov => ov.Id).ToList() })    // Get the OptionId and list of OptionValueIds for each group
+                                                 .ToListAsync())    // Return OptionId + List of OptionValueIds for each group
+                    .Select(x => (x.OptionId, x.OptionValueIds))    // Convert to List of (OptionId, List of OptionValueIds)
+                    .ToList();                                      // Return List of (OptionId, List of OptionValueIds)
+        }
+
+        public async Task<List<int>> GetProductIdsByOptionValuesAsync(List<int> optionValueIds)
+        {
+            return await _db.ProductFilters.Where(pf => optionValueIds.Contains(pf.OptionValueId))
+                                           .Select(pf => pf.ProductId)
+                                           .Distinct()
+                                           .ToListAsync();
+        }
 
         public async Task SetOptionValuesAsync(int productId, IEnumerable<int> optionValueIds)
         {
@@ -151,21 +168,37 @@ namespace WebApp_API.Repositories
         }
 
         // OR within the same option, AND between different options
-        private async Task<IQueryable<Product>> ApplyOptionFilter(IQueryable<Product> query, List<(int OptionId, List<int> ValueIds)> optionGroups)
+        private async Task<IQueryable<Product>> ApplyOptionFilter(IQueryable<Product> query, List<int> optionValueIds)
         {
-            if (optionGroups.Count == 0) return query;
+            // Validate
+            if (optionValueIds.Count == 0) return query;
 
-            var productIds = await query.Select(p => p.Id).ToListAsync();
+            // Get List of (OptionId, List of OptionValueIds)
+            var optionGroups = await GetOptionGroupsForValuesAsync(optionValueIds);
 
-            foreach (var (_, valueIds) in optionGroups)
+            var productIds = await query.Select(p => p.Id).ToListAsync();   // Recently filtered product IDs
+
+            foreach (var group in optionGroups)
             {
-                var matching = await GetProductIdsByOptionValuesAsync(valueIds);
-                productIds = productIds.Intersect(matching).ToList();
+                var matching = await GetProductIdsByOptionValuesAsync(group.OptionValueIds);    // Get products that match any of the OptionValueIds in a same OptionId - OR logic
+                productIds = productIds.Intersect(matching).ToList();                           // Get products that match all groups so far - AND logic
             }
 
             return query.Where(p => productIds.Contains(p.Id));
+
+            // var optionGroups = await GetOptionGroupsForValuesAsync(optionValueIds);
+
+            // foreach (var group in optionGroups)
+            // {
+            //     var ids = group.OptionValueIds;
+
+            //     // Use Any for OR logic in a same Option group and Where for AND logic between groups
+            //     query = query.Where(p => p.ProductFilters.Any(f => ids.Contains(f.OptionValueId)));
+            // }
+
+            // return query;
         }
-        
+
         private static IQueryable<Product> ApplySortOrder(IQueryable<Product> query, string sortOrder)
         {
             return sortOrder switch

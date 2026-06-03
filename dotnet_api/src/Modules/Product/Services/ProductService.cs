@@ -75,9 +75,7 @@ namespace WebApp_API.Services
 
         public async Task<PaginatedResponse<ProductListDTOs.ProductSummaryResponse>> GetPaginatedAsync(ProductFilterSpec spec)
         {
-            var optionGroups = await _productOptionValueRepo.GetOptionGroupsForValuesAsync(spec.SelectedOptionValueIds);
-
-            var (items, totalCount) = await _productRepo.GetPaginatedAsync(spec, optionGroups);
+            var (items, totalCount) = await _productRepo.GetPaginatedAsync(spec);
 
             var data = await MapToSummaryListAsync(items);
             return new PaginatedResponse<ProductListDTOs.ProductSummaryResponse>

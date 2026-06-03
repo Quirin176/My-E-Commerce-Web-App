@@ -23,7 +23,7 @@ namespace WebApp_API.Entities
         public DateTime UpdatedAt { get; set; }
 
         public ICollection<ProductVariant> Variants { get; set; } = new List<ProductVariant>();
-
         public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
+        public ICollection<ProductFilter> ProductFilters { get; set; } = new List<ProductFilter>();
     }
 }

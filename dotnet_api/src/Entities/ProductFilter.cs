@@ -7,9 +7,9 @@ namespace WebApp_API.Entities
     {
         [Key] public int Id { get; set; }
         public int ProductId { get; set; }
-        [ForeignKey("ProductId")] public Product Product { get; set; }
+        [ForeignKey(nameof(ProductId))] public Product Product { get; set; }
         
         public int OptionValueId { get; set; }
-        [ForeignKey("OptionValueId")] public ProductOptionValue OptionValue { get; set; }
+        [ForeignKey(nameof(OptionValueId))] public ProductOptionValue OptionValue { get; set; }
     }
 }

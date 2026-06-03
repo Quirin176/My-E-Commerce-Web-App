@@ -27,6 +27,7 @@ namespace WebApp_API.Specifications
             PageSize = p.PageSize
         };
 
+        // Parses a comma-separated string of option value IDs into a list of integers.
         private static List<int> ParseOptionIds(string? raw)
         {
             if (string.IsNullOrWhiteSpace(raw))

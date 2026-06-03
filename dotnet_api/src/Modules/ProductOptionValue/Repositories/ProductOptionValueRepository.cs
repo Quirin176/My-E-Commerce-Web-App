@@ -11,23 +11,14 @@ namespace WebApp_API.Repositories
 
         public async Task<ProductOptionValue?> GetProductOptionValueAsync(string optionValue, int optionId)
         {
-            return await _db.ProductOptionValues.
-            FirstOrDefaultAsync(optVal => optVal.Value == optionValue && optVal.ProductOptionId == optionId);
+            return await _db.ProductOptionValues.FirstOrDefaultAsync(optVal =>
+                                        optVal.Value == optionValue && optVal.ProductOptionId == optionId);
         }
 
         public async Task<ProductOptionValue?> GetProductOptionValueByIdAsync(int optionValueId)
         {
             return await _db.ProductOptionValues.FirstOrDefaultAsync(optVal => optVal.Id == optionValueId);
         }
-
-        public async Task<List<(int OptionId, List<int> ValueIds)>> GetOptionGroupsForValuesAsync(List<int> valueIds) =>
-            (await _db.ProductOptionValues
-                .Where(pov => valueIds.Contains(pov.Id))
-                .GroupBy(pov => pov.ProductOptionId)
-                .Select(g => new { OptionId = g.Key, ValueIds = g.Select(pov => pov.Id).ToList() })
-                .ToListAsync())
-            .Select(x => (x.OptionId, x.ValueIds))
-            .ToList();
 
         public async Task CreateProductOptionValueAsync(ProductOptionValue productOptionValue)
         {
