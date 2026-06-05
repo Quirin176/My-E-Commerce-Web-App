@@ -8,8 +8,8 @@ namespace WebApp_API.Repositories
         Task<ProductVariant?> GetByIdAsync(int id);
 
         // ────────────────────────────────────────────────── List queries ──────────────────────────────────────────────────
-        Task<IEnumerable<ProductVariant>> GetAllAsync();
         Task<IEnumerable<ProductVariant>> GetByProductIdAsync(int productId);
+        Task<IEnumerable<ProductVariant>> GetByProductSlugAsync(string productSlug);
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
         Task AddAsync(ProductVariant variant);

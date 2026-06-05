@@ -20,16 +20,9 @@ namespace WebApp_API.Controllers
             return variant == null ? NotFound() : Ok(variant);
         }
 
-        // GET /api/productvariants
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            return Ok(await _service.GetAllAsync());
-        }
-
         // GET /api/productvariants/product/{productId}
         [HttpGet("product/{productId:int}")]
-        public async Task<IActionResult> GetByProduct(int productId)
+        public async Task<IActionResult> GetByProductId(int productId)
         {
             return Ok(await _service.GetByProductIdAsync(productId));
         }

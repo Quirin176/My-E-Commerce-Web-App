@@ -30,13 +30,13 @@ export interface PaginatedResponse<T> {
 export const productApi = {
 
   // GET: /api/products/{id} - Get all data of a product by id
-  async getProductById(id: number | string) {
+  async getProductById(id: number | string): Promise<Product> {
     const res = await apiClient.get(`/products/id/${id}`);
     return res.data;
   },
 
   // GET: /api/products/{slug} - Get all data of a product by slug
-  async getProductBySlug(slug: string) {
+  async getProductBySlug(slug: string): Promise<Product> {
     const res = await apiClient.get(`/products/slug/${slug}`);
     return res.data;
   },

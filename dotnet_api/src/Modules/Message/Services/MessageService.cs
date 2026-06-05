@@ -5,7 +5,7 @@ using WebApp_API.Repositories;
 
 namespace WebApp_API.Services
 {
-    public class MessageService
+    public class MessageService : IMessageService
     {
         private readonly IMessageRepository _repo;
         private readonly IHubContext<ChatHub> _hub;

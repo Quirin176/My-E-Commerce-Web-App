@@ -9,14 +9,27 @@ namespace WebApp_API.Services
         private readonly IProductImageRepository _repo;
         public ProductImageService(IProductImageRepository repo) => _repo = repo;
 
-        public Task<ProductImage?> GetByIdAsync(int id) => _repo.GetByIdAsync(id);
+        // ────────────────────────────────────────────────── Responses ──────────────────────────────────────────────────
+        public async Task<ProductImageDTOs.ProductImageResponse?> GetByIdAsync(int id)
+        {
+            var image = await _repo.GetByIdAsync(id);
+            if (image is null) return null;
+            return await MapToDetailAsync(image);
+        }
 
-        public Task<List<ProductImage>> GetByProductAsync(int productId)
-            => _repo.GetByProductAsync(productId);
+        public async Task<List<ProductImageDTOs.ProductImageResponse>> GetByProductAsync(int productId)
+        {
+            var images = await _repo.GetByProductAsync(productId);
+            return await MapToDetailAsyncList(images);
+        }
 
-        public Task<List<ProductImage>> GetByVariantAsync(int variantId)
-            => _repo.GetByVariantAsync(variantId);
+        public async Task<List<ProductImageDTOs.ProductImageResponse>> GetByVariantAsync(int variantId)
+        {
+            var images = await _repo.GetByVariantAsync(variantId);
+            return await MapToDetailAsyncList(images);
+        }
 
+        // ────────────────────────────────────────────────── Requests ──────────────────────────────────────────────────
         public async Task AddRangeAsync(List<ProductImageDTOs.AddProductImageRequest> requests)
         {
             if (requests == null || requests.Count == 0) return;
@@ -62,6 +75,40 @@ namespace WebApp_API.Services
         {
             await _repo.RemoveRange(productId);
             await _repo.SaveChangesAsync();
+        }
+
+        // ────────────────────────────────────────────────── Mapping helpers ──────────────────────────────────────────────────
+        private async Task<ProductImageDTOs.ProductImageResponse> MapToDetailAsync(ProductImage productImage)
+        {
+            return new ProductImageDTOs.ProductImageResponse
+            {
+                Id = productImage.Id,
+                ImageUrl = productImage.ImageUrl,
+                DisplayOrder = productImage.DisplayOrder,
+                IsMain = productImage.IsMain,
+                ProductId = productImage.ProductId,
+                VariantId = productImage.VariantId
+            };
+        }
+
+        private async Task<List<ProductImageDTOs.ProductImageResponse>> MapToDetailAsyncList(List<ProductImage> productImages)
+        {
+            var result = new List<ProductImageDTOs.ProductImageResponse>(productImages.Count);
+            foreach (var image in productImages)
+            {
+
+                result.Add(new ProductImageDTOs.ProductImageResponse
+                {
+                    Id = image.Id,
+                    ImageUrl = image.ImageUrl,
+                    DisplayOrder = image.DisplayOrder,
+                    IsMain = image.IsMain,
+                    ProductId = image.ProductId,
+                    VariantId = image.VariantId
+                });
+            }
+
+            return result;
         }
     }
 }

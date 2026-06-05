@@ -9,9 +9,9 @@ namespace WebApp_API.Controllers
     [Route("api/messages")]
     public class MessageController : ControllerBase
     {
-        private readonly MessageService _service;
+        private readonly IMessageService _service;
 
-        public MessageController(MessageService service)
+        public MessageController(IMessageService service)
         {
             _service = service;
         }

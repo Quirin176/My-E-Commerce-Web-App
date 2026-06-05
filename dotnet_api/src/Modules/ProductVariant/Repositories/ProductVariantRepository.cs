@@ -13,34 +13,32 @@ namespace WebApp_API.Repositories
         // ────────────────────────────────────────────────── Single product lookups ──────────────────────────────────────────────────
         public async Task<ProductVariant?> GetByIdAsync(int id)
         {
-            return await _db.ProductVariants
-                .Include(v => v.Images)
-                .Include(v => v.ProductVariantOptionValues)
-                .ThenInclude(pvov => pvov.ProductOptionValue)
-                .ThenInclude(pov => pov.ProductOption)
-                .FirstOrDefaultAsync(v => v.Id == id);
+            return await _db.ProductVariants.Include(v => v.Images)
+                                            .Include(v => v.ProductVariantOptionValues)
+                                            .ThenInclude(pvov => pvov.ProductOptionValue)
+                                            .ThenInclude(pov => pov!.ProductOption)
+                                            .FirstOrDefaultAsync(v => v.Id == id);
         }
 
         // ────────────────────────────────────────────────── List queries ──────────────────────────────────────────────────
-        public async Task<IEnumerable<ProductVariant>> GetAllAsync()
-        {
-            return await _db.ProductVariants
-                .Include(v => v.Images)
-                .Include(v => v.ProductVariantOptionValues)
-                .ThenInclude(pvov => pvov.ProductOptionValue)
-                .ThenInclude(pov => pov.ProductOption)
-                .ToListAsync();
-        }
-
         public async Task<IEnumerable<ProductVariant>> GetByProductIdAsync(int productId)
         {
-            return await _db.ProductVariants
-                .Where(v => v.ProductId == productId)
-                .Include(v => v.Images)
-                .Include(v => v.ProductVariantOptionValues)
-                .ThenInclude(pvov => pvov.ProductOptionValue)
-                .ThenInclude(pov => pov.ProductOption)
-                .ToListAsync();
+            return await _db.ProductVariants.Where(v => v.ProductId == productId)
+                                            .Include(v => v.Images)
+                                            .Include(v => v.ProductVariantOptionValues)
+                                            .ThenInclude(pvov => pvov.ProductOptionValue)
+                                            .ThenInclude(pov => pov!.ProductOption)
+                                            .ToListAsync();
+        }
+
+        public async Task<IEnumerable<ProductVariant>> GetByProductSlugAsync(string productSlug)
+        {
+            return await _db.ProductVariants.Where(v => v.Product!.Slug == productSlug)
+                                            .Include(v => v.Images)
+                                            .Include(v => v.ProductVariantOptionValues)
+                                            .ThenInclude(pvov => pvov.ProductOptionValue)
+                                            .ThenInclude(pov => pov!.ProductOption)
+                                            .ToListAsync();
         }
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────

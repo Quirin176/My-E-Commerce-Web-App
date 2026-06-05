@@ -11,11 +11,37 @@ namespace WebApp_API.Repositories
         public ProductRepository(AppDbContext db) => _db = db;
 
         // ────────────────────────────────────────────────── Single product lookups ──────────────────────────────────────────────────
-        public Task<Product?> GetByIdAsync(int id) =>
-            _db.Products.AsNoTracking().Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == id);
+        public Task<Product?> GetByIdAsync(int id)
+        {
+            return _db.Products.AsNoTracking()
+                        .Include(p => p.Category)
 
-        public Task<Product?> GetBySlugAsync(string slug) =>
-            _db.Products.AsNoTracking().Include(p => p.Category).FirstOrDefaultAsync(p => p.Slug == slug);
+                        .Include(p => p.Variants)
+                            .ThenInclude(v => v.Images)
+
+                        .Include(p => p.Variants)
+                            .ThenInclude(v => v.ProductVariantOptionValues)
+                                .ThenInclude(vov => vov.ProductOptionValue)
+                                    .ThenInclude(pov => pov!.ProductOption)
+
+                        .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+        public Task<Product?> GetBySlugAsync(string slug)
+        {
+            return _db.Products.AsNoTracking()
+                        .Include(p => p.Category)
+
+                        .Include(p => p.Variants)
+                            .ThenInclude(v => v.Images)
+
+                        .Include(p => p.Variants)
+                            .ThenInclude(v => v.ProductVariantOptionValues)
+                                .ThenInclude(vov => vov.ProductOptionValue)
+                                    .ThenInclude(pov => pov!.ProductOption)
+
+                        .FirstOrDefaultAsync(p => p.Slug == slug);
+        }
 
         // ────────────────────────────────────────────────── List queries ──────────────────────────────────────────────────
         public async Task<List<Product>> GetCategoryNewestAsync(int categoryId, int amount)

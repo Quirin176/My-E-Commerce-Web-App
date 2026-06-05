@@ -18,12 +18,6 @@ namespace WebApp_API.Services
         }
 
         // ──────────────────── Public queries ────────────────────
-        public async Task<IEnumerable<ProductVariantDTOs.ProductVariantResponse>> GetAllAsync()
-        {
-            var variants = await _productVariantRepo.GetAllAsync();
-            return variants.Select(MapToResponse);
-        }
-
         public async Task<ProductVariantDTOs.ProductVariantResponse?> GetByIdAsync(int id)
         {
             var variant = await _productVariantRepo.GetByIdAsync(id);
@@ -31,6 +25,12 @@ namespace WebApp_API.Services
         }
 
         public async Task<IEnumerable<ProductVariantDTOs.ProductVariantResponse>> GetByProductIdAsync(int productId)
+        {
+            var variants = await _productVariantRepo.GetByProductIdAsync(productId);
+            return variants.Select(MapToResponse);
+        }
+
+        public async Task<IEnumerable<ProductVariantDTOs.ProductVariantResponse>> GetByProductSlugAsync(int productId)
         {
             var variants = await _productVariantRepo.GetByProductIdAsync(productId);
             return variants.Select(MapToResponse);

@@ -110,6 +110,7 @@ namespace WebApp_API.Services
                 ShortDescription = request.ShortDescription,
                 Description = request.Description,
                 BasePrice = request.BasePrice,
+                Stock = request.Stock,
                 ThumbnailUrl = request.ThumbnailUrl,
                 CategoryId = request.CategoryId,
                 HasVariants = request.HasVariants,
@@ -139,6 +140,7 @@ namespace WebApp_API.Services
             if (!string.IsNullOrWhiteSpace(request.ShortDescription)) product.ShortDescription = request.ShortDescription;
             if (!string.IsNullOrWhiteSpace(request.Description)) product.Description = request.Description;
             if (request.BasePrice.HasValue && request.BasePrice > 0) product.BasePrice = request.BasePrice.Value;
+            product.Stock = request.Stock;
             if (!string.IsNullOrWhiteSpace(request.ThumbnailUrl)) product.ThumbnailUrl = request.ThumbnailUrl;
             if (request.CategoryId.HasValue) product.CategoryId = request.CategoryId.Value;
             product.HasVariants = request.HasVariants;
@@ -177,11 +179,36 @@ namespace WebApp_API.Services
                 ShortDescription = product.ShortDescription,
                 Description = product.Description,
                 BasePrice = product.BasePrice,
+                Stock = product.Stock,
                 ThumbnailUrl = product.ThumbnailUrl,
                 CategoryId = product.CategoryId,
                 Category = MapCategory(product.Category),
                 Options = GroupOptions(rawOpts),
-                HasVariants = product.HasVariants
+                HasVariants = product.HasVariants,
+
+                Variants = product.Variants.Select(v => new ProductVariantDTOs.ProductVariantResponse
+                {
+                    Id = v.Id,
+                    VariantName = v.VariantName,
+                    SKU = v.SKU,
+                    Price = v.Price,
+                    OriginalPrice = v.OriginalPrice,
+                    Stock = v.Stock,
+                    ProductId = v.ProductId,
+                    Images = v.Images.OrderBy(img => img.DisplayOrder).Select(img => new ProductVariantDTOs.VariantImageDto
+                    {
+                        Id = img.Id,
+                        ImageUrl = img.ImageUrl,
+                        DisplayOrder = img.DisplayOrder,
+                        IsMain = img.IsMain
+                    }).ToList(),
+                    OptionValues = v.ProductVariantOptionValues.Select(pvov => new ProductVariantDTOs.VariantOptionValueDto
+                    {
+                        OptionValueId = pvov.ProductOptionValueId,
+                        OptionName = pvov.ProductOptionValue?.ProductOption?.Name ?? "",
+                        Value = pvov.ProductOptionValue?.Value ?? ""
+                    }).ToList()
+                }).ToList()
             };
         }
 
@@ -211,6 +238,7 @@ namespace WebApp_API.Services
                     Name = p.Name,
                     Slug = p.Slug,
                     BasePrice = p.BasePrice,
+                    Stock = p.Stock,
                     ThumbnailUrl = p.ThumbnailUrl,
                     ShortDescription = p.ShortDescription,
                     CategoryId = p.CategoryId,

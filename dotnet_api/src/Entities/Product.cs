@@ -12,6 +12,7 @@ namespace WebApp_API.Entities
         [MaxLength(1000)] public string? ShortDescription { get; set; }
         public string? Description { get; set; }
         [Column(TypeName = "decimal(18,2)")] public decimal BasePrice { get; set; }
+        public int Stock { get; set; }
         [MaxLength(1000)] public string? ThumbnailUrl { get; set; }
 
         public required int CategoryId { get; set; }

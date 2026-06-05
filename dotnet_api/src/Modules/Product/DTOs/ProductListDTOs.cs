@@ -10,6 +10,7 @@ namespace WebApp_API.DTOs
             public string Name { get; set; } = "";
             public string Slug { get; set; } = "";
             public decimal BasePrice { get; set; }
+            public int Stock { get; set; }
             public string? ThumbnailUrl { get; set; }
             public string? ShortDescription { get; set; }
             public int CategoryId { get; set; }

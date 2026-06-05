@@ -4,5 +4,5 @@ export interface CartItem {
     slug: string;
     price: number;
     image: string;
-    quantity: number;
+    quantity: number;   // Quantity of the Item in Order
 }
