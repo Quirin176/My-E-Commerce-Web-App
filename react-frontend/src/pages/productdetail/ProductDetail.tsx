@@ -28,9 +28,16 @@ export default function ProductDetails() {
     }
   }, [variants, selectedVariant]);
 
-  const images = product?.hasVariants ?
-    (selectedVariant ? selectedVariant.images : variants[0].images)
-    : productImages;
+  const images = product?.hasVariants ? (selectedVariant ? selectedVariant.images : variants[0].images)
+    : (productImages.length > 0) ? productImages
+      : product?.thumbnailUrl ? [{
+        id: 1,
+        imageUrl: product?.thumbnailUrl,
+        displayOrder: 1,
+        isMain: true,
+        productId: Number(product?.id),
+        variantId: null
+      }] : [];
 
   if (loading)
     return (

@@ -7,8 +7,6 @@ import { useCart } from "../../hooks/cart/useCart";
 
 import type { Product, ProductVariant } from "../../types/models/products/Product";
 
-import AddToCartSection from "./AddToCartSection";
-
 interface ProductInfoProps {
     product: Product;
     onVariantChange?: (variant: ProductVariant) => void;
@@ -76,9 +74,7 @@ export default function ProductInfo({ product, onVariantChange }: ProductInfoPro
     return (
         <div>
 
-            <h1 className="text-4xl font-bold">
-                {product.name}
-            </h1>
+            <h1 className="text-4xl font-bold">{product.name}</h1>
 
             <p className="text-gray-600 my-2">
                 <strong>Category:</strong>{" "}
@@ -91,9 +87,7 @@ export default function ProductInfo({ product, onVariantChange }: ProductInfoPro
                 <div className="mt-6">
                     <div className="space-y-3">
 
-                        <h3 className="font-semibold">
-                            Choose Variant
-                        </h3>
+                        <h3 className="font-semibold">Choose Variant</h3>
 
                         <div className="flex flex-wrap gap-2">
 
@@ -112,11 +106,26 @@ export default function ProductInfo({ product, onVariantChange }: ProductInfoPro
                 </div>
             )}
 
-            <AddToCartSection
-                price={displayPrice}
-                stock={displayStock}
-                onAddToCart={() => handleAddToCart()}
-            />
+            <div className="mt-6">
+
+                <div className="text-3xl font-bold text-blue-600">
+                    {displayPrice.toLocaleString()} VND
+                </div>
+
+                <div className="text-sm text-gray-500 mt-1">
+                    {displayStock} items available
+                </div>
+
+            </div>
+
+            <button
+                onClick={() => handleAddToCart()}
+                disabled={displayStock <= 0}
+                className="mt-6 w-full bg-blue-600 text-white py-3 rounded-lg disabled:bg-gray-400"
+            >
+                {displayStock > 0 ? "Add To Cart" : "Out Of Stock"}
+            </button>
+
         </div>
     );
 }

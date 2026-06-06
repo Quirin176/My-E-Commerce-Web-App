@@ -62,12 +62,12 @@ namespace WebApp_API.Repositories
             if (!string.IsNullOrWhiteSpace(spec.Search))
             {
                 var term = spec.Search.Trim();
-                query = query.Where(p =>
-                            EF.Functions.Like(p.Name, $"%{term}%") ||
-                            EF.Functions.Like(p.Slug, $"%{term}%"));
+                query = query.Where(p => EF.Functions.Like(p.Name, $"%{term}%") ||
+                                            EF.Functions.Like(p.Slug, $"%{term}%"));
             }
 
-            if (spec.Category != null) query = query.Where(p => p.Category != null && p.Category.Slug == spec.Category);
+            if (spec.Category != null) query = query.Where(p => p.Category != null &&
+                                                                p.Category.Slug == spec.Category);
 
             query = ApplyPriceFilter(query, spec.MinPrice, spec.MaxPrice);
             query = await ApplyOptionFilter(query, spec.SelectedOptionValueIds);
