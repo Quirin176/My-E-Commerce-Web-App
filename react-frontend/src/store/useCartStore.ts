@@ -5,8 +5,8 @@ import type { CartItem } from "../types/models/cart/CartItem";
 interface CartState {
   cartItems: CartItem[];
   addToCart: (item: Omit<CartItem, "quantity">, quantity: number) => void;
-  removeFromCart: (productId: number | string) => void;
-  updateQuantity: (productId: number | string, quantity: number) => void;
+  removeFromCart: (cartId: string) => void;
+  updateQuantity: (cartId: string, quantity: number) => void;
   clearCart: () => void;
   getTotalPrice: () => number;
   getTotalItems: () => number;
@@ -19,11 +19,12 @@ export const useCartStore = create<CartState>()(
 
       addToCart: (item, quantity) => {
         set((state) => {
-          const existing = state.cartItems.find((c) => c.id === item.id);
+          const existing = state.cartItems.find((c) => c.cartId === item.cartId);
           if (existing) {
             return {
               cartItems: state.cartItems.map((c) =>
-                c.id === item.id ? { ...c, quantity: c.quantity + quantity } : c
+                c.cartId === item.cartId ?
+                  { ...c, quantity: c.quantity + quantity } : c
               ),
             };
           }
@@ -31,22 +32,22 @@ export const useCartStore = create<CartState>()(
         });
       },
 
-      removeFromCart: (productId) => {
+      removeFromCart: (cartId) => {
         set((state) => ({
-          cartItems: state.cartItems.filter((c) => c.id !== productId),
+          cartItems: state.cartItems.filter((c) => c.cartId !== cartId),
         }));
       },
 
-      updateQuantity: (productId, quantity) => {
+      updateQuantity: (cartId, quantity) => {
         if (quantity <= 0) {
           set((state) => ({
-            cartItems: state.cartItems.filter((c) => c.id !== productId),
+            cartItems: state.cartItems.filter((c) => c.cartId !== cartId),
           }));
           return;
         }
         set((state) => ({
           cartItems: state.cartItems.map((c) =>
-            c.id === productId ? { ...c, quantity } : c
+            c.cartId === cartId ? { ...c, quantity } : c
           ),
         }));
       },
@@ -59,8 +60,6 @@ export const useCartStore = create<CartState>()(
       getTotalItems: () =>
         get().cartItems.reduce((sum, c) => sum + c.quantity, 0),
     }),
-    {
-      name: "cart",
-    }
+    { name: "cart" }
   )
 );

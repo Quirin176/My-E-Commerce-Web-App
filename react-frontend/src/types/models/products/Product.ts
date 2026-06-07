@@ -1,12 +1,18 @@
 import type { Category } from "./Category";
 
 export interface ImagePayload {
-    id: number,
-    imageUrl: string,
-    displayOrder: number,
-    isMain: boolean,
-    productId: number | null,
-    variantId: number | null,
+  id: number,
+  imageUrl: string,
+  displayOrder: number,
+  isMain: boolean,
+  productId: number | null,
+  variantId: number | null,
+}
+
+interface ProductVariantOptionValue {
+  optionValueId: number;
+  optionName: string;
+  value: string;
 }
 
 export interface ProductVariant {
@@ -16,8 +22,9 @@ export interface ProductVariant {
   price: number;
   originalPrice: number;
   stock: number;
-  // productId: number;
+  productId: number;
   images: ImagePayload[];
+  optionValues: ProductVariantOptionValue[];
 }
 
 interface ProductOptionValue {
@@ -26,7 +33,7 @@ interface ProductOptionValue {
 }
 
 export interface ProductOptionPayload {
-  id: number;
+  optionId: number;
   optionName: string;
   optionValues: ProductOptionValue[];
 }

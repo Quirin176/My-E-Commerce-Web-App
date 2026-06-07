@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { ImagePayload } from "../../types/models/products/Product"
 import ProductImageModal from "./ProductImageModal";
@@ -13,7 +13,30 @@ export default function ProductGallery({ images, thumbnail }: Props) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [showModal, setShowModal] = useState(false);
 
-    const currentImage = images.length > 0 ? images[currentIndex].imageUrl : thumbnail;
+    useEffect(() => {
+        if (images.length > 0 && currentIndex >= images.length) {
+            setCurrentIndex(0);
+        }
+    }, [images]);
+
+    // Guard: nothing to display
+    if (images.length === 0) {
+        const fallback = thumbnail || "https://via.placeholder.com/400x400?text=No+Image";
+        return (
+            <div className="relative bg-gray-100 rounded-lg overflow-hidden">
+                <img
+                    src={fallback}
+                    alt="Product"
+                    className="w-full h-96 object-contain"
+                />
+            </div>
+        );
+    }
+
+    // Safe index — never go out of bounds even if state is momentarily stale
+    const safeIndex = Math.min(currentIndex, images.length - 1);
+    const currentImage = images[safeIndex]?.imageUrl ?? thumbnail;
+
     const goToPrevImage = () => {
         setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
     };
@@ -30,6 +53,7 @@ export default function ProductGallery({ images, thumbnail }: Props) {
                 >
                     <img
                         src={currentImage}
+                        alt={String(safeIndex)}
                         className="w-full h-96 object-contain cursor-pointer"
                         onClick={() => setShowModal(true)}
                     />
@@ -37,15 +61,17 @@ export default function ProductGallery({ images, thumbnail }: Props) {
                     {images.length > 1 && (
                         <>
                             <button
-                                onClick={() => setCurrentIndex(currentIndex === 0 ? images.length - 1 : currentIndex - 1)}
-                                className="absolute left-3 top-1/2"
+                                onClick={goToPrevImage}
+                                className="absolute left-3 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white/70 hover:bg-white transition"
+                                aria-label="Previous image"
                             >
                                 <ChevronLeft />
                             </button>
 
                             <button
-                                onClick={() => setCurrentIndex(currentIndex === images.length - 1 ? 0 : currentIndex + 1)}
-                                className="absolute right-3 top-1/2"
+                                onClick={goToNextImage}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white/70 hover:bg-white transition"
+                                aria-label="Next image"
                             >
                                 <ChevronRight />
                             </button>
@@ -53,31 +79,36 @@ export default function ProductGallery({ images, thumbnail }: Props) {
                     )}
                 </div>
 
-                <div className="flex gap-2 mt-4">
-                    {images.map((img, index) => (
-                        <button
-                            key={index}
-                            onClick={() => setCurrentIndex(index)}
-                            className={`rounded ${index === currentIndex ? "border border-black" : "border-none"}`}
-                        >
-                            <img
-                                src={img.imageUrl}
-                                className="w-20 h-20 object-cover rounded"
-                            />
-                        </button>
-                    ))}
-                </div>
+                {images.length > 1 && (
+                    <div className="flex gap-2 mt-4">
+                        {images.map((img, index) => (
+                            <button
+                                key={index}
+                                onClick={() => setCurrentIndex(index)}
+                                className={`rounded ${index === safeIndex ? "border border-black" : "border-none"}`}
+                            >
+                                <img
+                                    src={img.imageUrl}
+                                    alt={`Thumbnail ${index + 1}`}
+                                    className="w-20 h-20 object-cover rounded"
+                                />
+                            </button>
+                        ))}
+                    </div>
+                )}
             </div>
 
-            <ProductImageModal
-                open={showModal}
-                onClose={() => setShowModal(false)}
-                images={images}
-                currentIndex={currentIndex}
-                onPrev={goToPrevImage}
-                onNext={goToNextImage}
-                onSelect={setCurrentIndex}
-            />
+            {showModal && (
+                <ProductImageModal
+                    open={showModal}
+                    onClose={() => setShowModal(false)}
+                    images={images}
+                    currentIndex={currentIndex}
+                    onPrev={goToPrevImage}
+                    onNext={goToNextImage}
+                    onSelect={setCurrentIndex}
+                />
+            )}
         </>
     );
 }

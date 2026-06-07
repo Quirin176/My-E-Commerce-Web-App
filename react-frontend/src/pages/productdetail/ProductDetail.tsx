@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useProductDetails } from "../../hooks/products/useProductDetails";
 
-import type { ProductVariant } from "../../types/models/products/Product";
+import type { ProductVariant, ImagePayload } from "../../types/models/products/Product";
 
 import ProductGallery from "../../components/productDetail/ProductGallery";
 import ProductInfo from "../../components/productDetail/ProductInfo";
@@ -21,23 +21,31 @@ export default function ProductDetails() {
     error,
   } = useProductDetails(slug);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>();
+  const activeVariant = selectedVariant ?? (variants.length > 0 ? variants[0] : undefined);
 
-  useEffect(() => {
-    if (variants.length > 0 && !selectedVariant) {
-      setSelectedVariant(variants[0]);
+  const images: ImagePayload[] = (() => {
+    if (product?.hasVariants) {
+      // Use active variant images; fall back to empty array (never crash on undefined)
+      return activeVariant?.images ?? [];
     }
-  }, [variants, selectedVariant]);
 
-  const images = product?.hasVariants ? (selectedVariant ? selectedVariant.images : variants[0].images)
-    : (productImages.length > 0) ? productImages
-      : product?.thumbnailUrl ? [{
-        id: 1,
-        imageUrl: product?.thumbnailUrl,
-        displayOrder: 1,
+    if (productImages.length > 0) {
+      return productImages;
+    }
+
+    if (product?.thumbnailUrl) {
+      return [{
+        id: 0,
+        imageUrl: product.thumbnailUrl,
+        displayOrder: 0,
         isMain: true,
-        productId: Number(product?.id),
-        variantId: null
-      }] : [];
+        productId: Number(product.id),
+        variantId: null,
+      }];
+    }
+
+    return [];
+  })();
 
   if (loading)
     return (
@@ -57,12 +65,24 @@ export default function ProductDetails() {
 
       <div className="grid lg:grid-cols-2 gap-10">
 
-        <ProductGallery
-          images={images}
-          thumbnail={product.thumbnailUrl}
-        />
+        {images.length > 0 && (
+          <ProductGallery
+            images={images}
+            thumbnail={product.thumbnailUrl}
+          />
+        )}
 
-        <ProductInfo product={product} onVariantChange={(variant) => setSelectedVariant(variant)} />
+        {images.length === 0 && (
+          <div className="flex items-center justify-center bg-gray-100 rounded-lg h-96">
+            <p className="text-gray-400 text-sm">No images available</p>
+          </div>
+        )}
+
+        <ProductInfo
+          product={product}
+          onVariantChange={(variant) => setSelectedVariant(variant)}
+        />
+        
       </div>
 
       <ProductSpecifications options={product.options} />

@@ -1,11 +1,11 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { adminProductsApi, type AddImagePayload } from "../../../api/admin/adminProductsApi";
+import { adminProductsApi, type ImagePayload } from "../../../api/admin/adminProductsApi";
 
 export function useSaveProductImages() {
     const [submittingImages, setSubmittingImages] = useState(false);
 
-    const saveImages = async (productId: number | null, productImages: AddImagePayload[]) => {
+    const saveImages = async (productId: number | null, productImages: ImagePayload[]) => {
         if (!productId) {
             toast.error("Please save the product first before adding images.");
             return;
@@ -18,7 +18,7 @@ export function useSaveProductImages() {
 
         setSubmittingImages(true);
         try {
-            const payload: AddImagePayload[] = productImages.map((img, idx) => ({
+            const payload: ImagePayload[] = productImages.map((img, idx) => ({
                 // imageUrl: img.imageUrl,
                 ...img,
                 displayOrder: idx,

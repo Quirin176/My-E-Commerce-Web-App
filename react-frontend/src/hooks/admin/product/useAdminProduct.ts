@@ -56,15 +56,16 @@ export function useAdminProduct() {
                 // Update form
                 form.setFormData((prev) => ({
                     ...prev,
-                    id: product.id ?? "",
-                    name: product.name ?? "",
-                    slug: product.slug ?? "",
-                    basePrice: product.basePrice ?? "",
-                    categoryId: product.categoryId ?? "",
+                    id: product.id,
+                    name: product.name,
+                    slug: product.slug,
                     shortDescription: product.shortDescription ?? "",
                     description: product.description ?? "",
-                    thumbnailUrl: product.thumbnailUrl ?? "",
+                    basePrice: product.basePrice,
+                    thumbnailUrl: product.thumbnailUrl,
+                    categoryId: Number(product.categoryId),
                     selectedOptionValueIds: [],
+                    hasVariants: product.hasVariants
                 }));
 
                 setHasVariant(product.hasVariants);

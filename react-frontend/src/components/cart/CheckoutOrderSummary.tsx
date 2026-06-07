@@ -1,10 +1,8 @@
 import { useCart } from "../../hooks/cart/useCart"
-import { siteConfig } from "../../config/siteConfig";
 
 export default function CheckoutOrderSummary() {
     const { cartItems, getTotalPrice } = useCart();
     const totalPrice = getTotalPrice();
-    const colors = siteConfig.colors;
     return (
         <div className = "lg:col-span-1" >
             <div className="bg-gray-100 px-8 py-4 border-2 rounded-xl shadow-lg">
@@ -20,7 +18,7 @@ export default function CheckoutOrderSummary() {
                         <div key={item.id} className="grid grid-cols-5 border-b-2">
                             <span className="col-span-3 text-lg font-semibold">{item.name}</span>
                             <span className="col-span-3 text-lg text-right font-semibold">{(item.price).toLocaleString()} VND</span>
-                            <span className="col-span-1 text-lg text-center font-semibold" style={{color: colors.pricecolor}}>x{item.quantity}</span>
+                            <span className="col-span-1 text-lg text-center font-semibold text-(--price)">x{item.quantity}</span>
                             <span className="col-span-1 text-lg text-right font-semibold">{(item.price * item.quantity).toLocaleString()} VND</span>
                         </div>
                     ))}
@@ -37,7 +35,7 @@ export default function CheckoutOrderSummary() {
                     </div>
                     <div className="border-t-2 pt-2 mt-2 flex justify-between">
                         <span className="font-bold text-lg">Total:</span>
-                        <span className="font-bold text-lg" style={{color: colors.pricecolor}}>{totalPrice.toLocaleString()} VND</span>
+                        <span className="text-(--price) font-bold text-lg">{totalPrice.toLocaleString()} VND</span>
                     </div>
                 </div>
             </div>

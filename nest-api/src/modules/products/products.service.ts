@@ -272,11 +272,9 @@ export class ProductsService {
 
     if (request.name) product.name = request.name;
     if (request.slug) product.slug = request.slug;
-    if (request.shortDescription !== undefined)
-      product.shortDescription = request.shortDescription;
+    if (request.shortDescription !== undefined) product.shortDescription = request.shortDescription;
     if (request.description !== undefined) product.description = request.description;
-    if (request.basePrice != null && request.basePrice > 0)
-      product.basePrice = request.basePrice;
+    if (request.basePrice != null && request.basePrice > 0) product.basePrice = request.basePrice;
     if (request.thumbnailUrl !== undefined) product.thumbnailUrl = request.thumbnailUrl;
     if (request.categoryId != null) product.categoryId = request.categoryId;
     if (request.hasVariants !== undefined) product.hasVariants = request.hasVariants;

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import type { AddImagePayload } from "../../../api/admin/adminProductsApi";
+import type { ImagePayload } from "../../../api/admin/adminProductsApi";
 
 export function useVariantImages() {
     const [imageInput, setImageInput] = useState("");
-    const [images, setImages] = useState<AddImagePayload[]>([]);
+    const [images, setImages] = useState<ImagePayload[]>([]);
     const [variantId, setVariantId] = useState<number>(0);
 
     const addImage = () => {
