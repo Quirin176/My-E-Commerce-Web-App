@@ -4,12 +4,12 @@ import toast from "react-hot-toast";
 import { useAuth } from "../../hooks/auth/useAuth";
 import { Clock, CheckCircle, Download, SquarePen, Truck, Package, X } from "lucide-react";
 import { adminOrdersApi } from "../../api/admin/adminOrdersApi";
-import type { OrderResponseModel } from "../../types/models/order/OrderResponseModel";
+import type { OrderResponse } from "../../types/models/order/OrderResponse";
 import UserOrderDetailModal from "./UserOrderDetailModal";
 import UpdateOrderStatusForm from "../admin/orders/UpdateOrderStatusForm";
 
 // Extend Model
-interface UserOrderCardProps extends OrderResponseModel {
+interface UserOrderCardProps extends OrderResponse {
     onCancelSuccess?: (id: number | string) => void;
 }
 

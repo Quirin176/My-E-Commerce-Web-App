@@ -1,4 +1,4 @@
-export interface OrderResponseModel {
+export interface OrderResponse {
   id: number | string;
   customerName: string;
   customerEmail: string;

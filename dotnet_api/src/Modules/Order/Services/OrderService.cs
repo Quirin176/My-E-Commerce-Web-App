@@ -2,6 +2,7 @@ using WebApp_API.DTOs;
 using WebApp_API.Entities;
 using WebApp_API.Repositories;
 using WebApp_API.Specifications;
+using WebApp_API.Enums;
 
 namespace WebApp_API.Services
 {
@@ -118,7 +119,7 @@ namespace WebApp_API.Services
                 City = orderRequest.City,
                 TotalAmount = orderRequest.TotalAmount,
                 PaymentMethod = orderRequest.PaymentMethod,
-                Status = orderRequest.Status ?? "Pending",
+                Status = OrderStatus.Pending,
                 Notes = orderRequest.Notes,
                 CreatedAt = DateTime.UtcNow,
                 OrderDate = DateTime.UtcNow
@@ -147,14 +148,14 @@ namespace WebApp_API.Services
             if (!string.IsNullOrWhiteSpace(request.CustomerPhone)) order.CustomerPhone = request.CustomerPhone;
             if (!string.IsNullOrWhiteSpace(request.ShippingAddress)) order.ShippingAddress = request.ShippingAddress;
             if (!string.IsNullOrWhiteSpace(request.City)) order.City = request.City;
-            if (!string.IsNullOrWhiteSpace(request.Status)) order.Status = request.Status;
+            order.Status = request.Status;
             if (!string.IsNullOrWhiteSpace(request.Notes)) order.Notes = request.Notes;
 
             await _repo.UpdateOrderAsync(order);
             return true;
         }
 
-        public async Task<bool> UpdateOrderStatusAsync(int orderId, string status)
+        public async Task<bool> UpdateOrderStatusAsync(int orderId, OrderStatus status)
         {
             var order = await _repo.GetOrderByIdAsync(orderId);
             if (order is null) return false;

@@ -1,7 +1,7 @@
-import type { OrderResponseModel } from "../types/models/order/OrderResponseModel";
+import type { OrderResponse } from "../types/models/order/OrderResponse";
 
 interface Props {
-    order: OrderResponseModel;
+    order: OrderResponse;
 }
 
 export default function PrintOrderInvoice({ order }: Props) {

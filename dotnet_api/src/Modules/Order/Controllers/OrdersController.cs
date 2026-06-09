@@ -35,8 +35,7 @@ namespace WebApp_API.Controllers
                 return BadRequest(new { message = "Total amount must be greater than 0" });
 
             var userId = User.FindFirst("id")?.Value;
-            if (string.IsNullOrEmpty(userId))
-                return Unauthorized();
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
             try
             {

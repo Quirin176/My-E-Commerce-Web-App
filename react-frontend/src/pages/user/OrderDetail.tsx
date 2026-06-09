@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import { ArrowLeft, Download, Printer } from "lucide-react";
 import { orderApi } from "../../api/user/orderApi";
 import { useAuth } from "../../hooks/auth/useAuth";
-import type { OrderResponseModel } from "../../types/models/order/OrderResponseModel";
+import type { OrderResponse } from "../../types/models/order/OrderResponse";
 
 import LoadingState from "../../components/pageState/LoadingState";
 
@@ -12,7 +12,7 @@ export default function OrderDetail() {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [order, setOrder] = useState<OrderResponseModel | null>(null);
+  const [order, setOrder] = useState<OrderResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

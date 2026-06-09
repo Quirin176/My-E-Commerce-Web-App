@@ -1,25 +1,24 @@
 import { apiClient } from "../apiClient";
+import type { OrderStatus } from "../../types/orderStatus";
 
 interface OrderFilters {
-  status?: string;
+  status?: OrderStatus;
   minDate?: string;
   maxDate?: string;
   sortBy?: string;
   sortOrder?: string;
 }
 
+interface UpdateOrderRequest {
+  customerName?: string;
+  shippingAddress?: string;
+  notes?: string;
+}
+
 export const orderApi = {
   // GET: /api/orders - Get all orders with optional filters
   async getOrderByFilters(filters: OrderFilters) {
-    const params = {
-      status: filters.status,
-      minDate: filters.minDate,
-      maxDate: filters.maxDate,
-      sortBy: filters.sortBy,
-      sortOrder: filters.sortOrder,
-    };
-
-    const res = await apiClient.get("/orders", { params });
+    const res = await apiClient.get("/orders", { params: filters });
     return res.data;
   },
 
@@ -37,13 +36,8 @@ export const orderApi = {
 
   // Get user's orders
   async getUserAllOrders() {
-    try {
-      const res = await apiClient.get("/orders/user/all");
-      return res.data;
-    } catch (error) {
-      console.error("Get user orders error:", error);
-      throw error;
-    }
+    const res = await apiClient.get("/orders/user/all");
+    return res.data;
   },
 
   // PUT: /api/orders/{id} - Update order details
@@ -53,7 +47,7 @@ export const orderApi = {
   },
 
   // PUT: /api/orders/{id}/status - Update order status
-  async updateStatus(orderId: number | string, status: string) {
+  async updateStatus(orderId: number | string, status: OrderStatus) {
     const res = await apiClient.put(`/orders/id/${orderId}/status`, { status });
     return res.data;
   },
@@ -71,7 +65,7 @@ export const orderApi = {
       format: "csv"
     };
 
-    const res = await apiClient.get("/orders/export", { 
+    const res = await apiClient.get("/orders/export", {
       params,
       responseType: 'blob'
     });

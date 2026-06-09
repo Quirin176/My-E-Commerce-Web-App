@@ -16,6 +16,10 @@ namespace WebApp_API.Data.Configurations
             builder.HasIndex(o => o.UserId);
             builder.HasIndex(o => o.OrderDate);
             builder.HasIndex(o => o.Status);
+            
+            builder.Property(o => o.Status)
+            .HasConversion<string>()
+            .HasMaxLength(50);
         }
     }
 }

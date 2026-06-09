@@ -2,12 +2,12 @@ import { useState } from "react";
 import { X, Send, Loader } from "lucide-react";
 import toast from "react-hot-toast";
 import { adminOrdersApi } from "../../../api/admin/adminOrdersApi";
-import type { OrderResponseModel } from "../../../types/models/order/OrderResponseModel";
+import type { OrderResponse } from "../../../types/models/order/OrderResponse";
 import { siteConfig } from "../../../config/siteConfig";
 
 interface UpdateOrderStatusFormProps {
     showForm: boolean;
-    order: OrderResponseModel;
+    order: OrderResponse;
     setShowForm: (show: boolean) => void;
     onUpdateSuccess?: () => void;
 }

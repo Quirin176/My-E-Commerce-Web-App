@@ -2,11 +2,11 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Download, X } from "lucide-react";
 import { useAuth } from "../../hooks/auth/useAuth";
-import type { OrderResponseModel } from "../../types/models/order/OrderResponseModel";
+import type { OrderResponse } from "../../types/models/order/OrderResponse";
 
 interface UserOrderDetailModalProps {
     showForm: boolean;
-    order: OrderResponseModel;
+    order: OrderResponse;
     setShowForm: (show: boolean) => void;
 }
 

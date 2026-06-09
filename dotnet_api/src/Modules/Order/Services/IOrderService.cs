@@ -1,5 +1,6 @@
 using WebApp_API.DTOs;
 using WebApp_API.Specifications;
+using WebApp_API.Enums;
 
 namespace WebApp_API.Services
 {
@@ -19,7 +20,7 @@ namespace WebApp_API.Services
         // ────────────────────────────── Write Operations ──────────────────────────────
         Task<OrderDTOs.OrderResponse> CreateOrderAsync(OrderDTOs.CreateOrderRequest request, int userId);
         Task<bool> UpdateOrderAsync(int id, OrderDTOs.UpdateOrderRequest request);
-        Task<bool> UpdateOrderStatusAsync(int id, string status);
+        Task<bool> UpdateOrderStatusAsync(int id, OrderStatus status);
         Task<bool> DeleteOrderAsync(int id);
         Task<byte[]> ExportOrdersCsvAsync(OrderFiltersParameters filterParams);
 

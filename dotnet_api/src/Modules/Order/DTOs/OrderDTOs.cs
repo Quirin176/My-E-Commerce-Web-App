@@ -1,8 +1,10 @@
+using WebApp_API.Enums;
+
 namespace WebApp_API.DTOs
 {
     public class OrderDTOs
     {
-        //////////////////// Order Creation DTOs for client/frontend creating a new order ////////////////////
+        // ────────────────────────────────────────────────── Requests ──────────────────────────────────────────────────
         // DTO used for creating a new order from the client/frontend
         public class CreateOrderRequest
         {
@@ -13,12 +15,10 @@ namespace WebApp_API.DTOs
             public required string City { get; set; }
             public decimal TotalAmount { get; set; }
             public string PaymentMethod { get; set; } = "Card";
-            public required string Status { get; set; }
             public string? Notes { get; set; }
             public List<OrderItemDTOs.OrderItemRequest> OrderItems { get; set; } = new();
         }
 
-        //////////////////// Order Details DTOs to return to client/frontend and admin users ////////////////////
         // DTO used for returning order details in responses to the client/frontend
         public class OrderResponse
         {
@@ -30,7 +30,7 @@ namespace WebApp_API.DTOs
             public required string City { get; set; }
             public decimal TotalAmount { get; set; }
             public required string PaymentMethod { get; set; }
-            public required string Status { get; set; }
+            public OrderStatus Status { get; set; }
             public DateTime OrderDate { get; set; }
             public string? Notes { get; set; }
             public int ItemCount { get; set; }
@@ -48,7 +48,7 @@ namespace WebApp_API.DTOs
             public required string City { get; set; }
             public decimal TotalAmount { get; set; }
             public required string PaymentMethod { get; set; }
-            public required string Status { get; set; }
+            public OrderStatus Status { get; set; }
             public DateTime OrderDate { get; set; }
             public string? Notes { get; set; }
             public int? UserId { get; set; }        // Admin-specific
@@ -59,7 +59,7 @@ namespace WebApp_API.DTOs
         // DTO used for updating order status from the client/frontend
         public class UpdateOrderStatusRequest
         {
-            public required string Status { get; set; }
+            public OrderStatus Status { get; set; }
         }
 
         // DTO used for updating entire order details from the client/frontend
@@ -70,7 +70,7 @@ namespace WebApp_API.DTOs
             public required string CustomerPhone { get; set; }
             public required string ShippingAddress { get; set; }
             public required string City { get; set; }
-            public required string Status { get; set; }
+            public OrderStatus Status { get; set; }
             public string? Notes { get; set; }
         }
         
@@ -78,7 +78,7 @@ namespace WebApp_API.DTOs
         // DTO for a single status group count
         public class OrderStatusCountDto
         {
-            public required string Status { get; set; }
+            public OrderStatus Status { get; set; }
             public int Count { get; set; }
         }
 
@@ -108,7 +108,7 @@ namespace WebApp_API.DTOs
             public int Id { get; set; }
             public required string CustomerName { get; set; }
             public decimal TotalAmount { get; set; }
-            public required string Status { get; set; }
+            public OrderStatus Status { get; set; }
         }
     }
 }

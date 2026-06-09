@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import { Package, Download } from "lucide-react";
 import { adminOrdersApi } from "../../../api/admin/adminOrdersApi";
 import UserOrderCard from "../../../components/orders/UserOrderCard";
-import type { OrderResponseModel } from "../../../types/models/order/OrderResponseModel";
+import type { OrderResponse } from "../../../types/models/order/OrderResponse";
 import { siteConfig } from "../../../config/siteConfig";
 
 interface orderStatusCount {
@@ -20,7 +20,7 @@ export default function AdminOrders() {
     const [orderAllCount, setOrderAllCount] = useState(0);
 
     // Display orders in admin order management page
-    const [orders, setOrders] = useState<OrderResponseModel[]>([]);
+    const [orders, setOrders] = useState<OrderResponse[]>([]);
     const [loading, setLoading] = useState(false);
     const [exporting, setExporting] = useState(false);
 

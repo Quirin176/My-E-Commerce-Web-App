@@ -17,11 +17,11 @@ export const siteConfig = {
     { value: "all", label: "All", color: "black" },
     { value: "pending", label: "Pending", color: "yellow" },
     { value: "confirmed", label: "Confirmed", color: "blue" },
-    // { value: "processing", label: "Processing", color: "purple" },
+    { value: "processing", label: "Processing", color: "purple" },
     { value: "shipped", label: "Shipped", color: "purple" },
     { value: "delivered", label: "Delivered", color: "green" },
     { value: "cancelled", label: "Cancelled", color: "red" },
-    { value: "refunded", label: "Refunded", color: "gray" },
+    // { value: "refunded", label: "Refunded", color: "gray" },
   ],
 };
 

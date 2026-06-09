@@ -161,28 +161,6 @@ export default function Cart() {
             >
               Continue Shopping
             </Link>
-
-            {/* Promo Code (Optional)
-            <div className="mt-6 pt-6 border-t">
-              <p className="text-sm text-gray-600 mb-3">Have a promo code?</p>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Enter code"
-                  className="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                  disabled
-                />
-                <button
-                  className="px-4 py-2 border rounded-lg hover:bg-gray-50 transition font-semibold text-gray-600"
-                  disabled
-                >
-                  Apply
-                </button>
-              </div>
-              <p className="text-xs text-gray-500 mt-2">
-                Promo code feature coming soon
-              </p>
-            </div> */}
           </div>
         </div>
       </div>

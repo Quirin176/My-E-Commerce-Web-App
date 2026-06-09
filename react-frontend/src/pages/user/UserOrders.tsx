@@ -4,18 +4,22 @@ import toast from "react-hot-toast";
 import { Package } from "lucide-react";
 import { useAuth } from "../../hooks/auth/useAuth";
 import { orderApi } from "../../api/user/orderApi";
-import type { OrderResponseModel } from "../../types/models/order/OrderResponseModel";
+import type { OrderResponse } from "../../types/models/order/OrderResponse";
 import UserOrderCard from "../../components/orders/UserOrderCard";
+import type { OrderStatus } from "../../types/orderStatus";
 import { siteConfig } from "../../config/siteConfig";
+
+type OrderFilter = OrderStatus | "all";
 
 export default function UserOrders() {
   const orderStatus = siteConfig.ORDER_STATUS_OPTIONS;
 
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [orders, setOrders] = useState<OrderResponseModel[]>([]);
+  const [orders, setOrders] = useState<OrderResponse[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sortBy, setSortBy] = useState("all");
+  const [sortBy, setSortBy] = useState<OrderFilter>("all");
+  const filteredOrders = sortBy === "all" ? orders : orders.filter(o => o.status === sortBy);
 
   // Fetch user orders
   useEffect(() => {
@@ -69,7 +73,7 @@ export default function UserOrders() {
         {orderStatus.map((option) => (
           <button
             key={option.value}
-            onClick={() => setSortBy(option.value.toLowerCase())}
+            onClick={() => setSortBy(option.value as OrderFilter)}
             className={`px-4 py-2 rounded-full font-semibold transition ${sortBy === option.value
               ? "bg-blue-600 text-white shadow-lg"
               : "bg-gray-200 text-gray-800 hover:bg-gray-300"
@@ -93,7 +97,7 @@ export default function UserOrders() {
           </div>
           <p className="text-gray-500 mt-4">Loading your orders...</p>
         </div>
-      ) : sortedOrders.length === 0 ? (
+      ) : filteredOrders.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-lg">
           <Package size={48} className="mx-auto text-gray-400 mb-4" />
           <p className="text-gray-600 text-lg mb-4">
@@ -108,11 +112,11 @@ export default function UserOrders() {
         </div>
       ) : (
         <div className="space-y-4">
-          {sortedOrders.map((order) => (
+          {filteredOrders.map((order) => (
             <UserOrderCard
-            key={order.id}
-            {...order}
-            onCancelSuccess={(id) => setOrders(prev => prev.filter(o => o.id !== id))} />
+              key={order.id}
+              {...order}
+              onCancelSuccess={(id) => setOrders(prev => prev.filter(o => o.id !== id))} />
           ))}
         </div>
       )}

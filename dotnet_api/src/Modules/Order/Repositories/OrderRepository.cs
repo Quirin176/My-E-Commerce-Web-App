@@ -50,10 +50,9 @@ namespace WebApp_API.Repositories
                 .Include(o => o.OrderItems);
 
             // Filtered By Order's Status
-            if (!string.IsNullOrWhiteSpace(filterParams.Status))
+            if (filterParams.Status.HasValue)
             {
-                if (!filterParams.Status.ToLower().Equals("all", StringComparison.OrdinalIgnoreCase))
-                    query = query.Where(o => o.Status == filterParams.Status);
+                query = query.Where(o => o.Status == filterParams.Status.Value);
             }
 
             // Filtered By Min Date and Max Date

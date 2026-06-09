@@ -57,13 +57,6 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(request.Status))
-                    return BadRequest(new { message = "Status is required" });
-
-                var validStatuses = new[] { "Pending", "Confirmed", "Processing", "Shipped", "Delivered", "Cancelled", "Refunded" };
-                if (!validStatuses.Contains(request.Status))
-                    return BadRequest(new { message = $"Invalid status. Must be one of: {string.Join(", ", validStatuses)}" });
-
                 var updated = await _orderService.UpdateOrderStatusAsync(id, request.Status);
                 if (!updated)
                     return NotFound(new { message = "Order not found" });
