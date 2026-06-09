@@ -55,7 +55,9 @@ export const ORDER_STATUS_CONFIG = {
 }>;
 
 export const ORDER_PROGRESS_STATUSES = [
-  ORDER_STATUS.Pending,
-  ORDER_STATUS.Shipped,
-  ORDER_STATUS.Delivered,
+    ORDER_STATUS.Pending,
+    ORDER_STATUS.Processing,
+    ORDER_STATUS.Shipped,
+    ORDER_STATUS.Delivered,
+    ORDER_STATUS.Cancelled,
 ];

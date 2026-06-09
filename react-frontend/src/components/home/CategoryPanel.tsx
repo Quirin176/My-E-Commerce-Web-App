@@ -1,5 +1,4 @@
-import { LayoutGrid } from "lucide-react";
-import { categoriesIcon } from "../../config/siteConfig";
+import { Laptop, Monitor, Keyboard, Mouse, LayoutGrid } from "lucide-react";
 
 interface Props {
   categories: any[];
@@ -7,6 +6,13 @@ interface Props {
   onHover: (slug: string) => void;
   onClick: (slug: string) => void;
 }
+
+const categoriesIcon: Record<string, React.ElementType> = {
+  laptop: Laptop,
+  monitor: Monitor,
+  keyboard: Keyboard,
+  mouse: Mouse
+};
 
 export default function CategoryPanel({
   categories,

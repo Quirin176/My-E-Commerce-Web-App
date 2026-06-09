@@ -4,11 +4,8 @@ import { Package, Download } from "lucide-react";
 import { adminOrdersApi } from "../../../api/admin/adminOrdersApi";
 import UserOrderCard from "../../../components/orders/UserOrderCard";
 import type { OrderResponse } from "../../../types/models/order/OrderResponse";
-import {
-    ORDER_STATUS,
-    ORDER_STATUS_CONFIG,
-    type OrderStatus,
-} from "../../../types/orderStatus";
+import { ORDER_STATUS_CONFIG, type OrderStatus } from "../../../types/orderStatus";
+
 interface orderStatusCount {
     status: string;
     count: number;

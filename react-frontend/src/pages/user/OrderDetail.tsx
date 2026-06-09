@@ -5,6 +5,7 @@ import { ArrowLeft, Download, Printer } from "lucide-react";
 import { orderApi } from "../../api/user/orderApi";
 import { useAuth } from "../../hooks/auth/useAuth";
 import type { OrderResponse } from "../../types/models/order/OrderResponse";
+import { ORDER_STATUS, ORDER_STATUS_CONFIG, ORDER_PROGRESS_STATUSES, type OrderStatus } from "../../types/orderStatus";
 
 import LoadingState from "../../components/pageState/LoadingState";
 
@@ -39,42 +40,41 @@ export default function OrderDetail() {
     }
   }, [orderId, user, navigate]);
 
-  const getStatusColor = (status: string) => {
-    const statusLower = status.toLowerCase();
-    switch (statusLower) {
-      case "pending":
-        return "bg-yellow-100 text-yellow-800 border-yellow-300";
-      case "confirmed":
-        return "bg-blue-100 text-blue-800 border-blue-300";
-      case "shipped":
-        return "bg-purple-100 text-purple-800 border-purple-300";
-      case "delivered":
-        return "bg-green-100 text-green-800 border-green-300";
-      case "cancelled":
-        return "bg-red-100 text-red-800 border-red-300";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-300";
-    }
-  };
-
   const getStatusTimeline = (status: string) => {
-    const statuses = ["pending", "confirmed", "shipped", "delivered"];
-    const currentIndex = statuses.indexOf(status.toLowerCase());
-
-    return statuses.map((s, index) => (
-      <div key={s} className="flex items-center flex-1">
-        <div className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold ${index <= currentIndex
-          ? "bg-green-500 text-white"
-          : "bg-gray-300 text-gray-600"
-          }`}>
-          {index + 1}
+    if (
+      status === ORDER_STATUS.Cancelled
+    ) {
+      return (
+        <div className="text-center py-4 text-red-600 font-semibold">
+          Order Cancelled
         </div>
-        {index < statuses.length - 1 && (
-          <div className={`flex-1 h-1 mx-2 ${index < currentIndex ? "bg-green-500" : "bg-gray-300"
-            }`}></div>
-        )}
-      </div>
-    ));
+      );
+    }
+
+    const currentIndex = ORDER_PROGRESS_STATUSES.indexOf(status as OrderStatus);
+
+    return ORDER_PROGRESS_STATUSES.map(
+      (timelineStatus, index) => (
+        <div
+          key={timelineStatus}
+          className="flex items-center flex-1"
+        >
+          <div
+            className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold ${index <= currentIndex
+              ? "bg-green-500 text-white"
+              : "bg-gray-300 text-gray-600"
+              }`}
+          >
+            {index + 1}
+          </div>
+
+          {index <
+            ORDER_PROGRESS_STATUSES.length - 1 && (
+              <div className={`flex-1 h-1 mx-2 ${index < currentIndex ? "bg-green-500" : "bg-gray-300"}`} />
+            )}
+        </div>
+      )
+    );
   };
 
   if (!user) {
@@ -229,23 +229,53 @@ export default function OrderDetail() {
         <div className="bg-white p-6 rounded-lg shadow mb-6">
           <div className="flex flex-row items-center gap-4">
             <h3 className="font-bold text-gray-800">Order Status</h3>
-            <div className={`inline-block px-6 py-3 rounded-full border-2 font-bold capitalize ${getStatusColor(order.status)}`}>
-              {order.status}
-            </div>
+            {(() => {
+              const config =
+                ORDER_STATUS_CONFIG[
+                order.status as OrderStatus
+                ];
+
+              const Icon = config.icon;
+
+              return (
+                <div
+                  className={`inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold ${config.badgeColor}`}
+                >
+                  <Icon
+                    size={18}
+                    className={config.iconColor}
+                  />
+                  {order.status}
+                </div>
+              );
+            })()}
           </div>
 
           {/* Timeline */}
           <div className="mt-6">
-            <h4 className="text-sm font-semibold text-gray-600 mb-3">Tracking Progress</h4>
-            <div className="flex gap-1">
-              {getStatusTimeline(order.status)}
-            </div>
-            <div className="flex justify-between text-xs text-gray-600 mt-2">
-              <span>Pending</span>
-              <span>Confirmed</span>
-              <span>Shipped</span>
-              <span>Delivered</span>
-            </div>
+
+            {order.status !== ORDER_STATUS.Cancelled ? (
+              <>
+                <h4 className="text-sm font-semibold text-gray-600 mb-3">
+                  Tracking Progress
+                </h4>
+
+                <div className="flex gap-1">
+                  {getStatusTimeline(order.status)}
+                </div>
+
+                <div className="flex justify-between text-xs text-gray-600 mt-2">
+                  {ORDER_PROGRESS_STATUSES.map((status) => (
+                    <span key={status}>{status}</span>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="text-red-600 font-semibold">
+                This order has been cancelled.
+              </div>
+            )}
+
           </div>
         </div>
 
