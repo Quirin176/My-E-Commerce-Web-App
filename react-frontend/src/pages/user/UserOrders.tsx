@@ -6,20 +6,31 @@ import { useAuth } from "../../hooks/auth/useAuth";
 import { orderApi } from "../../api/user/orderApi";
 import type { OrderResponse } from "../../types/models/order/OrderResponse";
 import UserOrderCard from "../../components/orders/UserOrderCard";
-import type { OrderStatus } from "../../types/orderStatus";
-import { siteConfig } from "../../config/siteConfig";
-
-type OrderFilter = OrderStatus | "all";
+import { ORDER_STATUS_CONFIG } from "../../types/orderStatus";
 
 export default function UserOrders() {
-  const orderStatus = siteConfig.ORDER_STATUS_OPTIONS;
 
   const navigate = useNavigate();
   const { user } = useAuth();
+
   const [orders, setOrders] = useState<OrderResponse[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sortBy, setSortBy] = useState<OrderFilter>("all");
-  const filteredOrders = sortBy === "all" ? orders : orders.filter(o => o.status === sortBy);
+  const [sortBy, setSortBy] = useState("all");
+
+  const orderStatusOptions = [
+    {
+      value: "all",
+      label: "All",
+      icon: Package,
+      badgeColor: "bg-gray-100 text-gray-800",
+    },
+    ...Object.entries(ORDER_STATUS_CONFIG).map(([status, config]) => ({
+      value: status,
+      label: status,
+      icon: config.icon,
+      badgeColor: config.badgeColor,
+    })),
+  ];
 
   // Fetch user orders
   useEffect(() => {
@@ -28,6 +39,7 @@ export default function UserOrders() {
       try {
         const data = await orderApi.getUserAllOrders();
         setOrders(Array.isArray(data) ? data : []);
+        console.log(data);
       } catch (error) {
         toast.error("Failed to load orders");
         setOrders([]);
@@ -41,8 +53,15 @@ export default function UserOrders() {
     }
   }, [user]);
 
-  // Sort orders by status
-  const sortedOrders = sortBy === "all" ? orders : orders.filter(o => o.status.trim().toLowerCase() === sortBy.trim().toLowerCase());
+
+  // Filter orders by status
+  const filteredOrders =
+    sortBy === "all" ? orders :
+      orders.filter(
+        (o) =>
+          o.status.trim().toLowerCase() ===
+          sortBy.trim().toLowerCase()
+      );
 
   // Redirect if not logged in
   if (!user) {
@@ -62,6 +81,7 @@ export default function UserOrders() {
 
   return (
     <div className="container mx-auto p-4">
+
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">My Orders</h1>
@@ -70,23 +90,35 @@ export default function UserOrders() {
 
       {/* Status Filter */}
       <div className="mb-6 flex flex-wrap gap-2">
-        {orderStatus.map((option) => (
-          <button
-            key={option.value}
-            onClick={() => setSortBy(option.value as OrderFilter)}
-            className={`px-4 py-2 rounded-full font-semibold transition ${sortBy === option.value
-              ? "bg-blue-600 text-white shadow-lg"
-              : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-              }`}
-          >
-            {option.label}
-            <span className="ml-2 text-sm">
-              {option.value.toLowerCase() === "all"
-                ? `(${orders.length})`
-                : `(${orders.filter(o => o.status.toLowerCase() === option.value.toLowerCase()).length})`}
-            </span>
-          </button>
-        ))}
+        {orderStatusOptions.map((option) => {
+          const Icon = option.icon;
+
+          return (
+            <button
+              key={option.value}
+              onClick={() => setSortBy(option.value)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all ${sortBy === option.value
+                ? "bg-blue-600 text-white shadow-md"
+                : `${option.badgeColor} hover:opacity-80`
+                }`}
+            >
+              <Icon size={16} />
+
+              <span>{option.label}</span>
+
+              <span>
+                {option.value === "all"
+                  ? `(${orders.length})`
+                  : `(${orders.filter(
+                    (o) =>
+                      o.status.toLowerCase() ===
+                      option.value.toLowerCase()
+                  ).length
+                  })`}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Loading State */}

@@ -1,9 +1,10 @@
 import { apiClient } from "../apiClient";
+import type { OrderStatus } from "../../types/orderStatus";
 
 export const adminOrdersApi = {
   // GET /api/adminorders?status=&minDate=&maxDate=&sortBy=&sortOrder= - Get all orders with filters
   async getAllOrders(
-    status: string,
+    status: OrderStatus,
     minDate: string,
     maxDate: string,
     sortBy: string,
@@ -73,7 +74,7 @@ export const adminOrdersApi = {
 
   // EXPORT orders as CSV
   async exportOrders(
-    status: string,
+    status: OrderStatus,
     minDate: string,
     maxDate: string,
     sortBy: string,

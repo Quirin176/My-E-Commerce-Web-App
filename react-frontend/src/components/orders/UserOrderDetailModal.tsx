@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Download, X } from "lucide-react";
 import { useAuth } from "../../hooks/auth/useAuth";
 import type { OrderResponse } from "../../types/models/order/OrderResponse";
+import { ORDER_STATUS_CONFIG, ORDER_PROGRESS_STATUSES } from "../../types/orderStatus";
 
 interface UserOrderDetailModalProps {
     showForm: boolean;
@@ -15,56 +16,6 @@ export default function UserOrderDetailModal({ showForm, order, setShowForm }: U
 
     const navigate = useNavigate();
     const { user } = useAuth();
-
-    const getStatusColor = (status: string) => {
-        const statusLower = status.toLowerCase();
-        switch (statusLower) {
-            case "pending":
-                return "bg-yellow-100 text-yellow-800 border-yellow-300";
-            case "confirmed":
-                return "bg-blue-100 text-blue-800 border-blue-300";
-            case "shipped":
-                return "bg-purple-100 text-purple-800 border-purple-300";
-            case "delivered":
-                return "bg-green-100 text-green-800 border-green-300";
-            case "cancelled":
-                return "bg-red-100 text-red-800 border-red-300";
-            default:
-                return "bg-gray-100 text-gray-800 border-gray-300";
-        }
-    };
-
-    const getStatusTimeline = (status: string) => {
-        const statuses = ["pending", "confirmed", "shipped", "delivered"];
-        const currentIndex = statuses.indexOf(status.toLowerCase());
-
-        return (
-            <div className="w-full">
-                <div className="flex items-center w-full">
-                    {statuses.map((s, index) => (
-                        <React.Fragment key={s}>
-                            {/* Circle */}
-                            <div
-                                className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold 
-                        ${index <= currentIndex ? "bg-green-500 text-white" : "bg-gray-300 text-gray-600"}`}
-                            >
-                                {index + 1}
-                            </div>
-
-                            {/* Line */}
-                            {index < statuses.length - 1 && (
-                                <div
-                                    className={`flex-1 h-1 mx-2
-                                ${index < currentIndex ? "bg-green-500" : "bg-gray-300"}`}
-                                ></div>
-                            )}
-                        </React.Fragment>
-                    ))}
-                </div>
-            </div>
-        );
-
-    };
 
     if (!user) {
         return (
@@ -79,6 +30,42 @@ export default function UserOrderDetailModal({ showForm, order, setShowForm }: U
             </div>
         );
     }
+
+    const renderStatusTimeline = (status: string) => {
+        const currentIndex = ORDER_PROGRESS_STATUSES.indexOf(status as any);
+
+        return (
+            <div className="w-full">
+                <div className="flex items-center w-full">
+                    {ORDER_PROGRESS_STATUSES.map((s, index) => (
+                        <React.Fragment key={s}>
+                            <div
+                                className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold
+                            ${index <= currentIndex
+                                        ? "bg-green-500 text-white"
+                                        : "bg-gray-300 text-gray-600"
+                                    }`}
+                            >
+                                {index + 1}
+                            </div>
+
+                            {index < ORDER_PROGRESS_STATUSES.length - 1 && (
+                                <div
+                                    className={`flex-1 h-1 mx-2
+                                ${index < currentIndex
+                                            ? "bg-green-500"
+                                            : "bg-gray-300"
+                                        }`}
+                                />
+                            )}
+                        </React.Fragment>
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
+    const statusConfig = ORDER_STATUS_CONFIG[order.status as keyof typeof ORDER_STATUS_CONFIG];
 
     // if (loading) {
     //     return (
@@ -122,7 +109,7 @@ export default function UserOrderDetailModal({ showForm, order, setShowForm }: U
                                 <div className="flex items-center mb-6 gap-10">
                                     <h3 className="text-lg font-bold text-gray-800">Order Status</h3>
 
-                                    <p className={`inline-block px-6 py-3 rounded-full border-2 font-bold capitalize ${getStatusColor(order.status)}`}>
+                                    <p className={`inline-block px-6 py-3 rounded-full border-2 font-bold capitalize ${statusConfig.badgeColor}`}>
                                         {order.status}
                                     </p>
                                 </div>
@@ -140,13 +127,12 @@ export default function UserOrderDetailModal({ showForm, order, setShowForm }: U
                             <div className="flex flex-col gap-y-4">
                                 <h4 className="text-lg font-semibold text-black">Tracking Progress</h4>
                                 <div className="flex justify-between">
-                                    {getStatusTimeline(order.status)}
+                                    {renderStatusTimeline(order.status)}
                                 </div>
                                 <div className="flex justify-between text-xs text-gray-600">
-                                    <span>Pending</span>
-                                    <span>Confirmed</span>
-                                    <span>Shipped</span>
-                                    <span>Delivered</span>
+                                    {ORDER_PROGRESS_STATUSES.map(status => (
+                                        <span key={status}>{status}</span>
+                                    ))}
                                 </div>
                             </div>
                         </div>

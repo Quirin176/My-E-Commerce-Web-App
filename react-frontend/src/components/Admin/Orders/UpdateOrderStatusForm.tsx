@@ -3,7 +3,7 @@ import { X, Send, Loader } from "lucide-react";
 import toast from "react-hot-toast";
 import { adminOrdersApi } from "../../../api/admin/adminOrdersApi";
 import type { OrderResponse } from "../../../types/models/order/OrderResponse";
-import { siteConfig } from "../../../config/siteConfig";
+import { ORDER_STATUS, ORDER_STATUS_CONFIG, type OrderStatus } from "../../../types/orderStatus";
 
 interface UpdateOrderStatusFormProps {
     showForm: boolean;
@@ -18,53 +18,13 @@ export default function UpdateOrderStatusForm({
     setShowForm,
     onUpdateSuccess,
 }: UpdateOrderStatusFormProps) {
-    const [selectedStatus, setSelectedStatus] = useState(order.status);
+    const [selectedStatus, setSelectedStatus] = useState<OrderStatus>(order.status as OrderStatus);
     // const [reason, setReason] = useState("");
     const [loading, setLoading] = useState(false);
 
     if (!showForm) return null;
 
-    const statuses = siteConfig.ORDER_STATUS_OPTIONS.filter(
-        (o) => o.value.toLowerCase() !== "all"
-    );
-
-    const getStatusColor = (status: string) => {
-        const statusLower = status.toLowerCase();
-        switch (statusLower) {
-            case "pending":
-                return "bg-yellow-50 border-yellow-300 text-yellow-900";
-            case "confirmed":
-                return "bg-blue-50 border-blue-300 text-blue-900";
-            case "shipped":
-                return "bg-purple-50 border-purple-300 text-purple-900";
-            case "delivered":
-                return "bg-green-50 border-green-300 text-green-900";
-            case "cancelled":
-                return "bg-red-50 border-red-300 text-red-900";
-            case "refunded":
-                return "bg-orange-50 border-orange-300 text-orange-900";
-            default:
-                return "bg-gray-50 border-gray-300 text-gray-900";
-        }
-    };
-
-    const getStatusBadgeColor = (status: string) => {
-        const statusLower = status.toLowerCase();
-        switch (statusLower) {
-            case "pending":
-                return "bg-yellow-100 text-yellow-800";
-            case "confirmed":
-                return "bg-blue-100 text-blue-800";
-            case "shipped":
-                return "bg-purple-100 text-purple-800";
-            case "delivered":
-                return "bg-green-100 text-green-800";
-            case "cancelled":
-                return "bg-red-100 text-red-800";
-            default:
-                return "bg-gray-100 text-gray-800";
-        }
-    };
+    const statuses = Object.values(ORDER_STATUS);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -130,9 +90,22 @@ export default function UpdateOrderStatusForm({
                             <label className="block text-sm font-semibold text-gray-700 mb-2">
                                 Current Status
                             </label>
-                            <div className={`inline-block px-4 py-2 rounded-full border-2 font-semibold capitalize ${getStatusBadgeColor(order.status)}`}>
-                                {order.status}
-                            </div>
+                            {(() => {
+                                const config = ORDER_STATUS_CONFIG[order.status as OrderStatus];
+                                const Icon = config.icon;
+
+                                return (
+                                    <div
+                                        className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-semibold ${config.badgeColor}`}
+                                    >
+                                        <Icon
+                                            size={16}
+                                            className={config.iconColor}
+                                        />
+                                        {order.status}
+                                    </div>
+                                );
+                            })()}
                         </div>
 
                         {/* Order Summary */}
@@ -161,31 +134,51 @@ export default function UpdateOrderStatusForm({
                                 Select New Status <span className="text-red-500">*</span>
                             </label>
                             <div className="space-y-2">
-                                {statuses.map((status) => (
-                                    <label
-                                        key={status.value}
-                                        className={`flex items-center p-3 rounded-lg border-2 cursor-pointer transition ${selectedStatus === status.label
-                                            ? `${getStatusColor(status.label)} border-2 border-gray-400 shadow-md`
-                                            : "bg-white border-gray-200 hover:bg-gray-50"
-                                            }`}
-                                    >
-                                        <input
-                                            type="radio"
-                                            name="status"
-                                            value={status.label}
-                                            checked={selectedStatus === status.label}
-                                            onChange={(e) => setSelectedStatus(e.target.value)}
-                                            disabled={loading}
-                                            className="w-4 h-4 cursor-pointer"
-                                        />
-                                        <span className="ml-3 font-medium">{status.label}</span>
-                                        {status.label === order.status && (
-                                            <span className="ml-auto text-xs bg-gray-400 text-white px-2 py-1 rounded">
-                                                Current
+                                {statuses.map((status) => {
+                                    const config =
+                                        ORDER_STATUS_CONFIG[status];
+
+                                    const Icon = config.icon;
+
+                                    return (
+                                        <label
+                                            key={status}
+                                            className={`flex items-center p-3 rounded-lg border-2 cursor-pointer transition ${selectedStatus === status
+                                                ? `${config.color} shadow-md`
+                                                : "bg-white border-gray-200 hover:bg-gray-50"
+                                                }`}
+                                        >
+                                            <input
+                                                type="radio"
+                                                name="status"
+                                                value={status}
+                                                checked={selectedStatus === status}
+                                                onChange={(e) =>
+                                                    setSelectedStatus(
+                                                        e.target.value as OrderStatus
+                                                    )
+                                                }
+                                                disabled={loading}
+                                                className="w-4 h-4 cursor-pointer"
+                                            />
+
+                                            <Icon
+                                                size={18}
+                                                className={`ml-3 ${config.iconColor}`}
+                                            />
+
+                                            <span className="ml-2 font-medium">
+                                                {status}
                                             </span>
-                                        )}
-                                    </label>
-                                ))}
+
+                                            {status === order.status && (
+                                                <span className="ml-auto text-xs bg-gray-400 text-white px-2 py-1 rounded">
+                                                    Current
+                                                </span>
+                                            )}
+                                        </label>
+                                    );
+                                })}
                             </div>
                         </div>
 

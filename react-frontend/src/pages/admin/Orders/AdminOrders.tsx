@@ -4,8 +4,11 @@ import { Package, Download } from "lucide-react";
 import { adminOrdersApi } from "../../../api/admin/adminOrdersApi";
 import UserOrderCard from "../../../components/orders/UserOrderCard";
 import type { OrderResponse } from "../../../types/models/order/OrderResponse";
-import { siteConfig } from "../../../config/siteConfig";
-
+import {
+    ORDER_STATUS,
+    ORDER_STATUS_CONFIG,
+    type OrderStatus,
+} from "../../../types/orderStatus";
 interface orderStatusCount {
     status: string;
     count: number;
@@ -13,7 +16,22 @@ interface orderStatusCount {
 
 export default function AdminOrders() {
     // Status options
-    const orderStatus = siteConfig.ORDER_STATUS_OPTIONS;
+    const orderStatusOptions = [
+        {
+            value: "all",
+            label: "All",
+            icon: Package,
+            badgeColor: "bg-gray-100 text-gray-800",
+            iconColor: "text-gray-500",
+        },
+        ...Object.entries(ORDER_STATUS_CONFIG).map(([status, config]) => ({
+            value: status,
+            label: status,
+            icon: config.icon,
+            badgeColor: config.badgeColor,
+            iconColor: config.iconColor,
+        })),
+    ];
 
     // Order stats
     const [orderStatusCount, setOrderStatusCount] = useState<orderStatusCount[]>([]);
@@ -25,7 +43,7 @@ export default function AdminOrders() {
     const [exporting, setExporting] = useState(false);
 
     //Filter states
-    const [status, setStatus] = useState("all");
+    const [status, setStatus] = useState<"all" | OrderStatus>("all");
     const [minDate, setMinDate] = useState("");
     const [maxDate, setMaxDate] = useState("");
     const [sortBy, setSortBy] = useState("");
@@ -55,7 +73,7 @@ export default function AdminOrders() {
         setLoading(true);
         try {
             const response = await adminOrdersApi.getAllOrders(
-                status,
+                status as OrderStatus,
                 minDate,
                 maxDate,
                 sortBy,
@@ -64,7 +82,6 @@ export default function AdminOrders() {
 
             setOrders(Array.isArray(response) ? response : []);
         } catch (error) {
-            console.error("Error loading orders:", error);
             toast.error("Failed to load orders");
             setOrders([]);
         } finally {
@@ -78,7 +95,7 @@ export default function AdminOrders() {
         try {
             // Pass the current status filter (null means all)
             const exportStatus = status === "all" ? "" : status;
-            const blob = await adminOrdersApi.exportOrders(exportStatus, minDate, maxDate, sortBy, sortOrder);
+            const blob = await adminOrdersApi.exportOrders(exportStatus as OrderStatus, minDate, maxDate, sortBy, sortOrder);
 
             // Create a download link and trigger it
             const url = window.URL.createObjectURL(new Blob([blob], { type: "text/csv" }));
@@ -164,25 +181,42 @@ export default function AdminOrders() {
             <div className="flex justify-between items-center">
                 {/* Status Filter */}
                 <div className="flex flex-wrap gap-2">
-                    {orderStatus.map((option) => (
-                        <button
-                            key={option.value}
-                            onClick={() => {
-                                setStatus(option.value.toLowerCase());
-                            }}
-                            className={`px-4 py-2 rounded-full font-semibold transition ${status === option.value
-                                ? "bg-blue-600 text-white shadow-lg"
-                                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                                }`}
-                        >
-                            {option.label}
-                            <span className="ml-2 text-sm">
-                                {option.value.toLowerCase() === "all"
-                                    ? `(${orderAllCount})`
-                                    : `(${orderStatusCount.find(s => s.status.toLowerCase() === option.value.toLowerCase())?.count || 0})`}
-                            </span>
-                        </button>
-                    ))}
+                    {orderStatusOptions.map((option) => {
+                        const Icon = option.icon;
+
+                        return (
+                            <button
+                                key={option.value}
+                                onClick={() => setStatus(option.value as OrderStatus)}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all ${status === option.value
+                                    ? "bg-blue-600 text-white shadow-md"
+                                    : `${option.badgeColor} hover:opacity-80`
+                                    }`}
+                            >
+                                <Icon
+                                    size={16}
+                                    className={
+                                        status === option.value
+                                            ? "text-white"
+                                            : option.iconColor
+                                    }
+                                />
+
+                                <span>{option.label}</span>
+
+                                <span className="text-sm">
+                                    {option.value === "all"
+                                        ? `(${orderAllCount})`
+                                        : `(${orderStatusCount.find(
+                                            (s) =>
+                                                s.status.toLowerCase() ===
+                                                option.value.toLowerCase()
+                                        )?.count || 0
+                                        })`}
+                                </span>
+                            </button>
+                        );
+                    })}
                 </div>
 
                 {/* Clear Filters Button */}
@@ -208,7 +242,7 @@ export default function AdminOrders() {
                     </div>
                     <p className="text-gray-500 mt-4">Loading your orders...</p>
                 </div>
-            ) : orderStatus.length === 0 ? (
+            ) : orders.length === 0 ? (
                 <div className="text-center py-12 bg-gray-50 rounded-lg">
                     <Package size={48} className="mx-auto text-gray-400 mb-4" />
                     <p className="text-gray-600 text-lg mb-4">
@@ -219,10 +253,10 @@ export default function AdminOrders() {
                 <div className="space-y-4">
                     {orders.map((order) => (
                         <div className="bg-white rounded-lg border transition">
-                        <UserOrderCard
-                            key={order.id}
-                            {...order}
-                            onCancelSuccess={(id) => setOrders(prev => prev.filter(o => o.id !== id))} />
+                            <UserOrderCard
+                                key={order.id}
+                                {...order}
+                                onCancelSuccess={(id) => setOrders(prev => prev.filter(o => o.id !== id))} />
                         </div>
                     ))}
                 </div>

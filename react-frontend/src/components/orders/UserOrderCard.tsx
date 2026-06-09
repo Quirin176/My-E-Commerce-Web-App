@@ -2,11 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../../hooks/auth/useAuth";
-import { Clock, CheckCircle, Download, SquarePen, Truck, Package, X } from "lucide-react";
+import { Download, SquarePen, Truck, X } from "lucide-react";
 import { adminOrdersApi } from "../../api/admin/adminOrdersApi";
 import type { OrderResponse } from "../../types/models/order/OrderResponse";
 import UserOrderDetailModal from "./UserOrderDetailModal";
 import UpdateOrderStatusForm from "../admin/orders/UpdateOrderStatusForm";
+import { ORDER_STATUS, ORDER_STATUS_CONFIG } from "../../types/orderStatus";
 
 // Extend Model
 interface UserOrderCardProps extends OrderResponse {
@@ -20,55 +21,23 @@ export default function UserOrderCard(order: UserOrderCardProps) {
 
     const navigate = useNavigate();
 
-    const getStatusIcon = (status: string) => {
-        const statusLower = status.toLowerCase();
-        switch (statusLower) {
-            case "pending":
-                return <Clock size={20} className="text-yellow-500" />;
-            case "confirmed":
-                return <CheckCircle size={20} className="text-blue-500" />;
-            case "shipped":
-                return <Truck size={20} className="text-purple-500" />;
-            case "delivered":
-                return <CheckCircle size={20} className="text-green-500" />;
-            case "cancelled":
-                return <Package size={20} className="text-red-500" />;
-            default:
-                return <Package size={20} className="text-gray-500" />;
-        }
-    };
+    const statusConfig = ORDER_STATUS_CONFIG[order.status as keyof typeof ORDER_STATUS_CONFIG];
 
-    const getStatusColor = (status: string) => {
-        const statusLower = status.toLowerCase();
-        switch (statusLower) {
-            case "pending":
-                return "bg-yellow-100 text-yellow-800";
-            case "confirmed":
-                return "bg-blue-100 text-blue-800";
-            case "shipped":
-                return "bg-purple-100 text-purple-800";
-            case "delivered":
-                return "bg-green-100 text-green-800";
-            case "cancelled":
-                return "bg-red-100 text-red-800";
-            default:
-                return "bg-gray-100 text-gray-800";
-        }
-    };
+    const StatusIcon = statusConfig.icon;
 
     const handleViewDetail = () => {
         navigate(`/order/${order.id}`);
     }
 
     const handleTrackShipment = () => {
-        if (order.status.toLowerCase() === "shipped") {
+        if (order.status === ORDER_STATUS.Shipped) {
             toast.loading("Tracking Feature Available Later")
         };
     };
 
     const handleCancelOrder = async () => {
         try {
-            await adminOrdersApi.updateOrderStatus(order.id, "cancelled");
+            await adminOrdersApi.updateOrderStatus(order.id, ORDER_STATUS.Cancelled);
 
             toast.success("Successfully Cancel Order");
 
@@ -118,9 +87,12 @@ export default function UserOrderCard(order: UserOrderCardProps) {
                             {/* Status */}
                             <div className="flex flex-col items-center">
                                 <p className="text-sm text-gray-600 mb-1">Status</p>
-                                <div className={`flex items-center gap-2 px-3 py-1 rounded-full w-fit ${getStatusColor(order.status)}`}>
-                                    {getStatusIcon(order.status)}
-                                    <span className="font-semibold text-base capitalize">
+                                <div className={`flex items-center gap-2 px-3 py-1 rounded-full w-fit ${statusConfig.badgeColor}`}>
+                                    <StatusIcon
+                                        size={20}
+                                        className={statusConfig.iconColor}
+                                    />
+                                    <span className="font-semibold text-base">
                                         {order.status}
                                     </span>
                                 </div>
@@ -165,7 +137,7 @@ export default function UserOrderCard(order: UserOrderCardProps) {
                                 </button>
                             )}
 
-                            {order.status.toLowerCase() === "shipped" && (
+                            {order.status === ORDER_STATUS.Shipped && (
                                 <button
                                     onClick={(e) => { e.stopPropagation(); handleTrackShipment(); }}
                                     title="Track Shipment"
@@ -175,7 +147,7 @@ export default function UserOrderCard(order: UserOrderCardProps) {
                                 </button>
                             )}
 
-                            {order.status.toLowerCase() === "pending" && (
+                            {order.status === ORDER_STATUS.Pending && (
                                 <button
                                     onClick={(e) => { e.stopPropagation(); handleCancelOrder(); }}
                                     title="Cancel Order"
@@ -189,7 +161,7 @@ export default function UserOrderCard(order: UserOrderCardProps) {
                     </div>
                 </div>
             </div>
-            
+
             {showForm && (
                 <UserOrderDetailModal
                     showForm={showForm}
