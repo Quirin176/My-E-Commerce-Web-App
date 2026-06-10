@@ -76,11 +76,10 @@ namespace WebApp_API.Repositories
             // Pagination
             var totalCount = await query.CountAsync();
 
-            var items = await query
-                .Include(p => p.Category)
-                .Skip((spec.Page - 1) * spec.PageSize)
-                .Take(spec.PageSize)
-                .ToListAsync();
+            var items = await query.Include(p => p.Category)
+                                    .Skip((spec.Page - 1) * spec.PageSize)
+                                    .Take(spec.PageSize)
+                                    .ToListAsync();
 
             return (items, totalCount);
         }

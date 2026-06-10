@@ -5,11 +5,11 @@ namespace WebApp_API.Repositories
 {
     public interface IProductRepository
     {
-        // ────────────────────────────────────────────────── Single product lookups ──────────────────────────────────────────────────
+        // ────────────────────────────────────────────────── Single Queries ──────────────────────────────────────────────────
         Task<Product?> GetByIdAsync(int id);
         Task<Product?> GetBySlugAsync(string slug);
 
-        // ────────────────────────────────────────────────── List queries ──────────────────────────────────────────────────
+        // ────────────────────────────────────────────────── List Queries ──────────────────────────────────────────────────
         Task<List<Product>> GetCategoryNewestAsync(int categoryId, int amount);
         Task<(List<Product> Items, int TotalCount)> GetPaginatedAsync(ProductFilterSpec spec);
         Task<(List<Product> Items, int TotalCount)> SearchAsync(ProductSearchSpec spec);
@@ -17,7 +17,7 @@ namespace WebApp_API.Repositories
         // ────────────────────────────────────────────────── Validation helpers ──────────────────────────────────────────────────
         Task<bool> CheckProductExistsBySlugAsync(string slug);
 
-        // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
+        // ────────────────────────────────────────────────── Write Commands ──────────────────────────────────────────────────
         Task<Product> AddAsync(Product product);
         void Update(Product product);
         void Remove(Product product);

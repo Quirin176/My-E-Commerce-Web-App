@@ -1,9 +1,14 @@
 import { apiClient } from "../apiClient";
+import type { PaginatedResponse } from "../../types/dto/PaginatedResponse";
 import type { OrderStatus } from "../../types/orderStatus";
+import type { OrderResponse } from "../../types/models/order/OrderResponse";
 
 export const adminOrdersApi = {
+
   // GET /api/adminorders?status=&minDate=&maxDate=&sortBy=&sortOrder= - Get all orders with filters
   async getAllOrders(
+    page = 1,
+    pageSize = 10,
     status: OrderStatus,
     minDate: string,
     maxDate: string,
@@ -11,6 +16,8 @@ export const adminOrdersApi = {
     sortOrder: string) {
     try {
       const params = new URLSearchParams();
+      params.append("page", String(page));
+      params.append("pageSize", String(pageSize));
 
       if (status) params.append('status', status);
       if (minDate) params.append('minDate', minDate);
@@ -18,7 +25,7 @@ export const adminOrdersApi = {
       if (sortBy) params.append('sortBy', sortBy);
       if (sortOrder) params.append('sortOrder', sortOrder);
 
-      const res = await apiClient.get(`/adminorders?${params.toString()}`);
+      const res = await apiClient.get<PaginatedResponse<OrderResponse>>(`/adminorders?${params.toString()}`);
       return res.data;
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -27,7 +34,7 @@ export const adminOrdersApi = {
   },
 
   // GET /api/adminorders/{id} - Get order detail by ID
-  async getOrderDetail(orderId: number) {
+  async getOrderDetail(orderId: number | string) {
     try {
       const res = await apiClient.get(`/adminorders/${orderId}`);
       return res.data;
@@ -60,17 +67,6 @@ export const adminOrdersApi = {
   //     throw error;
   //   }
   // },
-
-  // DELETE order
-  async deleteOrder(orderId: number | string) {
-    try {
-      const res = await apiClient.delete(`/adminorders/${orderId}`);
-      return res.data;
-    } catch (error) {
-      console.error(`Error deleting order:`, error);
-      throw error;
-    }
-  },
 
   // EXPORT orders as CSV
   async exportOrders(

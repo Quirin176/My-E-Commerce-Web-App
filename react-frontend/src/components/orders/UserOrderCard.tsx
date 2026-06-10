@@ -23,8 +23,12 @@ export default function UserOrderCard(order: UserOrderCardProps) {
     const statusConfig = ORDER_STATUS_CONFIG[order.status as keyof typeof ORDER_STATUS_CONFIG];
     const StatusIcon = statusConfig.icon;
 
-    const handleViewDetail = () => navigate(`/order/${order.id}`);
+    const handleViewDetail = () => {
+        if (!user) return;
 
+        if (user.role === "Admin") navigate(`/admin/order/${order.id}`);
+        else navigate(`/order/${order.id}`);
+    }
     const handleTrackShipment = () => {
         if (order.status === ORDER_STATUS.Shipped) {
             toast.loading("Tracking feature coming soon", { duration: 2000 });

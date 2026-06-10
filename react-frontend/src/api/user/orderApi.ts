@@ -16,12 +16,6 @@ interface UpdateOrderRequest {
 }
 
 export const orderApi = {
-  // GET: /api/orders - Get all orders with optional filters
-  async getOrderByFilters(filters: OrderFilters) {
-    const res = await apiClient.get("/orders", { params: filters });
-    return res.data;
-  },
-
   // GET: /api/orders/id/{id:int}/details - Get order by ID
   async getOrderById(orderId: number | string) {
     const res = await apiClient.get(`/orders/id/${orderId}/details`);
@@ -52,12 +46,6 @@ export const orderApi = {
     return res.data;
   },
 
-  // DELETE: /api/orders/{id} - Delete order
-  async deleteOrder(orderId: number | string) {
-    const res = await apiClient.delete(`/orders/id/${orderId}`);
-    return res.data;
-  },
-
   // GET: /api/orders/export - Export orders as CSV
   async exportOrders(filters: OrderFilters) {
     const params = {
@@ -69,12 +57,6 @@ export const orderApi = {
       params,
       responseType: 'blob'
     });
-    return res.data;
-  },
-
-  // GET: /api/orders/stats - Get order statistics
-  async getOrderStats() {
-    const res = await apiClient.get("/orders/stats");
     return res.data;
   },
 

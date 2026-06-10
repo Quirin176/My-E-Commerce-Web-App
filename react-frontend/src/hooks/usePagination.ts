@@ -19,7 +19,13 @@ interface UsePaginationReturn {
   endIndex: number;                     // index of the last item on the current page
 }
 
-export function usePagination({ totalCount, pageSize, currentPage, onPageChange, scrollToTop = true }: UsePaginationOptions): UsePaginationReturn {
+export function usePagination({
+  totalCount,
+  pageSize,
+  currentPage,
+  onPageChange,
+  scrollToTop = true }: UsePaginationOptions): UsePaginationReturn {
+
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
   const canGoNext = currentPage < totalPages;
   const canGoPrev = currentPage > 1;
@@ -28,11 +34,11 @@ export function usePagination({ totalCount, pageSize, currentPage, onPageChange,
   const endIndex = Math.min(currentPage * pageSize, totalCount);
 
   const goToPage = useCallback((page: number) => {
-      const clamped = Math.max(1, Math.min(page, totalPages));
-      if (clamped === currentPage) return;
-      onPageChange(clamped);
-      if (scrollToTop) window.scrollTo({ top: 0, behavior: "smooth" });
-    }, [currentPage, totalPages, onPageChange, scrollToTop]);
+    const clamped = Math.max(1, Math.min(page, totalPages));
+    if (clamped === currentPage) return;
+    onPageChange(clamped);
+    if (scrollToTop) window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentPage, totalPages, onPageChange, scrollToTop]);
 
   const goNext = useCallback(() => goToPage(currentPage + 1), [currentPage, goToPage]);
   const goPrev = useCallback(() => goToPage(currentPage - 1), [currentPage, goToPage]);

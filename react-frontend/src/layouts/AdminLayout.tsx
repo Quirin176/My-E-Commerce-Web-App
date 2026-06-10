@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import AdminHeader from "../components/mainlayout/Admin/AdminHeader";
 import AdminSidePanel from "../components/mainlayout/Admin/AdminSidePanel";
-// import Footer from "../components/mainlayout/Footer";
+import Footer from "../components/mainlayout/Footer";
 
 export default function AdminLayout() {
 
@@ -21,7 +21,7 @@ export default function AdminLayout() {
           <Outlet />
         </main>
 
-        {/* <Footer /> */}
+        <Footer />
       </div>
     </div>
   );

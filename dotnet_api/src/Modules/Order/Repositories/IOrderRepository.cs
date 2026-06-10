@@ -6,15 +6,15 @@ namespace WebApp_API.Repositories
 {
     public interface IOrderRepository
     {
-        // ────────────────────────────── Single Order Lookups ──────────────────────────────
+        // ────────────────────────────── Single Queries ──────────────────────────────
         Task<Order?> GetOrderByIdAsync(int orderId);
         Task<Order?> GetOrderWithItemsByIdAsync(int orderId);
-        Task<Order?> AdminGetOrderWithItemsByIdAsync(int orderId);
 
-        // ────────────────────────────── List of Orders Lookups ──────────────────────────────
+        // ────────────────────────────── List Queries ──────────────────────────────
         Task<List<Order>> GetOrdersByUserIdAsync(int userId);
-        Task<List<Order>> GetFilteredOrdersAsync(OrderFiltersParameters filterParams);
+        Task<(List<Order> Orders, int TotalCount)> GetPaginatedOrdersAsync(OrderFiltersParameters spec);
         Task<List<Order>> GetAllOrdersWithItemsAsync();     // Admin
+        Task<List<Order>> ExportOrdersCsvAsync(OrderFiltersParameters spec);
 
         // ────────────────────────────── Dashboard Features ──────────────────────────────
         int CountOrders();
@@ -22,7 +22,7 @@ namespace WebApp_API.Repositories
         List<OrderDTOs.RecentOrderDto> GetRecentOrders(int count);
         Task<List<LineChartPoint>> GetOrderChartDataAsync(int days);
 
-        // ────────────────────────────── Write Operations ──────────────────────────────
+        // ────────────────────────────── Write Commands ──────────────────────────────
         Task<Order> CreateOrderAsync(Order order, List<OrderItem> items);   // Customer
         Task UpdateOrderAsync(Order order);                 // Admin
         Task DeleteOrderAsync(Order order);                 // Admin

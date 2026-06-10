@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
-import { slugify } from "../../utils/slugify";
+import { slugify } from "../../../utils/slugify";
 
 // Define the return type of the useProductForm hook
 export interface UseProductFormReturn {

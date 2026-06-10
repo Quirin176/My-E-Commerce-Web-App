@@ -2,6 +2,7 @@ using WebApp_API.DTOs;
 using WebApp_API.Entities;
 using WebApp_API.Repositories;
 using WebApp_API.Specifications;
+using static WebApp_API.DTOs.PaginationDTOs;
 using WebApp_API.Enums;
 
 namespace WebApp_API.Services
@@ -11,7 +12,7 @@ namespace WebApp_API.Services
         private readonly IOrderRepository _repo;
         public OrderService(IOrderRepository repo) => _repo = repo;
 
-        // ────────────────────────────── Order Lookups ──────────────────────────────
+        // ────────────────────────────── Single Queries ──────────────────────────────
         public async Task<OrderDTOs.OrderResponse?> GetOrderByIdAsync(int orderId, int? userId = null)
         {
             var order = await _repo.GetOrderByIdAsync(orderId);
@@ -48,7 +49,7 @@ namespace WebApp_API.Services
 
         public async Task<OrderDTOs.AdminOrderResponse?> AdminGetOrderWithItemsByIdAsync(int orderId)
         {
-            var order = await _repo.AdminGetOrderWithItemsByIdAsync(orderId);
+            var order = await _repo.GetOrderWithItemsByIdAsync(orderId);
             if (order is null) return null;
 
             return new OrderDTOs.AdminOrderResponse
@@ -68,18 +69,6 @@ namespace WebApp_API.Services
                 UserName = order.User?.Username,
                 Items = order.OrderItems.Select(MapToItemResponse).ToList()
             };
-        }
-
-        public async Task<List<OrderDTOs.OrderResponse>> GetOrdersByUserIdAsync(int userId)
-        {
-            var orders = await _repo.GetOrdersByUserIdAsync(userId);
-            return orders.Select(MapToOrderResponse).ToList();
-        }
-
-        public async Task<List<OrderDTOs.OrderResponse>> GetFilteredOrdersAsync(OrderFiltersParameters filterParams)
-        {
-            var orders = await _repo.GetFilteredOrdersAsync(filterParams);
-            return orders.Select(MapToOrderResponse).ToList();
         }
 
         // ────────────────────────────── Order Statistics ──────────────────────────────
@@ -106,7 +95,26 @@ namespace WebApp_API.Services
             };
         }
 
-        // ────────────────────────────── Write Operations ──────────────────────────────
+        // ────────────────────────────── List Queries ──────────────────────────────
+        public async Task<List<OrderDTOs.OrderResponse>> GetOrdersByUserIdAsync(int userId)
+        {
+            var orders = await _repo.GetOrdersByUserIdAsync(userId);
+            return orders.Select(MapToOrderResponse).ToList();
+        }
+
+        public async Task<PaginatedResponse<OrderDTOs.OrderResponse>> GetPaginatedOrdersAsync(OrderFiltersParameters spec)
+        {
+            var (orders, totalCount) = await _repo.GetPaginatedOrdersAsync(spec);
+            var data = await MapToSummaryListAsync(orders);
+            return new PaginatedResponse<OrderDTOs.OrderResponse>
+            {
+                Success = true,
+                Data = data,
+                Pagination = PaginationMeta.From(spec.Page, spec.PageSize, totalCount)
+            };
+        }
+
+        // ────────────────────────────── Write Commands ──────────────────────────────
         public async Task<OrderDTOs.OrderResponse> CreateOrderAsync(OrderDTOs.CreateOrderRequest orderRequest, int userId)
         {
             var order = new Order
@@ -165,18 +173,9 @@ namespace WebApp_API.Services
             return true;
         }
 
-        public async Task<bool> DeleteOrderAsync(int id)
+        public async Task<byte[]> ExportOrdersCsvAsync(OrderFiltersParameters spec)
         {
-            var order = await _repo.GetOrderByIdAsync(id);
-            if (order is null) return false;
-
-            await _repo.DeleteOrderAsync(order);
-            return true;
-        }
-
-        public async Task<byte[]> ExportOrdersCsvAsync(OrderFiltersParameters filterParams)
-        {
-            var orders = await _repo.GetFilteredOrdersAsync(filterParams);
+            var orders = await _repo.ExportOrdersCsvAsync(spec);
 
             var csv = new System.Text.StringBuilder();
             csv.AppendLine(
@@ -221,6 +220,31 @@ namespace WebApp_API.Services
             ItemCount = order.OrderItems?.Count ?? 0,
             Items = order.OrderItems?.Select(MapToItemResponse).ToList() ?? new()
         };
+
+        private async Task<List<OrderDTOs.OrderResponse>> MapToSummaryListAsync(List<Order> orders)
+        {
+            var result = new List<OrderDTOs.OrderResponse>(orders.Count);
+            foreach (var order in orders)
+            {
+                result.Add(new OrderDTOs.OrderResponse
+                {
+                    Id = order.Id,
+                    CustomerName = order.CustomerName,
+                    CustomerEmail = order.CustomerEmail,
+                    CustomerPhone = order.CustomerPhone,
+                    ShippingAddress = order.ShippingAddress,
+                    City = order.City,
+                    TotalAmount = order.TotalAmount,
+                    PaymentMethod = order.PaymentMethod,
+                    Status = order.Status,
+                    OrderDate = order.OrderDate,
+                    Notes = order.Notes,
+                    ItemCount = order.OrderItems?.Count ?? 0,
+                    Items = order.OrderItems?.Select(MapToItemResponse).ToList() ?? new()
+                });
+            }
+            return result;
+        }
 
         private static OrderItemDTOs.OrderItemResponse MapToItemResponse(OrderItem item) => new()
         {

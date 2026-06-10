@@ -10,5 +10,7 @@ namespace WebApp_API.Specifications
         public string? MaxDate { get; set; }
         public string SortBy { get; set; } = "orderDate";
         public string SortOrder { get; set; } = "desc";
+        public int Page { get; init; } = 1;
+        public int PageSize { get; init; } = 10;
     }
 }

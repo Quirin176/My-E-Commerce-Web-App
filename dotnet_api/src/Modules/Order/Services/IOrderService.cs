@@ -1,28 +1,27 @@
 using WebApp_API.DTOs;
 using WebApp_API.Specifications;
+using static WebApp_API.DTOs.PaginationDTOs;
 using WebApp_API.Enums;
 
 namespace WebApp_API.Services
 {
     public interface IOrderService
     {
-        // ────────────────────────────── Single Order Lookups ──────────────────────────────
+        // ────────────────────────────── Single Queries ──────────────────────────────
         Task<OrderDTOs.OrderResponse?> GetOrderByIdAsync(int id, int? userId = null);
         Task<OrderDTOs.OrderResponse?> GetOrderWithItemsByIdAsync(int id, int? userId = null);
         Task<OrderDTOs.AdminOrderResponse?> AdminGetOrderWithItemsByIdAsync(int id);
 
         Task<OrderDTOs.OrderStatisticsResponse?> GetOrderStatisticsAsync();
+
+        // ────────────────────────────── List Queries ──────────────────────────────
         Task<List<OrderDTOs.OrderResponse>> GetOrdersByUserIdAsync(int userId);
+        Task<PaginatedResponse<OrderDTOs.OrderResponse>> GetPaginatedOrdersAsync(OrderFiltersParameters spec);
 
-        // ────────────────────────────── List of Orders Lookups ──────────────────────────────
-        Task<List<OrderDTOs.OrderResponse>> GetFilteredOrdersAsync(OrderFiltersParameters filterParams);
-
-        // ────────────────────────────── Write Operations ──────────────────────────────
+        // ────────────────────────────── Write Commands ──────────────────────────────
         Task<OrderDTOs.OrderResponse> CreateOrderAsync(OrderDTOs.CreateOrderRequest request, int userId);
         Task<bool> UpdateOrderAsync(int id, OrderDTOs.UpdateOrderRequest request);
         Task<bool> UpdateOrderStatusAsync(int id, OrderStatus status);
-        Task<bool> DeleteOrderAsync(int id);
-        Task<byte[]> ExportOrdersCsvAsync(OrderFiltersParameters filterParams);
-
+        Task<byte[]> ExportOrdersCsvAsync(OrderFiltersParameters spec);
     }
 }

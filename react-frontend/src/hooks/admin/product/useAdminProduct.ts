@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 
-import { useProductForm } from "../useProductForm";
+import { useProductForm } from "./useProductForm";
 import { useCategories } from "../../products/useCategories";
 import { useProductFilters } from "../../products/useProductFilters";
 

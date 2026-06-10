@@ -18,43 +18,6 @@ namespace WebApp_API.Controllers
             _orderService = orderService;
         }
 
-        // POST api/orders - Create new order
-        [HttpPost]
-        public async Task<IActionResult> CreateOrder([FromBody] OrderDTOs.CreateOrderRequest request)
-        {
-            if (string.IsNullOrWhiteSpace(request.CustomerName))
-                return BadRequest(new { message = "Customer name is required" });
-
-            if (string.IsNullOrWhiteSpace(request.CustomerEmail))
-                return BadRequest(new { message = "Email is required" });
-
-            if (request.OrderItems == null || request.OrderItems.Count == 0)
-                return BadRequest(new { message = "Order must contain at least one item" });
-
-            if (request.TotalAmount <= 0)
-                return BadRequest(new { message = "Total amount must be greater than 0" });
-
-            var userId = User.FindFirst("id")?.Value;
-            if (string.IsNullOrEmpty(userId)) return Unauthorized();
-
-            try
-            {
-                var order = await _orderService.CreateOrderAsync(request, int.Parse(userId));
-                return CreatedAtAction(nameof(GetOrderById), new { id = order.Id }, new
-                {
-                    order.Id,
-                    order.CustomerName,
-                    order.TotalAmount,
-                    order.Status,
-                    order.OrderDate
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error creating order", error = ex.Message });
-            }
-        }
-
         // GET api/orders/id/{id:int}/details - Get order by ID
         [HttpGet("id/{orderId:int}/details")]
         public async Task<IActionResult> GetOrderById(int orderId)
@@ -76,7 +39,7 @@ namespace WebApp_API.Controllers
             }
         }
 
-        // GET api/orders/id/{id:int}/detailswithitems - Get order by ID
+        // GET api/orders/id/{id:int}/detailswithitems - Get order with items by ID
         [HttpGet("id/{orderId:int}/detailswithitems")]
         public async Task<IActionResult> GetOrderWithItemsById(int orderId)
         {
@@ -112,6 +75,43 @@ namespace WebApp_API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Error fetching orders", error = ex.Message });
+            }
+        }
+        
+        // POST api/orders - Create new order
+        [HttpPost]
+        public async Task<IActionResult> CreateOrder([FromBody] OrderDTOs.CreateOrderRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.CustomerName))
+                return BadRequest(new { message = "Customer name is required" });
+
+            if (string.IsNullOrWhiteSpace(request.CustomerEmail))
+                return BadRequest(new { message = "Email is required" });
+
+            if (request.OrderItems == null || request.OrderItems.Count == 0)
+                return BadRequest(new { message = "Order must contain at least one item" });
+
+            if (request.TotalAmount <= 0)
+                return BadRequest(new { message = "Total amount must be greater than 0" });
+
+            var userId = User.FindFirst("id")?.Value;
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            try
+            {
+                var order = await _orderService.CreateOrderAsync(request, int.Parse(userId));
+                return CreatedAtAction(nameof(GetOrderById), new { id = order.Id }, new
+                {
+                    order.Id,
+                    order.CustomerName,
+                    order.TotalAmount,
+                    order.Status,
+                    order.OrderDate
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error creating order", error = ex.Message });
             }
         }
     }

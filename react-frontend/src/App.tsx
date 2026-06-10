@@ -16,6 +16,7 @@ import AdminProducts from "./pages/admin/products/AdminProducts";
 import AdminProduct from "./pages/admin/product/AdminProduct";
 import AdminAttributes from "./pages/admin/attributes/AdminAttributes"
 import AdminOrders from "./pages/admin/orders/AdminOrders";
+import AdminOrder from "./pages/admin/order/AdminOrder";
 import AdminUsers from "./pages/admin/users/AdminUsers";
 import AdminChats from "./pages/admin/chats/AdminChats";
 
@@ -129,7 +130,7 @@ export default function App() {
           <Route path="attributes" element={<AdminProtected><AdminAttributes /></AdminProtected>} />
 
           <Route path="orders" element={<AdminProtected><AdminOrders /></AdminProtected>} />
-          <Route path="orders/:orderId" element={<AdminProtected><OrderDetail /></AdminProtected>} />
+          <Route path="order/:orderId" element={<AdminProtected><AdminOrder /></AdminProtected>} />
 
           <Route path="users" element={<AdminProtected><AdminUsers /></AdminProtected>} />
 

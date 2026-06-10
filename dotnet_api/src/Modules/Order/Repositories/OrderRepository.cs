@@ -25,14 +25,6 @@ namespace WebApp_API.Repositories
                         .FirstOrDefaultAsync(o => o.Id == orderId);
         }
 
-        public async Task<Order?> AdminGetOrderWithItemsByIdAsync(int orderId)
-        {
-            return await _db.Orders
-                        .Include(o => o.User)
-                        .Include(o => o.OrderItems)
-                        .FirstOrDefaultAsync(o => o.Id == orderId);
-        }
-
         // ────────────────────────────── List of Orders Lookups ──────────────────────────────
         public async Task<List<Order>> GetOrdersByUserIdAsync(int userId)
         {
@@ -43,33 +35,74 @@ namespace WebApp_API.Repositories
                 .ToListAsync();
         }
 
-        public async Task<List<Order>> GetFilteredOrdersAsync(OrderFiltersParameters filterParams)
+        public async Task<(List<Order> Orders, int TotalCount)> GetPaginatedOrdersAsync(OrderFiltersParameters spec)
         {
-            IQueryable<Order> query = _db.Orders
-                .Include(o => o.User)
-                .Include(o => o.OrderItems);
+            IQueryable<Order> query = _db.Orders.AsNoTracking()
+                                                .Include(o => o.User)
+                                                .Include(o => o.OrderItems);
 
             // Filtered By Order's Status
-            if (filterParams.Status.HasValue)
+            if (spec.Status.HasValue)
             {
-                query = query.Where(o => o.Status == filterParams.Status.Value);
+                query = query.Where(o => o.Status == spec.Status.Value);
             }
 
             // Filtered By Min Date and Max Date
-            if (!string.IsNullOrWhiteSpace(filterParams.MinDate))
-                query = query.Where(o => o.OrderDate >= DateTime.Parse(filterParams.MinDate));
+            if (!string.IsNullOrWhiteSpace(spec.MinDate))
+                query = query.Where(o => o.OrderDate >= DateTime.Parse(spec.MinDate));
 
-            if (!string.IsNullOrWhiteSpace(filterParams.MaxDate))
-                query = query.Where(o => o.OrderDate <= DateTime.Parse(filterParams.MaxDate).AddDays(1).AddSeconds(-1));
+            if (!string.IsNullOrWhiteSpace(spec.MaxDate))
+                query = query.Where(o => o.OrderDate <= DateTime.Parse(spec.MaxDate)
+                                                                    .AddDays(1).AddSeconds(-1));
 
             // Apply Sorting
-            query = filterParams.SortBy switch
+            query = spec.SortBy switch
             {
-                "customerName" => filterParams.SortOrder == "asc" ?
+                "customerName" => spec.SortOrder == "asc" ?
                     query.OrderBy(o => o.CustomerName) : query.OrderByDescending(o => o.CustomerName),
-                "totalAmount" => filterParams.SortOrder == "asc" ?
+                "totalAmount" => spec.SortOrder == "asc" ?
                     query.OrderBy(o => o.TotalAmount) : query.OrderByDescending(o => o.TotalAmount),
-                _ => filterParams.SortOrder == "asc" ?
+                _ => spec.SortOrder == "asc" ?
+                    query.OrderBy(o => o.OrderDate) : query.OrderByDescending(o => o.OrderDate),
+            };
+
+            var totalCount = await query.CountAsync();
+
+            var orders = await query.Skip((spec.Page - 1) * spec.PageSize)
+                                    .Take(spec.PageSize)
+                                    .ToListAsync();
+
+            return (orders, totalCount);
+        }
+
+        public async Task<List<Order>> ExportOrdersCsvAsync(OrderFiltersParameters spec)
+        {
+            IQueryable<Order> query = _db.Orders.AsNoTracking()
+                                                .Include(o => o.User)
+                                                .Include(o => o.OrderItems);
+
+            // Filtered By Order's Status
+            if (spec.Status.HasValue)
+            {
+                query = query.Where(o => o.Status == spec.Status.Value);
+            }
+
+            // Filtered By Min Date and Max Date
+            if (!string.IsNullOrWhiteSpace(spec.MinDate))
+                query = query.Where(o => o.OrderDate >= DateTime.Parse(spec.MinDate));
+
+            if (!string.IsNullOrWhiteSpace(spec.MaxDate))
+                query = query.Where(o => o.OrderDate <= DateTime.Parse(spec.MaxDate)
+                                                                    .AddDays(1).AddSeconds(-1));
+
+            // Apply Sorting
+            query = spec.SortBy switch
+            {
+                "customerName" => spec.SortOrder == "asc" ?
+                    query.OrderBy(o => o.CustomerName) : query.OrderByDescending(o => o.CustomerName),
+                "totalAmount" => spec.SortOrder == "asc" ?
+                    query.OrderBy(o => o.TotalAmount) : query.OrderByDescending(o => o.TotalAmount),
+                _ => spec.SortOrder == "asc" ?
                     query.OrderBy(o => o.OrderDate) : query.OrderByDescending(o => o.OrderDate),
             };
 

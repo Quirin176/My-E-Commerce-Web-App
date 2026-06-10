@@ -18,13 +18,13 @@ namespace WebApp_API.Controllers
             _orderService = orderService;
         }
 
-        // GET: /api/adminorders - Get all orders with filters
+        // GET: /api/adminorders - Get all orders paginated with all items by filters
         [HttpGet]
         public async Task<IActionResult> GetAllOrders([FromQuery] OrderFiltersParameters filterParams)
         {
             try
             {
-                var orders = await _orderService.GetFilteredOrdersAsync(filterParams);
+                var orders = await _orderService.GetPaginatedOrdersAsync(filterParams);
                 return Ok(orders);
             }
             catch (Exception ex)
@@ -84,24 +84,6 @@ namespace WebApp_API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Error updating order", error = ex.Message });
-            }
-        }
-
-        // DELETE: /api/adminorders/{id} - Delete order
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteOrder(int id)
-        {
-            try
-            {
-                var deleted = await _orderService.DeleteOrderAsync(id);
-                if (!deleted)
-                    return NotFound(new { message = "Order not found" });
-
-                return Ok(new { message = "Order deleted successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error deleting order", error = ex.Message });
             }
         }
 
