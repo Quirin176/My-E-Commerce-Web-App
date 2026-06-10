@@ -1,9 +1,4 @@
-import {
-    Clock,
-    CheckCircle,
-    Truck,
-    Package
-} from "lucide-react";
+import { Clock, CheckCircle, Truck, Package, XCircle } from "lucide-react";
 
 export const ORDER_STATUS = {
     Pending: "Pending",
@@ -12,10 +7,10 @@ export const ORDER_STATUS = {
     Delivered: "Delivered",
     Cancelled: "Cancelled",
 } as const;
-
+ 
 export type OrderStatus =
     typeof ORDER_STATUS[keyof typeof ORDER_STATUS];
-
+ 
 export const ORDER_STATUS_CONFIG = {
     Pending: {
         color: "bg-yellow-50 border-yellow-300 text-yellow-900",
@@ -44,7 +39,7 @@ export const ORDER_STATUS_CONFIG = {
     Cancelled: {
         color: "bg-red-50 border-red-300 text-red-900",
         badgeColor: "bg-red-100 text-red-800",
-        icon: Package,
+        icon: XCircle,
         iconColor: "text-red-500",
     },
 } satisfies Record<OrderStatus, {
@@ -53,11 +48,17 @@ export const ORDER_STATUS_CONFIG = {
     icon: React.ElementType;
     iconColor: string;
 }>;
-
-export const ORDER_PROGRESS_STATUSES = [
+ 
+// Ordered steps shown in the progress timeline
+export const ORDER_TIMELINE_STATUSES = [
     ORDER_STATUS.Pending,
     ORDER_STATUS.Processing,
     ORDER_STATUS.Shipped,
     ORDER_STATUS.Delivered,
-    ORDER_STATUS.Cancelled,
-];
+] as const;
+ 
+export type OrderTimelineStatus = typeof ORDER_TIMELINE_STATUSES[number];
+ 
+// All statuses as a flat array, useful for filter dropdowns etc.
+export const ORDER_ALL_STATUSES = Object.values(ORDER_STATUS);
+ 

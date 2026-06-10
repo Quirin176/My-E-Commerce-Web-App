@@ -1,13 +1,21 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import React from "react";
 import toast from "react-hot-toast";
 import { ArrowLeft, Download, Printer } from "lucide-react";
 import { orderApi } from "../../api/user/orderApi";
 import { useAuth } from "../../hooks/auth/useAuth";
 import type { OrderResponse } from "../../types/models/order/OrderResponse";
-import { ORDER_STATUS, ORDER_STATUS_CONFIG, ORDER_PROGRESS_STATUSES, type OrderStatus } from "../../types/orderStatus";
-
+import { ORDER_STATUS, ORDER_STATUS_CONFIG, ORDER_TIMELINE_STATUSES, type OrderStatus } from "../../types/orderStatus";
 import LoadingState from "../../components/pageState/LoadingState";
+
+const PRINT_STYLES = `
+  body { font-family: Arial, sans-serif; padding: 24px; background: white; }
+  h1, h2, h3, h4 { margin: 0 0 8px; }
+  .section { margin-bottom: 20px; }
+  .item-row { border-bottom: 1px solid #ddd; padding: 8px 0; display: flex; justify-content: space-between; }
+  .total-box { margin-top: 20px; border-top: 2px solid #000; padding-top: 16px; font-size: 18px; font-weight: bold; }
+`;
 
 export default function OrderDetail() {
   const { orderId } = useParams();
@@ -17,17 +25,18 @@ export default function OrderDetail() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!orderId) return;
+
     const loadOrder = async () => {
       if (!user) {
-        navigate("/auth/login");
+        navigate("/home");
         return;
       }
-
       setLoading(true);
       try {
         const data = await orderApi.getOrderWithItemsById(orderId);
         setOrder(data);
-      } catch (error) {
+      } catch {
         toast.error("Failed to load order details");
         navigate("/orders");
       } finally {
@@ -35,47 +44,32 @@ export default function OrderDetail() {
       }
     };
 
-    if (orderId) {
-      loadOrder();
-    }
+    loadOrder();
   }, [orderId, user, navigate]);
 
-  const getStatusTimeline = (status: string) => {
-    if (
-      status === ORDER_STATUS.Cancelled
-    ) {
-      return (
-        <div className="text-center py-4 text-red-600 font-semibold">
-          Order Cancelled
-        </div>
-      );
-    }
+  const handlePrint = () => {
+    const printContents = document.getElementById("print-area")?.innerHTML;
+    if (!printContents) return;
 
-    const currentIndex = ORDER_PROGRESS_STATUSES.indexOf(status as OrderStatus);
+    const printWindow = window.open("", "", "width=800,height=600");
+    if (!printWindow) return;
 
-    return ORDER_PROGRESS_STATUSES.map(
-      (timelineStatus, index) => (
-        <div
-          key={timelineStatus}
-          className="flex items-center flex-1"
-        >
-          <div
-            className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold ${index <= currentIndex
-              ? "bg-green-500 text-white"
-              : "bg-gray-300 text-gray-600"
-              }`}
-          >
-            {index + 1}
-          </div>
-
-          {index <
-            ORDER_PROGRESS_STATUSES.length - 1 && (
-              <div className={`flex-1 h-1 mx-2 ${index < currentIndex ? "bg-green-500" : "bg-gray-300"}`} />
-            )}
-        </div>
-      )
-    );
+    printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Order #${order?.id} — Invoice</title>
+                    <style>${PRINT_STYLES}</style>
+                </head>
+                <body>${printContents}</body>
+            </html>
+        `);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
   };
+
+  // --- Guards ---
 
   if (!user) {
     return (
@@ -94,7 +88,7 @@ export default function OrderDetail() {
   if (loading) {
     return (
       <LoadingState
-        message="Loading order details..."
+        message="Loading order details…"
         subMessage="Please wait while we fetch the order details."
       />
     );
@@ -114,90 +108,20 @@ export default function OrderDetail() {
     );
   }
 
-  const handlePrint = () => {
-    const printContents = document.getElementById("print-area")?.innerHTML;
-    if (!printContents) return;
-
-    const printWindow = window.open("", "", "width=800,height=600");
-    if (!printWindow) return;
-
-    printWindow.document.write(`
-    <html>
-      <head>
-        <title>Order #${order?.id} - Invoice</title>
-        <style>
-          ${printStylesRaw}
-        </style>
-      </head>
-      <body>${printContents}</body>
-    </html>
-  `);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
-  };
-
-  const handleDownloadInvoice = () => {
-    toast.success("Invoice download feature coming soon!");
-  };
-
-  const printStylesRaw = `
-  body {
-    font-family: Arial, sans-serif;
-    padding: 24px;
-    background: white;
-  }
-  h1, h2, h3, h4 {
-    margin: 0 0 8px;
-  }
-  .section {
-    margin-bottom: 20px;
-  }
-  .item-row {
-    border-bottom: 1px solid #ddd;
-    padding: 8px 0;
-    display: flex;
-    justify-content: space-between;
-  }
-  .total-box {
-    margin-top: 20px;
-    border-top: 2px solid #000;
-    padding-top: 16px;
-    font-size: 18px;
-    font-weight: bold;
-  }
-`;
-
-  const printStyles = `
-  @media print {
-      body {
-          background: white;
-      }
-      .print-hide {
-          display: none !important;
-      }
-      button {
-          display: none !important;
-      }
-      .container {
-          max-width: 100% !important;
-          padding: 0 !important;
-      }
-      #print-area {
-          padding: 20px;
-      }
-  }
-`;
+  const isCancelled = order.status === ORDER_STATUS.Cancelled;
+  const currentIndex = ORDER_TIMELINE_STATUSES.indexOf(order.status as any);
+  const statusConfig = ORDER_STATUS_CONFIG[order.status as OrderStatus];
+  const StatusIcon = statusConfig.icon;
 
   return (
     <div className="container mx-auto p-4 max-w-4xl">
-      {/* Header */}
+
+      {/* Page header */}
       <div className="flex items-center justify-between mb-8">
         <div>
           <button
             onClick={() => navigate("/orders")}
-            className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4 font-semibold"
+            className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-3 font-semibold"
           >
             <ArrowLeft size={20} />
             Back to Orders
@@ -207,7 +131,7 @@ export default function OrderDetail() {
 
         <div className="flex gap-2">
           <button
-            onClick={handleDownloadInvoice}
+            onClick={() => toast.success("Invoice download coming soon!")}
             className="flex items-center gap-2 px-4 py-2 border-2 border-gray-300 rounded hover:bg-gray-50 transition"
           >
             <Download size={20} />
@@ -223,76 +147,70 @@ export default function OrderDetail() {
         </div>
       </div>
 
-      <div id="print-area">
+      <div id="print-area" className="space-y-6">
 
-        {/* Status */}
-        <div className="bg-white p-6 rounded-lg shadow mb-6">
-          <div className="flex flex-row items-center gap-4">
+        {/* Status card */}
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="flex items-center gap-4 mb-6">
             <h3 className="font-bold text-gray-800">Order Status</h3>
-            {(() => {
-              const config =
-                ORDER_STATUS_CONFIG[
-                order.status as OrderStatus
-                ];
-
-              const Icon = config.icon;
-
-              return (
-                <div
-                  className={`inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold ${config.badgeColor}`}
-                >
-                  <Icon
-                    size={18}
-                    className={config.iconColor}
-                  />
-                  {order.status}
-                </div>
-              );
-            })()}
+            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-bold ${statusConfig.badgeColor}`}>
+              <StatusIcon size={18} className={statusConfig.iconColor} />
+              {order.status}
+            </div>
           </div>
 
-          {/* Timeline */}
-          <div className="mt-6">
+          {isCancelled ? (
+            <div className="py-4 text-center text-red-600 font-semibold bg-red-50 rounded-lg border border-red-200">
+              This order has been cancelled.
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <h4 className="text-sm font-semibold text-gray-500">Tracking Progress</h4>
 
-            {order.status !== ORDER_STATUS.Cancelled ? (
-              <>
-                <h4 className="text-sm font-semibold text-gray-600 mb-3">
-                  Tracking Progress
-                </h4>
-
-                <div className="flex gap-1">
-                  {getStatusTimeline(order.status)}
-                </div>
-
-                <div className="flex justify-between text-xs text-gray-600 mt-2">
-                  {ORDER_PROGRESS_STATUSES.map((status) => (
-                    <span key={status}>{status}</span>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <div className="text-red-600 font-semibold">
-                This order has been cancelled.
+              {/* Step dots + connectors */}
+              <div className="flex items-center">
+                {ORDER_TIMELINE_STATUSES.map((s, index) => (
+                  <React.Fragment key={s}>
+                    <div
+                      className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold shrink-0
+                                                ${index <= currentIndex
+                          ? "bg-green-500 text-white"
+                          : "bg-gray-200 text-gray-500"
+                        }`}
+                    >
+                      {index + 1}
+                    </div>
+                    {index < ORDER_TIMELINE_STATUSES.length - 1 && (
+                      <div
+                        className={`flex-1 h-1 mx-2 ${index < currentIndex ? "bg-green-500" : "bg-gray-200"}`}
+                      />
+                    )}
+                  </React.Fragment>
+                ))}
               </div>
-            )}
 
-          </div>
+              {/* Step labels */}
+              <div className="flex justify-between text-xs text-gray-500">
+                {ORDER_TIMELINE_STATUSES.map((s) => (
+                  <span key={s}>{s}</span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Order Information */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          {/* Shipping Information */}
+        {/* Shipping + Payment */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="font-bold text-lg text-gray-800 mb-4">Shipping Information</h3>
-            <div className="space-y-2 text-gray-700">
-              <p><strong>{order.customerName}</strong></p>
+            <div className="space-y-1 text-gray-700">
+              <p className="font-semibold">{order.customerName}</p>
               <p>{order.shippingAddress}</p>
               <p>📧 {order.customerEmail}</p>
               <p>📱 {order.customerPhone}</p>
             </div>
           </div>
 
-          {/* Payment Information */}
           <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="font-bold text-lg text-gray-800 mb-4">Payment Details</h3>
             <div className="space-y-3 text-gray-700">
@@ -306,46 +224,52 @@ export default function OrderDetail() {
               </div>
               <div className="flex justify-between pt-3 border-t">
                 <span className="font-semibold">Total Amount:</span>
-                <strong className="text-blue-600 text-lg">{order.totalAmount.toLocaleString()} VND</strong>
+                <strong className="text-blue-600 text-lg">
+                  {order.totalAmount.toLocaleString()} VND
+                </strong>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Order Items */}
+        {/* Order items */}
         {order.items && order.items.length > 0 && (
-          <div className="bg-white p-6 rounded-lg shadow mb-6">
+          <div className="bg-white p-6 rounded-lg shadow">
             <h3 className="font-bold text-lg text-gray-800 mb-4">Order Items</h3>
             <div className="space-y-3">
-              {order.items.map(item => (
-                <div key={item.productId} className="flex justify-between items-center p-4 bg-gray-50 rounded border border-gray-200">
+              {order.items.map((item) => (
+                <div
+                  key={item.productId}
+                  className="flex justify-between items-center p-4 bg-gray-50 rounded border border-gray-200"
+                >
                   <div className="flex-1">
-                    <h4 className="font-semibold text-gray-800">{item.productName}</h4>
-                    <p className="text-sm text-gray-600">Quantity: {item.quantity} × {item.unitPrice.toLocaleString()} VND</p>
+                    <p className="font-semibold text-gray-800">{item.productName}</p>
+                    <p className="text-sm text-gray-500">
+                      {item.quantity} × {item.unitPrice.toLocaleString()} VND
+                    </p>
                   </div>
-                  <div className="text-right">
-                    <p className="font-bold text-gray-800">{item.totalPrice.toLocaleString()} VND</p>
-                  </div>
+                  <p className="font-bold text-gray-800">
+                    {item.totalPrice.toLocaleString()} VND
+                  </p>
                 </div>
               ))}
             </div>
 
-            {/* Order Total */}
-            <div className="mt-4 pt-4 border-t-2">
-              <div className="flex justify-end">
-                <div className="w-full md:w-64">
-                  <div className="flex justify-between text-gray-600 mb-2">
-                    <span>Subtotal:</span>
-                    <span>{order.totalAmount.toLocaleString()} VND</span>
-                  </div>
-                  <div className="flex justify-between text-gray-600 mb-4">
-                    <span>Shipping:</span>
-                    <span className="text-green-600 font-semibold">Free</span>
-                  </div>
-                  <div className="flex justify-between text-lg font-bold text-gray-800 p-3 bg-blue-50 rounded">
-                    <span>Total:</span>
-                    <span className="text-blue-600">{order.totalAmount.toLocaleString()} VND</span>
-                  </div>
+            <div className="mt-4 pt-4 border-t-2 flex justify-end">
+              <div className="w-full md:w-64 space-y-2">
+                <div className="flex justify-between text-gray-500">
+                  <span>Subtotal:</span>
+                  <span>{order.totalAmount.toLocaleString()} VND</span>
+                </div>
+                <div className="flex justify-between text-gray-500">
+                  <span>Shipping:</span>
+                  <span className="text-green-600 font-semibold">Free</span>
+                </div>
+                <div className="flex justify-between text-lg font-bold p-3 bg-blue-50 rounded">
+                  <span>Total:</span>
+                  <span className="text-blue-600">
+                    {order.totalAmount.toLocaleString()} VND
+                  </span>
                 </div>
               </div>
             </div>
@@ -360,9 +284,6 @@ export default function OrderDetail() {
           </div>
         )}
       </div>
-
-      {/* Print Styles */}
-      <style>{printStyles}</style>
     </div>
   );
 }

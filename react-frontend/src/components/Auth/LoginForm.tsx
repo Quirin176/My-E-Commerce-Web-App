@@ -1,6 +1,5 @@
 import { useLoginForm } from "../../hooks/auth/useLoginForm";
 import { Eye, EyeClosed } from "lucide-react";
-import { siteConfig } from "../../config/siteConfig";
 
 export default function LoginForm({ onSwitch }: { onSwitch: () => void }) {
     const {
@@ -65,8 +64,7 @@ export default function LoginForm({ onSwitch }: { onSwitch: () => void }) {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full text-white py-3 rounded-lg font-medium hover:bg-blue-700 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                        style={{ background: siteConfig.colors.primarycolor }}
+                        className="w-full text-white bg-(--brand-primary) py-3 rounded-lg font-medium hover:bg-blue-700 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                         {loading ? "Signing in..." : "SIGN IN"}
                     </button>
@@ -74,10 +72,7 @@ export default function LoginForm({ onSwitch }: { onSwitch: () => void }) {
             </div>
 
             {/* SIGN UP RIGHT */}
-            <div
-                className="w-1/2 flex flex-col items-center justify-center text-white p-8 rounded-l-[3rem]"
-                style={{ background: siteConfig.colors.primarycolor }}
-            >
+            <div className="w-1/2 flex flex-col items-center justify-center text-white bg-(--brand-primary) p-8 rounded-l-[3rem]">
                 <h2 className="text-4xl font-bold mb-4">Hello, Friend!</h2>
                 <p className="text-center text-lg mb-8 opacity-90">
                     Don't have an account yet? Register with your personal details

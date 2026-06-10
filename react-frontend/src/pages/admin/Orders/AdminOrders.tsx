@@ -4,267 +4,263 @@ import { Package, Download } from "lucide-react";
 import { adminOrdersApi } from "../../../api/admin/adminOrdersApi";
 import UserOrderCard from "../../../components/orders/UserOrderCard";
 import type { OrderResponse } from "../../../types/models/order/OrderResponse";
-import { ORDER_STATUS_CONFIG, type OrderStatus } from "../../../types/orderStatus";
+import { ORDER_STATUS_CONFIG, ORDER_ALL_STATUSES, type OrderStatus } from "../../../types/orderStatus";
 
-interface orderStatusCount {
+interface OrderStatusCount {
     status: string;
     count: number;
 }
 
-export default function AdminOrders() {
-    // Status options
-    const orderStatusOptions = [
-        {
-            value: "all",
-            label: "All",
-            icon: Package,
-            badgeColor: "bg-gray-100 text-gray-800",
-            iconColor: "text-gray-500",
-        },
-        ...Object.entries(ORDER_STATUS_CONFIG).map(([status, config]) => ({
-            value: status,
-            label: status,
-            icon: config.icon,
-            badgeColor: config.badgeColor,
-            iconColor: config.iconColor,
-        })),
-    ];
+// "all" sentinel + one entry per real status
+const STATUS_FILTER_OPTIONS = [
+    {
+        value: "all" as const,
+        label: "All",
+        icon: Package,
+        badgeColor: "bg-gray-100 text-gray-800",
+        iconColor: "text-gray-500",
+    },
+    ...ORDER_ALL_STATUSES.map((status) => ({
+        value: status,
+        label: status,
+        icon: ORDER_STATUS_CONFIG[status].icon,
+        badgeColor: ORDER_STATUS_CONFIG[status].badgeColor,
+        iconColor: ORDER_STATUS_CONFIG[status].iconColor,
+    })),
+];
 
-    // Order stats
-    const [orderStatusCount, setOrderStatusCount] = useState<orderStatusCount[]>([]);
+export default function AdminOrders() {
+    const [orderStatusCounts, setOrderStatusCounts] = useState<OrderStatusCount[]>([]);
     const [orderAllCount, setOrderAllCount] = useState(0);
 
-    // Display orders in admin order management page
     const [orders, setOrders] = useState<OrderResponse[]>([]);
     const [loading, setLoading] = useState(false);
     const [exporting, setExporting] = useState(false);
 
-    //Filter states
     const [status, setStatus] = useState<"all" | OrderStatus>("all");
     const [minDate, setMinDate] = useState("");
     const [maxDate, setMaxDate] = useState("");
     const [sortBy, setSortBy] = useState("");
     const [sortOrder, setSortOrder] = useState("");
 
+    // Load stats once on mount
     useEffect(() => {
+        const loadStats = async () => {
+            try {
+                const stats = await adminOrdersApi.getOrderStats();
+                setOrderStatusCounts(stats.byStatus ?? []);
+                setOrderAllCount(stats.totalOrders ?? 0);
+            } catch {
+                toast.error("Failed to load order statistics");
+            }
+        };
         loadStats();
     }, []);
 
-    const loadStats = async () => {
-        try {
-            const stats = await adminOrdersApi.getOrderStats();
-            setOrderStatusCount(stats.byStatus ?? []);
-            setOrderAllCount(stats.totalOrders ?? 0);
-        } catch (error) {
-            console.error("Error loading order stats:", error);
-            toast.error("Failed to load order statistics");
-        }
-    };
-
-    // Load orders
+    // Reload orders whenever any filter changes
     useEffect(() => {
+        const loadOrders = async () => {
+            setLoading(true);
+            try {
+                const response = await adminOrdersApi.getAllOrders(
+                    status === "all" ? ("" as OrderStatus) : status,
+                    minDate,
+                    maxDate,
+                    sortBy,
+                    sortOrder,
+                );
+                setOrders(Array.isArray(response) ? response : []);
+            } catch {
+                toast.error("Failed to load orders");
+                setOrders([]);
+            } finally {
+                setLoading(false);
+            }
+        };
         loadOrders();
     }, [status, minDate, maxDate, sortBy, sortOrder]);
 
-    const loadOrders = async () => {
-        setLoading(true);
+    const handleOrderUpdate = async () => {
+        // Refetch orders and stats after an update
         try {
             const response = await adminOrdersApi.getAllOrders(
-                status as OrderStatus,
-                minDate,
-                maxDate,
-                sortBy,
-                sortOrder,
+                status === "all" ? ("" as OrderStatus) : status,
+                minDate, maxDate, sortBy, sortOrder,
             );
-
             setOrders(Array.isArray(response) ? response : []);
-        } catch (error) {
-            toast.error("Failed to load orders");
-            setOrders([]);
-        } finally {
-            setLoading(false);
+
+            const stats = await adminOrdersApi.getOrderStats();
+            setOrderStatusCounts(stats.byStatus ?? []);
+            setOrderAllCount(stats.totalOrders ?? 0);
+        } catch {
+            toast.error("Failed to refresh orders");
         }
     };
 
-    // ========== CSV EXPORT ==========
     const handleExportCSV = async () => {
         setExporting(true);
         try {
-            // Pass the current status filter (null means all)
-            const exportStatus = status === "all" ? "" : status;
-            const blob = await adminOrdersApi.exportOrders(exportStatus as OrderStatus, minDate, maxDate, sortBy, sortOrder);
+            const exportStatus = status === "all" ? ("" as OrderStatus) : status;
+            const blob = await adminOrdersApi.exportOrders(exportStatus, minDate, maxDate, sortBy, sortOrder);
 
-            // Create a download link and trigger it
             const url = window.URL.createObjectURL(new Blob([blob], { type: "text/csv" }));
             const link = document.createElement("a");
             link.href = url;
 
-            // Build filename with current filter info and timestamp
             const dateStr = new Date().toISOString().slice(0, 10);
-            const statusSuffix = status === "all" ? "all" : status;
-            link.setAttribute("download", `orders_${statusSuffix}_${dateStr}.csv`);
-
+            link.setAttribute("download", `orders_${status}_${dateStr}.csv`);
             document.body.appendChild(link);
             link.click();
-
-            // Cleanup
             link.parentNode?.removeChild(link);
             window.URL.revokeObjectURL(url);
 
-            toast.success(`Exported ${orders.length} orders to CSV`);
-        } catch (error) {
-            console.error("Error exporting orders:", error);
+            toast.success(`Exported ${orders.length} order${orders.length !== 1 ? "s" : ""} to CSV`);
+        } catch {
             toast.error("Failed to export orders");
         } finally {
             setExporting(false);
         }
     };
 
+    const clearFilters = () => {
+        setStatus("all");
+        setMinDate("");
+        setMaxDate("");
+        setSortBy("");
+        setSortOrder("");
+    };
+
+    const getStatusCount = (value: string) => {
+        if (value === "all") return orderAllCount;
+        return orderStatusCounts.find(
+            (s) => s.status.toLowerCase() === value.toLowerCase()
+        )?.count ?? 0;
+    };
+
     return (
         <div className="flex flex-col gap-y-8 pt-8 px-8">
 
-            {/* EXPORT OVERLAY */}
+            {/* Export overlay */}
             {exporting && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 backdrop-blur-sm flex flex-col items-center justify-center z-50">
+                <div className="fixed inset-0 bg-gray-600/50 backdrop-blur-sm flex flex-col items-center justify-center z-50">
                     <div className="bg-white px-6 py-4 rounded-xl shadow-lg flex flex-col items-center gap-4">
-                        <div className="animate-spin rounded-full h-10 w-10 border-4 border-green-500 border-t-transparent"></div>
-                        <p className="font-semibold text-black">Exporting orders...</p>
+                        <div className="animate-spin rounded-full h-10 w-10 border-4 border-green-500 border-t-transparent" />
+                        <p className="font-semibold text-black">Exporting orders…</p>
                     </div>
                 </div>
             )}
 
-            {/* Filters */}
-            <div className="flex justify-between">
-                <div className="flex flex-row gap-10">
-                    <div className="flex flex-row items-center gap-4">
-                        <label className="font-bold w-full">Select Start Date</label>
+            {/* Date + Sort filters */}
+            <div className="flex flex-wrap justify-between gap-4">
+                <div className="flex flex-wrap gap-6">
+                    <div className="flex items-center gap-3">
+                        <label className="font-bold whitespace-nowrap">Start Date</label>
                         <input
                             type="date"
                             value={minDate}
                             onChange={(e) => setMinDate(e.target.value)}
-                            className="border-2 rounded-xl px-2 py-1 w-full max-w-xs"
+                            className="border-2 rounded-xl px-2 py-1"
                         />
                     </div>
-
-                    <div className="flex flex-row items-center gap-4">
-                        <label className="font-bold w-full">Select End Date</label>
+                    <div className="flex items-center gap-3">
+                        <label className="font-bold whitespace-nowrap">End Date</label>
                         <input
                             type="date"
                             value={maxDate}
                             onChange={(e) => setMaxDate(e.target.value)}
-                            className="border-2 rounded-xl px-2 py-1 w-full max-w-xs"
+                            className="border-2 rounded-xl px-2 py-1"
                         />
                     </div>
                 </div>
 
-                <select name="sort" id="sort" value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="border-2 rounded-xl px-2 py-1">
-                    <option value="" onClick={() => setSortBy("")}
-                    >Sort By</option>
-                    <option value="customerName" onClick={() => setSortBy("customerName")}  // Must match the sortBy value ("customerName") in backend controller
-                    >Customer Name</option>
-                    <option value="totalAmount" onClick={() => setSortBy("totalAmount")}    // Must match the sortBy value ("totalAmount") in backend controller
-                    >Total Amount</option>
-                    <option value="orderDate" onClick={() => setSortBy("orderDate")}        // Must match the sortBy value ("orderDate") in backend controller
-                    >Order Date</option>
-                </select>
+                <div className="flex gap-3">
+                    <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        className="border-2 rounded-xl px-2 py-1"
+                    >
+                        <option value="">Sort By</option>
+                        <option value="customerName">Customer Name</option>
+                        <option value="totalAmount">Total Amount</option>
+                        <option value="orderDate">Order Date</option>
+                    </select>
 
-                <select name="sortOrder" id="sortOrder" value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} className="border-2 rounded-xl px-2 py-1">
-                    <option value="" onClick={() => setSortOrder("")}>Sort Order</option>
-                    <option value="asc" onClick={() => setSortOrder("asc")}>Ascending</option>
-                    <option value="desc" onClick={() => setSortOrder("desc")}>Descending</option>
-                </select>
+                    <select
+                        value={sortOrder}
+                        onChange={(e) => setSortOrder(e.target.value)}
+                        className="border-2 rounded-xl px-2 py-1"
+                    >
+                        <option value="">Order</option>
+                        <option value="asc">Ascending</option>
+                        <option value="desc">Descending</option>
+                    </select>
+                </div>
             </div>
 
-            <div className="flex justify-between items-center">
-                {/* Status Filter */}
+            {/* Status tabs + clear */}
+            <div className="flex flex-wrap items-center justify-between gap-4">
                 <div className="flex flex-wrap gap-2">
-                    {orderStatusOptions.map((option) => {
-                        const Icon = option.icon;
-
-                        return (
-                            <button
-                                key={option.value}
-                                onClick={() => setStatus(option.value as OrderStatus)}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all ${status === option.value
-                                    ? "bg-blue-600 text-white shadow-md"
-                                    : `${option.badgeColor} hover:opacity-80`
-                                    }`}
-                            >
-                                <Icon
-                                    size={16}
-                                    className={
-                                        status === option.value
-                                            ? "text-white"
-                                            : option.iconColor
-                                    }
-                                />
-
-                                <span>{option.label}</span>
-
-                                <span className="text-sm">
-                                    {option.value === "all"
-                                        ? `(${orderAllCount})`
-                                        : `(${orderStatusCount.find(
-                                            (s) =>
-                                                s.status.toLowerCase() ===
-                                                option.value.toLowerCase()
-                                        )?.count || 0
-                                        })`}
-                                </span>
-                            </button>
-                        );
-                    })}
+                    {STATUS_FILTER_OPTIONS.map(({ value, label, icon: Icon, badgeColor, iconColor }) => (
+                        <button
+                            key={value}
+                            onClick={() => setStatus(value as typeof status)}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all ${status === value
+                                ? "bg-blue-600 text-white shadow-md"
+                                : `${badgeColor} hover:opacity-80`
+                                }`}
+                        >
+                            <Icon
+                                size={16}
+                                className={status === value ? "text-white" : iconColor}
+                            />
+                            <span>{label}</span>
+                            <span className="text-sm">({getStatusCount(value)})</span>
+                        </button>
+                    ))}
                 </div>
 
-                {/* Clear Filters Button */}
-                <a
-                    onClick={() => {
-                        setStatus("all");
-                        setMinDate("");
-                        setMaxDate("");
-                        setSortBy("");
-                        setSortOrder("");
-                    }}
-                    className="px-4 py-2 text-red-500 font-semibold hover:underline cursor-pointer transition"
+                <button
+                    onClick={clearFilters}
+                    className="text-red-500 font-semibold hover:underline transition text-sm"
                 >
                     Clear Filters
-                </a>
+                </button>
             </div>
 
-            {/* Loading State */}
+            {/* Orders list */}
             {loading ? (
                 <div className="text-center py-12">
-                    <div className="inline-block">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                    </div>
-                    <p className="text-gray-500 mt-4">Loading your orders...</p>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto" />
+                    <p className="text-gray-500 mt-4">Loading orders…</p>
                 </div>
             ) : orders.length === 0 ? (
                 <div className="text-center py-12 bg-gray-50 rounded-lg">
                     <Package size={48} className="mx-auto text-gray-400 mb-4" />
-                    <p className="text-gray-600 text-lg mb-4">
-                        {sortBy === "all" ? "No orders yet" : `No ${sortBy} orders`}
+                    <p className="text-gray-600 text-lg">
+                        {status === "all" ? "No orders found" : `No ${status} orders`}
                     </p>
                 </div>
             ) : (
                 <div className="space-y-4">
                     {orders.map((order) => (
-                        <div className="bg-white rounded-lg border transition">
+                        <div key={order.id} className="bg-white rounded-lg border transition">
                             <UserOrderCard
-                                key={order.id}
                                 {...order}
-                                onCancelSuccess={(id) => setOrders(prev => prev.filter(o => o.id !== id))} />
+                                onCancelSuccess={(id) => setOrders((prev) => prev.filter((o) => o.id !== id))}
+                                onUpdateSuccess={handleOrderUpdate}
+                            />
                         </div>
                     ))}
                 </div>
             )}
 
+            {/* Export button */}
             <button
-                className="flex items-center justify-center gap-2 ml-auto w-xs border rounded-lg cursor-pointer bg-green-500 hover:bg-green-700 font-bold text-white py-2 transition"
                 onClick={handleExportCSV}
+                className="flex items-center justify-center gap-2 ml-auto w-64 border rounded-lg cursor-pointer bg-green-500 hover:bg-green-600 font-bold text-white py-2 transition"
             >
-                <Download size={18} className="text-white" />
-                Export Selected Orders
+                <Download size={18} />
+                Export Orders to CSV
             </button>
         </div>
     );

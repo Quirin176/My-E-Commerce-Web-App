@@ -3,13 +3,10 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCategories } from "../../hooks/products/useCategories";
 import { productApi } from "../../api/products/productApi";
-import { siteConfig } from "../../config/siteConfig";
 import ProductCard from "./ProductCard";
 import type { Product } from "../../types/models/products/Product";
 
 export default function CategoryTabs() {
-  const colors = siteConfig.colors;
-
   const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
 
   const [activeTab, setActiveTab] = useState(1);
@@ -68,7 +65,7 @@ export default function CategoryTabs() {
   // Render loading / error states
   if (categoriesLoading) {
     return (
-      <div style={{ borderRadius: 10, width: "100%", maxWidth: 1200, margin: "0 auto", textAlign: "center", background: colors.primarycolor, paddingBottom: 10 }}>
+      <div className="bg-(--brand-primary)" style={{ borderRadius: 10, width: "100%", maxWidth: 1200, margin: "0 auto", textAlign: "center", paddingBottom: 10 }}>
         <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
         <p style={{ color: "white", marginTop: 16 }}>Loading categories...</p>
       </div>
@@ -77,7 +74,7 @@ export default function CategoryTabs() {
 
   if (categoriesError) {
     return (
-      <div style={{ borderRadius: 10, width: "100%", maxWidth: 1200, margin: "0 auto", textAlign: "center", background: colors.primarycolor, paddingBottom: 10 }}>
+      <div className="bg-(--brand-primary)" style={{ borderRadius: 10, width: "100%", maxWidth: 1200, margin: "0 auto", textAlign: "center", paddingBottom: 10 }}>
         <p style={{ color: "white", fontSize: 18 }}>
           {categoriesError || "No categories available"}
         </p>

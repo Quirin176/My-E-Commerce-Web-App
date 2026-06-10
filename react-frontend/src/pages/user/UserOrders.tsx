@@ -6,41 +6,36 @@ import { useAuth } from "../../hooks/auth/useAuth";
 import { orderApi } from "../../api/user/orderApi";
 import type { OrderResponse } from "../../types/models/order/OrderResponse";
 import UserOrderCard from "../../components/orders/UserOrderCard";
-import { ORDER_STATUS_CONFIG } from "../../types/orderStatus";
+import { ORDER_STATUS_CONFIG, ORDER_ALL_STATUSES } from "../../types/orderStatus";
 
 export default function UserOrders() {
-
   const navigate = useNavigate();
   const { user } = useAuth();
 
   const [orders, setOrders] = useState<OrderResponse[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sortBy, setSortBy] = useState("all");
+  const [activeStatus, setActiveStatus] = useState<string>("all");
 
-  const orderStatusOptions = [
-    {
-      value: "all",
-      label: "All",
-      icon: Package,
-      badgeColor: "bg-gray-100 text-gray-800",
-    },
-    ...Object.entries(ORDER_STATUS_CONFIG).map(([status, config]) => ({
+  // Status filter options — "all" entry + one per status
+  const statusOptions = [
+    { value: "all", label: "All", icon: Package, badgeColor: "bg-gray-100 text-gray-800" },
+    ...ORDER_ALL_STATUSES.map((status) => ({
       value: status,
       label: status,
-      icon: config.icon,
-      badgeColor: config.badgeColor,
+      icon: ORDER_STATUS_CONFIG[status].icon,
+      badgeColor: ORDER_STATUS_CONFIG[status].badgeColor,
     })),
   ];
 
-  // Fetch user orders
   useEffect(() => {
+    if (!user) return;
+
     const loadOrders = async () => {
       setLoading(true);
       try {
         const data = await orderApi.getUserAllOrders();
         setOrders(Array.isArray(data) ? data : []);
-        console.log(data);
-      } catch (error) {
+      } catch {
         toast.error("Failed to load orders");
         setOrders([]);
       } finally {
@@ -48,22 +43,23 @@ export default function UserOrders() {
       }
     };
 
-    if (user) {
-      loadOrders();
-    }
+    loadOrders();
   }, [user]);
 
+  const handleOrderUpdate = async () => {
+    // Refetch a single order from state — or simply refetch all.
+    await orderApi.getUserAllOrders().then((data) => {
+      setOrders(Array.isArray(data) ? data : []);
+    }).catch(() => {
+      toast.error("Failed to refresh orders");
+    });
+  };
 
-  // Filter orders by status
   const filteredOrders =
-    sortBy === "all" ? orders :
-      orders.filter(
-        (o) =>
-          o.status.trim().toLowerCase() ===
-          sortBy.trim().toLowerCase()
-      );
+    activeStatus === "all"
+      ? orders
+      : orders.filter((o) => o.status.toLowerCase() === activeStatus.toLowerCase());
 
-  // Redirect if not logged in
   if (!user) {
     return (
       <div className="container mx-auto p-6 text-center">
@@ -84,56 +80,46 @@ export default function UserOrders() {
 
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">My Orders</h1>
-        <p className="text-gray-600">Track your orders and manage purchases</p>
+        <h1 className="text-3xl font-bold mb-1">My Orders</h1>
+        <p className="text-gray-500">Track your orders and manage purchases</p>
       </div>
 
-      {/* Status Filter */}
+      {/* Status filters */}
       <div className="mb-6 flex flex-wrap gap-2">
-        {orderStatusOptions.map((option) => {
-          const Icon = option.icon;
+        {statusOptions.map(({ value, label, icon: Icon, badgeColor }) => {
+          const count =
+            value === "all"
+              ? orders.length
+              : orders.filter((o) => o.status.toLowerCase() === value.toLowerCase()).length;
 
           return (
             <button
-              key={option.value}
-              onClick={() => setSortBy(option.value)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all ${sortBy === option.value
+              key={value}
+              onClick={() => setActiveStatus(value)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all ${activeStatus === value
                 ? "bg-blue-600 text-white shadow-md"
-                : `${option.badgeColor} hover:opacity-80`
+                : `${badgeColor} hover:opacity-80`
                 }`}
             >
               <Icon size={16} />
-
-              <span>{option.label}</span>
-
-              <span>
-                {option.value === "all"
-                  ? `(${orders.length})`
-                  : `(${orders.filter(
-                    (o) =>
-                      o.status.toLowerCase() ===
-                      option.value.toLowerCase()
-                  ).length
-                  })`}
-              </span>
+              <span>{label}</span>
+              <span>({count})</span>
             </button>
           );
         })}
       </div>
 
-      {/* Loading State */}
+      {/* Content */}
       {loading ? (
         <div className="text-center py-12">
-          <div className="inline-block">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          </div>
-          <p className="text-gray-500 mt-4">Loading your orders...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto" />
+          <p className="text-gray-500 mt-4">Loading your orders…</p>
         </div>
       ) : filteredOrders.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-lg">
           <Package size={48} className="mx-auto text-gray-400 mb-4" />
           <p className="text-gray-600 text-lg mb-4">
-            {sortBy === "all" ? "No orders yet" : `No ${sortBy} orders`}
+            {activeStatus === "all" ? "No orders yet" : `No ${activeStatus} orders`}
           </p>
           <button
             onClick={() => navigate("/")}
@@ -148,7 +134,9 @@ export default function UserOrders() {
             <UserOrderCard
               key={order.id}
               {...order}
-              onCancelSuccess={(id) => setOrders(prev => prev.filter(o => o.id !== id))} />
+              onCancelSuccess={(id) => setOrders((prev) => prev.filter((o) => o.id !== id))}
+              onUpdateSuccess={handleOrderUpdate}
+            />
           ))}
         </div>
       )}

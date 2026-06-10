@@ -3,7 +3,6 @@ import { Bot, MessageCircle, X, Send } from "lucide-react";
 import { useAuth } from "../hooks/auth/useAuth";
 import { useChat } from "../hooks/chat/useChat";
 import { chatApi } from "../api/chatApi";
-import { siteConfig } from "../config/siteConfig";
 import { useChatStore } from "../store/chatStore";
 
 const BOT_SENDER_ID = 1;
@@ -15,7 +14,6 @@ export default function ChatBubble() {
     const [input, setInput] = useState("");
     const [starting, setStarting] = useState(false);
     const bottomRef = useRef<HTMLDivElement>(null);
-    const colors = siteConfig.colors;
 
     const { setMessages } = useChatStore();
 
@@ -83,10 +81,7 @@ export default function ChatBubble() {
                     style={{ height: 420 }}
                 >
                     {/* Header */}
-                    <div
-                        className="flex items-center justify-between px-4 py-3 text-white"
-                        style={{ background: colors.primarycolor }}
-                    >
+                    <div className="flex items-center justify-between px-4 py-3 text-white bg-(--brand-primary)">
                         <div className="flex items-center gap-2">
                             <Bot size={18} />
                             <span className="font-bold">Support Chat</span>
@@ -117,10 +112,7 @@ export default function ChatBubble() {
                                 >
                                     {/* Bot avatar */}
                                     {isBot && (
-                                        <div
-                                            className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mr-1 mt-1"
-                                            style={{ background: colors.primarycolor }}
-                                        >
+                                        <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mr-1 mt-1 bg-(--brand-primary)">
                                             <Bot size={13} color="white" />
                                         </div>
                                     )}
@@ -130,13 +122,10 @@ export default function ChatBubble() {
                                             <span className="text-[10px] text-gray-400 ml-1">AI Assistant</span>
                                         )}
                                         <div
-                                            className={`px-3 py-2 rounded-xl text-sm wrap-break-word ${isMe
-                                                    ? "text-white rounded-br-none"
-                                                    : isBot
-                                                        ? "bg-blue-50 border border-blue-100 text-gray-800 rounded-bl-none"
-                                                        : "bg-white border text-gray-800 rounded-bl-none"
+                                            className={`px-3 py-2 rounded-xl text-sm wrap-break-word ${isMe ? "text-white bg-(--brand-primary) rounded-br-none"
+                                                : isBot ? "bg-blue-50 border border-blue-100 text-gray-800 rounded-bl-none"
+                                                    : "bg-white border text-gray-800 rounded-bl-none"
                                                 }`}
-                                            style={isMe ? { background: colors.primarycolor } : {}}
                                         >
                                             {msg.content}
                                         </div>
@@ -155,14 +144,12 @@ export default function ChatBubble() {
                             onKeyDown={handleKeyDown}
                             placeholder="Type a message…"
                             className="flex-1 text-sm px-3 py-2 border rounded-lg outline-none focus:ring-2"
-                            style={{ "--tw-ring-color": colors.primarycolor } as any}
                             disabled={!chatId || starting}
                         />
                         <button
                             onClick={handleSend}
                             disabled={!input.trim() || !chatId}
-                            className="p-2 rounded-lg text-white transition disabled:opacity-40"
-                            style={{ background: colors.primarycolor }}
+                            className="p-2 rounded-lg text-white bg-(--brand-primary) transition disabled:opacity-40"
                         >
                             <Send size={16} />
                         </button>
@@ -173,8 +160,7 @@ export default function ChatBubble() {
             {/* Floating bubble */}
             <button
                 onClick={open ? () => setOpen(false) : handleOpen}
-                className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-lg text-white flex items-center justify-center transition-transform hover:scale-110 active:scale-95"
-                style={{ background: colors.primarycolor }}
+                className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-lg text-white bg-(--brand-primary) flex items-center justify-center transition-transform hover:scale-110 active:scale-95"
                 aria-label="Open support chat"
             >
                 {open ? <X size={24} /> : <MessageCircle size={24} />}
