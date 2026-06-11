@@ -94,6 +94,16 @@ export const adminOrdersApi = {
     }
   },
 
+  async downloadInvoice(orderId: number | string) {
+    const response = await apiClient.get(`/adminorders/${orderId}/invoice`,
+      {
+        responseType: "blob"
+      }
+    );
+
+    return response.data;
+  },
+
   // GET order statistics
   async getOrderStats() {
     try {

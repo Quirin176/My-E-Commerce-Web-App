@@ -10,8 +10,9 @@ interface OrderStatusCount {
 }
 
 export function useAdminOrders(pageSize: number) {
-    
+
     const [orders, setOrders] = useState<OrderResponse[]>([]);
+    const [allOrdersCount, setAllOrdersCount] = useState(0);
     const [orderStatusCounts, setOrderStatusCounts] = useState<OrderStatusCount[]>([]);
     const [totalCount, setTotalCount] = useState(0);
 
@@ -37,7 +38,7 @@ export function useAdminOrders(pageSize: number) {
             const stats = await adminOrdersApi.getOrderStats();
 
             setOrderStatusCounts(stats.byStatus ?? []);
-            setTotalCount(stats.totalOrders ?? 0);
+            setAllOrdersCount(stats.totalOrders ?? 0);
         } catch {
             toast.error("Failed to load order statistics");
         }
@@ -58,6 +59,7 @@ export function useAdminOrders(pageSize: number) {
             );
 
             setOrders(Array.isArray(response.data) ? response.data : []);
+            setTotalCount(response.pagination.totalCount ?? 0);
         } catch {
             toast.error("Failed to load orders");
             setOrders([]);
@@ -87,6 +89,11 @@ export function useAdminOrders(pageSize: number) {
     useEffect(() => {
         loadOrders();
     }, [loadOrders]);
+
+    const changeStatus = (newStatus: "all" | OrderStatus) => {
+        setPage(1);
+        setStatus(newStatus);
+    };
 
     const exportCsv = async () => {
         setExporting(true);
@@ -127,7 +134,7 @@ export function useAdminOrders(pageSize: number) {
     };
 
     const getStatusCount = (value: string) => {
-        if (value === "all") return totalCount;
+        if (value === "all") return allOrdersCount;
 
         return orderStatusCounts.find(
             (s) => s.status.toLowerCase() === value.toLowerCase()
@@ -140,16 +147,16 @@ export function useAdminOrders(pageSize: number) {
 
         loading,
         exporting,
-        
+
         page,
         setPage,
 
         status,
-        setStatus,
+        setStatus: changeStatus,
 
         minDate,
         setMinDate,
-        
+
         maxDate,
         setMaxDate,
 

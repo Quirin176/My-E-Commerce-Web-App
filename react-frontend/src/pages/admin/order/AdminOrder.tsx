@@ -8,14 +8,7 @@ import { useAuth } from "../../../hooks/auth/useAuth";
 import type { OrderResponse } from "../../../types/models/order/OrderResponse";
 import { ORDER_STATUS, ORDER_STATUS_CONFIG, ORDER_TIMELINE_STATUSES, type OrderStatus } from "../../../types/orderStatus";
 import LoadingState from "../../../components/pageState/LoadingState";
-
-const PRINT_STYLES = `
-  body { font-family: Arial, sans-serif; padding: 24px; background: white; }
-  h1, h2, h3, h4 { margin: 0 0 8px; }
-  .section { margin-bottom: 20px; }
-  .item-row { border-bottom: 1px solid #ddd; padding: 8px 0; display: flex; justify-content: space-between; }
-  .total-box { margin-top: 20px; border-top: 2px solid #000; padding-top: 16px; font-size: 18px; font-weight: bold; }
-`;
+import { orderInvoicePrinter } from "../../../utils/orderInvoicePrinter"
 
 export default function AdminOrder() {
   const { orderId } = useParams();
@@ -29,7 +22,7 @@ export default function AdminOrder() {
 
     const loadOrder = async () => {
       if (!user) {
-        navigate("/home");
+        navigate("/admin/dashboard");
         return;
       }
       setLoading(true);
@@ -38,7 +31,7 @@ export default function AdminOrder() {
         setOrder(data);
       } catch {
         toast.error("Failed to load order details");
-        navigate("/orders");
+        navigate("/admin/orders");
       } finally {
         setLoading(false);
       }
@@ -47,30 +40,28 @@ export default function AdminOrder() {
     loadOrder();
   }, [orderId, user, navigate]);
 
-  const handlePrint = () => {
-    const printContents = document.getElementById("print-area")?.innerHTML;
-    if (!printContents) return;
+  const downloadInvoice = async (orderId: number | string) => {
+    const blob = await adminOrdersApi.downloadInvoice(orderId);
 
-    const printWindow = window.open("", "", "width=800,height=600");
-    if (!printWindow) return;
+    const url =
+      window.URL.createObjectURL(blob);
 
-    printWindow.document.write(`
-            <html>
-                <head>
-                    <title>Order #${order?.id} — Invoice</title>
-                    <style>${PRINT_STYLES}</style>
-                </head>
-                <body>${printContents}</body>
-            </html>
-        `);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
-  };
+    const link =
+      document.createElement("a");
+
+    link.href = url;
+    link.download = `Invoice-${orderId}.pdf`;
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    link.remove();
+
+    window.URL.revokeObjectURL(url);
+  }
 
   // --- Guards ---
-
   if (!user) {
     return (
       <div className="container mx-auto p-6 text-center">
@@ -99,7 +90,7 @@ export default function AdminOrder() {
       <div className="container mx-auto p-6 text-center">
         <h1 className="text-2xl font-bold text-red-600 mb-4">Order Not Found</h1>
         <button
-          onClick={() => navigate("/orders")}
+          onClick={() => navigate("/admin/orders")}
           className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
         >
           Back to Orders
@@ -118,33 +109,40 @@ export default function AdminOrder() {
 
       {/* Page header */}
       <div className="flex items-center justify-between mb-8">
+
         <div>
+
           <button
-            onClick={() => navigate("/orders")}
+            onClick={() => navigate("/admin/orders")}
             className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-3 font-semibold"
           >
             <ArrowLeft size={20} />
             Back to Orders
           </button>
+
           <h1 className="text-3xl font-bold text-gray-800">Order #{order.id}</h1>
+
         </div>
 
         <div className="flex gap-2">
+
           <button
-            onClick={() => toast.success("Invoice download coming soon!")}
+            onClick={() => downloadInvoice(order.id)}
             className="flex items-center gap-2 px-4 py-2 border-2 border-gray-300 rounded hover:bg-gray-50 transition"
           >
             <Download size={20} />
             <span className="hidden sm:inline">Invoice</span>
           </button>
+
           <button
-            onClick={handlePrint}
+            onClick={() => orderInvoicePrinter(order)}
             className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition"
           >
             <Printer size={20} />
             <span className="hidden sm:inline">Print</span>
           </button>
         </div>
+
       </div>
 
       <div id="print-area" className="space-y-6">

@@ -1,29 +1,11 @@
 import { useAdminOrders } from "../../../hooks/admin/order/useAdminOrders";
 import { usePagination } from "../../../hooks/usePagination";
 import { Package, Download } from "lucide-react";
+import StatusTabs from "../../../components/StatusTabs";
 import UserOrderCard from "../../../components/orders/UserOrderCard";
-import { ORDER_STATUS_CONFIG, ORDER_ALL_STATUSES } from "../../../types/orderStatus";
 import PaginationControl from "../../../components/PaginationControl";
 
-// "all" sentinel + one entry per real status
-const STATUS_FILTER_OPTIONS = [
-    {
-        value: "all" as const,
-        label: "All",
-        icon: Package,
-        badgeColor: "bg-gray-100 text-gray-800",
-        iconColor: "text-gray-500",
-    },
-    ...ORDER_ALL_STATUSES.map((status) => ({
-        value: status,
-        label: status,
-        icon: ORDER_STATUS_CONFIG[status].icon,
-        badgeColor: ORDER_STATUS_CONFIG[status].badgeColor,
-        iconColor: ORDER_STATUS_CONFIG[status].iconColor,
-    })),
-];
-
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 5;
 
 export default function AdminOrders() {
     const {
@@ -128,24 +110,11 @@ export default function AdminOrders() {
 
             {/* Status tabs + clear */}
             <div className="flex flex-wrap items-center justify-between gap-4">
-                <div className="flex flex-wrap gap-2">
-                    {STATUS_FILTER_OPTIONS.map(({ value, label, icon: Icon, badgeColor, iconColor }) => (
-                        <button
-                            key={value}
-                            onClick={() => setStatus(value as typeof status)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all ${status === value
-                                ? "bg-blue-600 text-white shadow-md" : `${badgeColor} hover:opacity-80`
-                                }`}
-                        >
-                            <Icon
-                                size={16}
-                                className={status === value ? "text-white" : iconColor}
-                            />
-                            <span>{label}</span>
-                            <span className="text-sm">({getStatusCount(value)})</span>
-                        </button>
-                    ))}
-                </div>
+                <StatusTabs
+                    activeStatus={status}
+                    onStatusChange={setStatus}
+                    getCount={getStatusCount}
+                />
 
                 <button
                     onClick={clearFilters}
@@ -185,7 +154,8 @@ export default function AdminOrders() {
             {/* Export button */}
             <button
                 onClick={exportCsv}
-                className="flex items-center justify-center gap-2 ml-auto w-64 border rounded-lg cursor-pointer bg-green-500 hover:bg-green-600 font-bold text-white py-2 transition"
+                className="flex items-center justify-center gap-2 ml-auto w-64 border rounded-lg cursor-pointer
+                bg-green-500 hover:bg-green-600 font-bold text-white py-2 transition"
             >
                 <Download size={18} />
                 Export Orders to CSV

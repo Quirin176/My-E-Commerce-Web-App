@@ -8,11 +8,15 @@ using WebApp_API.Hubs;
 using WebApp_API.Data;
 using WebApp_API.Repositories;
 using WebApp_API.Services;
+using QuestPDF.Infrastructure;
+using MediatR;
 
 // ──────────────────────────────────────── 1. DI (DEPENDENCY INJECTION) SERVICE CONTAINER ────────────────────────────────────────
 var builder = WebApplication.CreateBuilder(args);
 
 // ──────────────────────────────────────── 2. CONFIGURE SERVICES (DEPENDENCIES INJECTION REGISTRATION) ────────────────────────────────────────
+QuestPDF.Settings.License = LicenseType.Community;
+
 // Configure JSON options to handle reference loops
 builder.Services.AddControllers()
                 .AddJsonOptions(options =>
@@ -76,6 +80,11 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssemblyContaining<Program>();
+});
+
 // Add custom DI (Dependency Injection)
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
@@ -103,7 +112,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-builder.Services.AddScoped<IOrderService, OrderService>();
+// builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 builder.Services.AddScoped<IOrderItemService, OrderItemService>();
 

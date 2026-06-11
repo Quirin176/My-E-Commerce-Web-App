@@ -1,8 +1,15 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MediatR;
 using WebApp_API.DTOs;
-using WebApp_API.Services;
 using WebApp_API.Specifications;
+using WebApp_API.Features.Orders.Queries.GetPaginatedOrders;
+using WebApp_API.Features.Orders.Queries.AdminGetOrderById;
+using WebApp_API.Features.Orders.Commands.UpdateOrderStatus;
+using WebApp_API.Features.Orders.Commands.UpdateOrder;
+using WebApp_API.Features.Orders.Queries.ExportOrdersCsv;
+using WebApp_API.Features.Orders.Queries.GetOrderStatistics;
+using WebApp_API.Features.Orders.Queries.GenerateInvoicePdf;
 
 namespace WebApp_API.Controllers
 {
@@ -11,11 +18,11 @@ namespace WebApp_API.Controllers
     [Authorize(Roles = "Admin")]
     public class AdminOrdersController : ControllerBase // API Endpoint: /api/adminorders
     {
-        private readonly IOrderService _orderService;
+        private readonly IMediator _mediator;
 
-        public AdminOrdersController(IOrderService orderService)
+        public AdminOrdersController(IMediator mediator)
         {
-            _orderService = orderService;
+            _mediator = mediator;
         }
 
         // GET: /api/adminorders - Get all orders paginated with all items by filters
@@ -24,7 +31,7 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                var orders = await _orderService.GetPaginatedOrdersAsync(filterParams);
+                var orders = await _mediator.Send(new GetPaginatedOrdersQuery(filterParams));
                 return Ok(orders);
             }
             catch (Exception ex)
@@ -39,7 +46,7 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                var order = await _orderService.AdminGetOrderWithItemsByIdAsync(id);
+                var order = await _mediator.Send(new AdminGetOrderWithItemsByIdQuery(id));
                 if (order is null)
                     return NotFound(new { message = "Order not found" });
 
@@ -57,7 +64,7 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                var updated = await _orderService.UpdateOrderStatusAsync(id, request.Status);
+                var updated = await _mediator.Send(new UpdateOrderStatusCommand (id, request.Status));
                 if (!updated)
                     return NotFound(new { message = "Order not found" });
 
@@ -75,7 +82,7 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                var updated = await _orderService.UpdateOrderAsync(id, request);
+                var updated = await _mediator.Send(new UpdateOrderCommand(id, request));
                 if (!updated)
                     return NotFound(new { message = "Order not found" });
 
@@ -93,7 +100,7 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                var bytes = await _orderService.ExportOrdersCsvAsync(filterParams);
+                var bytes = await _mediator.Send(new ExportOrdersCsvQuery(filterParams));
                 return File(bytes, "text/csv; charset=utf-8", $"orders_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.csv");
             }
             catch (Exception ex)
@@ -102,13 +109,22 @@ namespace WebApp_API.Controllers
             }
         }
 
+        // GET: /api/adminorders/{id}/invoice - Download order detail in PDF format
+        [HttpGet("{id}/invoice")]
+        public async Task<IActionResult> DownloadInvoice(int id)
+        {
+            var pdfBytes = await _mediator.Send(new GenerateInvoicePdfQuery(id));
+
+            return File(pdfBytes, "application/pdf", $"Invoice-{id}.pdf");
+        }
+
         // GET: /api/adminorders/stats - Get order summary statistics
         [HttpGet("stats")]
         public async Task<IActionResult> GetOrderStats()
         {
             try
             {
-                var stats = await _orderService.GetOrderStatisticsAsync();
+                var stats = await _mediator.Send(new GetOrderStatisticsQuery());
                 return Ok(stats);
             }
             catch (Exception ex)
@@ -123,7 +139,7 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                var order = await _orderService.AdminGetOrderWithItemsByIdAsync(id);
+                var order = await _mediator.Send(new AdminGetOrderWithItemsByIdQuery(id));
                 if (order is null)
                     return NotFound(new { message = "Order not found" });
 

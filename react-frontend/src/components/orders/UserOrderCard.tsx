@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../../hooks/auth/useAuth";
-import { Download, SquarePen, Truck, X } from "lucide-react";
+import { Eye, SquarePen, Truck, X } from "lucide-react";
 import { orderApi } from "../../api/user/orderApi";
 import type { OrderResponse } from "../../types/models/order/OrderResponse";
 import UserOrderDetailModal from "./UserOrderDetailModal";
@@ -57,7 +57,7 @@ export default function UserOrderCard(order: UserOrderCardProps) {
             <div>
                 {/* Order Row */}
                 <div
-                    className="px-6 py-3 cursor-pointer hover:bg-gray-50 transition"
+                    className="px-6 py-3 cursor-pointer transition"
                     onClick={() => setShowDetailModal(true)}
                 >
                     <div className="flex justify-between items-center gap-6">
@@ -109,7 +109,7 @@ export default function UserOrderCard(order: UserOrderCardProps) {
                                 title="View order detail"
                                 className="flex items-center gap-2 px-3 py-2 bg-white text-blue-600 rounded hover:text-white hover:bg-blue-600 border-2 transition"
                             >
-                                <Download size={18} />
+                                <Eye size={18} />
                             </button>
 
                             {user?.role === "Admin" && (

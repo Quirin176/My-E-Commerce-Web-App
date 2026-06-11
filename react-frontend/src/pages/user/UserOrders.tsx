@@ -5,8 +5,9 @@ import { Package } from "lucide-react";
 import { useAuth } from "../../hooks/auth/useAuth";
 import { orderApi } from "../../api/user/orderApi";
 import type { OrderResponse } from "../../types/models/order/OrderResponse";
+import StatusTabs from "../../components/StatusTabs";
 import UserOrderCard from "../../components/orders/UserOrderCard";
-import { ORDER_STATUS_CONFIG, ORDER_ALL_STATUSES } from "../../types/orderStatus";
+import type { OrderStatus } from "../../types/orderStatus";
 
 export default function UserOrders() {
   const navigate = useNavigate();
@@ -15,17 +16,6 @@ export default function UserOrders() {
   const [orders, setOrders] = useState<OrderResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeStatus, setActiveStatus] = useState<string>("all");
-
-  // Status filter options — "all" entry + one per status
-  const statusOptions = [
-    { value: "all", label: "All", icon: Package, badgeColor: "bg-gray-100 text-gray-800" },
-    ...ORDER_ALL_STATUSES.map((status) => ({
-      value: status,
-      label: status,
-      icon: ORDER_STATUS_CONFIG[status].icon,
-      badgeColor: ORDER_STATUS_CONFIG[status].badgeColor,
-    })),
-  ];
 
   useEffect(() => {
     if (!user) return;
@@ -76,38 +66,23 @@ export default function UserOrders() {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto flex flex-col gap-y-4">
 
       {/* Header */}
-      <div className="mb-8">
+      <div>
         <h1 className="text-3xl font-bold mb-1">My Orders</h1>
         <p className="text-gray-500">Track your orders and manage purchases</p>
       </div>
 
       {/* Status filters */}
-      <div className="mb-6 flex flex-wrap gap-2">
-        {statusOptions.map(({ value, label, icon: Icon, badgeColor }) => {
-          const count =
-            value === "all"
-              ? orders.length
-              : orders.filter((o) => o.status.toLowerCase() === value.toLowerCase()).length;
-
-          return (
-            <button
-              key={value}
-              onClick={() => setActiveStatus(value)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all ${activeStatus === value
-                ? "bg-blue-600 text-white shadow-md"
-                : `${badgeColor} hover:opacity-80`
-                }`}
-            >
-              <Icon size={16} />
-              <span>{label}</span>
-              <span>({count})</span>
-            </button>
-          );
-        })}
-      </div>
+      <StatusTabs
+        activeStatus={activeStatus as "all" | OrderStatus}
+        onStatusChange={setActiveStatus}
+        getCount={(status) => status === "all" ? orders.length : orders.filter(
+          (o) => o.status.toLowerCase() === status.toLowerCase()
+        ).length
+        }
+      />
 
       {/* Content */}
       {loading ? (
@@ -129,14 +104,16 @@ export default function UserOrders() {
           </button>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-2">
           {filteredOrders.map((order) => (
-            <UserOrderCard
-              key={order.id}
-              {...order}
-              onCancelSuccess={(id) => setOrders((prev) => prev.filter((o) => o.id !== id))}
-              onUpdateSuccess={handleOrderUpdate}
-            />
+            <div className="rounded-2xl border bg-white hover:bg-blue-200">
+              <UserOrderCard
+                key={order.id}
+                {...order}
+                onCancelSuccess={(id) => setOrders((prev) => prev.filter((o) => o.id !== id))}
+                onUpdateSuccess={handleOrderUpdate}
+              />
+            </div>
           ))}
         </div>
       )}

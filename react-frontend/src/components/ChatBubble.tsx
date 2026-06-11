@@ -160,7 +160,7 @@ export default function ChatBubble() {
             {/* Floating bubble */}
             <button
                 onClick={open ? () => setOpen(false) : handleOpen}
-                className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-lg text-white bg-(--brand-primary) flex items-center justify-center transition-transform hover:scale-110 active:scale-95"
+                className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-lg text-white bg-(--brand-primary) cursor-pointer flex items-center justify-center transition-transform hover:scale-110 active:scale-95"
                 aria-label="Open support chat"
             >
                 {open ? <X size={24} /> : <MessageCircle size={24} />}
