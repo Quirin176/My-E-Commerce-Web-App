@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { siteConfig } from "../../config/siteConfig";
 import type { ProductOption } from "../../types/models/products/ProductOption";
 
 export interface DynamicFiltersProps {
@@ -27,7 +26,6 @@ export default function DynamicFilters({
   setSortOrder
 }: DynamicFiltersProps) {
 
-  const colors = siteConfig.colors;
   const [openDropdowns, setOpenDropdowns] = useState<Record<string | number, boolean>>({});
 
   // Toggle dropdown for specific category
@@ -81,8 +79,7 @@ export default function DynamicFilters({
                       {option.optionName}
                       {selectedInCategory.length > 0 && (
                         <span
-                          className="ml-1 text-xs text-white px-1.5 py-0.5 rounded inline-block"
-                          style={{ background: colors.primarycolor }}>
+                          className="ml-1 text-xs text-white bg-(--brand-primary) px-1.5 py-0.5 rounded inline-block">
                           {selectedInCategory.length}
                         </span>
                       )}
@@ -166,8 +163,7 @@ export default function DynamicFilters({
               return option ? (
                 <span
                   key={id}
-                  className="text-white px-2 py-1 rounded text-xs flex items-center gap-1"
-                  style={{ background: colors.primarycolor }}
+                  className="text-white bg-(--brand-primary) px-2 py-1 rounded text-xs flex items-center gap-1"
                 >
                   {option.value}
                   <button

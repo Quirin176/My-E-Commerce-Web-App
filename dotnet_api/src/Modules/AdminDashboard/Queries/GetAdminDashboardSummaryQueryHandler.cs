@@ -1,17 +1,23 @@
+using MediatR;
 using WebApp_API.DTOs;
 using WebApp_API.Repositories;
 
-namespace WebApp_API.Services
+namespace WebApp_API.Features.AdminDashboard.Queries
 {
-    public class AdminDashboardService : IAdminDashboardService
+    public class GetAdminDashboardSummaryQueryHandler
+        : IRequestHandler<GetAdminDashboardSummaryQuery, AdminDashboardDTOs>
     {
         private readonly IAdminDashboardReadRepository _repo;
-        public AdminDashboardService(IAdminDashboardReadRepository repo)
+
+        public GetAdminDashboardSummaryQueryHandler(
+            IAdminDashboardReadRepository repo)
         {
             _repo = repo;
         }
 
-        public async Task<AdminDashboardDTOs> GetSummary()
+        public async Task<AdminDashboardDTOs> Handle(
+            GetAdminDashboardSummaryQuery request,
+            CancellationToken cancellationToken)
         {
             return new AdminDashboardDTOs
             {

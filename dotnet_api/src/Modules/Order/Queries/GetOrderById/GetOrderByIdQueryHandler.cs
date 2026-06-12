@@ -4,12 +4,12 @@ using WebApp_API.Repositories;
 
 namespace WebApp_API.Features.Orders.Queries.GetOrderById
 {
-    public class GetOrderByIdQueryQueryHandler
+    public class GetOrderByIdQueryHandler
         : IRequestHandler<GetOrderByIdQuery, OrderDTOs.OrderResponse?>
     {
         private readonly IOrderRepository _repo;
 
-        public GetOrderByIdQueryQueryHandler(IOrderRepository repo)
+        public GetOrderByIdQueryHandler(IOrderRepository repo)
         {
             _repo = repo;
         }

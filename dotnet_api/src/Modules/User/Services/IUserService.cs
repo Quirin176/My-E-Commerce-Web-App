@@ -1,6 +1,6 @@
 using WebApp_API.DTOs;
 using WebApp_API.Specifications;
-using static WebApp_API.DTOs.PaginationDTOs;
+using static WebApp_API.Models.PaginationDTOs;
 
 namespace WebApp_API.Services
 {

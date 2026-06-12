@@ -87,7 +87,6 @@ builder.Services.AddMediatR(cfg =>
 
 // Add custom DI (Dependency Injection)
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 builder.Services.AddScoped<IProductOptionRepository, ProductOptionRepository>();
 builder.Services.AddScoped<IProductOptionService, ProductOptionService>();
@@ -112,10 +111,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-// builder.Services.AddScoped<IOrderService, OrderService>();
-builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
-builder.Services.AddScoped<IOrderItemService, OrderItemService>();
 
+builder.Services.AddScoped<IAdminDashboardReadRepository, AdminDashboardReadRepository>();
 builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 
 builder.Services.AddScoped<IChatRepository, ChatRepository>();

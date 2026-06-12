@@ -114,43 +114,43 @@ namespace WebApp_API.Repositories
             return await _db.Orders.Include(o => o.OrderItems).ToListAsync();
         }
 
-        public int CountOrders() => _db.Orders.Count();
+        // public int CountOrders() => _db.Orders.Count();
 
-        public decimal GetTotalRevenue() => _db.Orders.Sum(o => o.TotalAmount);
+        // public decimal GetTotalRevenue() => _db.Orders.Sum(o => o.TotalAmount);
 
-        public List<OrderDTOs.RecentOrderDto> GetRecentOrders(int count)
-        {
-            return _db.Orders
-                .OrderByDescending(o => o.CreatedAt)
-                .Take(count)
-                .Select(o => new OrderDTOs.RecentOrderDto
-                {
-                    Id = o.Id,
-                    CustomerName = o.CustomerName,
-                    TotalAmount = o.TotalAmount,
-                    Status = o.Status
-                })
-                .ToList();
-        }
+        // public List<OrderDTOs.RecentOrderDto> GetRecentOrders(int count)
+        // {
+        //     return _db.Orders
+        //         .OrderByDescending(o => o.CreatedAt)
+        //         .Take(count)
+        //         .Select(o => new OrderDTOs.RecentOrderDto
+        //         {
+        //             Id = o.Id,
+        //             CustomerName = o.CustomerName,
+        //             TotalAmount = o.TotalAmount,
+        //             Status = o.Status
+        //         })
+        //         .ToList();
+        // }
 
-        public async Task<List<LineChartPoint>> GetOrderChartDataAsync(int days)
-        {
-            DateTime fromDate = DateTime.Today.AddDays(-days + 1);
+        // public async Task<List<LineChartPoint>> GetOrderChartDataAsync(int days)
+        // {
+        //     DateTime fromDate = DateTime.Today.AddDays(-days + 1);
 
-            var result = await _db.Orders
-                .Where(o => o.CreatedAt.Date >= fromDate)
-                .GroupBy(o => o.CreatedAt.Date)
-                .Select(g => new LineChartPoint
-                {
-                    Date = g.Key,
-                    OrderCount = g.Count(),
-                    TotalRevenue = g.Sum(x => x.TotalAmount)
-                })
-                .OrderBy(x => x.Date)
-                .ToListAsync();
+        //     var result = await _db.Orders
+        //         .Where(o => o.CreatedAt.Date >= fromDate)
+        //         .GroupBy(o => o.CreatedAt.Date)
+        //         .Select(g => new LineChartPoint
+        //         {
+        //             Date = g.Key,
+        //             OrderCount = g.Count(),
+        //             TotalRevenue = g.Sum(x => x.TotalAmount)
+        //         })
+        //         .OrderBy(x => x.Date)
+        //         .ToListAsync();
 
-            return result;
-        }
+        //     return result;
+        // }
 
         // ────────────────────────────── Write Operations ──────────────────────────────
         public async Task<Order> CreateOrderAsync(Order order, List<OrderItem> orderItems)

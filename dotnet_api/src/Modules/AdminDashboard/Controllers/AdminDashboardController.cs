@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebApp_API.Services;
+using MediatR;
+using WebApp_API.Features.AdminDashboard.Queries;
 
 namespace WebApp_API.Controllers
 {
@@ -9,10 +10,10 @@ namespace WebApp_API.Controllers
     [Authorize(Roles = "Admin")]
     public class AdminDashboardController : ControllerBase // API Endpoint: /api/admindashboard
     {
-        private readonly IAdminDashboardService _service;
-        public AdminDashboardController(IAdminDashboardService service)
+        private readonly IMediator _mediator;
+        public AdminDashboardController(IMediator mediator)
         {
-            _service = service;
+            _mediator = mediator;
         }
 
         // GET: /api/admindashboard - Get all dashboard data
@@ -21,8 +22,9 @@ namespace WebApp_API.Controllers
         {
             try
             {
-                var res = await _service.GetSummary();
-                return Ok(res);
+                var result = await _mediator.Send(new GetAdminDashboardSummaryQuery());
+
+                return Ok(result);
             }
             catch (Exception ex)
             {

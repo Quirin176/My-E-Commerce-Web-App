@@ -1,7 +1,7 @@
 using MediatR;
 using WebApp_API.DTOs;
 using WebApp_API.Repositories;
-using static WebApp_API.DTOs.PaginationDTOs;
+using static WebApp_API.Models.PaginationDTOs;
 
 namespace WebApp_API.Features.Orders.Queries.GetPaginatedOrders
 {
