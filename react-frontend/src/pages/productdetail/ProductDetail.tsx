@@ -21,12 +21,11 @@ export default function ProductDetails() {
     error,
   } = useProductDetails(slug);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>();
-  const activeVariant = selectedVariant ?? (variants.length > 0 ? variants[0] : undefined);
+  const activeVariant = selectedVariant;
 
   const images: ImagePayload[] = (() => {
-    if (product?.hasVariants) {
-      // Use active variant images; fall back to empty array (never crash on undefined)
-      return activeVariant?.images ?? [];
+    if (product?.hasVariants && activeVariant) {
+      return activeVariant.images ?? [];
     }
 
     if (productImages.length > 0) {
@@ -80,9 +79,10 @@ export default function ProductDetails() {
 
         <ProductInfo
           product={product}
-          onVariantChange={(variant) => setSelectedVariant(variant)}
+          selectedVariant={selectedVariant}
+          onVariantChange={setSelectedVariant}
         />
-        
+
       </div>
 
       <ProductSpecifications options={product.options} />

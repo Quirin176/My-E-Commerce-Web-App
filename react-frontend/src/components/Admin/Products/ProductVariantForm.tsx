@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Plus, X } from "lucide-react";
 import toast from "react-hot-toast";
-import { adminProductsApi, type AddImagePayload, type ProductVariantPayload, } from "../../../api/admin/adminProductsApi";
+import { adminProductsApi, type ImagePayload, type ProductVariantPayload, } from "../../../api/admin/adminProductsApi";
 import type { ProductOption } from "../../../types/models/products/ProductOption";
 import type { VariantRow } from "../../../types/models/products/variantTypes";
 
@@ -27,7 +27,7 @@ export default function ProductVariantForm({
   const [originalPrice, setOriginalPrice] = useState<number>(row.originalPrice);
   const [stock, setStock] = useState<number>(row.stock);
   const [imageInput, setImageInput] = useState("");
-  const [imageUrls, setImageUrls] = useState<AddImagePayload[]>(row.images ?? []);
+  const [imageUrls, setImageUrls] = useState<ImagePayload[]>(row.images ?? []);
   const [localOptionValueIds, setLocalOptionValueIds] = useState<number[]>(
     (row.optionValueIds ?? []).length > 0
       ? row.optionValueIds
@@ -127,7 +127,7 @@ export default function ProductVariantForm({
             toast.error("Variant created but could not attach images: missing variant ID.");
           } else {
             // Stamp the real variantId onto each image, clear productId
-            const stampedImages: AddImagePayload[] = imageUrls.map((img, idx) => ({
+            const stampedImages: ImagePayload[] = imageUrls.map((img, idx) => ({
               imageUrl: img.imageUrl,
               displayOrder: idx,
               isMain: idx === 0,

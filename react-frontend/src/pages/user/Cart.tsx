@@ -42,9 +42,9 @@ export default function Cart() {
   if (!user) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
-        <ShoppingBag size={64} className="mx-auto text-gray-400 mb-4" />
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Your cart is empty</h1>
-        <p className="text-gray-600 mb-8">Please log in to view your cart</p>
+        <ShoppingBag size={64} className="mx-auto text-(--text-primary) mb-4" />
+        <h1 className="text-3xl font-bold text-(--text-primary) mb-4">Your cart is empty</h1>
+        <p className="text-(--text-primary) mb-8">Please log in to view your cart</p>
         <Link
           to="/auth?mode=login"
           className="inline-block px-6 py-3 text-white bg-(--brand-primary) rounded-lg hover:brightness-75 transition"
@@ -58,12 +58,12 @@ export default function Cart() {
   if (cartItems.length === 0) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
-        <ShoppingBag size={64} className="mx-auto text-gray-400 mb-4" />
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Your cart is empty</h1>
-        <p className="text-xl text-gray-600 mb-8">Add some products to get started!</p>
+        <ShoppingBag size={64} className="mx-auto text-(--text-primary) mb-4" />
+        <h1 className="text-3xl font-bold text-(--text-primary) mb-4">Your cart is empty</h1>
+        <p className="text-xl font-semibold text-(--text-primary) mb-8">Add some products to get started!</p>
         <Link
           to="/home"
-          className="inline-block px-6 py-3 text-white bg-(--brand-primary) rounded-lg hover:brightness-75 transition"
+          className="inline-block px-6 py-3 text-white font-semibold bg-(--brand-primary) rounded-lg hover:brightness-75 transition"
         >
           Back to Home Page
         </Link>

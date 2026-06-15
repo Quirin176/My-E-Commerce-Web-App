@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using WebApp_API.DTOs;
 using WebApp_API.Services;
 using WebApp_API.Specifications;
@@ -17,6 +18,7 @@ namespace WebApp_API.Controllers
         }
 
         // GET /api/products/id:{id}
+        [OutputCache(Duration = 60)]
         [HttpGet("id/{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -25,6 +27,7 @@ namespace WebApp_API.Controllers
         }
 
         // GET /api/products/slug/{slug}
+        [OutputCache(Duration = 60)]
         [HttpGet("slug/{slug}")]
         public async Task<IActionResult> GetBySlug(string slug)
         {
@@ -33,6 +36,7 @@ namespace WebApp_API.Controllers
         }
 
         // GET /api/products/newest
+        [OutputCache(Duration = 300)]
         [HttpGet("newest")]
         public async Task<IActionResult> GetCategoryNewestProducts([FromQuery] int categoryId, int amount)
         {
@@ -60,6 +64,7 @@ namespace WebApp_API.Controllers
         }
 
         // GET /api/products/paginated
+        [OutputCache(Duration = 300)]
         [HttpGet("paginated")]
         public async Task<IActionResult> GetProductsPaginated([FromQuery] ProductListDTOs.ProductFilterParams filterParams)
         {

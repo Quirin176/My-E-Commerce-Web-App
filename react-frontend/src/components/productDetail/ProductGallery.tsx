@@ -62,30 +62,30 @@ export default function ProductGallery({ images, thumbnail }: Props) {
                         <>
                             <button
                                 onClick={goToPrevImage}
-                                className="absolute left-3 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white/70 hover:bg-white transition"
+                                className="absolute left-3 top-1/2 -translate-y-1/2 p-1 rounded-full bg-gray-500 hover:bg-gray-600 transition cursor-pointer"
                                 aria-label="Previous image"
                             >
-                                <ChevronLeft />
+                                <ChevronLeft className="text-white" />
                             </button>
 
                             <button
                                 onClick={goToNextImage}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white/70 hover:bg-white transition"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full bg-gray-500 hover:bg-gray-600 transition cursor-pointer"
                                 aria-label="Next image"
                             >
-                                <ChevronRight />
+                                <ChevronRight className="text-white" />
                             </button>
                         </>
                     )}
                 </div>
 
                 {images.length > 1 && (
-                    <div className="flex gap-2 mt-4">
+                    <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
                         {images.map((img, index) => (
                             <button
                                 key={index}
                                 onClick={() => setCurrentIndex(index)}
-                                className={`rounded ${index === safeIndex ? "border border-black" : "border-none"}`}
+                                className={`shrink-0 rounded transition cursor-pointer ${index === safeIndex ? "border-2 border-blue-600" : "hover:border-2 hover:border-blue-500"}`}
                             >
                                 <img
                                     src={img.imageUrl}

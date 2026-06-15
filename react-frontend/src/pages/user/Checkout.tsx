@@ -4,7 +4,6 @@ import toast from "react-hot-toast";
 import { ShoppingBag } from "lucide-react";
 import { useAuth } from "../../hooks/auth/useAuth";
 import { useCart } from "../../hooks/cart/useCart";
-import { siteConfig } from "../../config/siteConfig";
 import CheckoutOrderSummary from "../../components/cart/CheckoutOrderSummary";
 import { checkoutApi } from "../../api/checkoutApi";
 
@@ -14,7 +13,6 @@ export default function Checkout() {
     const totalPrice = getTotalPrice();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-    const colors = siteConfig.colors;
 
     const [checkoutFormInformation, setCheckoutFormInformation] = useState({
         fullName: user?.username || "",
@@ -99,8 +97,7 @@ export default function Checkout() {
                 <p className="text-xl text-gray-600 mb-8">Add some products to get started!</p>
                 <Link
                     to="/home"
-                    className="inline-block px-6 py-3 text-white rounded-lg hover:brightness-75 transition"
-                    style={{ background: colors.primarycolor }}
+                    className="inline-block px-6 py-3 text-white bg-(--brand-primary) rounded-lg hover:brightness-75 transition"
                 >
                     Back to Home Page
                 </Link>
@@ -201,8 +198,7 @@ export default function Checkout() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="text-white font-semibold border-2 rounded-xl cursor-pointer px-4 py-4 disabled:opacity-50 disabled:cursor-not-allowed"
-                            style={{ background: colors.primarycolor }}
+                            className="text-white bg-(--brand-primary) font-semibold border-2 rounded-xl cursor-pointer px-4 py-4 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? "Processing..." : "Submit"}
                         </button>

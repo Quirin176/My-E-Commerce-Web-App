@@ -29,12 +29,13 @@ export function useProductDetails(slug?: string): useProductDetailsReturn {
 
                 const product = await productApi.getProductBySlug(slug);
                 setProduct(product);
+                const images = await productimageApi.GetByProduct(product.id);
+                if (images && images.length > 0) {
+                    setProductImages(images);
+                }
 
                 if (product.hasVariants) {
                     setVariants(product.variants);
-                } else {
-                    const images = await productimageApi.GetByProduct(product.id);
-                    setProductImages(images);
                 }
             }
             catch {

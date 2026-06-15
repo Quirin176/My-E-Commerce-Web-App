@@ -38,8 +38,8 @@ export default function ImagesTab(props: ImagesTabProps) {
                     <div>
                         <p className="font-semibold text-sm">Product not saved yet</p>
                         <p className="text-xs mt-0.5">
-                            Go to the <strong>Product</strong> tab and click <strong>Create Product</strong> first,
-                            then come back here to add images.
+                            Go to the <strong>Attributes</strong> tab and click{" "}
+                            <strong>Create Product</strong> first. Then come back here to add variants.
                         </p>
                     </div>
                 </div>
@@ -90,8 +90,7 @@ export default function ImagesTab(props: ImagesTabProps) {
                                             className={`w-full h-full object-cover rounded border-2 ${img.isMain ? "border-blue-500" : "border-gray-200"
                                                 }`}
                                             onError={(e) => {
-                                                (e.target as HTMLImageElement).src =
-                                                    "https://via.placeholder.com/80?text=Error";
+                                                (e.target as HTMLImageElement).src = "https://via.placeholder.com/80?text=Error";
                                             }}
                                         />
                                         {img.isMain && (

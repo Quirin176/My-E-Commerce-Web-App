@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -9,15 +8,18 @@ import type { Product, ProductVariant } from "../../types/models/products/Produc
 
 interface ProductInfoProps {
     product: Product;
-    onVariantChange?: (variant: ProductVariant) => void;
+    selectedVariant?: ProductVariant;
+    onVariantChange?: (variant?: ProductVariant) => void;
 }
 
-export default function ProductInfo({ product, onVariantChange }: ProductInfoProps) {
-    const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>(product.variants?.[0]);
+export default function ProductInfo({ product, selectedVariant, onVariantChange }: ProductInfoProps) {
 
     const handleVariantSelect = (variant: ProductVariant) => {
-        setSelectedVariant(variant);
-        onVariantChange?.(variant);
+        if (selectedVariant?.id === variant.id) {
+            onVariantChange?.(undefined);
+        } else {
+            onVariantChange?.(variant);
+        }
     };
 
     const hasVariants = (product.variants?.length ?? 0) > 0;

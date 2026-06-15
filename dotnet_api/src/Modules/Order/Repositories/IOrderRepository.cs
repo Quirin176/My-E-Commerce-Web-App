@@ -16,12 +16,6 @@ namespace WebApp_API.Repositories
         Task<List<Order>> GetAllOrdersWithItemsAsync();     // Admin
         Task<List<Order>> ExportOrdersCsvAsync(OrderFiltersParameters spec);
 
-        // ────────────────────────────── Dashboard Features ──────────────────────────────
-        // int CountOrders();
-        // decimal GetTotalRevenue();
-        // List<OrderDTOs.RecentOrderDto> GetRecentOrders(int count);
-        // Task<List<LineChartPoint>> GetOrderChartDataAsync(int days);
-
         // ────────────────────────────── Write Commands ──────────────────────────────
         Task<Order> CreateOrderAsync(Order order, List<OrderItem> items);   // Customer
         Task UpdateOrderAsync(Order order);                 // Admin

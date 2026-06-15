@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import toast from "react-hot-toast";
-import { siteConfig } from "../../../config/siteConfig";
 import { useCategories } from "../../../hooks/products/useCategories";
 import { categoryApi } from "../../../api/products/categoryApi";
 import type { ProductOption } from "../../../types/models/products/ProductOption";
@@ -31,8 +30,6 @@ export default function DynamicFilters({
     setSortOrder,
     onApplyFilters
 }: DynamicFiltersProps) {
-
-    const colors = siteConfig.colors;
 
     const { categories } = useCategories();
     const [loadedOptions, setLoadedOptions] = useState<ProductOption[]>([]);
@@ -94,7 +91,7 @@ export default function DynamicFilters({
         <div className="bg-white p-3 rounded shadow border mb-4">
 
             <div className="flex flex-wrap gap-2 items-center">
-                
+
                 {/* Category Select Box */}
                 <select
                     disabled={loadingFilters}
@@ -130,9 +127,7 @@ export default function DynamicFilters({
                                         <span className="font-semibold text-gray-700 truncate text-xs">
                                             {option.optionName}
                                             {selectedInCategory.length > 0 && (
-                                                <span
-                                                    className="ml-1 text-xs text-white px-1.5 py-0.5 rounded inline-block"
-                                                    style={{ background: colors.primarycolor }}>
+                                                <span className="ml-1 text-xs text-white bg-(--brand-primary) px-1.5 py-0.5 rounded inline-block">
                                                     {selectedInCategory.length}
                                                 </span>
                                             )}
@@ -243,8 +238,7 @@ export default function DynamicFilters({
                             return option ? (
                                 <span
                                     key={id}
-                                    className="text-white px-2 py-1 rounded text-xs flex items-center gap-1"
-                                    style={{ background: colors.primarycolor }}
+                                    className="text-white bg-(--brand-primary) px-2 py-1 rounded text-xs flex items-center gap-1"
                                 >
                                     {option.value}
                                     <button

@@ -69,13 +69,12 @@ export default function AdminProduct() {
         saveImages(effectiveProductId, productImages.images);
         navigate(`/admin/products`);
     }
+
     // ── Tab visibility ────────────────────────────────────────────────────────────
     const showAttributesTab = !!form.formData.categoryId && filters.filters.length > 0;
     const showVariantsTab = hasVariant;
 
-    const attributesTabIndex = 1;
-    const addProductImagesIndex = showAttributesTab && !showVariantsTab ? 2 : 1;
-    const variantsTabIndex = showAttributesTab && showVariantsTab ? 2 : 1;
+    const variantsTabIndex = showAttributesTab && showVariantsTab ? 3 : 2;
 
     return (
         <div className="w-full overflow-y-auto">
@@ -83,7 +82,8 @@ export default function AdminProduct() {
                 <Tabs value={tabIndex} onChange={(_, nv) => setTabIndex(nv)}>
                     <Tab label="Product" />
                     {showAttributesTab && <Tab label="Attributes" />}
-                    {showVariantsTab ? <Tab label="Variants" /> : <Tab label="Product Images" />}
+                    {showAttributesTab && <Tab label="Product Images" />}
+                    {showVariantsTab && <Tab label="Variants" />}
                 </Tabs>
 
                 {/* ── TAB 0: Product basic info ── */}
@@ -104,7 +104,7 @@ export default function AdminProduct() {
 
                 {/* ── TAB 1: Attributes (only when category has options) ── */}
                 {showAttributesTab && (
-                    <TabPanel value={tabIndex} index={attributesTabIndex}>
+                    <TabPanel value={tabIndex} index={1}>
                         <ProductAttributesTab
                             mode={mode}
                             filters={filters}
@@ -118,8 +118,22 @@ export default function AdminProduct() {
                     </TabPanel>
                 )}
 
-                {/* ── TAB 2: Variants ── */}
-                {showVariantsTab ? (
+                {/* ── TAB 2: Product Images (no-variant path) ── */}
+                <TabPanel value={tabIndex} index={2}>
+                    <ImagesTab
+                        productId={effectiveProductId}
+                        images={productImages.images}
+                        imageInput={productImages.imageInput}
+                        setImageInput={productImages.setImageInput}
+                        addImage={productImages.addImage}
+                        removeImage={productImages.removeImage}
+                        submittingImages={submittingImages}
+                        onSave={handleSaveImages}
+                    />
+                </TabPanel>
+
+                {/* ── TAB 3: Variants ── */}
+                {showVariantsTab && (
                     <TabPanel value={tabIndex} index={variantsTabIndex}>
                         <ProductVariantsTab
                             mode={mode}
@@ -133,21 +147,8 @@ export default function AdminProduct() {
                             skuContext={skuContext}
                         />
                     </TabPanel>
-                ) : (
-                    /* ── TAB 2: Product Images (no-variant path) ── */
-                    <TabPanel value={tabIndex} index={addProductImagesIndex}>
-                        <ImagesTab
-                            productId={effectiveProductId}
-                            images={productImages.images}
-                            imageInput={productImages.imageInput}
-                            setImageInput={productImages.setImageInput}
-                            addImage={productImages.addImage}
-                            removeImage={productImages.removeImage}
-                            submittingImages={submittingImages}
-                            onSave={handleSaveImages}
-                        />
-                    </TabPanel>
-                )}
+                )
+                }
             </Box>
         </div >
     );

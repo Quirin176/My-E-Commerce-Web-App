@@ -1,5 +1,5 @@
 import { AlertCircle, MoveRight } from "lucide-react";
-import type { UseProductFormReturn } from "../../../hooks/admin/useProductForm";
+import type { UseProductFormReturn } from "../../../hooks/admin/product/useProductForm";
 import type { UserProductFiltersReturn } from "../../../hooks/products/useProductFilters";
 import type { Category } from "../../../types/models/products/Category";
 
@@ -37,8 +37,8 @@ export default function ProductInfoTab({
                         value={form.formData.name}
                         onChange={(e) => form.autoGenerateSlug(e.target.value)}
                         placeholder="Enter product name"
-                        className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${form.formErrors.name ? "border-red-500" : "border-black"
-                            }`}
+                        className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none
+                            ${form.formErrors.name ? "border-red-500" : "border-black"}`}
                     />
                     {form.formErrors.name && (
                         <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
@@ -57,8 +57,8 @@ export default function ProductInfoTab({
                         placeholder="product-slug"
                         disabled
                         readOnly
-                        className={`w-full px-4 py-2 border-2 rounded-lg outline-none cursor-not-allowed bg-gray-200 text-gray-600 ${form.formErrors.slug ? "border-red-500" : "border-black"
-                            }`}
+                        className={`w-full px-4 py-2 border-2 rounded-lg outline-none cursor-not-allowed bg-gray-200 text-gray-600
+                            ${form.formErrors.slug ? "border-red-500" : "border-black"}`}
                     />
                 </div>
             </div>
@@ -72,8 +72,8 @@ export default function ProductInfoTab({
                         value={form.formData.basePrice}
                         onChange={(e) => form.updateField("basePrice", e.target.value)}
                         placeholder="Enter product price"
-                        className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${form.formErrors.price ? "border-red-500" : "border-black"
-                            }`}
+                        className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none
+                            ${form.formErrors.price ? "border-red-500" : "border-black"}`}
                     />
                     {form.formErrors.price && (
                         <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
@@ -93,8 +93,8 @@ export default function ProductInfoTab({
                             filters.loadFilters(categoryId);
                             onCategoryChange(categoryId);
                         }}
-                        className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none ${form.formErrors.categoryId ? "border-red-500" : "border-black"
-                            }`}
+                        className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none
+                            ${form.formErrors.categoryId ? "border-red-500" : "border-black"}`}
                     >
                         <option value="">Select a category</option>
                         {categories.map((cat) => (

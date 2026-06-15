@@ -8,11 +8,13 @@ using WebApp_API.Hubs;
 using WebApp_API.Data;
 using WebApp_API.Repositories;
 using WebApp_API.Services;
+using WebApp_API.Infrastructure.Email;
+using WebApp_API.Infrastructure.Extensions;
 using QuestPDF.Infrastructure;
 using MediatR;
 
 // ──────────────────────────────────────── 1. DI (DEPENDENCY INJECTION) SERVICE CONTAINER ────────────────────────────────────────
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // ──────────────────────────────────────── 2. CONFIGURE SERVICES (DEPENDENCIES INJECTION REGISTRATION) ────────────────────────────────────────
 QuestPDF.Settings.License = LicenseType.Community;
@@ -45,7 +47,7 @@ builder.Services.AddCors(options =>
 // Rate Limiting - limit to 3 login attempts per minute per IP
 builder.Services.AddRateLimiter(options =>
 {
-    options.RejectionStatusCode = 429;
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
     // Add Retry-After header on rejection
     options.OnRejected = async (context, cancellationToken) =>
@@ -59,7 +61,7 @@ builder.Services.AddRateLimiter(options =>
             context.HttpContext.Response.Headers.RetryAfter = "60";
         }
 
-        context.HttpContext.Response.StatusCode = 429;
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
         await context.HttpContext.Response.WriteAsync("{\"message\":\"Too many login attempts. Please try again later.\"}", cancellationToken);
     };
 
@@ -72,13 +74,21 @@ builder.Services.AddRateLimiter(options =>
             factory: _ => new FixedWindowRateLimiterOptions
             {
                 PermitLimit = 3,                     // allow 3 requests
-                Window = TimeSpan.FromMinutes(1),    // per 1 minute window
-                QueueLimit = 0,
+                Window = TimeSpan.FromMinutes(1),    // per 1 minute
+                QueueLimit = 0,                      // queue is not allowed, reject immediately when limit is exceeded
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst
             }
         );
     });
 });
+
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
+
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+builder.Services.AddOutputCache();
+builder.Services.AddMemoryCache();
 
 builder.Services.AddMediatR(cfg =>
 {
@@ -118,9 +128,7 @@ builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 
-// builder.Services.AddHttpClient<GeminiClient>();
 builder.Services.AddScoped<IGeminiAgentRepository, GeminiAgentRepository>();
-builder.Services.AddScoped<IGeminiAgentService, GeminiAgentService>();
 builder.Services.AddHttpClient<IGeminiAgentService, GeminiAgentService>(client =>
 {
     client.Timeout = TimeSpan.FromSeconds(30);
@@ -140,8 +148,7 @@ builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
+}).AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -193,6 +200,8 @@ builder.Services.AddAuthentication(options =>
 var app = builder.Build();
 
 // ──────────────────────────────────────── 4. CONFIGURE THE HTTP REQUEST PIPELINE (CONFIGURE MIDDLEWARE) ────────────────────────────────────────
+app.UseSecurityHeaders();           // Custom Middleware
+
 if (app.Environment.IsDevelopment())    // Enable Swagger only in Development
 {
     // Swagger JSON is available at http://localhost:5159/swagger/v1/swagger.json
@@ -201,30 +210,30 @@ if (app.Environment.IsDevelopment())    // Enable Swagger only in Development
     app.UseSwaggerUI();
 }
 
+// app.UseExceptionHandler(...);    // Custom Middleware
+
+app.UseHttpsRedirection();
+
 app.UseCors("AllowFrontend");
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        const int durationInSeconds = 60 * 60 * 24 * 365; // 1 year
+
+        ctx.Context.Response.Headers.Append(
+            "Cache-Control",
+            $"public,max-age={durationInSeconds}");
+    }
+});
 
 app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Security Headers Middleware
-app.Use(async (context, next) =>
-{
-    var headers = context.Response.Headers;
-
-    headers["XContentTypeOptions"] = "nosniff";                     // Prevent MIME type sniffing
-    headers["XFrameOptions"] = "DENY";                              // Prevent clickjacking by disallowing framing
-    headers["Referrer-Policy"] = "strict-origin-when-cross-origin"; // Control referrer information sent with requests
-    headers["Permissions-Policy"] = "geolocation=()";               // Disable geolocation API for all origins
-
-    headers["ContentSecurityPolicy"] = "default-src 'self'";        // Restrict content to same origin to mitigate XSS and data injection attacks
-
-    headers["XXSSProtection"] = "1; mode=block";                    // Enable XSS protection in browsers (deprecated but still supported by some)
-
-    headers.Remove("Server");                                       // Hide server information for security
-    await next();
-});
+app.UseOutputCache();
 
 // ──────────────────────────────────────── 5. ENDPOINT MAPPING METHOD ────────────────────────────────────────
 app.MapControllers();

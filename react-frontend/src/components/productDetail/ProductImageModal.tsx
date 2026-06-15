@@ -66,10 +66,10 @@ export default function ProductImageModal({
                         {/* Close Button */}
                         <button
                             onClick={() => onClose()}
-                            className="absolute top-4 right-4 bg-transparent hover:bg-black/20 text-white p-2 border-black rounded-full transition z-10"
+                            className="absolute top-4 right-4 bg-gray-500 hover:bg-gray-600 text-white p-2 border-black rounded-full transition cursor-pointer z-10"
                             aria-label="Close modal"
                         >
-                            <X size={32} className="text-black" />
+                            <X size={32} className="text-white" />
                         </button>
 
                         {/* Main Image in Modal */}
@@ -90,14 +90,14 @@ export default function ProductImageModal({
                             <>
                                 <button
                                     onClick={() => onPrev()}
-                                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition"
+                                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-gray-500 hover:bg-gray-600 text-white p-3 rounded-full transition cursor-pointer"
                                     aria-label="Previous image"
                                 >
                                     <ChevronLeft size={32} />
                                 </button>
                                 <button
                                     onClick={() => onNext()}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full transition"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-gray-500 hover:bg-gray-600 text-white p-3 rounded-full transition cursor-pointer"
                                     aria-label="Next image"
                                 >
                                     <ChevronRight size={32} />
@@ -117,9 +117,8 @@ export default function ProductImageModal({
                                     <button
                                         key={index}
                                         onClick={() => onSelect(index)}
-                                        className={`shrink-0 w-16 h-16 rounded border-2 transition ${currentIndex === index
-                                            ? "border-blue-400"
-                                            : "border-gray-600 hover:border-gray-400"
+                                        className={`shrink-0 w-16 h-16 rounded border-2 transition cursor-pointer ${currentIndex === index ?
+                                            "border-blue-400" : "border-gray-600 hover:border-gray-400"
                                             }`}
                                     >
                                         <img

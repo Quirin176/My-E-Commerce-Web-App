@@ -13,7 +13,7 @@ namespace WebApp_API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Customer")]
-    public class UserOrdersController : ControllerBase // API URL: /api/orders
+    public class UserOrdersController : ControllerBase // API URL: /api/userorders
     {
         private readonly IMediator _mediator;
 
@@ -113,7 +113,7 @@ namespace WebApp_API.Controllers
             try
             {
                 var order = await _mediator.Send(new CreateOrderCommand(request, int.Parse(userId)));
-                return CreatedAtAction(nameof(GetOrderById), new { id = order.Id }, new
+                return Ok(new
                 {
                     order.Id,
                     order.CustomerName,
