@@ -51,6 +51,5 @@ export interface Product {
   options?: ProductOptionPayload[];
   selectedOptionValueIds?: number[];
   stock: number;
-  hasVariants: boolean;
   variants: ProductVariant[];
 }

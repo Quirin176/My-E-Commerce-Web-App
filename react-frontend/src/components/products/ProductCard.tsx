@@ -1,36 +1,7 @@
-import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../hooks/auth/useAuth";
-import { useCart } from "../../hooks/cart/useCart";
 import type { Product } from "../../types/models/products/Product";
 
 export default function ProductCard({ product }: { product: Product }) {
-  const { addToCart } = useCart();
-  const { user } = useAuth();
-
-  const handleAdd = () => {
-    if (!user || user.role === "Admin") {
-      toast.error(
-        "You must be logged in as a customer to add items to the cart."
-      );
-      return;
-    }
-
-    const item = {
-      id: product.id,
-      name: product.name,
-      slug: product.slug,
-      price: product.basePrice,
-      image: product.thumbnailUrl || "https://via.placeholder.com/200x150?text=No+Image",
-    };
-
-    try {
-      addToCart(item, 1);
-      toast.success(`${item.name} added to cart!`);
-    } catch (error) {
-      toast.error(`Failed to add ${item.name} to cart.`);
-    }
-  };
 
   return (
     <div className="border rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 bg-(--bg-surface) flex flex-col">
@@ -56,9 +27,9 @@ export default function ProductCard({ product }: { product: Product }) {
           <div className="h-40 mt-2 overflow-y-auto rounded-xl p-2 text-sm text-left bg-(--bg-muted)">
             {product.options && product.options.length > 0 ? (
               product.options.map((opt) => (
-                <p key={opt.id}>
+                <p key={opt.optionId}>
                   <strong>{opt.optionName}:</strong>{" "}
-                  {opt.values}
+                  {opt.optionValues?.join(", ")}
                 </p>
               ))
             ) : (
@@ -68,17 +39,9 @@ export default function ProductCard({ product }: { product: Product }) {
         </div>
       </Link>
 
-      <div className="p-2">
-        <p className="text-end font-bold mb-3 border-t border-b border-gray-100 text-(--price)">
-          {product.basePrice?.toLocaleString() || "N/A"} VND
-        </p>
-        <button
-          onClick={handleAdd}
-          className="w-full font-semibold text-white bg-(--brand-primary) py-3 rounded-lg hover:brightness-75 transition duration-150 transform hover:scale-[1.01]"
-        >
-          Add to Cart
-        </button>
-      </div>
+      <p className="text-end font-bold p-2 mb-3 text-(--price)">
+        {product.basePrice?.toLocaleString() || "N/A"} VND
+      </p>
     </div>
   );
 }

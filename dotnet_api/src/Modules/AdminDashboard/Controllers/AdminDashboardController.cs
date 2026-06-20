@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using MediatR;
 using WebApp_API.Features.AdminDashboard.Queries;
 
@@ -17,6 +18,7 @@ namespace WebApp_API.Controllers
         }
 
         // GET: /api/admindashboard - Get all dashboard data
+        [OutputCache(PolicyName = "Admin_Dashboard")]
         [HttpGet]
         public async Task<IActionResult> GetDashboardData()
         {

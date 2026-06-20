@@ -19,14 +19,13 @@ export function useAdminProduct() {
     const mode = id ? "edit" : "create";
 
     const [createdProductId, setCreatedProductId] = useState<number | null>(null);
-    const effectiveProductId = useMemo(
-        () => (id ? Number(id) : createdProductId),
+    const effectiveProductId = useMemo(() =>
+        (id ? Number(id) : createdProductId),
         [id, createdProductId]
     );
 
     const [recentProductImages, setRecentProductImages] = useState<ImagePayload[]>([])
 
-    const [hasVariant, setHasVariant] = useState(false);
     const [variants, setVariants] = useState<VariantRow[]>([]);
     const [showManualForm, setShowManualForm] = useState(false);
     const [submitting, setSubmitting] = useState(false);
@@ -65,10 +64,7 @@ export function useAdminProduct() {
                     thumbnailUrl: product.thumbnailUrl,
                     categoryId: Number(product.categoryId),
                     selectedOptionValueIds: [],
-                    hasVariants: product.hasVariants
                 }));
-
-                setHasVariant(product.hasVariants);
 
                 // Load filters & preselect options
                 if (product.categoryId) {
@@ -127,7 +123,6 @@ export function useAdminProduct() {
             const payload: ProductPayload = {
                 ...form.formData,
                 selectedOptionValueIds: selectedIds,
-                hasVariants: hasVariant,
             };
 
             let result;
@@ -154,8 +149,6 @@ export function useAdminProduct() {
         filters,
         categories,
         recentProductImages,
-        hasVariant,
-        setHasVariant,
         variants,
         setVariants,
         selectedIds,

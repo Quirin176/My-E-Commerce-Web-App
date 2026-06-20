@@ -7,7 +7,7 @@ import CustomerLayout from "./layouts/CustomerLayout";
 import AdminLayout from "./layouts/AdminLayout";
 
 import Home from "./pages/home/Home";
-import CategoryProducts from "./pages/category/Category";
+import Category from "./pages/category/Category";
 import ProductDetail from "./pages/productdetail/ProductDetail";
 import Search from "./pages/search/Search";
 
@@ -104,7 +104,7 @@ export default function App() {
           {/* Customer Pages */}
           <Route path="home" element={<Home />} />
           <Route path="" element={<Navigate to="/home" replace />} />
-          <Route path="category/:selectedCategory" element={<CategoryProducts />} /> // Use selectedCategory param to fetch products
+          <Route path="category/:selectedCategory" element={<Category />} /> // Use selectedCategory param to fetch products
           <Route path="product/:slug" element={<ProductDetail />} /> // Use slug param to fetch product details
           <Route path="search" element={<Search />} /> // Search page
 

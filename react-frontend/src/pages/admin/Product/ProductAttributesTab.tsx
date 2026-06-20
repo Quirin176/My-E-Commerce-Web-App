@@ -1,4 +1,3 @@
-import ToggleSwitch from "../../../components/ToggleSwitch";
 import type { UserProductFiltersReturn } from "../../../hooks/products/useProductFilters";
 
 interface ProductAttributesTabProps {
@@ -6,8 +5,6 @@ interface ProductAttributesTabProps {
     filters: UserProductFiltersReturn;
     selectedOptionValueIds: number[];
     handleOptionChange: (id: number) => void;
-    hasVariant: boolean;
-    setHasVariant: (val: boolean) => void;
     submittingProduct: boolean;
     submitProduct: () => void;
 }
@@ -17,8 +14,6 @@ export default function ProductAttributesTab({
     filters,
     selectedOptionValueIds,
     handleOptionChange,
-    hasVariant,
-    setHasVariant,
     submittingProduct,
     submitProduct,
 }: ProductAttributesTabProps) {
@@ -73,12 +68,6 @@ export default function ProductAttributesTab({
                     ))}
                 </div>
             )}
-
-            <ToggleSwitch
-                label="Has Variants?"
-                checked={hasVariant}
-                onChange={(val) => setHasVariant(val)}
-            />
 
             <div className="flex justify-end">
                 <button

@@ -34,9 +34,7 @@ export function useProductDetails(slug?: string): useProductDetailsReturn {
                     setProductImages(images);
                 }
 
-                if (product.hasVariants) {
-                    setVariants(product.variants);
-                }
+                setVariants(product.variants);
             }
             catch {
                 setError(true);

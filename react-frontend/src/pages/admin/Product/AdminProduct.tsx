@@ -38,8 +38,6 @@ export default function AdminProduct() {
         filters,
         categories,
         recentProductImages,
-        hasVariant,
-        setHasVariant,
         variants,
         setVariants,
         selectedIds,
@@ -70,20 +68,14 @@ export default function AdminProduct() {
         navigate(`/admin/products`);
     }
 
-    // ── Tab visibility ────────────────────────────────────────────────────────────
-    const showAttributesTab = !!form.formData.categoryId && filters.filters.length > 0;
-    const showVariantsTab = hasVariant;
-
-    const variantsTabIndex = showAttributesTab && showVariantsTab ? 3 : 2;
-
     return (
         <div className="w-full overflow-y-auto">
             <Box sx={{ width: "100%" }}>
                 <Tabs value={tabIndex} onChange={(_, nv) => setTabIndex(nv)}>
                     <Tab label="Product" />
-                    {showAttributesTab && <Tab label="Attributes" />}
-                    {showAttributesTab && <Tab label="Product Images" />}
-                    {showVariantsTab && <Tab label="Variants" />}
+                    <Tab label="Attributes" />
+                    <Tab label="Product Images" />
+                    <Tab label="Variants" />
                 </Tabs>
 
                 {/* ── TAB 0: Product basic info ── */}
@@ -103,20 +95,16 @@ export default function AdminProduct() {
                 </TabPanel>
 
                 {/* ── TAB 1: Attributes (only when category has options) ── */}
-                {showAttributesTab && (
-                    <TabPanel value={tabIndex} index={1}>
-                        <ProductAttributesTab
-                            mode={mode}
-                            filters={filters}
-                            selectedOptionValueIds={selectedIds}
-                            handleOptionChange={form.handleOptionChange}
-                            hasVariant={hasVariant}
-                            setHasVariant={setHasVariant}
-                            submittingProduct={submitting}
-                            submitProduct={handleAttibutesSubmit}
-                        />
-                    </TabPanel>
-                )}
+                <TabPanel value={tabIndex} index={1}>
+                    <ProductAttributesTab
+                        mode={mode}
+                        filters={filters}
+                        selectedOptionValueIds={selectedIds}
+                        handleOptionChange={form.handleOptionChange}
+                        submittingProduct={submitting}
+                        submitProduct={handleAttibutesSubmit}
+                    />
+                </TabPanel>
 
                 {/* ── TAB 2: Product Images (no-variant path) ── */}
                 <TabPanel value={tabIndex} index={2}>
@@ -133,22 +121,19 @@ export default function AdminProduct() {
                 </TabPanel>
 
                 {/* ── TAB 3: Variants ── */}
-                {showVariantsTab && (
-                    <TabPanel value={tabIndex} index={variantsTabIndex}>
-                        <ProductVariantsTab
-                            mode={mode}
-                            productId={effectiveProductId}
-                            filters={filters.filters}
-                            selectedOptionValueIds={selectedIds}
-                            variants={variants}
-                            setVariants={setVariants}
-                            autoGenerate={autoGenerate}
-                            setAutoGenerate={setAutoGenerate}
-                            skuContext={skuContext}
-                        />
-                    </TabPanel>
-                )
-                }
+                <TabPanel value={tabIndex} index={3}>
+                    <ProductVariantsTab
+                        mode={mode}
+                        productId={effectiveProductId}
+                        filters={filters.filters}
+                        selectedOptionValueIds={selectedIds}
+                        variants={variants}
+                        setVariants={setVariants}
+                        autoGenerate={autoGenerate}
+                        setAutoGenerate={setAutoGenerate}
+                        skuContext={skuContext}
+                    />
+                </TabPanel>
             </Box>
         </div >
     );

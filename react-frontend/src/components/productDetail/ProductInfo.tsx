@@ -8,11 +8,13 @@ import type { Product, ProductVariant } from "../../types/models/products/Produc
 
 interface ProductInfoProps {
     product: Product;
+    brandId: number | undefined;
+    brandName: string | undefined;
     selectedVariant?: ProductVariant;
     onVariantChange?: (variant?: ProductVariant) => void;
 }
 
-export default function ProductInfo({ product, selectedVariant, onVariantChange }: ProductInfoProps) {
+export default function ProductInfo({ product, brandId, brandName, selectedVariant, onVariantChange }: ProductInfoProps) {
 
     const handleVariantSelect = (variant: ProductVariant) => {
         if (selectedVariant?.id === variant.id) {
@@ -22,9 +24,11 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
         }
     };
 
-    const hasVariants = (product.variants?.length ?? 0) > 0;
-    const displayPrice = hasVariants && selectedVariant ? selectedVariant.price : product.basePrice;
-    const displayStock = hasVariants && selectedVariant ? selectedVariant.stock : product.stock;
+    const displayPrice = selectedVariant ? selectedVariant.price : product.basePrice;
+    const displayBasePrice = selectedVariant ? selectedVariant.originalPrice : product.basePrice;
+    const discountPercentage = 100 - displayPrice / displayBasePrice * 100;
+
+    const displayStock = selectedVariant ? selectedVariant.stock : product.stock;
 
     const { user } = useAuth();
     const { addToCart } = useCart();
@@ -35,12 +39,12 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
             return;
         }
 
-        if (hasVariants && !selectedVariant) {
+        if (!selectedVariant) {
             toast.error("Please select a variant.");
             return;
         }
 
-        if (hasVariants && selectedVariant) {
+        if (selectedVariant) {
             // Each variant gets a unique cartId so they are tracked independently
             addToCart(
                 {
@@ -72,62 +76,95 @@ export default function ProductInfo({ product, selectedVariant, onVariantChange 
             );
         }
 
-        toast.success(hasVariants && selectedVariant ?
+        toast.success(selectedVariant ?
             `${product.name} / ${selectedVariant.variantName} added to cart!` :
             `${product.name} added to cart!`
         );
     };
 
     return (
-        <div>
-            <h1 className="text-4xl font-bold">{product.name}</h1>
+        <div className="space-y-8">
+            <div className="space-y-4">
 
-            <p className="text-gray-600 my-2">
-                <strong>Category:</strong>{" "}
-                <Link
-                    to={`/category/${product.category?.slug ?? ""}`}
-                    className="text-blue-600 font-bold hover:underline"
-                >
-                    {product.category?.name}
-                </Link>
-            </p>
+                <h1 className="text-2xl font-bold">{product.name}</h1>
 
-            {hasVariants && (
-                <div className="mt-6 space-y-3">
-                    <h3 className="font-semibold">Choose Variant</h3>
-                    <div className="flex flex-wrap gap-2">
-                        {product.variants.map((v) => (
-                            <button
-                                key={v.id}
-                                onClick={() => handleVariantSelect(v)}
-                                className={`px-4 py-2 rounded border transition ${selectedVariant?.id === v.id
-                                    ? "border-blue-600 bg-blue-50"
-                                    : "border-gray-300 hover:border-gray-400"
-                                    }`}
-                            >
-                                {v.variantName}
-                            </button>
-                        ))}
-                    </div>
+                <div className="flex gap-x-8">
+                    <p className="text-lg">
+                        <strong className="pr-4">Category:</strong>
+                        <Link
+                            to={`/category/${product.category?.slug ?? ""}`}
+                            className="text-blue-600 font-bold hover:underline"
+                        >
+                            {product.category?.name}
+                        </Link>
+                    </p>
+
+                    <p className="text-lg">
+                        <strong className="pr-4">Brand:</strong>
+                        <Link
+                            to={`/category/${product.category?.slug ?? ""}?selectedOptions=${brandId}`}
+                            className="text-blue-600 font-bold hover:underline"
+                        >
+                            {brandName}
+                        </Link>
+                    </p>
                 </div>
-            )}
 
-            <div className="mt-6">
-                <div className="text-3xl font-bold text-blue-600">
-                    {displayPrice.toLocaleString()} VND
-                </div>
-                <div className="text-sm text-gray-500 mt-1">
-                    {displayStock} items available
+            </div>
+
+            <div className="space-y-4">
+                <h3 className="font-semibold">Choose Variant</h3>
+                <div className="flex flex-wrap gap-2">
+                    {product.variants.map((v) => (
+                        <button
+                            key={v.id}
+                            onClick={() => handleVariantSelect(v)}
+                            className={`px-4 py-2 rounded border transition cursor-pointer ${selectedVariant?.id === v.id ?
+                                "border-blue-600 text-blue-600 font-semibold" : "border-(--border) hover:border-blue-600"}`}
+                        >
+                            {v.variantName}
+                        </button>
+                    ))}
                 </div>
             </div>
 
-            <button
-                onClick={handleAddToCart}
-                disabled={displayStock <= 0}
-                className="mt-6 w-full bg-blue-600 text-white py-3 rounded-lg disabled:bg-gray-400 hover:bg-blue-700 transition"
-            >
-                {displayStock > 0 ? "Add To Cart" : "Out Of Stock"}
-            </button>
+            {selectedVariant ? (
+                <div className="space-y-2">
+                    <div className="flex gap-2">
+                        <div className="text-3xl font-bold text-blue-600">
+                            {displayPrice.toLocaleString()} VND
+                        </div>
+                        {displayBasePrice > displayPrice && (
+                            <div>
+                                <p className="text-sm font-bold text-gray-600 line-through">
+                                    {displayBasePrice.toLocaleString()} VND
+                                </p>
+                                <p className="text-sm font-bold text-red-600">
+                                    - {discountPercentage.toLocaleString()} %
+                                </p>
+                            </div>
+                        )}
+                    </div>
+
+                    <p>
+                        {displayStock} items available
+                    </p>
+
+                    <button
+                        onClick={handleAddToCart}
+                        disabled={displayStock <= 0}
+                        className="mt-6 w-full bg-blue-600 text-white py-3 rounded-lg disabled:bg-gray-400 hover:bg-blue-700 transition"
+                    >
+                        {displayStock > 0 ? "Add To Cart" : "Out Of Stock"}
+                    </button>
+
+                </div>
+
+            ) : (
+                <p className="mt-6 w-full bg-blue-600 text-white text-center py-3 rounded-lg">
+                    Select A Variant
+                </p>
+            )}
         </div>
     );
 }

@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using WebApp_API.DTOs;
 
 namespace WebApp_API.Specifications
@@ -40,6 +42,19 @@ namespace WebApp_API.Specifications
                      .Where(id => id.HasValue)
                      .Select(id => id!.Value)
                      .ToList();
+        }
+
+        public string GetCacheKey()
+        {
+            var raw =
+                $"{Category}|{MinPrice}|{MaxPrice}|{string.Join(",", SelectedOptionValueIds.OrderBy(x => x))}|{SortOrder}|{Search}|{Page}|{PageSize}";
+
+            using var sha = SHA256.Create();
+
+            return "products:" +
+                   Convert.ToHexString(
+                       sha.ComputeHash(
+                           Encoding.UTF8.GetBytes(raw)));
         }
     }
 

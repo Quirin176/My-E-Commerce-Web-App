@@ -37,7 +37,6 @@ namespace WebApp_API.Repositories
                     p.Slug,
                     p.Category != null ? p.Category.Name : null,
                     p.BasePrice,
-                    p.HasVariants,
                     p.ShortDescription))
                 .ToListAsync();
         }

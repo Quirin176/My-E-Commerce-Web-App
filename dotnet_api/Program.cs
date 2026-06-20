@@ -87,7 +87,25 @@ builder.Services.Configure<EmailSettings>(
 
 builder.Services.AddScoped<IEmailService, EmailService>();
 
-builder.Services.AddOutputCache();
+builder.Services.AddOutputCache(options =>
+{
+    options.AddPolicy("Products", policy => policy
+        .Expire(TimeSpan.FromMinutes(5))
+        .Tag("products"));
+
+    options.AddPolicy("ProductsPaginated", policy => policy
+        .Expire(TimeSpan.FromMinutes(5))
+        .SetVaryByQuery("category", "page", "pageSize", "minPrice", "maxPrice", "selectedOptions", "sortOrder", "search")
+        .Tag("products"));
+
+    options.AddPolicy("Categories", policy => policy
+        .Expire(TimeSpan.FromMinutes(30))
+        .Tag("categories"));
+
+    options.AddPolicy("Admin_Dashboard", policy => policy
+        .Expire(TimeSpan.FromMinutes(5))
+        .Tag("admin_dashboard"));
+});
 builder.Services.AddMemoryCache();
 
 builder.Services.AddMediatR(cfg =>
@@ -123,7 +141,7 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
 builder.Services.AddScoped<IAdminDashboardReadRepository, AdminDashboardReadRepository>();
-builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+// builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();

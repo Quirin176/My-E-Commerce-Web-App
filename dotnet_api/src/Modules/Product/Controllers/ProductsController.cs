@@ -12,13 +12,16 @@ namespace WebApp_API.Controllers
     public class ProductsController : ControllerBase // API URL: /api/products
     {
         private readonly IProductService _service;
-        public ProductsController(IProductService service)
+        private readonly IOutputCacheStore _cacheStore;
+
+        public ProductsController(IProductService service, IOutputCacheStore cacheStore)
         {
             _service = service;
+            _cacheStore = cacheStore;
         }
 
         // GET /api/products/id:{id}
-        [OutputCache(Duration = 60)]
+        [OutputCache(PolicyName = "Products")]
         [HttpGet("id/{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -27,7 +30,7 @@ namespace WebApp_API.Controllers
         }
 
         // GET /api/products/slug/{slug}
-        [OutputCache(Duration = 60)]
+        [OutputCache(PolicyName = "Products")]
         [HttpGet("slug/{slug}")]
         public async Task<IActionResult> GetBySlug(string slug)
         {
@@ -36,7 +39,7 @@ namespace WebApp_API.Controllers
         }
 
         // GET /api/products/newest
-        [OutputCache(Duration = 300)]
+        [OutputCache(PolicyName = "Products")]
         [HttpGet("newest")]
         public async Task<IActionResult> GetCategoryNewestProducts([FromQuery] int categoryId, int amount)
         {
@@ -56,6 +59,7 @@ namespace WebApp_API.Controllers
         }
 
         // GET /api/products/search/suggestions
+        [OutputCache(Duration = 30)]
         [HttpGet("search/suggestions")]
         public async Task<IActionResult> GetSearchSuggestions([FromQuery] string q, [FromQuery] int limit = 10)
         {
@@ -64,7 +68,7 @@ namespace WebApp_API.Controllers
         }
 
         // GET /api/products/paginated
-        [OutputCache(Duration = 300)]
+        [OutputCache(PolicyName = "ProductsPaginated")]
         [HttpGet("paginated")]
         public async Task<IActionResult> GetProductsPaginated([FromQuery] ProductListDTOs.ProductFilterParams filterParams)
         {
@@ -94,6 +98,9 @@ namespace WebApp_API.Controllers
             try
             {
                 var createdId = await _service.CreateAsync(request);
+
+                await _cacheStore.EvictByTagAsync("products", default);  // removes every cached response tagged with "products"
+
                 return Ok(new { message = "Product Created", id = createdId });
             }
             catch (ArgumentException ex)
@@ -118,6 +125,9 @@ namespace WebApp_API.Controllers
             try
             {
                 var updated = await _service.UpdateAsync(id, request);
+
+                await _cacheStore.EvictByTagAsync("products", default);  // removes every cached response tagged with "products"
+
                 return updated ? Ok(new { message = "Product updated", id }) : NotFound();
             }
             catch (Exception ex)
@@ -132,6 +142,12 @@ namespace WebApp_API.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _service.DeleteAsync(id);
+
+            if (deleted)
+            {
+                await _cacheStore.EvictByTagAsync("products", default);  // removes every cached response tagged with "products"
+            }
+
             return deleted ? NoContent() : NotFound();
         }
     }

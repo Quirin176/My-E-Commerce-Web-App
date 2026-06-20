@@ -10,7 +10,6 @@ namespace WebApp_API.DTOs
             public string Name { get; set; } = "";
             public string Slug { get; set; } = "";
             public decimal BasePrice { get; set; }
-            public int Stock { get; set; }
             public string? ThumbnailUrl { get; set; }
             public string? ShortDescription { get; set; }
             public int CategoryId { get; set; }
@@ -19,8 +18,9 @@ namespace WebApp_API.DTOs
 
         public class ProductOptionGroupResponse
         {
+            public int OptionId { get; set; }
             public string OptionName { get; set; } = "";
-            public List<string> Values { get; set; } = new List<string>();
+            public List<string> OptionValues { get; set; } = new List<string>();
         }
 
         // Product Filter Params

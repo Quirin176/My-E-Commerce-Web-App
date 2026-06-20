@@ -7,7 +7,11 @@ import { useProductFiltersBySlug } from "../../hooks/products/useProductFiltersB
 import CategoryPanel from "../../components/home/CategoryPanel.tsx";
 import CategoryFiltersPanel from "../../components/home/CategoryFiltersPanel.tsx";
 import CenterPanel from "../../components/home/CenterPanel.tsx";
-import CategoryTabs from "../../components/products/CategoryTabs.tsx";
+// import CategoryTabs from "../../components/products/CategoryTabs.tsx";
+import CategoryTabs from "../../components/home/categoryTabs/CategoryTabs.tsx";
+import { productApi } from "../../api/products/productApi";
+import CategorySection from "../../components/home/categorySection/CategorySection.tsx";
+import CouponSection from "../../components/home/couponSection/CouponSection.tsx";
 
 export default function Home() {
   const { categories } = useCategories();
@@ -38,7 +42,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center rounded-2xl w-full gap-4 bg-(--bg-muted)">
-      <div className="w-full h-125 flex gap-4">
+      <section className="w-full h-125 flex gap-4">
 
         {/* LEFT SIDE: CATEGORIES PANEL */}
         <div className="w-1/6 h-full rounded-2xl border-2 text-(--text-secondary) border-(--border) bg-(--bg-surface)">
@@ -73,19 +77,39 @@ export default function Home() {
             <div className="text-center">
               <h3 className="text-lg font-bold mb-4">Special Offer!</h3>
               <p className="text-gray-700 mb-6">Get 20% off on your first purchase. Use code: WELCOME20</p>
-              {/* <img
-                src="https://via.placeholder.com/200x150.png?text=Ad+Banner"
-                alt="Advertisement Banner"
-                className="mx-auto rounded-lg shadow-md"
-              /> */}
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* CATEGORY TABS SECTION BELOW */}
-      <section className="w-full rounded-2xl border-2 border-(--border)">
+      <section className="w-full">
+        <CategorySection categories={categories} />
+      </section>
+
+      {/* CATEGORY TABS SECTION */}
+      {/* <section className="w-full">
         <CategoryTabs />
+      </section> */}
+      <section className="w-full">
+        <CategoryTabs
+          title="Newest Arrivals"
+          fetchProducts={async (categoryId, limit) => {
+            const res =
+              await productApi.getCategoryNewestProducts(
+                categoryId,
+                limit
+              );
+
+            return res.data.products;
+          }}
+          productsPerPage={5}
+          numberOfTabs={4}
+        />
+      </section>
+
+      {/* COUPON SECTION */}
+      <section className="w-full">
+        <CouponSection />
       </section>
     </div>
   );

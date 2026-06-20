@@ -10,7 +10,6 @@ namespace WebApp_API.DTOs
             string Slug,
             string? CategoryName,
             decimal BasePrice,
-            bool HasVariants,
             string? ShortDescription);
 
         public record MessageSnapshot(int SenderId, string Role, string Content, DateTime CreatedAt);

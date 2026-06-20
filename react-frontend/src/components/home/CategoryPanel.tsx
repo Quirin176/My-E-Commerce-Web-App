@@ -1,4 +1,4 @@
-import { Laptop, Monitor, Keyboard, Mouse, LayoutGrid } from "lucide-react";
+import { getCategoryIcon } from "../../utils/getCategoryIcon";
 
 interface Props {
   categories: any[];
@@ -7,24 +7,12 @@ interface Props {
   onClick: (slug: string) => void;
 }
 
-const categoriesIcon: Record<string, React.ElementType> = {
-  laptop: Laptop,
-  monitor: Monitor,
-  keyboard: Keyboard,
-  mouse: Mouse
-};
-
 export default function CategoryPanel({
   categories,
   selectedCategory,
   onHover,
   onClick
 }: Props) {
-
-  const getCategoryIcon = (slug: string) => {
-    const Icon = categoriesIcon[slug.toLowerCase()];
-    return Icon ? <Icon size={20} /> : <LayoutGrid size={20} />;
-  };
 
   return (
     <div className="overflow-y-auto rounded-2xl">
@@ -41,7 +29,7 @@ export default function CategoryPanel({
               className={`w-8 h-8 flex items-center justify-center rounded-md border-2
               ${selectedCategory === item.slug ? "text-(--text-secondary) bg-(--brand-primary)" : "text-(--text-primary) bg-(--bg-surface)"}`}
             >
-              {getCategoryIcon(item.slug)}
+              {getCategoryIcon(item.slug, 20)}
             </div>
 
             <span className="font-semibold">{item.name}</span>

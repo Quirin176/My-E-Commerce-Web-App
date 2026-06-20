@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Caching.Memory;
 using WebApp_API.DTOs;
 using WebApp_API.Entities;
 using WebApp_API.Repositories;
@@ -11,32 +12,71 @@ namespace WebApp_API.Services
         private readonly IProductRepository _productRepo;
         private readonly ICategoryRepository _categoryRepo;
         private readonly IProductOptionValueRepository _productOptionValueRepo;
-        public ProductService(IProductRepository productRepo, ICategoryRepository categoryRepo, IProductOptionValueRepository productOptionValueRepo)
+        private readonly IMemoryCache _cache;
+        public ProductService(IProductRepository productRepo, ICategoryRepository categoryRepo,
+        IProductOptionValueRepository productOptionValueRepo, IMemoryCache cache)
         {
             _productRepo = productRepo;
             _categoryRepo = categoryRepo;
             _productOptionValueRepo = productOptionValueRepo;
+            _cache = cache;
         }
 
         // ────────────────────────────────────────────────── Public queries ──────────────────────────────────────────────────
         public async Task<ProductDTOs.ProductDetailResponse?> GetByIdAsync(int id)
         {
+            string cacheKey = $"product:id:{id}";
+
+            if (_cache.TryGetValue(cacheKey,
+                out ProductDTOs.ProductDetailResponse? cached))
+            {
+                return cached;
+            }
+
             var product = await _productRepo.GetByIdAsync(id);
             if (product is null) return null;
-            return await MapToDetailAsync(product);
+            var data = await MapToDetailAsync(product);
+
+            _cache.Set(cacheKey, data, TimeSpan.FromMinutes(10));
+
+            return data;
         }
 
         public async Task<ProductDTOs.ProductDetailResponse?> GetBySlugAsync(string slug)
         {
+            string cacheKey = $"product:slug:{slug}";
+
+            if (_cache.TryGetValue(cacheKey,
+                out ProductDTOs.ProductDetailResponse? cached))
+            {
+                return cached;
+            }
+
             var product = await _productRepo.GetBySlugAsync(slug);
             if (product is null) return null;
-            return await MapToDetailAsync(product);
+            var data = await MapToDetailAsync(product);
+
+            _cache.Set(cacheKey, data, TimeSpan.FromMinutes(10));
+
+            return data;
         }
 
         public async Task<List<ProductListDTOs.ProductSummaryResponse>> GetCategoryNewestAsync(int categoryId, int amount)
         {
+            string cacheKey = $"NewestProducts:{categoryId}:{amount}";
+
+            if (_cache.TryGetValue(cacheKey,
+                out List<ProductListDTOs.ProductSummaryResponse>? cached))
+            {
+                return cached!;
+            }
+
             var products = await _productRepo.GetCategoryNewestAsync(categoryId, amount);
-            return await MapToSummaryListAsync(products);
+            var data = await MapToSummaryListAsync(products);
+
+            _cache.Set(cacheKey, data, TimeSpan.FromMinutes(10));
+
+            return data;
         }
 
         public async Task<ProductDTOs.SearchResponse> SearchAsync(ProductListDTOs.ProductSearchParams searchParams)
@@ -75,15 +115,27 @@ namespace WebApp_API.Services
 
         public async Task<PaginatedResponse<ProductListDTOs.ProductSummaryResponse>> GetPaginatedAsync(ProductFilterSpec spec)
         {
+            string cacheKey = spec.GetCacheKey();
+
+            if (_cache.TryGetValue(cacheKey,
+                out PaginatedResponse<ProductListDTOs.ProductSummaryResponse>? cached))
+            {
+                return cached!;
+            }
+
             var (items, totalCount) = await _productRepo.GetPaginatedAsync(spec);
 
             var data = await MapToSummaryListAsync(items);
-            return new PaginatedResponse<ProductListDTOs.ProductSummaryResponse>
+            var response = new PaginatedResponse<ProductListDTOs.ProductSummaryResponse>
             {
                 Success = true,
                 Data = data,
                 Pagination = PaginationMeta.From(spec.Page, spec.PageSize, totalCount)
             };
+
+            _cache.Set(cacheKey, response, TimeSpan.FromMinutes(10));
+
+            return response;
         }
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
@@ -110,10 +162,8 @@ namespace WebApp_API.Services
                 ShortDescription = request.ShortDescription,
                 Description = request.Description,
                 BasePrice = request.BasePrice,
-                Stock = request.Stock,
                 ThumbnailUrl = request.ThumbnailUrl,
                 CategoryId = request.CategoryId,
-                HasVariants = request.HasVariants,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -134,16 +184,15 @@ namespace WebApp_API.Services
         {
             var product = await _productRepo.GetByIdAsync(id);
             if (product is null) return false;
+            var oldSlug = product.Slug;
 
             if (!string.IsNullOrWhiteSpace(request.Name)) product.Name = request.Name;
             if (!string.IsNullOrWhiteSpace(request.Slug)) product.Slug = request.Slug;
             if (!string.IsNullOrWhiteSpace(request.ShortDescription)) product.ShortDescription = request.ShortDescription;
             if (!string.IsNullOrWhiteSpace(request.Description)) product.Description = request.Description;
             if (request.BasePrice.HasValue && request.BasePrice > 0) product.BasePrice = request.BasePrice.Value;
-            product.Stock = request.Stock;
             if (!string.IsNullOrWhiteSpace(request.ThumbnailUrl)) product.ThumbnailUrl = request.ThumbnailUrl;
             if (request.CategoryId.HasValue) product.CategoryId = request.CategoryId.Value;
-            product.HasVariants = request.HasVariants;
             product.UpdatedAt = DateTime.UtcNow;
 
             _productRepo.Update(product);
@@ -153,6 +202,10 @@ namespace WebApp_API.Services
                 await _productRepo.SetOptionValuesAsync(id, request.SelectedOptionValueIds);
 
             await _productRepo.SaveChangesAsync();
+
+            _cache.Remove($"product:id:{id}");
+            _cache.Remove($"product:slug:{oldSlug}");
+
             return true;
         }
 
@@ -163,6 +216,10 @@ namespace WebApp_API.Services
 
             _productRepo.Remove(product);
             await _productRepo.SaveChangesAsync();
+
+            _cache.Remove($"product:id:{id}");
+            _cache.Remove($"product:slug:{product.Slug}");
+
             return true;
         }
 
@@ -179,12 +236,10 @@ namespace WebApp_API.Services
                 ShortDescription = product.ShortDescription,
                 Description = product.Description,
                 BasePrice = product.BasePrice,
-                Stock = product.Stock,
                 ThumbnailUrl = product.ThumbnailUrl,
                 CategoryId = product.CategoryId,
                 Category = MapCategory(product.Category),
                 Options = GroupOptions(rawOpts),
-                HasVariants = product.HasVariants,
 
                 Variants = product.Variants.Select(v => new ProductVariantDTOs.ProductVariantResponse
                 {
@@ -224,13 +279,13 @@ namespace WebApp_API.Services
 
                 // Group by OptionName
                 var groupedOpts = rawOpts
-                    .GroupBy(o => o.OptionName)
+                    .GroupBy(o => new { o.OptionId, o.OptionName })
                     .Select(g => new ProductListDTOs.ProductOptionGroupResponse
                     {
-                        OptionName = g.Key,
-                        Values = g.Select(x => x.Value).ToList()
-                    })
-                    .ToList();
+                        OptionId = g.Key.OptionId,
+                        OptionName = g.Key.OptionName,
+                        OptionValues = g.Select(x => x.Value).ToList()
+                    }).ToList();
 
                 result.Add(new ProductListDTOs.ProductSummaryResponse
                 {
@@ -238,7 +293,6 @@ namespace WebApp_API.Services
                     Name = p.Name,
                     Slug = p.Slug,
                     BasePrice = p.BasePrice,
-                    Stock = p.Stock,
                     ThumbnailUrl = p.ThumbnailUrl,
                     ShortDescription = p.ShortDescription,
                     CategoryId = p.CategoryId,

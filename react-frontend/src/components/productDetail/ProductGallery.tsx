@@ -49,7 +49,7 @@ export default function ProductGallery({ images, thumbnail }: Props) {
         <>
             <div>
                 <div
-                    className="relative bg-gray-100 rounded-lg overflow-hidden"
+                    className="relative bg-(--bg-muted) rounded-lg overflow-hidden"
                 >
                     <img
                         src={currentImage}
@@ -62,18 +62,26 @@ export default function ProductGallery({ images, thumbnail }: Props) {
                         <>
                             <button
                                 onClick={goToPrevImage}
-                                className="absolute left-3 top-1/2 -translate-y-1/2 p-1 rounded-full bg-gray-500 hover:bg-gray-600 transition cursor-pointer"
                                 aria-label="Previous image"
+                                className="absolute left-0 top-0 h-full w-20 flex items-center justify-center cursor-pointer transition"
                             >
-                                <ChevronLeft className="text-white" />
+                                <div className="flex items-center justify-center w-12 h-12 rounded-full
+                                bg-gray-500 hover:bg-gray-600 text-white transition-transform"
+                                >
+                                    <ChevronLeft size={24} />
+                                </div>
                             </button>
 
                             <button
                                 onClick={goToNextImage}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full bg-gray-500 hover:bg-gray-600 transition cursor-pointer"
                                 aria-label="Next image"
+                                className="absolute right-0 top-0 h-full w-20 flex items-center justify-center cursor-pointer transition"
                             >
-                                <ChevronRight className="text-white" />
+                                <div className="flex items-center justify-center w-12 h-12 rounded-full
+                                bg-gray-500 hover:bg-gray-600 text-white transition-transform"
+                                >
+                                    <ChevronRight size={24} />
+                                </div>
                             </button>
                         </>
                     )}
@@ -85,7 +93,7 @@ export default function ProductGallery({ images, thumbnail }: Props) {
                             <button
                                 key={index}
                                 onClick={() => setCurrentIndex(index)}
-                                className={`shrink-0 rounded transition cursor-pointer ${index === safeIndex ? "border-2 border-blue-600" : "hover:border-2 hover:border-blue-500"}`}
+                                className={`shrink-0 rounded transition cursor-pointer ${index === safeIndex ? "border-2 border-blue-600" : "border-none"}`}
                             >
                                 <img
                                     src={img.imageUrl}

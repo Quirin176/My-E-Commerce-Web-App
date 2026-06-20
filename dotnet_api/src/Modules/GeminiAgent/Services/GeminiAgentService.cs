@@ -150,7 +150,6 @@ namespace WebApp_API.Services
                       • [{p.Id}] {p.Name}
                           Category  : {p.CategoryName ?? "N/A"}
                           Base Price: {p.BasePrice:N0} VND
-                          Has Variants: {p.HasVariants}
                           Short Desc: {p.ShortDescription ?? "—"}
                           Slug      : {p.Slug}
                     """);

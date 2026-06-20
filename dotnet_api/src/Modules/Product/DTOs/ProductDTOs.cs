@@ -10,11 +10,9 @@ namespace WebApp_API.DTOs
             public string? ShortDescription { get; set; }
             public string? Description { get; set; }
             public decimal BasePrice { get; set; }
-            public int Stock { get; set; }
             public string? ThumbnailUrl { get; set; }
             public required int CategoryId { get; set; }
             public List<int> SelectedOptionValueIds { get; set; } = new();
-            public bool HasVariants { get; set; }
         }
 
         public class UpdateProductRequest
@@ -24,11 +22,9 @@ namespace WebApp_API.DTOs
             public string? ShortDescription { get; set; }
             public string? Description { get; set; }
             public decimal? BasePrice { get; set; }
-            public int Stock { get; set; }
             public string? ThumbnailUrl { get; set; }
             public int? CategoryId { get; set; }
             public List<int> SelectedOptionValueIds { get; set; } = new();
-            public bool HasVariants { get; set; }
         }
 
         // ────────────────────────────────────────────────── Responses ──────────────────────────────────────────────────
@@ -41,13 +37,11 @@ namespace WebApp_API.DTOs
             public string? ShortDescription { get; set; }
             public string? Description { get; set; }
             public decimal BasePrice { get; set; }
-            public int Stock { get; set; }
             public string? ThumbnailUrl { get; set; }
             public int CategoryId { get; set; }
             public CategoryInfo? Category { get; set; }
             public List<ProductImageDTOs.ImageUrlDto> Images { get; set; } = new();
             public List<ProductOptionGroupResponse> Options { get; set; } = new();
-            public bool HasVariants { get; set; }
             public List<ProductVariantDTOs.ProductVariantResponse> Variants { get; set; } = new();
         }
 

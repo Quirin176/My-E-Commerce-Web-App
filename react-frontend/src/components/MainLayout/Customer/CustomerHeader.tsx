@@ -27,7 +27,7 @@ export default function CustomerHeader() {
   };
 
   return (
-    <header className="w-full z-50 shadow-md px-8 py-2 bg-(--brand-primary)">
+    <header className="w-full z-50 shadow-md px-8 py-2 bg-linear-to-br from-(--brand-primary) to-(--brand-secondary)">
       <div className="flex items-center justify-between">
 
         {/* LOGO AND SITE NAME */}
