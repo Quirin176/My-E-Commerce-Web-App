@@ -9,7 +9,7 @@ export interface ImagePayload {
   variantId: number | null,
 }
 
-interface ProductVariantOptionValue {
+export interface ProductVariantOptionValue {
   optionValueId: number;
   optionName: string;
   value: string;
@@ -27,12 +27,12 @@ export interface ProductVariant {
   optionValues: ProductVariantOptionValue[];
 }
 
-interface ProductOptionValue {
+export interface ProductOptionValue {
   optionValueId: number;
   value: string;
 }
 
-export interface ProductOptionPayload {
+export interface ProductOption {
   optionId: number;
   optionName: string;
   optionValues: ProductOptionValue[];
@@ -48,8 +48,10 @@ export interface Product {
   thumbnailUrl: string;
   categoryId?: number | string;
   category?: Category;
-  options?: ProductOptionPayload[];
+  options?: ProductOption[];
   selectedOptionValueIds?: number[];
   stock: number;
   variants: ProductVariant[];
+  createdAt: string;
+  updatedAt: string;
 }

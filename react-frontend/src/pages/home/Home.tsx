@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useCategories } from "../../hooks/products/useCategories";
@@ -7,7 +7,6 @@ import { useProductFiltersBySlug } from "../../hooks/products/useProductFiltersB
 import CategoryPanel from "../../components/home/CategoryPanel.tsx";
 import CategoryFiltersPanel from "../../components/home/CategoryFiltersPanel.tsx";
 import CenterPanel from "../../components/home/CenterPanel.tsx";
-// import CategoryTabs from "../../components/products/CategoryTabs.tsx";
 import CategoryTabs from "../../components/home/categoryTabs/CategoryTabs.tsx";
 import { productApi } from "../../api/products/productApi";
 import CategorySection from "../../components/home/categorySection/CategorySection.tsx";
@@ -39,6 +38,16 @@ export default function Home() {
   const handleLeave = () => {
     setSelectedCategory(null);
   };
+
+  // Stable reference — won't recreate on every render
+  const fetchTopSellingProducts = useCallback((categoryId: number, limit: number) =>
+    productApi.getCategoryTopSellingroducts(categoryId, limit)
+    , []);
+
+  // Stable reference — won't recreate on every render
+  const fetchNewestProducts = useCallback((categoryId: number, limit: number) =>
+    productApi.getCategoryNewestProducts(categoryId, limit)
+    , []);
 
   return (
     <div className="flex flex-col items-center rounded-2xl w-full gap-4 bg-(--bg-muted)">
@@ -87,29 +96,28 @@ export default function Home() {
       </section>
 
       {/* CATEGORY TABS SECTION */}
-      {/* <section className="w-full">
-        <CategoryTabs />
-      </section> */}
       <section className="w-full">
         <CategoryTabs
-          title="Newest Arrivals"
-          fetchProducts={async (categoryId, limit) => {
-            const res =
-              await productApi.getCategoryNewestProducts(
-                categoryId,
-                limit
-              );
-
-            return res.data.products;
-          }}
+          title="Top Selling Products"
+          fetchProducts={fetchTopSellingProducts}
           productsPerPage={5}
-          numberOfTabs={4}
+          numberOfTabs={2}
         />
       </section>
 
       {/* COUPON SECTION */}
       <section className="w-full">
         <CouponSection />
+      </section>
+
+      {/* CATEGORY TABS SECTION */}
+      <section className="w-full">
+        <CategoryTabs
+          title="Newest Arrivals"
+          fetchProducts={fetchNewestProducts}
+          productsPerPage={5}
+          numberOfTabs={2}
+        />
       </section>
     </div>
   );

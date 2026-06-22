@@ -59,7 +59,7 @@ export default function UserOrderDetailModal({ showForm, order, setShowForm }: U
             </div>
             <div className="flex justify-between mt-2">
                 {ORDER_TIMELINE_STATUSES.map((s) => (
-                    <span key={s} className="text-xs text-gray-500">{s}</span>
+                    <span key={s} className="text-xs">{s}</span>
                 ))}
             </div>
         </div>
@@ -71,12 +71,12 @@ export default function UserOrderDetailModal({ showForm, order, setShowForm }: U
             onClick={() => setShowForm(false)}
         >
             <div
-                className="flex flex-col bg-white rounded-lg shadow-2xl w-full max-w-7xl max-h-[80vh] overflow-y-auto"
+                className="flex flex-col bg-(--bg-surface) rounded-lg shadow-2xl w-full max-w-7xl max-h-[80vh] overflow-y-auto"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="flex items-center justify-between bg-white sticky top-0 px-6 py-3 border-b z-10">
-                    <h1 className="text-2xl font-bold text-gray-800">Order #{order.id}</h1>
+                <div className="flex items-center justify-between bg-(--bg-surface) sticky top-0 px-6 py-3 border-b z-10">
+                    <h1 className="text-2xl font-bold">Order #{order.id}</h1>
                     <button
                         onClick={() => setShowForm(false)}
                         className="p-1 text-gray-500 hover:bg-gray-100 rounded-xl transition"
@@ -90,10 +90,10 @@ export default function UserOrderDetailModal({ showForm, order, setShowForm }: U
                 <div className="flex flex-col gap-4 p-6">
 
                     {/* Status + timeline */}
-                    <div className="bg-white border rounded-lg p-6">
+                    <div className="bg-(--bg-surface) border rounded-lg p-6">
                         <div className="flex items-center justify-between mb-6">
                             <div className="flex items-center gap-6">
-                                <h3 className="text-lg font-bold text-gray-800">Order Status</h3>
+                                <h3 className="text-lg font-bold">Order Status</h3>
                                 <span className={`px-6 py-2 rounded-full border-2 font-bold capitalize ${statusConfig.badgeColor}`}>
                                     {order.status}
                                 </span>
@@ -101,7 +101,7 @@ export default function UserOrderDetailModal({ showForm, order, setShowForm }: U
 
                             <button
                                 onClick={() => navigate(`/order/${order.id}`)}
-                                className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition"
+                                className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition cursor-pointer"
                             >
                                 <Download size={18} />
                                 <span className="hidden sm:inline">Download / Print</span>
@@ -114,7 +114,7 @@ export default function UserOrderDetailModal({ showForm, order, setShowForm }: U
                             </div>
                         ) : (
                             <div className="space-y-2">
-                                <h4 className="text-sm font-semibold text-gray-600">Tracking Progress</h4>
+                                <h3 className="text-lg font-bold">Tracking Progress</h3>
                                 {renderStatusTimeline()}
                             </div>
                         )}
@@ -122,9 +122,9 @@ export default function UserOrderDetailModal({ showForm, order, setShowForm }: U
 
                     {/* Shipping + Payment */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="bg-white border rounded-lg p-6">
-                            <h3 className="font-bold text-lg text-gray-800 mb-4">Shipping Information</h3>
-                            <div className="space-y-1 text-gray-700">
+                        <div className="bg-(--bg-surface) border rounded-lg p-6">
+                            <h3 className="font-bold text-lg mb-4">Shipping Information</h3>
+                            <div className="space-y-1">
                                 <p className="font-semibold">{order.customerName}</p>
                                 <p>{order.shippingAddress}</p>
                                 <p>📧 {order.customerEmail}</p>
@@ -132,9 +132,9 @@ export default function UserOrderDetailModal({ showForm, order, setShowForm }: U
                             </div>
                         </div>
 
-                        <div className="bg-white border rounded-lg p-6">
-                            <h3 className="font-bold text-lg text-gray-800 mb-4">Payment Details</h3>
-                            <div className="space-y-3 text-gray-700">
+                        <div className="bg-(--bg-surface) border rounded-lg p-6">
+                            <h3 className="font-bold text-lg mb-4">Payment Details</h3>
+                            <div className="space-y-3">
                                 <div className="flex justify-between">
                                     <span>Payment Method:</span>
                                     <strong>{order.paymentMethod}</strong>
@@ -155,21 +155,21 @@ export default function UserOrderDetailModal({ showForm, order, setShowForm }: U
 
                     {/* Order items */}
                     {order.items && order.items.length > 0 && (
-                        <div className="bg-white border rounded-lg p-6">
-                            <h3 className="font-bold text-lg text-gray-800 mb-4">Order Items</h3>
+                        <div className="bg-(--bg-surface) border rounded-lg p-6">
+                            <h3 className="font-bold text-lg mb-4">Order Items</h3>
                             <div className="space-y-3">
                                 {order.items.map((item) => (
                                     <div
                                         key={item.productId}
-                                        className="flex justify-between items-center p-4 bg-gray-50 rounded border border-gray-200"
+                                        className="flex justify-between items-center p-4 rounded border border-gray-200"
                                     >
                                         <div className="flex-1">
-                                            <p className="font-semibold text-gray-800">{item.productName}</p>
-                                            <p className="text-sm text-gray-500">
+                                            <p className="font-semibold">{item.productName}</p>
+                                            <p className="text-sm">
                                                 {item.quantity} × {item.unitPrice.toLocaleString()} VND
                                             </p>
                                         </div>
-                                        <p className="font-bold text-gray-800">
+                                        <p className="font-bold">
                                             {item.totalPrice.toLocaleString()} VND
                                         </p>
                                     </div>
@@ -178,18 +178,22 @@ export default function UserOrderDetailModal({ showForm, order, setShowForm }: U
 
                             <div className="mt-4 pt-4 border-t flex justify-end">
                                 <div className="w-full md:w-64 space-y-2">
-                                    <div className="flex justify-between text-gray-500">
+
+                                    <div className="flex justify-between">
                                         <span>Subtotal:</span>
                                         <span>{order.totalAmount.toLocaleString()} VND</span>
                                     </div>
-                                    <div className="flex justify-between text-gray-500">
+
+                                    <div className="flex justify-between">
                                         <span>Shipping:</span>
-                                        <span className="text-green-600 font-semibold">Free</span>
+                                        <span className="text-green-600 font-bold">Free</span>
                                     </div>
-                                    <div className="flex justify-between text-lg font-bold text-gray-800 p-3 bg-blue-50 rounded">
+
+                                    <div className="flex justify-between text-lg font-bold p-3">
                                         <span>Total:</span>
                                         <span className="text-blue-600">{order.totalAmount.toLocaleString()} VND</span>
                                     </div>
+
                                 </div>
                             </div>
                         </div>

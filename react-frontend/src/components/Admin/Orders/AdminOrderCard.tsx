@@ -1,20 +1,22 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { useAuth } from "../../hooks/auth/useAuth";
-import { Eye, Truck, X } from "lucide-react";
-import { orderApi } from "../../api/user/orderApi";
-import type { OrderResponse } from "../../types/models/order/OrderResponse";
-import UserOrderDetailModal from "./UserOrderDetailModal";
-import { ORDER_STATUS, ORDER_STATUS_CONFIG } from "../../types/orderStatus";
+import { useAuth } from "../../../hooks/auth/useAuth";
+import { Eye, SquarePen, Truck, X } from "lucide-react";
+import { orderApi } from "../../../api/user/orderApi";
+import type { OrderResponse } from "../../../types/models/order/OrderResponse";
+import UserOrderDetailModal from "../../orders/UserOrderDetailModal";
+import UpdateOrderStatusForm from "../../admin/orders/UpdateOrderStatusForm";
+import { ORDER_STATUS, ORDER_STATUS_CONFIG } from "../../../types/orderStatus";
 
 interface UserOrderCardProps extends OrderResponse {
     onCancelSuccess?: (id: number | string) => void;
     onUpdateSuccess?: (id: number | string) => void;
 }
 
-export default function UserOrderCard(order: UserOrderCardProps) {
+export default function AdminOrderCard(order: UserOrderCardProps) {
     const [showDetailModal, setShowDetailModal] = useState(false);
+    const [showUpdateForm, setShowUpdateForm] = useState(false);
     const { user } = useAuth();
     const navigate = useNavigate();
 
@@ -24,10 +26,9 @@ export default function UserOrderCard(order: UserOrderCardProps) {
     const handleViewDetail = () => {
         if (!user) return;
 
-        if (user.username !== order.customerName) return;
+        if (user.role === "Admin") navigate(`/admin/order/${order.id}`);
         else navigate(`/order/${order.id}`);
     }
-
     const handleTrackShipment = () => {
         if (order.status === ORDER_STATUS.Shipped) {
             toast.loading("Tracking feature coming soon", { duration: 2000 });
@@ -46,6 +47,11 @@ export default function UserOrderCard(order: UserOrderCardProps) {
         }
     };
 
+    const handleUpdateSuccess = () => {
+        // Notify parent to refetch/update list instead of hard reload
+        order.onUpdateSuccess?.(order.id);
+    };
+
     return (
         <>
             <div>
@@ -59,24 +65,24 @@ export default function UserOrderCard(order: UserOrderCardProps) {
                         {/* Order data columns */}
                         <div className="grid grid-cols-1 md:grid-cols-6 gap-4 flex-1">
                             <div className="flex flex-col items-center">
-                                <p className="text-sm text-gray-500">Order ID</p>
+                                <p className="text-sm">Order ID</p>
                                 <p className="text-lg font-bold">#{order.id}</p>
                             </div>
 
                             <div className="flex flex-col items-center">
-                                <p className="text-sm text-gray-500">Date</p>
+                                <p className="text-sm">Date</p>
                                 <p className="text-lg font-bold">
                                     {new Date(order.orderDate).toLocaleDateString()}
                                 </p>
                             </div>
 
                             <div className="flex flex-col items-center">
-                                <p className="text-sm text-gray-500">Customer</p>
+                                <p className="text-sm">Customer</p>
                                 <p className="text-lg font-bold">{order.customerName}</p>
                             </div>
 
                             <div className="flex flex-col items-center">
-                                <p className="text-sm text-gray-500 mb-1">Status</p>
+                                <p className="text-sm mb-1">Status</p>
                                 <div className={`flex items-center gap-2 px-3 py-1 rounded-full w-fit ${statusConfig.badgeColor}`}>
                                     <StatusIcon size={16} className={statusConfig.iconColor} />
                                     <span className="font-semibold text-sm">{order.status}</span>
@@ -84,12 +90,12 @@ export default function UserOrderCard(order: UserOrderCardProps) {
                             </div>
 
                             <div className="flex flex-col items-center">
-                                <p className="text-sm text-gray-500">Items</p>
+                                <p className="text-sm">Items</p>
                                 <p className="text-lg font-bold">{order.itemCount}</p>
                             </div>
 
                             <div className="flex flex-col items-center">
-                                <p className="text-sm text-gray-500">Total</p>
+                                <p className="text-sm">Total</p>
                                 <p className="text-lg font-bold text-blue-600">
                                     {order.totalAmount.toLocaleString()} VND
                                 </p>
@@ -104,6 +110,14 @@ export default function UserOrderCard(order: UserOrderCardProps) {
                                 className="flex items-center gap-2 px-3 py-2 text-blue-600 rounded hover:text-white hover:bg-blue-600 border-2 transition cursor-pointer"
                             >
                                 <Eye size={18} />
+                            </button>
+
+                            <button
+                                onClick={() => setShowUpdateForm(true)}
+                                title="Update order status"
+                                className="flex items-center gap-2 px-3 py-2 text-green-600 rounded hover:text-white hover:bg-green-600 border-2 transition cursor-pointer"
+                            >
+                                <SquarePen size={18} />
                             </button>
 
                             {order.status === ORDER_STATUS.Shipped && (
@@ -138,6 +152,14 @@ export default function UserOrderCard(order: UserOrderCardProps) {
                 />
             )}
 
+            {showUpdateForm && (
+                <UpdateOrderStatusForm
+                    showForm={showUpdateForm}
+                    order={order}
+                    setShowForm={setShowUpdateForm}
+                    onUpdateSuccess={handleUpdateSuccess}
+                />
+            )}
         </>
     );
 }

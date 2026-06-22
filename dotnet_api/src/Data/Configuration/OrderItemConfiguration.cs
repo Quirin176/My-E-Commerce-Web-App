@@ -12,6 +12,11 @@ namespace WebApp_API.Data.Configurations
                     .WithMany(o => o.OrderItems)
                     .HasForeignKey(oi => oi.OrderId)
                     .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(oi => oi.Product)
+                   .WithMany(p => p.OrderItems)
+                   .HasForeignKey(oi => oi.ProductId)
+                   .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

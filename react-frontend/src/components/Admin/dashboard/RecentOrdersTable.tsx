@@ -9,9 +9,10 @@ export default function RecentOrdersTable({ orders }: RecentOrdersTableProp) {
 
   return (
     <div className="overflow-x-auto">
+
       <table className="w-full text-left">
         <thead>
-          <tr className="bg-blue-200">
+          <tr>
             <th className="py-2">Order ID</th>
             <th className="py-2">Customer</th>
             <th className="py-2">Total</th>
@@ -19,19 +20,17 @@ export default function RecentOrdersTable({ orders }: RecentOrdersTableProp) {
           </tr>
         </thead>
 
-        <tbody className="bg-white">
+        <tbody>
           {orders.map(order => (
             <tr key={order.id} className="border-b-2 border-gray-200 last:border-none">
               <td className="py-2">{order.id}</td>
-              <td>{order.customerName}</td>
-              <td>{order.totalAmount.toLocaleString("vi-VN")} VND</td>
+              <td className="py-2 font-medium">{order.customerName}</td>
+              <td className="py-2 font-medium text-(--price)">{order.totalAmount.toLocaleString("vi-VN")} VND</td>
               <td>
                 <span
                   className={`px-2 py-1 rounded text-sm
-                  ${order.status === "Pending"
-                      ? "bg-yellow-100 text-yellow-700"
-                      : order.status === "Confirmed"
-                        ? "bg-blue-100 text-blue-700"
+                  ${order.status === "Pending" ? "bg-yellow-100 text-yellow-700"
+                      : order.status === "Confirmed" ? "bg-blue-100 text-blue-700"
                         : "bg-green-100 text-green-700"
                     }`}
                 >

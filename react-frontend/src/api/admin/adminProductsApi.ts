@@ -1,6 +1,6 @@
 import { apiClient } from "../apiClient";
 
-export interface ProductPayload {
+export interface CreateProductRequest {
   name?: string;
   slug?: string;
   shortDescription?: string;
@@ -14,7 +14,7 @@ export interface ProductPayload {
   hasVariants: boolean;
 };
 
-export interface ImagePayload {
+export interface AddImageRequest {
   imageUrl: string;
   displayOrder: number;
   isMain: boolean;
@@ -35,12 +35,12 @@ export interface ProductVariantPayload {
 
 export const adminProductsApi = {
 
-  async createProduct(data: ProductPayload) {
+  async createProduct(data: CreateProductRequest) {
     const res = await apiClient.post("/products", data);
     return res.data;
   },
 
-  async updateProductById(id: number | string, data: ProductPayload) {
+  async updateProductById(id: number | string, data: CreateProductRequest) {
     const res = await apiClient.put(`/products/${id}`, data);
     return res.data;
   },
@@ -78,7 +78,7 @@ export const adminProductsApi = {
     return res.data;
   },
   
-  async addProductImages(data: ImagePayload[]) {
+  async addProductImages(data: AddImageRequest[]) {
     const res = await apiClient.post("/productimages/images", data);
     return res.data;
   },

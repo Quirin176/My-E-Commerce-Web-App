@@ -36,25 +36,18 @@ export default function StatusTabs({
     getCount,
 }: StatusTabsProps) {
     return (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-4">
             {STATUS_OPTIONS.map(
                 ({ value, label, icon: Icon, badgeColor, iconColor }) => (
                     <button
                         key={value}
                         onClick={() => onStatusChange(value)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all ${
-                            activeStatus === value
-                                ? "bg-blue-600 text-white shadow-md"
-                                : `${badgeColor} hover:opacity-80`
-                        }`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium transition cursor-pointer
+                            ${activeStatus === value ? `${badgeColor} border-2 border-${badgeColor}` : `${badgeColor} hover:opacity-80`}`}
                     >
                         <Icon
                             size={16}
-                            className={
-                                activeStatus === value
-                                    ? "text-white"
-                                    : iconColor
-                            }
+                            className={iconColor}
                         />
 
                         <span>{label}</span>

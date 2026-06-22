@@ -1,4 +1,6 @@
 
+using WebApp_API.Entities;
+
 namespace WebApp_API.DTOs
 {
     public class LineChartPoint
@@ -14,7 +16,8 @@ namespace WebApp_API.DTOs
         public int TotalOrders { get; set; }
         public decimal TotalRevenue { get; set; }
         public List<OrderDTOs.RecentOrderDto>? RecentOrders { get; set; }
-        public List<OrderItemDTOs.TopProductDto>? TopProducts { get; set; }
+        public List<OrderItemDTOs.TopProductDto>? TopSellingProducts { get; set; }
+        public List<Product>? TopNewestProducts { get; set; }
         public List<LineChartPoint>? LineChartPoints { get; set; }
     }
 }

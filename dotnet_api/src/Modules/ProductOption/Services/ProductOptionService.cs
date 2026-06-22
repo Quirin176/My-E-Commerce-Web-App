@@ -80,16 +80,14 @@ namespace WebApp_API.Services
         // ────────────────────────────── Mapping Helpers ──────────────────────────────
         private async Task<ProductOptionDTOs.ProductOptionResponse> MapToResponseAsync(ProductOption option)
         {
-            var values = await _db.ProductOptionValues
-                .Where(v => v.ProductOptionId == option.Id)
-                .OrderBy(v => v.Value)
-                .Select(v => new ProductOptionDTOs.OptionValueResponse
-                {
-                    Id = v.Id,
-                    Value = v.Value,
-                    ProductOptionId = v.ProductOptionId
-                })
-                .ToListAsync();
+            var values = await _db.ProductOptionValues.Where(v => v.ProductOptionId == option.Id)
+                                                      .OrderBy(v => v.Value)
+                                                      .Select(v => new ProductOptionDTOs.OptionValueResponse
+                                                      {
+                                                          OptionValueId = v.Id,
+                                                          Value = v.Value,
+                                                      })
+                                                      .ToListAsync();
 
             return new ProductOptionDTOs.ProductOptionResponse
             {
@@ -107,16 +105,14 @@ namespace WebApp_API.Services
 
             foreach (var option in options)
             {
-                var values = await _db.ProductOptionValues
-                    .Where(v => v.ProductOptionId == option.Id)
-                    .OrderBy(v => v.Value)
-                    .Select(v => new ProductOptionDTOs.OptionValueResponse
-                    {
-                        Id = v.Id,
-                        Value = v.Value,
-                        ProductOptionId = v.ProductOptionId
-                    })
-                    .ToListAsync();
+                var values = await _db.ProductOptionValues.Where(v => v.ProductOptionId == option.Id)
+                                                          .OrderBy(v => v.Value)
+                                                          .Select(v => new ProductOptionDTOs.OptionValueResponse
+                                                          {
+                                                              OptionValueId = v.Id,
+                                                              Value = v.Value,
+                                                          })
+                                                          .ToListAsync();
 
                 result.Add(new ProductOptionDTOs.ProductOptionGroupResponse
                 {

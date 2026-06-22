@@ -21,21 +21,23 @@ export default function CategoryTabs({
     const { categories, loading: categoriesLoading, error: categoriesError } = useCategories();
 
     const [activeTab, setActiveTab] = useState<number>();
+    const [pageIndex, setPageIndex] = useState(0);
+
     const { products, productsLoading, } = useCategoryTab({
         activeTab,
-        productsPerPage: productsPerPage,
-        numberOfTabs: numberOfTabs,
+        productsPerPage,
+        numberOfTabs,
         fetchProducts,
     });
 
-    const [pageIndex, setPageIndex] = useState(0);
-
+    // Set first category as default tab once loaded
     useEffect(() => {
-        if (categories.length > 0) {
+        if (categories.length > 0 && !activeTab) {
             setActiveTab(categories[0].id);
         }
-    }, [categories]);
-    
+    }, [categories, activeTab]);
+
+    // Reset page when tab changes
     useEffect(() => {
         setPageIndex(0);
     }, [activeTab]);

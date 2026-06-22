@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using WebApp_API.Data;
 using WebApp_API.DTOs;
+using WebApp_API.Entities;
 
 namespace WebApp_API.Repositories
 {
@@ -29,23 +30,31 @@ namespace WebApp_API.Repositories
                                  .ToList();
         }
 
+        public async Task<List<Product>> GetTopNewestProducts(int top)
+        {
+            return await _db.Products.AsNoTracking()
+                                     .OrderByDescending(p => p.CreatedAt)
+                                     .Take(top)
+                                     .ToListAsync();
+        }
+
         public int CountOrders() => _db.Orders.Count();
 
         public decimal GetTotalRevenue() => _db.Orders.Sum(o => o.TotalAmount);
 
         public async Task<List<OrderDTOs.RecentOrderDto>> GetRecentOrders(int count)
         {
-            return _db.Orders
-                .OrderByDescending(o => o.CreatedAt)
-                .Take(count)
-                .Select(o => new OrderDTOs.RecentOrderDto
-                {
-                    Id = o.Id,
-                    CustomerName = o.CustomerName,
-                    TotalAmount = o.TotalAmount,
-                    Status = o.Status
-                })
-                .ToList();
+            return _db.Orders.AsNoTracking()
+                             .OrderByDescending(o => o.CreatedAt)
+                             .Take(count)
+                             .Select(o => new OrderDTOs.RecentOrderDto
+                             {
+                                 Id = o.Id,
+                                 CustomerName = o.CustomerName,
+                                 TotalAmount = o.TotalAmount,
+                                 Status = o.Status
+                             })
+                             .ToList();
         }
 
         public async Task<List<LineChartPoint>> GetOrderChartDataAsync(int days)

@@ -11,6 +11,7 @@ namespace WebApp_API.Services
         Task<ProductDTOs.ProductDetailResponse?> GetBySlugAsync(string slug);
 
         Task<List<ProductListDTOs.ProductSummaryResponse>> GetCategoryNewestAsync(int categoryId, int amount);
+        Task<List<ProductListDTOs.ProductSummaryResponse>> GetTopSellingProducts(int categoryId, int amount);
 
         Task<ProductDTOs.SearchResponse> SearchAsync(ProductListDTOs.ProductSearchParams searchParams);
         Task<List<string>> GetSuggestionsAsync(string q, int limit = 10);

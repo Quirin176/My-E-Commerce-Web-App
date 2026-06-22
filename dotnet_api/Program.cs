@@ -37,13 +37,18 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 // Configure CORS to allow requests from the frontend
 builder.Services.AddCors(options =>
-                            options.AddPolicy("AllowFrontend", policy =>
-                                                                    policy.WithOrigins("http://localhost:5173", "http://localhost:3000", "https://your-prod-frontend.com")
-                                                                    //   .WithHeaders("Authorization", "Content-Type")
-                                                                    .WithMethods("GET", "POST", "PUT", "DELETE")
-                                                                    .AllowAnyHeader()
-                                                                    //   .AllowAnyMethod()
-                                                                    .AllowCredentials()));
+{
+    options.AddPolicy("AllowFrontend",
+    policy =>
+    {
+        policy.WithOrigins("http://localhost:5173", "http://localhost:3000", "http://192.168.1.10:5173")
+                //   .WithHeaders("Authorization", "Content-Type")
+                .WithMethods("GET", "POST", "PUT", "DELETE")
+                .AllowAnyHeader()
+                //   .AllowAnyMethod()
+                .AllowCredentials();
+    });
+});
 // Rate Limiting - limit to 3 login attempts per minute per IP
 builder.Services.AddRateLimiter(options =>
 {
@@ -82,29 +87,28 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 
-builder.Services.Configure<EmailSettings>(
-    builder.Configuration.GetSection("EmailSettings"));
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddOutputCache(options =>
 {
-    options.AddPolicy("Products", policy => policy
-        .Expire(TimeSpan.FromMinutes(5))
-        .Tag("products"));
+    options.AddPolicy("Products", policy =>
+    policy.Expire(TimeSpan.FromMinutes(5))
+            .Tag("products"));
 
-    options.AddPolicy("ProductsPaginated", policy => policy
-        .Expire(TimeSpan.FromMinutes(5))
-        .SetVaryByQuery("category", "page", "pageSize", "minPrice", "maxPrice", "selectedOptions", "sortOrder", "search")
-        .Tag("products"));
+    options.AddPolicy("ProductsPaginated", policy =>
+    policy.Expire(TimeSpan.FromMinutes(5))
+            .SetVaryByQuery("category", "page", "pageSize", "minPrice", "maxPrice", "selectedOptions", "sortOrder", "search")
+            .Tag("products"));
 
-    options.AddPolicy("Categories", policy => policy
-        .Expire(TimeSpan.FromMinutes(30))
-        .Tag("categories"));
+    options.AddPolicy("Categories", policy =>
+    policy.Expire(TimeSpan.FromMinutes(30))
+            .Tag("categories"));
 
-    options.AddPolicy("Admin_Dashboard", policy => policy
-        .Expire(TimeSpan.FromMinutes(5))
-        .Tag("admin_dashboard"));
+    options.AddPolicy("Admin_Dashboard", policy =>
+    policy.Expire(TimeSpan.FromMinutes(5))
+            .Tag("admin_dashboard"));
 });
 builder.Services.AddMemoryCache();
 

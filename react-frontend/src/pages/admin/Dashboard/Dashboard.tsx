@@ -1,26 +1,28 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { CircleDollarSign, Handbag, User2 } from "lucide-react";
+import { CircleDollarSign, Handbag, ShoppingBag, User2 } from "lucide-react";
 import { useAuth } from "../../../hooks/auth/useAuth";
 import { adminDashboardApi } from "../../../api/admin/adminDashboardApi";
 import DashboardCard from "../../../components/admin/dashboard/DashboardCard";
 import RecentOrdersTable from "../../../components/admin/dashboard/RecentOrdersTable";
-import TopProductsTable from "../../../components/admin/dashboard/TopProductsTable";
+import TopSellingProductsTable from "../../../components/admin/dashboard/TopSellingProductsTable";
+import TopNewestProductsTable from "../../../components/admin/dashboard/TopNewestProductsTable";
 import DashboardLineChart from "../../../components/admin/dashboard/DashboardLineChart";
 import LoadingState from "../../../components/pageState/LoadingState";
-import type { RecentOrder, TopProduct, LineChartPoints } from "../../../types/dto/AdminDashboardDTOs";
+import type { RecentOrder, TopSellingProduct, LineChartPoints } from "../../../types/dto/AdminDashboardDTOs";
+import type { Product } from "../../../types/models/products/Product";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [totalusers, setTotalUsers] = useState<Number>(0);
-  const [totalOrders, setTotalOrders] = useState<Number>(0);
-  const [totalSale, setTotalSale] = useState<Number>(0);
+  const [totalusers, setTotalUsers] = useState<number>(0);
+  const [totalOrders, setTotalOrders] = useState<number>(0);
+  const [totalSale, setTotalSale] = useState<number>(0);
+  const [totalProducts, setTotalProducts] = useState<number>(0);
   const [recentOrders, setRecentOrders] = useState<RecentOrder[] | null>(null);
-  const [topProducts, setTopProducts] = useState<TopProduct[] | null>(null);
+  const [topSellingProducts, setTopSellingProducts] = useState<TopSellingProduct[] | null>(null);
+  const [topNewestProducts, setTopNewestProducts] = useState<Product[] | null>(null);
   const [chartData, setChartData] = useState<LineChartPoints[] | undefined>(undefined);
 
   useEffect(() => {
@@ -29,13 +31,15 @@ export default function AdminDashboard() {
 
       try {
         setLoading(true);
-        const res = await adminDashboardApi.getSummary();
+        const res = await adminDashboardApi.getSummary(10, 10, 10);
 
         setTotalUsers(res.totalUsers);
         setTotalOrders(res.totalOrders);
         setTotalSale(res.totalRevenue);
+        setTotalProducts(res.totalProducts);
         setRecentOrders(res.recentOrders);
-        setTopProducts(res.topProducts);
+        setTopNewestProducts(res.topNewestProducts);
+        setTopSellingProducts(res.topSellingProducts);
         setChartData(res.lineChartPoints);
       } catch {
         toast.error("Failed to load dashboard data");
@@ -45,7 +49,7 @@ export default function AdminDashboard() {
     };
 
     fetchData();
-  }, [])
+  }, [user])
 
   if (loading)
     return (
@@ -56,31 +60,55 @@ export default function AdminDashboard() {
     );
 
   return (
-    <div className="flex flex-col w-full py-8 px-8 gap-y-8">
+    <div className="flex flex-col w-full py-8 px-8 gap-y-8 bg-(--bg-muted)">
 
       {/* TOP CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <DashboardCard title="Total Revenue" value={`${totalSale?.toLocaleString("vi-VN")} VND`} icon={<CircleDollarSign />} />
-        <DashboardCard title="Total Orders" value={totalOrders?.toLocaleString("vi-VN")} icon={<Handbag />} onClick={() => navigate("/admin/orders")} />
-        <DashboardCard title="Total Users" value={totalusers?.toLocaleString("vi-VN")} icon={<User2 />} onClick={() => navigate("/admin/users")} />
+        <div className="rounded-2xl bg-(--bg-surface) shadow p-6">
+          <DashboardCard title="Total Revenue" value={`${totalSale?.toLocaleString("vi-VN")} VND`} icon={<CircleDollarSign />} />
+        </div>
+
+        <div className="rounded-2xl bg-(--bg-surface) shadow p-6">
+          <DashboardCard title="Total Orders" value={totalOrders?.toLocaleString("vi-VN")} icon={<Handbag />} link={"/admin/orders"} />
+        </div>
+
+        <div className="rounded-2xl bg-(--bg-surface) shadow p-6">
+          <DashboardCard title="Total Users" value={totalusers?.toLocaleString("vi-VN")} icon={<User2 />} link={"/admin/users"} />
+        </div>
+
+        <div className="rounded-2xl bg-(--bg-surface) shadow p-6">
+          <DashboardCard title="Total Products" value={totalProducts?.toLocaleString("vi-VN")} icon={<ShoppingBag />} link={"/admin/products"} />
+        </div>
       </div>
 
-      <div className="flex flex-row w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
         {/* RECENT ORDERS */}
-        <div className="rounded-2xl bg-gray-50 shadow p-6 w-1/2 mr-4">
+        <div className="rounded-2xl bg-(--bg-surface) shadow p-6">
           <h2 className="text-lg font-semibold mb-4">Recent Orders</h2>
+
           <RecentOrdersTable orders={recentOrders} />
         </div>
 
+        {/* LINE CHART */}
+        <DashboardLineChart data={chartData} />
+
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
         {/* TOP PRODUCTS */}
-        <div className="rounded-2xl bg-gray-50 shadow p-6 w-1/2 ml-4">
-          <h2 className="text-lg font-semibold mb-4">Top Products</h2>
-          <TopProductsTable topProducts={topProducts} />
+        <div className="rounded-2xl bg-(--bg-surface) shadow p-6">
+          <h2 className="text-lg font-semibold mb-4">Top 10 Selling Products</h2>
+
+          <TopSellingProductsTable topProducts={topSellingProducts} />
+        </div>
+
+        <div className="rounded-2xl bg-(--bg-surface) shadow p-6">
+          <h2 className="text-lg font-semibold mb-4">Top 10 Newest Products</h2>
+
+          <TopNewestProductsTable topProducts={topNewestProducts} />
         </div>
       </div>
 
-      {/* LINE CHART */}
-      <DashboardLineChart data={chartData} />
     </div>
   );
 };

@@ -47,6 +47,15 @@ namespace WebApp_API.Controllers
             return Ok(products);
         }
 
+        // GET /api/products/topselling
+        [OutputCache(PolicyName = "Products")]
+        [HttpGet("topselling")]
+        public async Task<IActionResult> GetCategoryTopSellingProducts([FromQuery] int categoryId, int amount)
+        {
+            var products = await _service.GetTopSellingProducts(categoryId, amount);
+            return Ok(products);
+        }
+
         // GET /api/products/search
         [HttpGet("search")]
         public async Task<IActionResult> SearchProducts([FromQuery] ProductListDTOs.ProductSearchParams searchParams)

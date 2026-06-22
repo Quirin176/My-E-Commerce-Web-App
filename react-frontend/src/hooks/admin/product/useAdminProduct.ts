@@ -8,10 +8,10 @@ import { useProductFilters } from "../../products/useProductFilters";
 
 import { productApi } from "../../../api/products/productApi";
 import { productvariantApi } from "../../../api/products/productvariantApi";
-import { adminProductsApi, type ProductPayload } from "../../../api/admin/adminProductsApi";
-import type { VariantRow } from "../../../types/models/products/variantTypes";
-import type { ImagePayload } from "../../../api/admin/adminProductsApi";
+import { adminProductsApi, type CreateProductRequest, type AddImageRequest } from "../../../api/admin/adminProductsApi";
 import { productimageApi } from "../../../api/products/productimageApi";
+import type { VariantRow } from "../../../types/models/products/variantTypes";
+import type { ProductVariant, ProductOption, ProductOptionValue } from "../../../types/models/products/Product";
 
 export function useAdminProduct() {
     const navigate = useNavigate();
@@ -24,7 +24,7 @@ export function useAdminProduct() {
         [id, createdProductId]
     );
 
-    const [recentProductImages, setRecentProductImages] = useState<ImagePayload[]>([])
+    const [recentProductImages, setRecentProductImages] = useState<AddImageRequest[]>([])
 
     const [variants, setVariants] = useState<VariantRow[]>([]);
     const [showManualForm, setShowManualForm] = useState(false);
@@ -71,14 +71,14 @@ export function useAdminProduct() {
                     const loadedFilters = await filters.loadFilters(Number(product.categoryId));
 
                     const valueMap = new Map<string, number>();
-                    loadedFilters.forEach((opt: any) =>
-                        opt.optionValues.forEach((v: any) => valueMap.set(v.value, v.id))
+                    loadedFilters.forEach((opt: ProductOption) =>
+                        opt.optionValues.forEach((v: ProductOptionValue) => valueMap.set(v.value, v.optionValueId))
                     );
 
                     const preSelectedIds: number[] = [];
-                    (product.options ?? []).forEach((opt: any) => {
-                        (opt.optionValues ?? []).forEach((ov: any) => {
-                            const fid = ov.id ?? valueMap.get(ov.value);
+                    (product.options ?? []).forEach((opt: ProductOption) => {
+                        (opt.optionValues ?? []).forEach((ov: ProductOptionValue) => {
+                            const fid = ov.optionValueId ?? valueMap.get(ov.value);
                             if (fid !== undefined) preSelectedIds.push(fid);
                         });
                     });
@@ -94,14 +94,13 @@ export function useAdminProduct() {
 
                 // Load variants
                 const allVariant = await productvariantApi.getByProductId(product.id);
-                const mappedVariants = allVariant.map((v: any) => ({
+                const mappedVariants = allVariant.map((v: ProductVariant) => ({
                     ...v,
                     key: String(v.id),
                     open: false,
                     imageInput: "",
                     images: v.images ?? [],
-                    optionValueIds:
-                        v.optionValues?.map((ov: any) => ov.optionValueId ?? ov.id) ?? [],
+                    optionValueIds: v.optionValues?.map((ov: ProductOptionValue) => ov.optionValueId) ?? [],
                     serverId: v.id,
                 }));
 
@@ -110,7 +109,7 @@ export function useAdminProduct() {
                 toast.error("Failed to load product");
             }
         })();
-    }, [id]);
+    }, [id, form, filters, mode]);
 
     // ─────────────────────────────────────────────
     // Save product
@@ -120,7 +119,7 @@ export function useAdminProduct() {
 
         setSubmitting(true);
         try {
-            const payload: ProductPayload = {
+            const payload: CreateProductRequest = {
                 ...form.formData,
                 selectedOptionValueIds: selectedIds,
             };

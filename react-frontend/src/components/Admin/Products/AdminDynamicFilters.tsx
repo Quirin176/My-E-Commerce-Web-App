@@ -3,7 +3,7 @@ import { ChevronDown } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCategories } from "../../../hooks/products/useCategories";
 import { categoryApi } from "../../../api/products/categoryApi";
-import type { ProductOption } from "../../../types/models/products/ProductOption";
+import type { ProductOption } from "../../../types/models/products/Product";
 
 export interface DynamicFiltersProps {
     onCategoryChange: (slug: string) => void;
@@ -51,7 +51,7 @@ export default function DynamicFilters({
             const filters = await categoryApi.getAllChildDataByCategorySlug(slug);
             const filterList = Array.isArray(filters) ? filters : (filters?.data || []);
             setLoadedOptions(filterList);
-        } catch (error) {
+        } catch {
             toast.error("Failed to load category filters");
             setLoadedOptions([]);
         } finally {
@@ -88,7 +88,7 @@ export default function DynamicFilters({
     const options = Array.isArray(loadedOptions) && loadedOptions.length > 0 ? loadedOptions : [];
 
     return (
-        <div className="bg-white p-3 rounded shadow border mb-4">
+        <div className="w-full h-full p-3 rounded shadow border">
 
             <div className="flex flex-wrap gap-2 items-center">
 
@@ -96,18 +96,19 @@ export default function DynamicFilters({
                 <select
                     disabled={loadingFilters}
                     onChange={(e) => handleCategoryChange(e.target.value ? e.target.value : "")}
-                    className="text-xs font-semibold text-gray-700 border rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition"
+                    className="text-xs font-bold border rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 >
-                    <option value="">Category</option>
+                    <option value="" className="font-bold bg-(--bg-muted)">Category</option>
+
                     {categories.map((cat) => (
-                        <option key={cat.id} value={cat.slug}>
+                        <option key={cat.id} value={cat.slug} className="font-bold bg-(--bg-muted)">
                             {cat.name}
                         </option>
                     ))}
                 </select>
 
                 {loadingFilters && (
-                    <div className="ml-2 text-xs text-gray-500">Loading options…</div>
+                    <div className="ml-2 text-xs">Loading options…</div>
                 )}
 
                 {/* Dynamic Option Dropdowns */}
@@ -115,19 +116,19 @@ export default function DynamicFilters({
                     <>
                         {options.map(option => {
                             const selectedInCategory = selectedOptions.filter(id =>
-                                option.optionValues.some(v => v.id === id)
+                                option.optionValues.some(v => v.optionValueId === id)
                             );
 
                             return (
                                 <div key={option.optionId} className="relative">
                                     <button
                                         onClick={() => toggleDropdown(option.optionId)}
-                                        className="flex items-center justify-between border rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition min-w-28"
+                                        className="flex items-center justify-between border rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition min-w-28"
                                     >
-                                        <span className="font-semibold text-gray-700 truncate text-xs">
+                                        <span className="truncate text-xs font-bold">
                                             {option.optionName}
                                             {selectedInCategory.length > 0 && (
-                                                <span className="ml-1 text-xs text-white bg-(--brand-primary) px-1.5 py-0.5 rounded inline-block">
+                                                <span className="ml-1 text-xs bg-(--brand-primary) px-1.5 py-0.5 rounded inline-block">
                                                     {selectedInCategory.length}
                                                 </span>
                                             )}
@@ -140,21 +141,21 @@ export default function DynamicFilters({
 
                                     {openDropdowns[option.optionId] && (
                                         <div
-                                            className="absolute top-full left-0 mt-1 bg-white border rounded shadow-lg z-50 w-40"
+                                            className="absolute top-full left-0 mt-1 bg-(--bg-muted) border rounded shadow-lg z-50 w-40"
                                             onMouseLeave={() => closeDropdown(option.optionId)}>
                                             <div className="p-2 max-h-48 overflow-y-auto">
-                                                {option.optionValues.map(value => (
+                                                {option.optionValues.map((value) => (
                                                     <label
-                                                        key={value.id}
-                                                        className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-100 transition cursor-pointer"
+                                                        key={value.optionValueId}
+                                                        className="flex items-center gap-2 px-2 py-1.5 rounded text-(--text-primary) hover:text-(--text-secondary) hover:bg-gray-100 transition cursor-pointer"
                                                     >
                                                         <input
                                                             type="checkbox"
-                                                            checked={selectedOptions.includes(value.id)}
-                                                            onChange={() => toggleOption(value.id)}
+                                                            checked={selectedOptions.includes(value.optionValueId)}
+                                                            onChange={() => {toggleOption(value.optionValueId); console.log(value.optionValueId)}}
                                                             className="w-3 h-3"
                                                         />
-                                                        <span className="text-gray-700 text-xs">{value.value}</span>
+                                                        <span className="text-xs font-bold">{value.value}</span>
                                                     </label>
                                                 ))}
                                             </div>
@@ -169,19 +170,19 @@ export default function DynamicFilters({
                 {/* Price Range and Sort - At the end */}
                 <div className="ml-auto flex items-center gap-2">
                     <div className="flex items-center gap-1">
-                        <label className="text-xs font-semibold text-gray-700 whitespace-nowrap">Price:</label>
+                        <label className="text-xs font-bold whitespace-nowrap">Price: From</label>
                         <input
                             placeholder="Min"
                             type="number"
-                            className="border p-1.5 rounded w-24 text-xs"
+                            className="border p-1.5 rounded w-24 text-xs font-bold"
                             value={minPrice}
                             onChange={(e) => setMinPrice(e.target.value)}
                         />
-                        <span className="text-xs text-gray-500">-</span>
+                        <span className="text-xs font-bold">to</span>
                         <input
                             placeholder="Max"
                             type="number"
-                            className="border p-1.5 rounded w-24 text-xs"
+                            className="border p-1.5 rounded w-24 text-xs font-bold"
                             value={maxPrice}
                             onChange={(e) => setMaxPrice(e.target.value)}
                         />
@@ -189,19 +190,19 @@ export default function DynamicFilters({
 
                     {/* Sort Dropdown */}
                     <select
-                        className="border p-1.5 rounded text-xs min-w-32 bg-white hover:bg-gray-50 transition"
+                        className="border p-1.5 rounded text-xs font-bold min-w-32 transition cursor-pointer"
                         value={sortOrder}
                         onChange={(e) => setSortOrder(e.target.value)}
                     >
-                        <option value="newest">Newest</option>
-                        <option value="oldest">Oldest</option>
-                        <option value="ascending">Low → High</option>
-                        <option value="descending">High → Low</option>
+                        <option value="newest" className="font-bold bg-(--bg-muted)">Newest</option>
+                        <option value="oldest" className="font-bold bg-(--bg-muted)">Oldest</option>
+                        <option value="ascending" className="font-bold bg-(--bg-muted)">Low → High</option>
+                        <option value="descending" className="font-bold bg-(--bg-muted)">High → Low</option>
                     </select>
 
                     <button
                         disabled={loadingFilters}
-                        className="border p-1.5 rounded-lg text-xs min-w-32 bg-blue-600 text-white hover:bg-blue-700 transition"
+                        className="border p-1.5 rounded-lg text-xs min-w-32 font-bold text-white bg-(--brand-primary) hover:bg-(--brand-secondary) transition cursor-pointer"
                         onClick={() => {
                             // sanitize price inputs
                             const cleanedMin = minPrice === "" ? 0 : Number(minPrice);
@@ -234,7 +235,7 @@ export default function DynamicFilters({
                         {selectedOptions.map(id => {
                             const option = options
                                 .flatMap(c => c.optionValues || [])
-                                .find(v => String(v.id) === String(id));
+                                .find(v => String(v.optionValueId) === String(id));
                             return option ? (
                                 <span
                                     key={id}
@@ -251,9 +252,10 @@ export default function DynamicFilters({
                             ) : null;
                         })}
                     </div>
+                    
                     <button
                         onClick={() => setSelectedOptions([])}
-                        className="text-red-600 hover:underline text-xs font-semibold whitespace-nowrap ml-4"
+                        className="text-red-600 hover:underline font-semibold whitespace-nowrap cursor-pointer"
                     >
                         Clear all
                     </button>

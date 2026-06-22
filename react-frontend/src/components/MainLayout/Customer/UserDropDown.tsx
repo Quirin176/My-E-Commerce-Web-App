@@ -74,7 +74,7 @@ export default function UserDropDown() {
               navigate("/home");
               setOpen(false);
             }}
-            className="flex items-center justify-between w-full px-3 py-2 rounded font-medium hover:font-bold hover:text-(--text-primary) hover:bg-(--bg-muted)"
+            className="mt-8 flex items-center justify-between w-full px-3 py-2 rounded font-medium hover:font-bold hover:text-(--text-primary) hover:bg-(--bg-muted)"
           >
             Log Out
             <LogOut size={20} />

@@ -48,7 +48,7 @@ export default function HeroSlider() {
 
             {/* Previous Slide Button */}
             <button
-                className="absolute top-1/2 left-4 p-2 bg-gray-200 hover:bg-gray-400 rounded-full cursor-pointer z-50"
+                className="absolute top-1/2 left-4 p-2 bg-(--bg-muted) rounded-full cursor-pointer z-40"
                 onClick={() => prevSlide()}
             >
                 <ChevronLeft />
@@ -88,7 +88,7 @@ export default function HeroSlider() {
                     <span
                         key={index}
                         className={`${index === currentSlide ? "bg-(--brand-primary) w-8 h-3 rounded-2xl"
-                            : "bg-gray-400 w-3 h-3 rounded-full cursor-pointer transition-all duration-200 ease-in-out"}`}
+                            : "bg-(--bg-muted) w-3 h-3 rounded-full cursor-pointer transition-all duration-200 ease-in-out"}`}
                         onClick={() => setCurrentSlide(index)}
                     />
                 ))}
@@ -96,7 +96,7 @@ export default function HeroSlider() {
 
             {/* Next Slide Button */}
             <button
-                className="absolute top-1/2 right-4 p-2 bg-gray-200 hover:bg-gray-400 rounded-full cursor-pointer z-50"
+                className="absolute top-1/2 right-4 p-2 bg-(--bg-muted) rounded-full cursor-pointer z-40"
                 onClick={() => nextSlide()}
             >
                 <ChevronRight />

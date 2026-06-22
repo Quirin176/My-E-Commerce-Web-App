@@ -25,10 +25,7 @@ export function useCategoryTab({
       setProductsLoading(true);
 
       try {
-        const data = await fetchProducts(
-          activeTab,
-          productsPerPage * numberOfTabs
-        );
+        const data = await fetchProducts(activeTab, productsPerPage * numberOfTabs);
 
         if (!Array.isArray(data)) {
           toast.error("Invalid product list");
@@ -36,9 +33,7 @@ export function useCategoryTab({
           return;
         }
 
-        const sorted = [...data].sort(
-          (a, b) => Number(b.id) - Number(a.id)
-        );
+        const sorted = [...data].sort((a, b) => Number(b.id) - Number(a.id));
 
         setProducts(sorted);
       } catch {
@@ -50,12 +45,7 @@ export function useCategoryTab({
     };
 
     loadProducts();
-  }, [
-    activeTab,
-    fetchProducts,
-    productsPerPage,
-    numberOfTabs,
-  ]);
+  }, [activeTab, fetchProducts, productsPerPage, numberOfTabs,]);
 
   return {
     products,

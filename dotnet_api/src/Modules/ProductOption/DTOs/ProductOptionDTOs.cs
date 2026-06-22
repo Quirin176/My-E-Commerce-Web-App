@@ -20,9 +20,8 @@ namespace WebApp_API.DTOs
 
         public class OptionValueResponse
         {
-            public int Id { get; set; }
+            public int OptionValueId { get; set; }
             public string Value { get; set; } = "";
-            public int ProductOptionId { get; set; }
         }
 
         // Lightweight response used when listing options grouped by category

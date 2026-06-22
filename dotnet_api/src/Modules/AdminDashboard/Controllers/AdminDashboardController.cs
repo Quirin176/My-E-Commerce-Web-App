@@ -18,13 +18,13 @@ namespace WebApp_API.Controllers
         }
 
         // GET: /api/admindashboard - Get all dashboard data
-        [OutputCache(PolicyName = "Admin_Dashboard")]
+        // [OutputCache(PolicyName = "Admin_Dashboard")]
         [HttpGet]
-        public async Task<IActionResult> GetDashboardData()
+        public async Task<IActionResult> GetDashboardData([FromQuery] int topRecentOrdersAmount, int topSellingProductsAmount, int topNewestProductsAmount)
         {
             try
             {
-                var result = await _mediator.Send(new GetAdminDashboardSummaryQuery());
+                var result = await _mediator.Send(new GetAdminDashboardSummaryQuery(topRecentOrdersAmount, topSellingProductsAmount, topNewestProductsAmount));
 
                 return Ok(result);
             }

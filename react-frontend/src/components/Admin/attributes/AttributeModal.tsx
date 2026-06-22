@@ -105,6 +105,7 @@ export default function AttributeModal({ config, onClose, onSuccess }: Attribute
                 className="fixed inset-0 bg-black/40 z-40 backdrop-blur-sm"
                 onClick={onClose}
             />
+
             {/* Modal */}
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                 <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">

@@ -33,7 +33,7 @@ export default function CouponSection() {
             </div>
 
             <button
-                className="text-2xl rounded-2xl bg-linear-to-br from-(--brand-primary) to-(--brand-secondary) hover:bg-linear-to-tl p-4 cursor-pointer"
+                className="text-2xl rounded-2xl bg-(--brand-primary) hover:brightness-110 p-4 transition cursor-pointer"
                 onClick={() => handleClicking()}
             >
                 Join free!

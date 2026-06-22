@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Plus, Search, AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -72,24 +72,22 @@ export default function AdminProducts() {
     try {
       await adminProductsApi.deleteProduct(id);
       toast.success("Deleted");
-    } catch (err) {
+    } catch {
       toast.error("Delete failed");
     }
   });
 
   return (
-    <div className="flex flex-col gap-y-4 pt-8 px-8">
+    <div className="flex flex-col gap-y-4 p-8 bg-(--bg-muted)">
 
       {/* ========== HEADER ========== */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <p className="text-gray-600 mt-1">
-          {totalCount > 0
-            ? `${totalCount} total products`
-            : "No products found"}
+        <p>
+          {totalCount > 0 ? `${totalCount} total products` : "No products found"}
         </p>
 
         {/* ========== SEARCH BAR ========== */}
-        <div className="flex items-center gap-4">
+        <div className="relative flex items-center gap-4">
           <input
             type="text"
             placeholder="Search For Products"
@@ -104,25 +102,26 @@ export default function AdminProducts() {
             }}
             className="text-lg w-full pl-4 pr-2 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
           />
-          {searchTerm && (
+
+          {searchInput && (
             <button
               onClick={() => {
                 setSearchInput("");
                 setSearchTerm("");
                 updateUrl({ search: undefined, page: 1 });
               }}
-              className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+              className="right-3 top-3"
             >
               ✕
             </button>
-
           )}
+
           <button
             onClick={() => {
               setSearchTerm(searchInput);
               updateUrl({ search: searchInput, page: 1 });
             }}
-            className="rounded-full px-2 py-2 text-white bg-blue-600 hover:text-gray-600 hover:bg-blue-700 cursor-pointer"
+            className="rounded-full px-2 py-2 text-white bg-(--brand-primary) hover:brightness-75 cursor-pointer"
           >
             <Search size={20} />
           </button>
@@ -134,14 +133,14 @@ export default function AdminProducts() {
             onSearchSubmit={(searchQuery) => handleSearchSubmit(searchQuery)} />
         </div> */}
 
-        <button
-          // onClick={() => modal.openCreateForm()}
-          onClick={() => Navigation("/admin/products/new")}
-          className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold whitespace-nowrap cursor-pointer"
+        {/* ADD NEW PRODUCT BUTTON */}
+        <Link
+          to={"/admin/products/new"}
+          className="flex items-center gap-2 px-6 py-3 text-white bg-(--brand-primary) hover:brightness-75 rounded-lg transition font-semibold whitespace-nowrap cursor-pointer"
         >
           <Plus size={20} />
           Add Product
-        </button>
+        </Link>
       </div>
 
       {/* ========== ERROR DISPLAY ========== */}
@@ -156,18 +155,20 @@ export default function AdminProducts() {
       )}
 
       {/* Dynamic filters */}
-      <AdminDynamicFilters
-        onCategoryChange={handleCategoryChange}
-        selectedOptions={selectedOptions}
-        setSelectedOptions={(opts: (string | number)[]) => updateUrl({ selectedOptions: opts, page: 1 })}
-        minPrice={minPrice}
-        setMinPrice={(val: string | number) => updateUrl({ minPrice: String(val), page: 1 })}
-        maxPrice={maxPrice}
-        setMaxPrice={(val: string | number) => updateUrl({ maxPrice: String(val), page: 1 })}
-        sortOrder={sortOrder}
-        setSortOrder={(val: string) => updateUrl({ sortOrder: val, page: 1 })}
-        onApplyFilters={applyFilters}
-      />
+      <div className="bg-(--bg-surface) rounded-lg">
+        <AdminDynamicFilters
+          onCategoryChange={handleCategoryChange}
+          selectedOptions={selectedOptions}
+          setSelectedOptions={(opts: (string | number)[]) => updateUrl({ selectedOptions: opts, page: 1 })}
+          minPrice={minPrice}
+          setMinPrice={(val: string | number) => updateUrl({ minPrice: String(val), page: 1 })}
+          maxPrice={maxPrice}
+          setMaxPrice={(val: string | number) => updateUrl({ maxPrice: String(val), page: 1 })}
+          sortOrder={sortOrder}
+          setSortOrder={(val: string) => updateUrl({ sortOrder: val, page: 1 })}
+          onApplyFilters={applyFilters}
+        />
+      </div>
 
       {/* ========== PRODUCTS LIST ========== */}
       {loading ? (
@@ -176,18 +177,18 @@ export default function AdminProducts() {
           <p className="text-gray-600 mt-4">Loading products...</p>
         </div>
       ) : products.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-lg border-2 border-dashed border-gray-300">
+        <div className="text-center py-12 bg-(--bg-surface) rounded-lg border-2 border-dashed border-gray-300">
           <AlertCircle size={48} className="mx-auto text-gray-400 mb-4" />
           <p className="text-gray-600 text-lg">
             {searchTerm ? "No products match your search" : "No products found"}
           </p>
 
-          <button
-            onClick={() => Navigation("/admin/products/new")}
-            className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+          <Link
+            to={"/admin/products/new"}
+            className="mt-4 px-4 py-2 bg-green-600 rounded-lg hover:bg-green-700"
           >
             {searchTerm ? "Clear Search" : "Create First Product"}
-          </button>
+          </Link>
         </div>
       ) : (
         <>
@@ -196,7 +197,7 @@ export default function AdminProducts() {
             {products.map((product) => (
               <div
                 key={product.id}
-                className="border rounded-lg px-8 py-2 shadow-sm hover:shadow-md hover:bg-gray-100 transition-shadow cursor-pointer"
+                className="border rounded-lg px-8 py-2 bg-(--bg-surface) shadow-sm hover:shadow-md transition-shadow cursor-pointer"
               >
                 <AdminProductCard
                   product={product}

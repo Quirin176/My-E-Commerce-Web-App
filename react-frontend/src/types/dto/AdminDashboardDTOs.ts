@@ -1,3 +1,5 @@
+import type { Product } from "../models/products/Product";
+
 export interface RecentOrder {
   id: number;
   customerName: string;
@@ -5,7 +7,7 @@ export interface RecentOrder {
   status: string;
 }
 
-export interface TopProduct {
+export interface TopSellingProduct {
   productId: number;
   productName: string;
   unitPrice: number;
@@ -24,6 +26,7 @@ export interface DashboardSummary {
   totalOrders: number;
   totalRevenue: number;
   recentOrders: RecentOrder[];
-  topProducts: TopProduct[];
+  topsellingProducts: TopSellingProduct[];
+  topNewestProducts: Product[];
   lineChartPoints: LineChartPoints[];
 }

@@ -24,9 +24,9 @@ export default function AdminProductCard({
         <div className="flex flex-col gap-2">
           <div className="flex flex-row gap-2 items-center">
             <h3 className="font-bold text-lg">{product.name}</h3>
-            <p className="text-sm text-gray-500">{product.category?.name}</p>
+            <p className="text-sm">{product.category?.name}</p>
           </div>
-          <p className="text-sm text-gray-500">{product.slug}</p>
+          <p className="text-sm">{product.slug}</p>
         </div>
       </div>
 

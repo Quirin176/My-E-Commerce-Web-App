@@ -1,25 +1,32 @@
+import { Link } from "react-router-dom";
 
 interface DashboardCardProp {
-    title: string,
-    value: string,
-    icon?: React.ReactNode;
-    onClick?: () => void;
+  title: string,
+  value: string,
+  icon?: React.ReactNode;
+  link?: string;
 }
 
-export default function DashboardCard({ title, value, icon, onClick }: DashboardCardProp) {
+export default function DashboardCard({ title, value, icon, link }: DashboardCardProp) {
   return (
-    <div className="h-32 rounded-2xl bg-gray-100 p-4 flex flex-col justify-between">
+    <div className="w-full h-full rounded-2xl p-4 flex flex-col justify-between">
       <div>
-        <h1 className="text-gray-600">{title}</h1>
+        <h1>{title}</h1>
         <p className="text-2xl font-bold">{value}</p>
       </div>
+
       <div className="flex justify-end">
-        <button
-          onClick={onClick}
-          className="p-2 rounded-lg bg-blue-200 hover:bg-blue-400 transition"
-        >
-          {icon}
-        </button>
+        {link ? (
+          <Link
+            to={link}
+            className="p-2 rounded-lg text-white bg-(--brand-primary) hover:bg-(--brand-secondary) transition cursor-pointer"
+          >
+            {icon}
+          </Link>) : (
+          <button className="p-2 rounded-lg text-white bg-(--brand-primary) hover:bg-(--brand-secondary) transition cursor-pointer"
+          >
+            {icon}
+          </button>)}
       </div>
     </div>
   );

@@ -30,7 +30,7 @@ const formatTooltipLabel = (label: any) => {
 
 export default function DashboardLineChart({ data }: DashboardLineChartProp) {
     return (
-        <div className="w-1/2 rounded-2xl bg-gray-50 shadow p-6">
+        <div className="rounded-2xl bg-gray-50 shadow p-6">
             
             {/* Title */}
             <h2 className="text-2xl font-bold text-blue-600 text-center mb-6">
@@ -38,7 +38,7 @@ export default function DashboardLineChart({ data }: DashboardLineChartProp) {
             </h2>
 
             {/* Chart container — full width, fixed height */}
-            <div className="w-full h-[400px]">
+            <div className="w-full h-100">
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart
                         data={data}

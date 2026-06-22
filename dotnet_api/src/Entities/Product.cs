@@ -23,5 +23,6 @@ namespace WebApp_API.Entities
         public ICollection<ProductVariant> Variants { get; set; } = new List<ProductVariant>();
         public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
         public ICollection<ProductFilter> ProductFilters { get; set; } = new List<ProductFilter>();
+        public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     }
 }

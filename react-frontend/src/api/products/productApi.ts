@@ -29,11 +29,19 @@ export const productApi = {
     return res.data;
   },
 
-  // GET: /api/products/filters with filters
-  async getCategoryNewestProducts(category: number, amount: number) {
-    const params = { categoryId: category, amount };
+  // GET: /api/products/newest
+  async getCategoryNewestProducts(categoryId: number, amount: number) {
+    const params = { categoryId, amount };
 
     const res = await apiClient.get("/products/newest", { params });
+    return res.data;
+  },
+
+  // GET: /api/products/topselling
+  async getCategoryTopSellingroducts(categoryId: number, amount: number) {
+    const params = { categoryId, amount };
+
+    const res = await apiClient.get("/products/topselling", { params });
     return res.data;
   },
 

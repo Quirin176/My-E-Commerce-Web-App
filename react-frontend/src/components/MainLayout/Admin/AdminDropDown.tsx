@@ -46,13 +46,13 @@ export default function AdminDropDown() {
       {/* DROP DOWN PANEL */}
       {open && (
         <div
-          className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-48 bg-white border rounded-lg shadow-lg p-2 z-50"
+          className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-48 bg-(--bg-surface) border rounded-lg shadow-lg p-2 z-50"
           onMouseLeave={() => setOpen(false)}
         >
           <Link
             to={"/profile"}
             onClick={() => handleClick("My Account")}
-            className="block px-3 py-2 rounded hover:text-white hover:font-bold hover:bg-black"
+            className="block px-3 py-2 rounded hover:font-bold hover:bg-(--bg-muted)"
           >
             My Account
           </Link>
@@ -60,7 +60,7 @@ export default function AdminDropDown() {
           <Link
             to={"/home"}
             onClick={() => handleClick("Profile")}
-            className="block px-3 py-2 rounded hover:text-white hover:font-bold hover:bg-black"
+            className="block px-3 py-2 rounded hover:font-bold hover:bg-(--bg-muted)"
           >
             Home Page
           </Link>
@@ -68,7 +68,7 @@ export default function AdminDropDown() {
           <Link
             to={"/auth/login"}
             onClick={() => handleClick("Logout")}
-            className="block px-3 py-2 rounded hover:text-white hover:font-bold hover:bg-black"
+            className="mt-8 block px-3 py-2 rounded hover:font-bold hover:bg-(--bg-muted)"
           >
             Log Out
           </Link>

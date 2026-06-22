@@ -1,8 +1,10 @@
+import { Package, Download } from "lucide-react";
+
 import { useAdminOrders } from "../../../hooks/admin/order/useAdminOrders";
 import { usePagination } from "../../../hooks/usePagination";
-import { Package, Download } from "lucide-react";
+
 import StatusTabs from "../../../components/StatusTabs";
-import UserOrderCard from "../../../components/orders/UserOrderCard";
+import AdminOrderCard from "../../../components/admin/orders/AdminOrderCard";
 import PaginationControl from "../../../components/PaginationControl";
 
 const PAGE_SIZE = 5;
@@ -49,7 +51,7 @@ export default function AdminOrders() {
     });
 
     return (
-        <div className="flex flex-col gap-y-8 px-8 py-8">
+        <div className="flex flex-col gap-y-8 px-8 py-8 bg-(--bg-muted)">
 
             {/* Export overlay */}
             {exporting && (
@@ -70,16 +72,17 @@ export default function AdminOrders() {
                             type="date"
                             value={minDate}
                             onChange={(e) => setMinDate(e.target.value)}
-                            className="border-2 rounded-xl px-2 py-1"
+                            className="border-2 rounded-xl px-2 py-1 cursor-pointer"
                         />
                     </div>
+                    
                     <div className="flex items-center gap-3">
                         <label className="font-bold whitespace-nowrap">End Date</label>
                         <input
                             type="date"
                             value={maxDate}
                             onChange={(e) => setMaxDate(e.target.value)}
-                            className="border-2 rounded-xl px-2 py-1"
+                            className="border-2 rounded-xl px-2 py-1 cursor-pointer"
                         />
                     </div>
                 </div>
@@ -88,22 +91,22 @@ export default function AdminOrders() {
                     <select
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value)}
-                        className="border-2 rounded-xl px-2 py-1"
+                        className="border-2 rounded-xl px-2 py-1 cursor-pointer"
                     >
-                        <option value="">Sort By</option>
-                        <option value="customerName">Customer Name</option>
-                        <option value="totalAmount">Total Amount</option>
-                        <option value="orderDate">Order Date</option>
+                        <option value="" className="bg-(--bg-surface)">Sort By</option>
+                        <option value="customerName" className="bg-(--bg-surface)">Customer Name</option>
+                        <option value="totalAmount" className="bg-(--bg-surface)">Total Amount</option>
+                        <option value="orderDate" className="bg-(--bg-surface)">Order Date</option>
                     </select>
 
                     <select
                         value={sortOrder}
                         onChange={(e) => setSortOrder(e.target.value)}
-                        className="border-2 rounded-xl px-2 py-1"
+                        className="border-2 rounded-xl px-2 py-1 cursor-pointer"
                     >
-                        <option value="">Order</option>
-                        <option value="asc">Ascending</option>
-                        <option value="desc">Descending</option>
+                        <option value="" className="bg-(--bg-surface)">Order</option>
+                        <option value="asc" className="bg-(--bg-surface)">Ascending</option>
+                        <option value="desc" className="bg-(--bg-surface)">Descending</option>
                     </select>
                 </div>
             </div>
@@ -118,7 +121,7 @@ export default function AdminOrders() {
 
                 <button
                     onClick={clearFilters}
-                    className="text-red-500 font-semibold hover:underline transition text-sm"
+                    className="text-red-500 font-semibold hover:underline transition text-sm cursor-pointer"
                 >
                     Clear Filters
                 </button>
@@ -131,7 +134,7 @@ export default function AdminOrders() {
                     <p className="text-gray-500 mt-4">Loading orders…</p>
                 </div>
             ) : orders.length === 0 ? (
-                <div className="text-center py-12 bg-gray-50 rounded-lg">
+                <div className="text-center py-12 bg-(--bg-surface) rounded-lg">
                     <Package size={48} className="mx-auto text-gray-400 mb-4" />
                     <p className="text-gray-600 text-lg">
                         {status === "all" ? "No orders found" : `No ${status} orders`}
@@ -140,8 +143,8 @@ export default function AdminOrders() {
             ) : (
                 <div className="space-y-4">
                     {orders.map((order) => (
-                        <div key={order.id} className="bg-white rounded-lg border transition">
-                            <UserOrderCard
+                        <div key={order.id} className="bg-(--bg-surface) rounded-lg border transition">
+                            <AdminOrderCard
                                 {...order}
                                 onCancelSuccess={(id) => setOrders((prev) => prev.filter((o) => o.id !== id))}
                                 onUpdateSuccess={refresh}

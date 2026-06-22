@@ -79,6 +79,24 @@ namespace WebApp_API.Services
             return data;
         }
 
+        public async Task<List<ProductListDTOs.ProductSummaryResponse>> GetTopSellingProducts(int categoryId, int amount)
+        {
+            string cacheKey = $"TopSellingProducts:{categoryId}:{amount}";
+
+            if (_cache.TryGetValue(cacheKey,
+                out List<ProductListDTOs.ProductSummaryResponse>? cached))
+            {
+                return cached!;
+            }
+
+            var products = await _productRepo.GetTopSellingProducts(categoryId, amount);
+            var data = await MapToSummaryListAsync(products);
+
+            _cache.Set(cacheKey, data, TimeSpan.FromMinutes(10));
+
+            return data;
+        }
+
         public async Task<ProductDTOs.SearchResponse> SearchAsync(ProductListDTOs.ProductSearchParams searchParams)
         {
             var spec = ProductSearchSpec.From(searchParams);

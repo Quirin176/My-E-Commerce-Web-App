@@ -1,14 +1,15 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import React from "react";
 import toast from "react-hot-toast";
 import { ArrowLeft, Download, Printer } from "lucide-react";
+
 import { adminOrdersApi } from "../../../api/admin/adminOrdersApi";
 import { useAuth } from "../../../hooks/auth/useAuth";
+
 import type { OrderResponse } from "../../../types/models/order/OrderResponse";
 import { ORDER_STATUS, ORDER_STATUS_CONFIG, ORDER_TIMELINE_STATUSES, type OrderStatus } from "../../../types/orderStatus";
-import LoadingState from "../../../components/pageState/LoadingState";
 import { orderInvoicePrinter } from "../../../utils/orderInvoicePrinter"
+import LoadingState from "../../../components/pageState/LoadingState";
 
 export default function AdminOrder() {
   const { orderId } = useParams();
@@ -120,7 +121,7 @@ export default function AdminOrder() {
             Back to Orders
           </button>
 
-          <h1 className="text-3xl font-bold text-gray-800">Order #{order.id}</h1>
+          <h1 className="text-3xl font-bold">Order #{order.id}</h1>
 
         </div>
 
@@ -128,7 +129,7 @@ export default function AdminOrder() {
 
           <button
             onClick={() => downloadInvoice(order.id)}
-            className="flex items-center gap-2 px-4 py-2 border-2 border-gray-300 rounded hover:bg-gray-50 transition"
+            className="flex items-center gap-2 px-4 py-2 border-2 rounded hover:bg-(--bg-muted) transition cursor-pointer"
           >
             <Download size={20} />
             <span className="hidden sm:inline">Invoice</span>
@@ -136,7 +137,7 @@ export default function AdminOrder() {
 
           <button
             onClick={() => orderInvoicePrinter(order)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition"
+            className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition cursor-pointer"
           >
             <Printer size={20} />
             <span className="hidden sm:inline">Print</span>
@@ -171,9 +172,7 @@ export default function AdminOrder() {
                   <React.Fragment key={s}>
                     <div
                       className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold shrink-0
-                                                ${index <= currentIndex
-                          ? "bg-green-500 text-white"
-                          : "bg-gray-200 text-gray-500"
+                                                ${index <= currentIndex ? "bg-green-500 text-white" : "bg-gray-200 text-gray-500"
                         }`}
                     >
                       {index + 1}
@@ -221,7 +220,7 @@ export default function AdminOrder() {
                 <strong>{new Date(order.orderDate).toLocaleDateString()}</strong>
               </div>
               <div className="flex justify-between pt-3 border-t">
-                <span className="font-semibold">Total Amount:</span>
+                <span className="font-semibold">Total:</span>
                 <strong className="text-blue-600 text-lg">
                   {order.totalAmount.toLocaleString()} VND
                 </strong>
@@ -255,20 +254,24 @@ export default function AdminOrder() {
 
             <div className="mt-4 pt-4 border-t-2 flex justify-end">
               <div className="w-full md:w-64 space-y-2">
-                <div className="flex justify-between text-gray-500">
+
+                <div className="flex justify-between">
                   <span>Subtotal:</span>
                   <span>{order.totalAmount.toLocaleString()} VND</span>
                 </div>
-                <div className="flex justify-between text-gray-500">
+
+                <div className="flex justify-between">
                   <span>Shipping:</span>
                   <span className="text-green-600 font-semibold">Free</span>
                 </div>
+
                 <div className="flex justify-between text-lg font-bold p-3 bg-blue-50 rounded">
                   <span>Total:</span>
                   <span className="text-blue-600">
                     {order.totalAmount.toLocaleString()} VND
                   </span>
                 </div>
+
               </div>
             </div>
           </div>

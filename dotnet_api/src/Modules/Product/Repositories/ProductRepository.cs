@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WebApp_API.Data;
+using WebApp_API.DTOs;
 using WebApp_API.Entities;
 using WebApp_API.Specifications;
 
@@ -53,6 +54,25 @@ namespace WebApp_API.Repositories
                                      .OrderByDescending(p => p.CreatedAt)
                                      .Take(amount)
                                      .ToListAsync();
+        }
+
+        public async Task<List<Product>> GetTopSellingProducts(int categoryId, int amount)
+        {
+            var topProductIds = await _db.OrderItems.Where(oi => oi.Product.CategoryId == categoryId)
+                                                    .GroupBy(oi => oi.ProductId)
+                                                    .Select(g => new
+                                                    {
+                                                        ProductId = g.Key,
+                                                        TotalQuantity = g.Sum(x => x.Quantity)
+                                                    })
+                                                    .OrderByDescending(x => x.TotalQuantity)
+                                                    .Take(amount)
+                                                    .Select(x => x.ProductId)
+                                                    .ToListAsync();
+
+            var products = await _db.Products.Where(p => topProductIds.Contains(p.Id)).ToListAsync();
+
+            return products;
         }
 
         public async Task<(List<Product> Items, int TotalCount)> GetPaginatedAsync(ProductFilterSpec spec)

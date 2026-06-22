@@ -11,6 +11,7 @@ namespace WebApp_API.Repositories
 
         // ────────────────────────────────────────────────── List Queries ──────────────────────────────────────────────────
         Task<List<Product>> GetCategoryNewestAsync(int categoryId, int amount);
+        Task<List<Product>> GetTopSellingProducts(int categoryId, int amount);
         Task<(List<Product> Items, int TotalCount)> GetPaginatedAsync(ProductFilterSpec spec);
         Task<(List<Product> Items, int TotalCount)> SearchAsync(ProductSearchSpec spec);
 
