@@ -106,13 +106,13 @@ export default function Checkout() {
     }
 
     return (
-        <div className="flex justify-center gap-4">
+        <div className="flex flex-col lg:flex-row justify-center gap-4 px-4">
             <div className="w-full max-w-2xl bg-gray-100 px-8 py-4 border-2 rounded-xl shadow-lg">
                 <h1 className="text-3xl font-bold text-center mb-4">Checkout Form</h1>
                 <form onSubmit={handleSubmit}>
                     <div className="flex flex-col gap-4">
                         {/* Full name */}
-                        <div className="grid grid-cols-5 gap-4 items-center">
+                        <div className="flex flex-col sm:grid sm:grid-cols-5 gap-1 sm:gap-4 items-start sm:items-center">
                             <label className="text-lg font-semibold col-span-1">Full Name</label>
                             <input
                                 type="text"

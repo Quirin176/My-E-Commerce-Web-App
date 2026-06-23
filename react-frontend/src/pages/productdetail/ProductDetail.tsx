@@ -71,9 +71,9 @@ export default function ProductDetails() {
   const brandName = brandOption?.optionValues?.[0]?.value;
 
   return (
-    <div className="max-w-7xl mx-auto p-8 space-y-8 rounded-2xl bg-(--bg-surface)">
+    <div className="max-w-7xl mx-auto p-4 sm:p-8 space-y-6 sm:space-y-8 rounded-2xl bg-(--bg-surface)">
 
-      <nav className="flex items-center gap-2 text-blue-600 font-semibold">
+      <nav className="flex flex-wrap items-center gap-1 text-blue-600 font-semibold text-sm">
         <Link to="/" className=" hover:underline cursor-pointer">Home</Link>
         <span>/</span>
         <Link to={`/category/${product.category?.slug ?? ""}`} className="hover:underline cursor-pointer">{product.category?.name}</Link>

@@ -14,18 +14,15 @@ export default function CouponSection() {
     }
 
     return (
-        <div className="flex justify-between font-bold text-white bg-linear-to-r from-(--brand-primary) to-(--brand-secondary) rounded-2xl p-16">
+        <div className="flex flex-col sm:flex-row justify-between font-bold rounded-2xl p-6 sm:p-16 gap-6
+        text-white bg-linear-to-r from-(--brand-primary) to-(--brand-secondary)">
 
-            <div className="flex flex-col gap-4">
-                <p className="text-2xl">
-                    GET FREE SHIP COUPON
-                </p>
+            <div className="flex flex-col gap-3">
+                <p className="text-lg sm:text-2xl">GET FREE SHIP COUPON</p>
 
-                <h1 className="text-4xl">
-                    Free shipping on every order over 200.000 VND
-                </h1>
+                <h1 className="text-2xl sm:text-4xl">Free shipping on every order over 200.000 VND</h1>
 
-                <p className="text-2xl">
+                <p className="text-base sm:text-2xl">
                     Plus 15% off your first month and a weekly
                     <br />
                     recommendation picked just for you.
@@ -33,7 +30,7 @@ export default function CouponSection() {
             </div>
 
             <button
-                className="text-2xl rounded-2xl bg-(--brand-primary) hover:brightness-110 p-4 transition cursor-pointer"
+                className="text-lg sm:text-2xl self-start sm:self-center rounded-2xl bg-(--brand-primary) hover:brightness-110 p-3 sm:p-4 transition cursor-pointer"
                 onClick={() => handleClicking()}
             >
                 Join free!

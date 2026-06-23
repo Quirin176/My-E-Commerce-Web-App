@@ -72,10 +72,9 @@ export default function CategoryTabs({
     return (
         <div className="flex flex-col w-full h-full rounded-2xl">
             <h2 className="text-4xl font-bold my-8 text-center text-(--text-primary)">{title}</h2>
-            {/* <p className="text-4xl font-bold my-8 text-center text-(--text-primary)">Newest Products</p> */}
 
             {/* CATEGORY TABS */}
-            <div className="flex justify-start rounded-t-2xl">
+            <div className="flex overflow-x-auto rounded-t-2xl scrollbar-hide">
                 {categories.map((cat) => (
                     <button
                         key={cat.id}
@@ -83,7 +82,7 @@ export default function CategoryTabs({
                             setActiveTab(cat.id);
                             setPageIndex(0);
                         }}
-                        className={`min-w-38 rounded-t-2xl cursor-pointer px-2 py-4 text-2xl font-bold ${activeTab === cat.id ?
+                        className={`shrink-0 min-w-28 sm:min-w-38 rounded-t-2xl cursor-pointer px-2 py-4 text-2xl font-bold ${activeTab === cat.id ?
                             "text-(--text-secondary) bg-(--brand-primary)" : "text-(--text-primary)"}`}
                     >
                         {cat.name}
@@ -102,7 +101,7 @@ export default function CategoryTabs({
             ) : (
                 <div className="bg-linear-to-br from-(--brand-primary) to-(--brand-secondary)">
                     {/* PRODUCTS DISPLAY */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 p-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 p-3">
                         {paginatedItems.length > 0 ? (
                             paginatedItems.map((item) => (
                                 <ProductCard key={item.id} product={item} />

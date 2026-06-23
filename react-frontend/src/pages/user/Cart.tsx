@@ -75,7 +75,7 @@ export default function Cart() {
     <div className="container mx-auto px-4 py-4 max-w-6xl rounded-2xl bg-gray-100">
 
       {/* Cart Actions */}
-      <div className="flex items-center justify-between pb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-6">
         {/* Header */}
         <h1 className="text-3xl font-bold text-(--brand-primary)">
           Shopping Cart

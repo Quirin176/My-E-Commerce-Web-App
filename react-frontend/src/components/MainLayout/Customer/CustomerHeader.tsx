@@ -27,11 +27,11 @@ export default function CustomerHeader() {
   };
 
   return (
-    <header className="w-full z-50 shadow-md px-8 py-2 bg-linear-to-br from-(--brand-primary) to-(--brand-secondary)">
-      <div className="flex items-center justify-between">
+    <header className="w-full z-50 shadow-md px-4 py-2 bg-linear-to-br from-(--brand-primary) to-(--brand-secondary)">
+      <div className="flex flex-col sm:flex-row items-center gap-2 sm:justify-between">
 
         {/* LOGO AND SITE NAME */}
-        <div className="flex items-center gap-6 shrink-0">
+        <div className="flex items-center justify-between w-full sm:w-auto gap-4">
           <Link to="/" className="flex items-center gap-2 text-white text-2xl font-bold">
             <img src={reactLogo} alt="logo" className="w-8 h-8" />
             {siteConfig.webName}
@@ -41,7 +41,7 @@ export default function CustomerHeader() {
         </div>
 
         {/* SEARCH BAR */}
-        <div className="flex-1 flex justify-center">
+        <div className="w-full sm:flex-1 sm:flex sm:justify-center">
           <SearchBar
             onSuggest={(searchQuery) => handleSuggest(searchQuery)}
             suggestions={suggestions}

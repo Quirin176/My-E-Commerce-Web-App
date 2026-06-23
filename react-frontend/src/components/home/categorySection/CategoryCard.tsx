@@ -10,7 +10,7 @@ export default function CategoryCard({ category, onClick }: CategoryCardProps) {
 
     return (
         <div
-            className="relative w-32 h-32 bg-linear-to-br from-(--brand-primary) to-(--brand-secondary) rounded-2xl cursor-pointer"
+            className="relative w-full aspect-square bg-linear-to-br from-(--brand-primary) to-(--brand-secondary) rounded-2xl cursor-pointer"
             onClick={onClick}
         >
             <h1 className="font-bold text-white p-4">{category.name}</h1>

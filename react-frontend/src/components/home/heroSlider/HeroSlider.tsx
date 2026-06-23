@@ -60,18 +60,18 @@ export default function HeroSlider() {
                 style={{ transform: `translateX(-${currentSlide * 100}%)` }}
             >
                 {SLIDE_DATA.map((slide, index) => (
-                    <div className="flex flex-col justify-between min-w-full h-full p-18" key={index}>
+                    <div
+                        key={index}
+                        className="flex flex-col justify-between min-w-full h-full p-6 sm:p-18">
 
                         <div className="flex flex-col gap-4">
                             <p className="font-semibold text-(--brand-primary)">
                                 {slide.subtitle}
                             </p>
 
-                            <h1 className="text-4xl font-bold text-(--brand-primary)">{slide.title}</h1>
+                            <h1 className="text-2xl sm:text-4xl font-bold text-(--brand-primary)">{slide.title}</h1>
 
-                            <p className="text-3xl font-bold text-(--brand-primary)">
-                                {slide.description}
-                            </p>
+                            <p className="text-lg sm:text-3xl font-bold text-(--brand-primary)">{slide.description}</p>
                         </div>
 
                         <button className="font-bold text-white bg-(--brand-primary) p-4 border rounded-4xl cursor-pointer">

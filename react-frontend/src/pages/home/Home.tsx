@@ -51,10 +51,10 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center rounded-2xl w-full gap-4 bg-(--bg-muted)">
-      <section className="w-full h-125 flex gap-4">
+      <section className="w-full flex flex-col lg:flex-row gap-4 lg:h-125">
 
         {/* LEFT SIDE: CATEGORIES PANEL */}
-        <div className="w-1/6 h-full rounded-2xl border-2 text-(--text-secondary) border-(--border) bg-(--bg-surface)">
+        <div className="hidden lg:block lg:w-1/6 h-full rounded-2xl border-2 text-(--text-secondary) border-(--border) bg-(--bg-surface)">
           <CategoryPanel
             categories={categories}
             selectedCategory={selectedCategory}
@@ -64,7 +64,7 @@ export default function Home() {
         </div>
 
         {/* CENTER SIDE: DYNAMIC FILTER PANEL OR MAIN PANEL */}
-        <div className="flex-1 overflow-y-auto rounded-2xl border-2 text-(--text-primary) border-(--border) bg-(--bg-surface)">
+        <div className="flex-1 min-h-64 overflow-y-auto rounded-2xl border-2 text-(--text-primary) border-(--border) bg-(--bg-surface)">
           {selectedCategory ? (
             <CategoryFiltersPanel
               selectedCategory={selectedCategory}
@@ -81,7 +81,7 @@ export default function Home() {
         </div>
 
         {/* RIGHT PANEL FOR ADVERTISING*/}
-        <div className="w-1/6 overflow-y-auto rounded-2xl border-2 text-(--text-secondary) border-(--border) bg-(--bg-surface)">
+        <div className="hidden lg:block lg:w-1/6 overflow-y-auto rounded-2xl border-2 text-(--text-secondary) border-(--border) bg-(--bg-surface)">
           <div className="p-4">
             <div className="text-center">
               <h3 className="text-lg font-bold mb-4">Special Offer!</h3>
