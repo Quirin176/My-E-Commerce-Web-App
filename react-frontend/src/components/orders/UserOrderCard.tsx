@@ -59,24 +59,24 @@ export default function UserOrderCard(order: UserOrderCardProps) {
                         {/* Order data columns */}
                         <div className="grid grid-cols-1 md:grid-cols-6 gap-4 flex-1">
                             <div className="flex flex-col items-center">
-                                <p className="text-sm text-gray-500">Order ID</p>
+                                <p className="text-sm">Order ID</p>
                                 <p className="text-lg font-bold">#{order.id}</p>
                             </div>
 
                             <div className="flex flex-col items-center">
-                                <p className="text-sm text-gray-500">Date</p>
+                                <p className="text-sm">Date</p>
                                 <p className="text-lg font-bold">
                                     {new Date(order.orderDate).toLocaleDateString()}
                                 </p>
                             </div>
 
                             <div className="flex flex-col items-center">
-                                <p className="text-sm text-gray-500">Customer</p>
+                                <p className="text-sm">Customer</p>
                                 <p className="text-lg font-bold">{order.customerName}</p>
                             </div>
 
                             <div className="flex flex-col items-center">
-                                <p className="text-sm text-gray-500 mb-1">Status</p>
+                                <p className="text-sm mb-1">Status</p>
                                 <div className={`flex items-center gap-2 px-3 py-1 rounded-full w-fit ${statusConfig.badgeColor}`}>
                                     <StatusIcon size={16} className={statusConfig.iconColor} />
                                     <span className="font-semibold text-sm">{order.status}</span>
@@ -84,13 +84,13 @@ export default function UserOrderCard(order: UserOrderCardProps) {
                             </div>
 
                             <div className="flex flex-col items-center">
-                                <p className="text-sm text-gray-500">Items</p>
+                                <p className="text-sm">Items</p>
                                 <p className="text-lg font-bold">{order.itemCount}</p>
                             </div>
 
                             <div className="flex flex-col items-center">
-                                <p className="text-sm text-gray-500">Total</p>
-                                <p className="text-lg font-bold text-blue-600">
+                                <p className="text-sm">Total</p>
+                                <p className="text-lg font-bold text-(--price)">
                                     {order.totalAmount.toLocaleString()} VND
                                 </p>
                             </div>

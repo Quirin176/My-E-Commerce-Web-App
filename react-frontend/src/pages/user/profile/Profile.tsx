@@ -1,17 +1,13 @@
 import { Mail, NotebookText, Phone, User2, Star } from "lucide-react";
-import { useUser } from "../../hooks/users/useUser";
-import LoadingState from "../../components/pageState/LoadingState";
-import ErrorState from "../../components/pageState/ErrorState";
+import { useUser } from "../../../hooks/users/useUser";
+import LoadingState from "../../../components/pageState/LoadingState";
+import ErrorState from "../../../components/pageState/ErrorState";
 
 export default function Profile() {
   const { user: profileData, loading: isLoading, error: errorMessage } = useUser();
 
   const getStars = (role: string) => {
-    const count =
-      role === "Customer" ? 1 :
-        role === "VIP" ? 2 :
-          role === "Admin" ? 3 :
-            0;
+    const count = role === "Customer" ? 1 : role === "VIP" ? 2 : role === "Admin" ? 3 : 0;
 
     return Array.from({ length: count }, (_, i) => (
       <Star key={i} className="w-6 h-6 text-yellow-500" fill="currentColor" />
@@ -37,8 +33,11 @@ export default function Profile() {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl p-6">
-      <h1 className="text-3xl font-bold mb-6">My Profile</h1>
+    <div className="container mx-auto p-4 flex flex-col gap-4 max-w-4xl">
+      <div>
+        <h1 className="text-4xl font-bold mb-2 text-(--brand-primary)">My Profile</h1>
+        <p className="font-medium">View and manage your profile information</p>
+      </div>
 
       <div className="shadow p-6 border rounded-lg space-y-4">
 

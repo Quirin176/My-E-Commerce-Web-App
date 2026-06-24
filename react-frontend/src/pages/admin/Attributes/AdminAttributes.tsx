@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useCategories } from "../../../hooks/products/useCategories";
+import { Plus } from "lucide-react";
 import toast from "react-hot-toast";
-import { Plus, SquarePen, X } from "lucide-react";
+
 import { productoptionApi } from "../../../api/products/productoptionApi";
 import { productoptionvalueApi } from "../../../api/products/productoptionvalueApi";
 import type { Category } from "../../../types/models/products/Category";
@@ -9,6 +10,8 @@ import type { ProductOption } from "../../../types/models/products/Product";
 
 import AttributeModal, { type ModalConfig } from "../../../components/admin/attributes/AttributeModal";
 import AttributeDeleteModal, { type DeleteConfig } from "../../../components/admin/attributes/AttributeDeleteModal";
+import AttributesSection from "./AttributesSection";
+import AttributeValuesSection from "./AttributeValuesSection";
 
 export default function AdminAttributes() {
     const { categories } = useCategories();;
@@ -26,8 +29,7 @@ export default function AdminAttributes() {
 
         // Load Option of Selected Category
         const fetchOptions = async () => {
-            const res =
-                await productoptionApi.getOptionsByCategoryId(selectedCategory.id);
+            const res = await productoptionApi.getOptionsByCategoryId(selectedCategory.id);
 
             setLoadedOption(res);
         };
@@ -38,14 +40,12 @@ export default function AdminAttributes() {
     const refresh = async () => {
         if (!selectedCategory) return;
 
-        const res =
-            await productoptionApi.getOptionsByCategoryId(selectedCategory.id);
+        const res = await productoptionApi.getOptionsByCategoryId(selectedCategory.id);
 
         setLoadedOption(res);
     };
 
     // ── Modal openers ──
-
     const openAddCategory = () =>
         setModalConfig({
             mode: "add-category",
@@ -125,7 +125,8 @@ export default function AdminAttributes() {
 
                 <button
                     onClick={() => openAddCategory()}
-                    className="flex items-center rounded-full bg-(--brand-primary) hover:brightness-75 text-white font-semibold px-4 py-2 gap-2 transition cursor-pointer"
+                    className="flex items-center rounded-full px-4 py-2 gap-2 transition cursor-pointer
+                    text-white bg-(--brand-primary) hover:brightness-75 font-semibold"
                 >
                     <Plus size={18} />
                     <span>Add Category</span>
@@ -140,8 +141,8 @@ export default function AdminAttributes() {
                             key={category.id}
                             onClick={() => setSelectedCategory(category)}
                             className={`rounded-full font-semibold px-4 py-2 cursor-pointer border-2
-                                ${category.name === selectedCategory?.name ? "bg-(--brand-primary) border-(--text-primary)"
-                                    : "bg-(--bg-surface) border-(--brand-primary) hover:border-(--text-primary)"
+                                ${category.name === selectedCategory?.name ? "bg-(--brand-primary) text-white border-white"
+                                    : "bg-(--bg-surface) text-(--brand-primary) border-(--brand-primary) hover:border-(--text-primary)"
                                 }`}
                         >
                             {category.name}
@@ -151,7 +152,8 @@ export default function AdminAttributes() {
 
                 <button
                     onClick={() => openAddOption()}
-                    className="flex items-center rounded-full bg-(--brand-primary) hover:brightness-75 text-white font-semibold px-4 py-2 gap-2 transition cursor-pointer"
+                    className="flex items-center rounded-full px-4 py-2 gap-2 transition cursor-pointer
+                    text-white bg-(--brand-primary) hover:brightness-75 font-semibold"
                 >
                     <Plus size={18} />
                     <span>Add Attribute</span>
@@ -164,119 +166,20 @@ export default function AdminAttributes() {
                 </div>
             ) : (
                 <div className="grid grid-cols-2 gap-4">
+                    <AttributesSection
+                        loadedOption={loadedOption}
+                        selectedOptionId={selectedOptionId}
+                        onSelectOption={setSelectedOptionId}
+                        onAddValue={openAddValue}
+                        onEditOption={openEditOption}
+                        onDeleteOption={confirmDeleteOption}
+                    />
 
-                    {/* LEFT: ATTRIBUTES */}
-                    <div className="flex flex-col gap-4">
-                        <h2 className="text-2xl font-bold pb-4">Attributes</h2>
-
-                        <div className="flex flex-col gap-4">
-                            {loadedOption.map((option) => (
-                                <div
-                                    key={option.optionId}
-                                    className={`h-16 flex justify-between items-center rounded-xl bg-(--bg-surface)
-                                    border-2 px-4 py-2 cursor-pointer group transition
-                                    ${selectedOptionId === option.optionId ?
-                                            "bg-(--brand-primary) border-white" : "border-(--brand-primary) hover:border-(--text-primary)"
-                                        }`}
-                                    onClick={() => setSelectedOptionId(option.optionId)}
-                                >
-                                    {/* OPTION NAME */}
-                                    <div className="flex-1">
-                                        <span className="font-bold">
-                                            {option.optionName}
-                                        </span>
-                                    </div>
-
-                                    {/* BUTTONS */}
-                                    <div
-                                        className="flex items-center gap-3"
-                                        onClick={(e) => e.stopPropagation()}
-                                    >
-                                        <button
-                                            onClick={() => openAddValue(option.optionId)}
-                                            className="rounded-xl border-2 p-1"
-                                            title="Add Attribute Value"
-                                        >
-                                            <Plus size={18} />
-                                        </button>
-
-                                        <button
-                                            onClick={() => openEditOption(option)}
-                                            className="rounded-xl border-2 p-1"
-                                            title="Update Attribute"
-                                        >
-                                            <SquarePen size={18} />
-                                        </button>
-
-                                        <button
-                                            onClick={() => confirmDeleteOption(option)}
-                                            className="rounded-xl border-2 p-1"
-                                            title="Remove Attribute"
-                                        >
-                                            <X size={18} />
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* RIGHT: ATTRIBUTE VALUES */}
-                    {!selectedOption ? (
-                        <div className="flex flex-col gap-2">
-                            <h2 className="text-2xl font-bold pb-4">
-                                Attribute Values
-                            </h2>
-
-                            <div className="rounded-xl bg-(--bg-surface) border-2 border-(--brand-primary) p-4">
-                                Select an attribute
-                            </div>
-
-                        </div>
-                    ) : (
-                        <div className="flex flex-col gap-2">
-                            <h2 className="text-2xl font-bold pb-4">
-                                {selectedOption.optionName} Values
-                            </h2>
-
-                            {selectedOption.optionValues.length === 0 ? (
-                                <div className="rounded-xl bg-(--bg-surface) p-4">
-                                    No values found
-                                </div>
-                            ) : (
-                                selectedOption.optionValues.map((value) => (
-                                    <div
-                                        key={value.optionValueId}
-                                        className="flex justify-between items-center rounded-xl border-2
-                                            border-(--brand-primary) bg-(--bg-surface) hover:border-(--text-primary)
-                                            px-4 py-2 cursor-pointer"
-                                        onClick={() => openEditValue(value.optionValueId, value.value)}
-                                    >
-                                        <span>{value.value}</span>
-
-                                        <div className="flex items-center gap-3">
-                                            <button
-                                                onClick={() => openEditValue(value.optionValueId, value.value)}
-                                                className="rounded-xl border-2 p-1 cursor-pointer"
-                                                title="Update Attribute Value"
-                                            >
-                                                <SquarePen size={18} />
-                                            </button>
-
-                                            <button
-                                                onClick={() => confirmDeleteValue(value.optionValueId, value.value)}
-                                                className="rounded-xl border-2 p-1 cursor-pointer"
-                                                title="Remove Attribute Value"
-                                            >
-                                                <X size={18} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))
-                            )}
-                        </div>
-                    )}
-
+                    <AttributeValuesSection
+                        selectedOption={selectedOption}
+                        onEditValue={openEditValue}
+                        onDeleteValue={confirmDeleteValue}
+                    />
                 </div>
             )}
 

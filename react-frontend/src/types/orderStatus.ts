@@ -8,8 +8,7 @@ export const ORDER_STATUS = {
     Cancelled: "Cancelled",
 } as const;
  
-export type OrderStatus =
-    typeof ORDER_STATUS[keyof typeof ORDER_STATUS];
+export type OrderStatus = typeof ORDER_STATUS[keyof typeof ORDER_STATUS];
  
 export const ORDER_STATUS_CONFIG = {
     Pending: {

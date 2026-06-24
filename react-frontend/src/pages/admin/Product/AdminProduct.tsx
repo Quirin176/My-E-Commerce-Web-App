@@ -36,6 +36,7 @@ export default function AdminProduct() {
         mode,
         form,
         filters,
+        // filterOptions,
         categories,
         recentProductImages,
         variants,
@@ -71,7 +72,18 @@ export default function AdminProduct() {
     return (
         <div className="w-full overflow-y-auto">
             <Box sx={{ width: "100%" }}>
-                <Tabs value={tabIndex} onChange={(_, nv) => setTabIndex(nv)}>
+                <Tabs
+                    value={tabIndex}
+                    onChange={(_, nv) => setTabIndex(nv)}
+                    sx={{
+                        "& .MuiTab-root": {
+                            color: "gray", // default color
+                        },
+                        "& .Mui-selected": {
+                            color: "var(--text-primary)", // selected tab color
+                            fontWeight: 600,
+                        },
+                    }}>
                     <Tab label="Product" />
                     <Tab label="Attributes" />
                     <Tab label="Product Images" />

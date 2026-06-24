@@ -13,9 +13,10 @@ export default function LoginForm({ onSwitch }: { onSwitch: () => void }) {
 
     return (
         <div className="flex h-full shadow-2xl">
+            {/* SIGN IN LEFT */}
             <div className="w-1/2 flex flex-col items-center justify-center text-white bg-(--brand-primary) p-8 rounded-r-[3rem]">
                 <h2 className="text-3xl font-bold mb-4">Welcome Back!</h2>
-                <p className="text-center text-lg mb-8 opacity-90">
+                <p className="text-center text-lg mb-8 text-white">
                     Already have an account? Sign in to continue
                 </p>
 
@@ -41,7 +42,7 @@ export default function LoginForm({ onSwitch }: { onSwitch: () => void }) {
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="block mb-2 font-medium text-gray-700">
+                        <label className="block mb-2 font-medium text-black">
                             User Name
                         </label>
                         <input
@@ -56,7 +57,7 @@ export default function LoginForm({ onSwitch }: { onSwitch: () => void }) {
                     </div>
 
                     <div>
-                        <label className="block mb-2 font-medium text-gray-700">
+                        <label className="block mb-2 font-medium text-black">
                             Email
                         </label>
                         <input
@@ -71,7 +72,7 @@ export default function LoginForm({ onSwitch }: { onSwitch: () => void }) {
                     </div>
 
                     <div>
-                        <label className="block mb-2 font-medium text-gray-700">
+                        <label className="block mb-2 font-medium text-black">
                             Phone
                         </label>
                         <input
@@ -86,7 +87,7 @@ export default function LoginForm({ onSwitch }: { onSwitch: () => void }) {
                     </div>
 
                     <div>
-                        <label className="block mb-2 font-medium text-gray-700">
+                        <label className="block mb-2 font-medium text-black">
                             Password
                         </label>
                         <input
@@ -101,7 +102,7 @@ export default function LoginForm({ onSwitch }: { onSwitch: () => void }) {
                     </div>
 
                     <div>
-                        <label className="block mb-2 font-medium text-gray-700">
+                        <label className="block mb-2 font-medium text-black">
                             Confirm Password
                         </label>
                         <input

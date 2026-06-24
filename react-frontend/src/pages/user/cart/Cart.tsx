@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ShoppingBag } from "lucide-react";
 import toast from "react-hot-toast";
-import CartItemCard from "../../components/cart/CartItemCard";
-import { useAuth } from "../../hooks/auth/useAuth";
-import { useCart } from "../../hooks/cart/useCart";
+
+import CartItemCard from "../../../components/cart/CartItemCard";
+import { useAuth } from "../../../hooks/auth/useAuth";
+import { useCart } from "../../../hooks/cart/useCart";
 
 export default function Cart() {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ export default function Cart() {
       toast.error("Your cart is empty");
       return;
     }
+
     if (!user) {
       toast.error("Please log in to proceed to checkout");
       navigate("/auth?mode=login");
@@ -72,22 +74,20 @@ export default function Cart() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-4 max-w-6xl rounded-2xl bg-gray-100">
+    <div className="container mx-auto p-4 flex flex-col gap-4">
 
       {/* Cart Actions */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-6">
+      <div className="flex flex-wrap items-center justify-between">
+
         {/* Header */}
-        <h1 className="text-3xl font-bold text-(--brand-primary)">
-          Shopping Cart
-        </h1>
+        <div>
+          <h1 className="text-4xl font-bold mb-2 text-(--brand-primary)">Shopping Cart</h1>
+          <p className="font-medium">Review your items and proceed to checkout</p>
+        </div>
 
         <button
           onClick={() => {
-            if (
-              window.confirm(
-                "Are you sure you want to clear your cart?"
-              )
-            ) {
+            if (window.confirm("Are you sure you want to clear your cart?")) {
               clearCart();
               toast.success("Cart cleared");
             }
@@ -100,8 +100,8 @@ export default function Cart() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Cart Items */}
-        <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="lg:col-span-2 rounded-2xl bg-(--bg-surface)">
+          <div className="rounded-lg shadow-lg overflow-hidden">
             {/* Cart Items List */}
             <div className="divide-y">
               {cartItems.map((cartItem) => (
@@ -112,56 +112,55 @@ export default function Cart() {
         </div>
 
         {/* Order Summary */}
-        <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg shadow-lg p-6 sticky top-24">
-            <h2 className="text-2xl font-bold text-(--brand-primary) mb-6">
-              Order Summary
-            </h2>
+        <div className="lg:col-span-1 rounded-2xl shadow-lg p-6 sticky top-24 bg-(--bg-surface)">
+          <h2 className="text-2xl font-bold text-(--brand-primary) mb-6">
+            Order Summary
+          </h2>
 
-            {/* Summary Details */}
-            <div className="space-y-4 mb-6">
-              <div className="flex justify-between">
-                <span>Subtotal ({cartItems.length} items):</span>
-                <span className="font-semibold">
-                  {totalPrice.toLocaleString()} VND
-                </span>
-              </div>
-
-              <div className="flex justify-between text-gray-700">
-                <span>Shipping:</span>
-                <span className="font-semibold text-green-600">Free</span>
-              </div>
-
-              <div className="flex justify-between text-gray-700">
-                <span>Tax:</span>
-                <span className="font-semibold">Calculated at checkout</span>
-              </div>
-
-              <div className="border-t pt-4 flex justify-between text-xl font-bold">
-                <span>Total:</span>
-                <span className="text-(--brand-primary)">
-                  {totalPrice.toLocaleString()} VND
-                </span>
-              </div>
+          {/* Summary Details */}
+          <div className="space-y-4 mb-6">
+            <div className="flex justify-between">
+              <span>Subtotal ({cartItems.length} items):</span>
+              <span className="font-semibold">
+                {totalPrice.toLocaleString()} VND
+              </span>
             </div>
 
-            {/* Checkout Button */}
-            <button
-              onClick={handleCheckout}
-              disabled={isCheckingOut || cartItems.length === 0}
-              className="w-full py-3 text-white font-bold bg-(--brand-primary) rounded-lg hover:brightness-75 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isCheckingOut ? "Processing..." : "Proceed to Checkout"}
-            </button>
+            <div className="flex justify-between">
+              <span>Shipping:</span>
+              <span className="font-semibold text-green-600">Free</span>
+            </div>
 
-            {/* Continue Shopping Link */}
-            <Link
-              to="/home"
-              className="block text-center mt-4 py-2 border-2 border-(--brand-primary) rounded-lg font-semibold text-(--brand-primary) transition hover:bg-gray-50"
-            >
-              Continue Shopping
-            </Link>
+            <div className="flex justify-between">
+              <span>Tax:</span>
+              <span className="font-semibold">Calculated at checkout</span>
+            </div>
+
+            <div className="border-t pt-4 flex justify-between text-xl font-bold">
+              <span>Total:</span>
+              <span className="text-(--brand-primary)">
+                {totalPrice.toLocaleString()} VND
+              </span>
+            </div>
           </div>
+
+          {/* Checkout Button */}
+          <button
+            onClick={handleCheckout}
+            disabled={isCheckingOut || cartItems.length === 0}
+            className="w-full py-3 text-white font-bold bg-(--brand-primary) rounded-lg hover:brightness-75 transition cursor-pointer
+            disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isCheckingOut ? "Processing..." : "Proceed to Checkout"}
+          </button>
+
+          {/* Continue Shopping Link */}
+          <Link
+            to="/home"
+            className="block text-center mt-4 py-2 border-2 border-(--brand-primary) rounded-lg font-semibold text-(--brand-primary) transition hover:bg-gray-50"
+          >
+            Continue Shopping
+          </Link>
         </div>
       </div>
     </div>

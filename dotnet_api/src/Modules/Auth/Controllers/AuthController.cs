@@ -46,7 +46,8 @@ namespace WebApp_API.Controllers
                 Response.Cookies.Append("auth_token", response.Token, new CookieOptions
                 {
                     HttpOnly = true,
-                    Secure = true,
+                    // Secure = true,
+                    Secure = false, // Set to false for local development (non-HTTPS). Change to true in production.
                     SameSite = SameSiteMode.Strict,
                     Expires = DateTime.UtcNow.AddDays(7)
                 });

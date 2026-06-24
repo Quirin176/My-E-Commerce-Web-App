@@ -17,8 +17,8 @@ export default function Auth() {
   }
 
   return (
-    <div className="flex items-center justify-center flex-1 py-28 bg-linear-to-r from-white to-blue-200">
-      <div className="relative w-240 h-180 rounded-[3rem] overflow-hidden bg-white shadow-xl/30">
+    <div className="flex items-center justify-center flex-1 p-28 bg-linear-to-r from-white to-(--brand-secondary)">
+      <div className="relative w-7xl h-180 rounded-[3rem] overflow-hidden bg-white shadow-xl/30">
         {/* LOGIN CARD */}
         <div className={`
           absolute w-full h-full rounded-[3rem] overflow-hidden bg-white

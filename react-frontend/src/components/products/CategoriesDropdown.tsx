@@ -44,13 +44,14 @@ export default function CategoriesDropdown() {
 
   return (
     <div className="relative inline-block font-semibold text-(--text-secondary)">
+
       <button
-        className="flex items-center gap-2 px-4 py-2 border-2 border-(--text-secondary) rounded-4xl font-semibold hover:shadow-md transition cursor-pointer"
+        className="flex items-center gap-2 px-4 py-2 border-2 border-(--text-secondary) rounded-full font-semibold hover:brightness-75 transition cursor-pointer"
         style={{ color: "White" }}
         onClick={() => setOpen(!open)}
       >
         <LayoutGrid size={18} className="text-(--text-secondary)" />
-        <span className="text-(--text-secondary) pr-20">All Categories</span>
+        <span className="text-(--text-secondary) pr-20">Categories</span>
         <ChevronDown size={18} className={`text-(--text-secondary) ${open ? "rotate-180" : ""} transition`} />
       </button>
 

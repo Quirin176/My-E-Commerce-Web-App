@@ -1,7 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import toast from "react-hot-toast";
 import { categoryApi } from "../../api/products/categoryApi";
-import type { ProductOption } from "../../types/models/products/ProductOption";
+import type { ProductOption } from "../../types/models/products/Product";
 
 export interface UserProductFiltersReturn {
   filters: ProductOption[];
@@ -17,6 +17,7 @@ export const useProductFilters = (): UserProductFiltersReturn => {
   const loadFilters = useCallback(async (categoryId: number): Promise<ProductOption[]> => {
     if (!categoryId) {
       setFilters([]);
+      setFiltersLoading(false);
       return [];
     }
 
@@ -36,10 +37,8 @@ export const useProductFilters = (): UserProductFiltersReturn => {
     }
   }, []);
 
-  return {
-    filters,
-    filtersLoading,
-    loadFilters,
-    setFilters,
-  };
+  return useMemo(
+    () => ({ filters, filtersLoading, loadFilters, setFilters }),
+    [filters, filtersLoading, loadFilters, setFilters]
+  );
 };

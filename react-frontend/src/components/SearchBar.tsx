@@ -32,7 +32,7 @@ export default function SearchBar({ onSuggest, suggestions = [], onSearchSubmit 
         }, 400);
 
         return () => clearTimeout(id);
-    }, [query, onSuggest]);
+    }, [open, query, onSuggest]);
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter") {

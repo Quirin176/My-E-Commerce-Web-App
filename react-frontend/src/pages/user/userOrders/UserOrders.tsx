@@ -2,12 +2,12 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { Package } from "lucide-react";
-import { useAuth } from "../../hooks/auth/useAuth";
-import { orderApi } from "../../api/user/orderApi";
-import type { OrderResponse } from "../../types/models/order/OrderResponse";
-import StatusTabs from "../../components/StatusTabs";
-import UserOrderCard from "../../components/orders/UserOrderCard";
-import type { OrderStatus } from "../../types/orderStatus";
+import { useAuth } from "../../../hooks/auth/useAuth";
+import { orderApi } from "../../../api/user/orderApi";
+import type { OrderResponse } from "../../../types/models/order/OrderResponse";
+import StatusTabs from "../../../components/StatusTabs";
+import UserOrderCard from "../../../components/orders/UserOrderCard";
+import type { OrderStatus } from "../../../types/orderStatus";
 
 export default function UserOrders() {
   const navigate = useNavigate();
@@ -56,7 +56,7 @@ export default function UserOrders() {
         <h1 className="text-2xl font-bold text-red-600 mb-4">Please Login First</h1>
         <p className="text-gray-600 mb-6">You need to be logged in to view your orders</p>
         <button
-          onClick={() => navigate("/auth/login")}
+          onClick={() => navigate("/auth?mode=login")}
           className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
         >
           Go to Login
@@ -66,12 +66,12 @@ export default function UserOrders() {
   }
 
   return (
-    <div className="container mx-auto flex flex-col gap-y-4">
+    <div className="container mx-auto p-4 flex flex-col gap-4">
 
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold mb-1">My Orders</h1>
-        <p className="text-gray-500">Track your orders and manage purchases</p>
+        <h1 className="text-4xl font-bold mb-2 text-(--brand-primary)">My Orders</h1>
+        <p className="font-medium">Track your orders and manage purchases</p>
       </div>
 
       {/* Status filters */}
@@ -93,9 +93,11 @@ export default function UserOrders() {
       ) : filteredOrders.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-lg">
           <Package size={48} className="mx-auto text-gray-400 mb-4" />
+
           <p className="text-gray-600 text-lg mb-4">
             {activeStatus === "all" ? "No orders yet" : `No ${activeStatus} orders`}
           </p>
+
           <button
             onClick={() => navigate("/")}
             className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
@@ -106,7 +108,7 @@ export default function UserOrders() {
       ) : (
         <div className="space-y-2">
           {filteredOrders.map((order) => (
-            <div className="rounded-2xl border bg-white hover:bg-blue-200">
+            <div className="rounded-2xl border bg-(--bg-surface) hover:bg-(--bg-muted) transition">
               <UserOrderCard
                 key={order.id}
                 {...order}

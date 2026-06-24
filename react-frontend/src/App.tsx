@@ -11,6 +11,8 @@ import Category from "./pages/category/Category";
 import ProductDetail from "./pages/productdetail/ProductDetail";
 import Search from "./pages/search/Search";
 
+import About from "./pages/about/About";
+
 import AdminDashboard from "./pages/admin/dashboard/Dashboard";
 import AdminProducts from "./pages/admin/products/AdminProducts";
 import AdminProduct from "./pages/admin/product/AdminProduct";
@@ -20,18 +22,15 @@ import AdminOrder from "./pages/admin/order/AdminOrder";
 import AdminUsers from "./pages/admin/users/AdminUsers";
 import AdminChats from "./pages/admin/chats/AdminChats";
 
-import About from "./pages/about/About";
-import Cart from "./pages/user/Cart"
-
-import Login from "./pages/auth/Login";
-import Signup from "./pages/auth/Signup";
 import Auth from "./pages/auth/Auth";
 
-import Profile from "./pages/user/Profile";
-import Orders from "./pages/user/UserOrders";
-import OrderDetail from "./pages/user/OrderDetail";
-import Checkout from "./pages/user/Checkout";
+import Cart from "./pages/user/cart/Cart"
+import Checkout from "./pages/user/checkout/Checkout";
+import Profile from "./pages/user/profile/Profile";
+import UserOrder from "./pages/user/userOrder/UserOrder";
+import UserOrders from "./pages/user/userOrders/UserOrders";
 
+// Test page & Mini games
 import Test from "./pages/test/Test";
 import Weather from "./pages/games/Weather";
 import WhosThatPokemon from "./pages/games/WhosThatPokemon";
@@ -55,7 +54,7 @@ function CustomerProtected({ children }: ProtectedProps) {
     if (!user) {
       navigate("/home", { replace: true });
     }
-  }, [user]);
+  }, [user, navigate]);
 
   if (!user) return null;
   return children;
@@ -74,7 +73,7 @@ function AdminProtected({ children }: ProtectedProps) {
     if (user.role !== "Admin") {
       navigate("/home", { replace: true });
     }
-  }, [user]);
+  }, [user, navigate]);
 
   if (!user || user.role !== "Admin") return null;
   return children;
@@ -109,12 +108,12 @@ export default function App() {
           <Route path="search" element={<Search />} /> // Search page
 
           <Route path="about" element={<About />} />
-          <Route path="cart" element={<Cart />} />
 
           {/* User Account Pages */}
+          <Route path="cart" element={<Cart />} />
           <Route path="profile" element={<CustomerProtected><Profile /></CustomerProtected>} />
-          <Route path="orders" element={<CustomerProtected><Orders /></CustomerProtected>} />
-          <Route path="order/:orderId" element={<CustomerProtected><OrderDetail /></CustomerProtected>} /> // Use orderId param to fetch order details
+          <Route path="orders" element={<CustomerProtected><UserOrders /></CustomerProtected>} />
+          <Route path="order/:orderId" element={<CustomerProtected><UserOrder /></CustomerProtected>} /> // Use orderId param to fetch order details
           <Route path="checkout" element={<CustomerProtected><Checkout /></CustomerProtected>} />
         </Route>
 
@@ -139,10 +138,11 @@ export default function App() {
 
 
         {/* -------------------- AUTH LAYOUT -------------------- */}
-        <Route path="/auth" element={<Auth />} >
+        {/* <Route path="/auth" element={<Auth />} >
           <Route path="login" element={<Login />} />
           <Route path="signup" element={<Signup />} />
-        </Route>
+        </Route> */}
+        <Route path="/auth" element={<Auth />} />
 
         {/* Catch all - redirect to home */}
         <Route path="*" element={<Navigate to="/home" replace />} />

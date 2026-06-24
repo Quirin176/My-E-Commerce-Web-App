@@ -1,14 +1,12 @@
-import { siteConfig } from "../../config/siteConfig";
 
 export default function About() {
-    const colors = siteConfig.colors;
     return (
-        <div className="flex flex-col items-center m-6">
-            <h1
-            className="text-4xl font-bold"
-            style={{color: colors.primarycolor}}>
-                About us
-            </h1>
+        <div className="container mx-auto p-4 flex flex-col gap-4">
+            <h1 className="text-4xl font-bold text-(--brand-primary)">About us</h1>
+            
+            <p className="text-2xl m-6">
+                Welcome to our e-commerce website! We are a team of passionate individuals dedicated to providing you with the best online shopping experience. Our mission is to offer a wide range of high-quality products at competitive prices, while ensuring exceptional customer service.
+            </p>
 
             <p className="text-2xl m-6">
                 Engineer: Mr. Qui

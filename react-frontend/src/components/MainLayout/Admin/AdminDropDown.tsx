@@ -66,7 +66,7 @@ export default function AdminDropDown() {
           </Link>
 
           <Link
-            to={"/auth/login"}
+            to={"/auth?mode=login"}
             onClick={() => handleClick("Logout")}
             className="mt-8 block px-3 py-2 rounded hover:font-bold hover:bg-(--bg-muted)"
           >

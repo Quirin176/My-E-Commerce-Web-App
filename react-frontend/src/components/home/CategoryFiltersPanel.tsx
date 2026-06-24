@@ -1,4 +1,5 @@
-import type { ProductOption } from "../../types/models/products/ProductOption";
+import type { ProductOption } from "../../types/models/products/Product";
+import type { ProductOptionValue } from "../../types/models/products/Product";
 
 interface Props {
   selectedCategory: string;
@@ -27,14 +28,17 @@ export default function CategoryFiltersPanel({
           <div className="space-y-3">
 
             {filters.map((option) => (
-              <div className="text-(--text-primary)" key={option.optionId}>
+              <div
+                key={option.optionId}
+                className="text-(--text-primary)"
+              >
                 <h4 className="font-bold text-sm pb-1">{option.optionName}</h4>
 
                 <div className="flex flex-wrap gap-2">
-                  {option.optionValues.map((v) => (
+                  {option.optionValues.map((v: ProductOptionValue) => (
                     <button
-                      key={v.id}
-                      onClick={() => onFilterClick(selectedCategory, v.id)}
+                      key={v.optionValueId}
+                      onClick={() => onFilterClick(selectedCategory, v.optionValueId)}
                       className="px-3 py-1 border rounded-lg text-sm cursor-pointer"
                     >
                       {v.value}

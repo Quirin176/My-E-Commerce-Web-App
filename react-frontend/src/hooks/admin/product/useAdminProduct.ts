@@ -32,7 +32,8 @@ export function useAdminProduct() {
 
     const { categories } = useCategories();
     const form = useProductForm();
-    const filters = useProductFilters();
+    const filterState = useProductFilters();
+    const { filters: filterOptions, loadFilters } = filterState;
 
     const selectedIds = form.formData.selectedOptionValueIds ?? [];
     const [autoGenerate, setAutoGenerate] = useState<boolean>(false);
@@ -68,7 +69,7 @@ export function useAdminProduct() {
 
                 // Load filters & preselect options
                 if (product.categoryId) {
-                    const loadedFilters = await filters.loadFilters(Number(product.categoryId));
+                    const loadedFilters = await loadFilters(Number(product.categoryId));
 
                     const valueMap = new Map<string, number>();
                     loadedFilters.forEach((opt: ProductOption) =>
@@ -109,7 +110,7 @@ export function useAdminProduct() {
                 toast.error("Failed to load product");
             }
         })();
-    }, [id, form, filters, mode]);
+    }, [id, loadFilters, mode, form.setFormData]);
 
     // ─────────────────────────────────────────────
     // Save product
@@ -145,7 +146,8 @@ export function useAdminProduct() {
     return {
         mode,
         form,
-        filters,
+        filters: filterState,
+        filterOptions,
         categories,
         recentProductImages,
         variants,

@@ -9,7 +9,7 @@ export default function CustomerLayout() {
 
       <CustomerHeader />
 
-      <main className="flex-1 flex flex-col container mx-auto p-4 overflow-x-hidden">
+      <main className="flex-1 flex flex-col container pt-18 mx-auto overflow-hidden">
         <Outlet />
       </main>
 

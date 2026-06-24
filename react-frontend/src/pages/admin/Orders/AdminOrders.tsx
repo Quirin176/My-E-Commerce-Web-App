@@ -5,6 +5,7 @@ import { usePagination } from "../../../hooks/usePagination";
 
 import StatusTabs from "../../../components/StatusTabs";
 import AdminOrderCard from "../../../components/admin/orders/AdminOrderCard";
+import AdminOrderFilters from "../../../components/admin/orders/AdminOrderFilters";
 import PaginationControl from "../../../components/PaginationControl";
 
 const PAGE_SIZE = 5;
@@ -63,69 +64,25 @@ export default function AdminOrders() {
                 </div>
             )}
 
-            {/* Date + Sort filters */}
-            <div className="flex flex-wrap justify-between gap-4">
-                <div className="flex flex-wrap gap-6">
-                    <div className="flex items-center gap-3">
-                        <label className="font-bold whitespace-nowrap">Start Date</label>
-                        <input
-                            type="date"
-                            value={minDate}
-                            onChange={(e) => setMinDate(e.target.value)}
-                            className="border-2 rounded-xl px-2 py-1 cursor-pointer"
-                        />
-                    </div>
-                    
-                    <div className="flex items-center gap-3">
-                        <label className="font-bold whitespace-nowrap">End Date</label>
-                        <input
-                            type="date"
-                            value={maxDate}
-                            onChange={(e) => setMaxDate(e.target.value)}
-                            className="border-2 rounded-xl px-2 py-1 cursor-pointer"
-                        />
-                    </div>
-                </div>
+            <AdminOrderFilters
+                minDate={minDate}
+                maxDate={maxDate}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                setMinDate={setMinDate}
+                setMaxDate={setMaxDate}
+                setSortBy={setSortBy}
+                setSortOrder={setSortOrder}
+                clearFilters={clearFilters}
+            />
 
-                <div className="flex gap-3">
-                    <select
-                        value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value)}
-                        className="border-2 rounded-xl px-2 py-1 cursor-pointer"
-                    >
-                        <option value="" className="bg-(--bg-surface)">Sort By</option>
-                        <option value="customerName" className="bg-(--bg-surface)">Customer Name</option>
-                        <option value="totalAmount" className="bg-(--bg-surface)">Total Amount</option>
-                        <option value="orderDate" className="bg-(--bg-surface)">Order Date</option>
-                    </select>
+            {/* STATUS TABS PANEL */}
+            <StatusTabs
+                activeStatus={status}
+                onStatusChange={setStatus}
+                getCount={getStatusCount}
+            />
 
-                    <select
-                        value={sortOrder}
-                        onChange={(e) => setSortOrder(e.target.value)}
-                        className="border-2 rounded-xl px-2 py-1 cursor-pointer"
-                    >
-                        <option value="" className="bg-(--bg-surface)">Order</option>
-                        <option value="asc" className="bg-(--bg-surface)">Ascending</option>
-                        <option value="desc" className="bg-(--bg-surface)">Descending</option>
-                    </select>
-                </div>
-            </div>
-
-            {/* Status tabs + clear */}
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <StatusTabs
-                    activeStatus={status}
-                    onStatusChange={setStatus}
-                    getCount={getStatusCount}
-                />
-
-                <button
-                    onClick={clearFilters}
-                    className="text-red-500 font-semibold hover:underline transition text-sm cursor-pointer"
-                >
-                    Clear Filters
-                </button>
-            </div>
 
             {/* Orders list */}
             {loading ? (

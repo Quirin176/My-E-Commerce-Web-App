@@ -18,18 +18,19 @@ export default function CartItemCard(item: CartItem) {
     };
 
     return (
-        <div className="p-6 hover:bg-gray-50 transition flex gap-6">
+        <div className="p-6 hover:bg-(--bg-muted) transition flex gap-6">
             <img
                 src={item.image || "https://via.placeholder.com/150?text=No+Image"}
                 alt={item.name}
                 className="w-32 h-32 object-cover rounded-lg hover:opacity-80 transition"
                 onError={(e) => {
-                    (e.target as HTMLImageElement).src =
-                    "https://via.placeholder.com/150?text=No+Image";
+                    (e.target as HTMLImageElement).src = "https://via.placeholder.com/150?text=No+Image";
                 }}
             />
 
-            <div className="flex-1">
+            <div className="flex flex-col gap-4 w-full">
+
+                {/* Product Name */}
                 <div className="flex items-center justify-between">
                     <Link
                         to={`/product/${item.slug}`}
@@ -40,51 +41,59 @@ export default function CartItemCard(item: CartItem) {
 
                     <button
                         onClick={handleRemove}
-                        className="ml-auto p-2 text-red-600 hover:bg-red-200 rounded-lg transition"
+                        className="ml-auto p-2 text-red-600 hover:bg-red-200 rounded-lg transition cursor-pointer"
                         title="Remove from cart"
                     >
                         <Trash2 size={20} />
                     </button>
                 </div>
 
+                {/* Product Options/Attributes */}
                 {item.option && item.option.length > 0 && (
                     <div className="mt-2 space-y-1">
                         {item.option.map((opt, index) => (
-                            <p key={index} className="text-sm text-gray-600">
+                            <p key={index} className="text-sm">
                                 <strong>{opt.optionName}:</strong> {opt.value}
                             </p>
                         ))}
                     </div>
                 )}
 
-                <p className="text-(--price) text-lg font-bold mt-3">
-                    {item.price.toLocaleString()} VND
-                </p>
+                {/* Price and Quantity */}
+                <div className="flex items-center justify-between gap-4">
 
-                <div className="flex items-center justify-between gap-4 mt-4">
+                    <p className="text-(--price) text-lg font-bold">
+                        {item.price.toLocaleString()} VND
+                    </p>
+
+                    {/* Quantity Selector */}
                     <div className="flex items-center border rounded-lg">
                         <button
                             onClick={() => handleQuantityChange(item.quantity - 1)}
-                            className="p-2 hover:bg-gray-100 transition"
+                            className="p-2 hover:bg-gray-100 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={item.quantity <= 1}
                         >
                             <Minus size={18} />
                         </button>
+
                         <span className="px-4 py-2 font-semibold">{item.quantity}</span>
+
                         <button
                             onClick={() => handleQuantityChange(item.quantity + 1)}
-                            className="p-2 hover:bg-gray-100 transition"
+                            className="p-2 hover:bg-gray-100 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                            // disabled={item.quantity >= item.stock}
                         >
                             <Plus size={18} />
                         </button>
                     </div>
 
-                    <p className="text-lg text-right text-gray-600 mt-3">
+                    <p className="text-lg text-right">
                         Subtotal:{" "}
-                        <span className="text-(--brand-primary) font-bold">
+                        <span className="text-(--price) font-bold">
                             {(item.price * item.quantity).toLocaleString()} VND
                         </span>
                     </p>
+
                 </div>
             </div>
         </div>

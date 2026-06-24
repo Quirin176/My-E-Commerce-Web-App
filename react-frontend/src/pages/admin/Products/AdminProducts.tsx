@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Plus, Search, AlertCircle } from "lucide-react";
+import { Plus, AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { useProducts } from "../../../hooks/products/useProducts";
 import { useProductUrlFilters } from "../../../hooks/useProductUrlFilters";
 import { usePagination } from "../../../hooks/usePagination";
 
+import { productApi } from "../../../api/products/productApi";
 import { adminProductsApi } from "../../../api/admin/adminProductsApi";
 
 import SearchBar from "../../../components/SearchBar";
@@ -17,15 +18,15 @@ import PaginationControl from "../../../components/PaginationControl";
 const PAGE_SIZE = 10;
 
 export default function AdminProducts() {
-  const Navigation = useNavigate();
+  const navigate = useNavigate();
 
   // ──────────────────── URL-driven filter state ────────────────────
   const { page, sortOrder, minPrice, maxPrice, selectedOptions, updateUrl } = useProductUrlFilters();
 
   // ──────────────────── Local UI state ────────────────────
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   // ──────────────────── Product data fetching ────────────────────
   const { products, totalCount, loading, error, refetch } = useProducts(
@@ -44,7 +45,7 @@ export default function AdminProducts() {
   // ──────────────────── Filter handlers ────────────────────
   const handleCategoryChange = (slug: string) => {
     setSelectedCategory(slug || null);
-    updateUrl({ category: slug, selectedOptions: [], page: 1 });
+    updateUrl({ category: slug, selectedOptions: [], page: 1, search: undefined });
   };
 
   const applyFilters = () => {
@@ -66,6 +67,20 @@ export default function AdminProducts() {
     refetch();
   };
 
+  const handleSuggest = async (query: string) => {
+    const sugs = await productApi.getSuggestions(query, 10);
+    setSuggestions(sugs);
+  }
+
+  const handleSearchSubmit = (searchQuery: string) => {
+    if (searchQuery.trim()) {
+      setSearchTerm(searchQuery)
+      updateUrl({ page: 1 });
+      updateUrl({ search: searchQuery })
+      refetch();
+    }
+  };
+
   const handleDelete = (async (id: number | string) => {
     if (!window.confirm("Delete this product?")) return;
 
@@ -78,7 +93,7 @@ export default function AdminProducts() {
   });
 
   return (
-    <div className="flex flex-col gap-y-4 p-8 bg-(--bg-muted)">
+    <div className="h-full flex flex-col gap-y-4 p-8 bg-(--bg-muted)">
 
       {/* ========== HEADER ========== */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -87,51 +102,12 @@ export default function AdminProducts() {
         </p>
 
         {/* ========== SEARCH BAR ========== */}
-        <div className="relative flex items-center gap-4">
-          <input
-            type="text"
-            placeholder="Search For Products"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                setSearchTerm(searchInput);
-                updateUrl({ search: searchInput, page: 1 });
-              }
-            }}
-            className="text-lg w-full pl-4 pr-2 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
-          />
-
-          {searchInput && (
-            <button
-              onClick={() => {
-                setSearchInput("");
-                setSearchTerm("");
-                updateUrl({ search: undefined, page: 1 });
-              }}
-              className="right-3 top-3"
-            >
-              ✕
-            </button>
-          )}
-
-          <button
-            onClick={() => {
-              setSearchTerm(searchInput);
-              updateUrl({ search: searchInput, page: 1 });
-            }}
-            className="rounded-full px-2 py-2 text-white bg-(--brand-primary) hover:brightness-75 cursor-pointer"
-          >
-            <Search size={20} />
-          </button>
-        </div>
-        {/* <div className="flex-1 flex justify-center">
+        <div className="flex-1 flex justify-center">
           <SearchBar
             onSuggest={(searchQuery) => handleSuggest(searchQuery)}
             suggestions={suggestions}
             onSearchSubmit={(searchQuery) => handleSearchSubmit(searchQuery)} />
-        </div> */}
+        </div>
 
         {/* ADD NEW PRODUCT BUTTON */}
         <Link
@@ -174,18 +150,19 @@ export default function AdminProducts() {
       {loading ? (
         <div className="text-center py-12">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          <p className="text-gray-600 mt-4">Loading products...</p>
+          <p className="mt-4">Loading products...</p>
         </div>
       ) : products.length === 0 ? (
-        <div className="text-center py-12 bg-(--bg-surface) rounded-lg border-2 border-dashed border-gray-300">
-          <AlertCircle size={48} className="mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-600 text-lg">
+        <div className="h-full flex flex-col gap-4 text-center py-12 bg-(--bg-surface) rounded-lg border-2 border-dashed border-(--text-primary)">
+          <AlertCircle size={48} className="mx-auto" />
+
+          <p className="text-lg">
             {searchTerm ? "No products match your search" : "No products found"}
           </p>
 
           <Link
             to={"/admin/products/new"}
-            className="mt-4 px-4 py-2 bg-green-600 rounded-lg hover:bg-green-700"
+            className="mx-auto w-xs px-4 py-2 bg-green-600 rounded-lg hover:bg-green-700"
           >
             {searchTerm ? "Clear Search" : "Create First Product"}
           </Link>
@@ -201,7 +178,7 @@ export default function AdminProducts() {
               >
                 <AdminProductCard
                   product={product}
-                  onEdit={() => Navigation(`/admin/products/${product.id}/edit`)}
+                  onEdit={() => navigate(`/admin/products/${product.id}/edit`)}
                   onDelete={() => handleDelete(product.id)}
                 />
               </div>

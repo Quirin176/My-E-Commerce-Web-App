@@ -50,7 +50,7 @@ export default function Home() {
     , []);
 
   return (
-    <div className="flex flex-col items-center rounded-2xl w-full gap-4 bg-(--bg-muted)">
+    <div className="flex flex-col items-center rounded-2xl w-full p-4 gap-4 bg-(--bg-muted)">
       <section className="w-full flex flex-col lg:flex-row gap-4 lg:h-125">
 
         {/* LEFT SIDE: CATEGORIES PANEL */}
