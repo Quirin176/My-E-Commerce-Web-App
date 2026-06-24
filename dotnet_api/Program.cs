@@ -94,8 +94,12 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddOutputCache(options =>
 {
     options.AddPolicy("Products", policy =>
-    policy.Expire(TimeSpan.FromMinutes(5))
+    policy.Expire(TimeSpan.FromMinutes(5))            .SetVaryByQuery("categoryId", "amount")
             .Tag("products"));
+
+    options.AddPolicy("ProductsSearch", policy =>
+    policy.Expire(TimeSpan.FromMinutes(5))
+            .SetVaryByQuery("queryPhrase", "page", "pageSize", "minPrice", "maxPrice", "sortOrder")            .Tag("products"));
 
     options.AddPolicy("ProductsPaginated", policy =>
     policy.Expire(TimeSpan.FromMinutes(5))

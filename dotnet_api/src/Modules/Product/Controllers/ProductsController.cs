@@ -20,6 +20,9 @@ namespace WebApp_API.Controllers
             _cacheStore = cacheStore;
         }
 
+        private ValueTask EvictProductsOutputCacheAsync() =>
+            _cacheStore.EvictByTagAsync("products", default);
+
         // GET /api/products/id:{id}
         [OutputCache(PolicyName = "Products")]
         [HttpGet("id/{id:int}")]
@@ -58,6 +61,7 @@ namespace WebApp_API.Controllers
 
         // GET /api/products/search
         [HttpGet("search")]
+        [OutputCache(PolicyName = "ProductsSearch")]
         public async Task<IActionResult> SearchProducts([FromQuery] ProductListDTOs.ProductSearchParams searchParams)
         {
             if (string.IsNullOrWhiteSpace(searchParams.QueryPhrase))
@@ -108,7 +112,7 @@ namespace WebApp_API.Controllers
             {
                 var createdId = await _service.CreateAsync(request);
 
-                await _cacheStore.EvictByTagAsync("products", default);  // removes every cached response tagged with "products"
+                await EvictProductsOutputCacheAsync();
 
                 return Ok(new { message = "Product Created", id = createdId });
             }
@@ -135,7 +139,7 @@ namespace WebApp_API.Controllers
             {
                 var updated = await _service.UpdateAsync(id, request);
 
-                await _cacheStore.EvictByTagAsync("products", default);  // removes every cached response tagged with "products"
+                await EvictProductsOutputCacheAsync();
 
                 return updated ? Ok(new { message = "Product updated", id }) : NotFound();
             }
@@ -154,7 +158,7 @@ namespace WebApp_API.Controllers
 
             if (deleted)
             {
-                await _cacheStore.EvictByTagAsync("products", default);  // removes every cached response tagged with "products"
+                await EvictProductsOutputCacheAsync();
             }
 
             return deleted ? NoContent() : NotFound();

@@ -2,7 +2,7 @@ import { Plus, SquarePen, X } from "lucide-react";
 import type { ProductOption } from "../../../types/models/products/Product";
 
 interface AttributesSectionProps {
-    loadedOption: ProductOption[];
+    loadedOptions: ProductOption[];
     selectedOptionId: number;
     onSelectOption: (optionId: number) => void;
     onAddValue: (optionId: number) => void;
@@ -11,7 +11,7 @@ interface AttributesSectionProps {
 }
 
 export default function AttributesSection({
-    loadedOption,
+    loadedOptions,
     selectedOptionId,
     onSelectOption,
     onAddValue,
@@ -23,7 +23,7 @@ export default function AttributesSection({
             <h2 className="text-2xl font-bold pb-4">Attributes</h2>
 
             <div className="flex flex-col gap-4">
-                {loadedOption.map((option) => (
+                {loadedOptions.map((option) => (
                     <div
                         key={option.optionId}
                         className={`h-16 flex justify-between items-center rounded-xl bg-(--bg-surface)

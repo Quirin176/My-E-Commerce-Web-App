@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Primitives;
 using WebApp_API.DTOs;
 using WebApp_API.Entities;
 using WebApp_API.Repositories;
@@ -13,6 +14,9 @@ namespace WebApp_API.Services
         private readonly ICategoryRepository _categoryRepo;
         private readonly IProductOptionValueRepository _productOptionValueRepo;
         private readonly IMemoryCache _cache;
+        private CancellationTokenSource _productCacheTokenSource = new();
+        private readonly object _cacheLock = new();
+
         public ProductService(IProductRepository productRepo, ICategoryRepository categoryRepo,
         IProductOptionValueRepository productOptionValueRepo, IMemoryCache cache)
         {
@@ -25,7 +29,7 @@ namespace WebApp_API.Services
         // ────────────────────────────────────────────────── Public queries ──────────────────────────────────────────────────
         public async Task<ProductDTOs.ProductDetailResponse?> GetByIdAsync(int id)
         {
-            string cacheKey = $"product:id:{id}";
+            string cacheKey = GetProductIdCacheKey(id);
 
             if (_cache.TryGetValue(cacheKey,
                 out ProductDTOs.ProductDetailResponse? cached))
@@ -37,14 +41,14 @@ namespace WebApp_API.Services
             if (product is null) return null;
             var data = await MapToDetailAsync(product);
 
-            _cache.Set(cacheKey, data, TimeSpan.FromMinutes(10));
+            _cache.Set(cacheKey, data, GetCacheEntryOptions());
 
             return data;
         }
 
         public async Task<ProductDTOs.ProductDetailResponse?> GetBySlugAsync(string slug)
         {
-            string cacheKey = $"product:slug:{slug}";
+            string cacheKey = GetProductSlugCacheKey(slug);
 
             if (_cache.TryGetValue(cacheKey,
                 out ProductDTOs.ProductDetailResponse? cached))
@@ -56,7 +60,7 @@ namespace WebApp_API.Services
             if (product is null) return null;
             var data = await MapToDetailAsync(product);
 
-            _cache.Set(cacheKey, data, TimeSpan.FromMinutes(10));
+            _cache.Set(cacheKey, data, GetCacheEntryOptions());
 
             return data;
         }
@@ -74,7 +78,7 @@ namespace WebApp_API.Services
             var products = await _productRepo.GetCategoryNewestAsync(categoryId, amount);
             var data = await MapToSummaryListAsync(products);
 
-            _cache.Set(cacheKey, data, TimeSpan.FromMinutes(10));
+            _cache.Set(cacheKey, data, GetCacheEntryOptions());
 
             return data;
         }
@@ -92,7 +96,7 @@ namespace WebApp_API.Services
             var products = await _productRepo.GetTopSellingProducts(categoryId, amount);
             var data = await MapToSummaryListAsync(products);
 
-            _cache.Set(cacheKey, data, TimeSpan.FromMinutes(10));
+            _cache.Set(cacheKey, data, GetCacheEntryOptions());
 
             return data;
         }
@@ -135,8 +139,7 @@ namespace WebApp_API.Services
         {
             string cacheKey = spec.GetCacheKey();
 
-            if (_cache.TryGetValue(cacheKey,
-                out PaginatedResponse<ProductListDTOs.ProductSummaryResponse>? cached))
+            if (_cache.TryGetValue(cacheKey, out PaginatedResponse<ProductListDTOs.ProductSummaryResponse>? cached))
             {
                 return cached!;
             }
@@ -151,7 +154,7 @@ namespace WebApp_API.Services
                 Pagination = PaginationMeta.From(spec.Page, spec.PageSize, totalCount)
             };
 
-            _cache.Set(cacheKey, response, TimeSpan.FromMinutes(10));
+            _cache.Set(cacheKey, response, GetCacheEntryOptions());
 
             return response;
         }
@@ -194,6 +197,7 @@ namespace WebApp_API.Services
                 await _productRepo.SetOptionValuesAsync(product.Id, request.SelectedOptionValueIds);
 
             await _productRepo.SaveChangesAsync();
+            InvalidateProductCache();
 
             return created.Id;
         }
@@ -203,6 +207,14 @@ namespace WebApp_API.Services
             var product = await _productRepo.GetByIdAsync(id);
             if (product is null) return false;
             var oldSlug = product.Slug;
+            var newCategoryId = request.CategoryId ?? product.CategoryId;
+
+            if (request.CategoryId.HasValue && !await _categoryRepo.CheckCategoryExistsByIdAsync(newCategoryId))
+                throw new ArgumentException($"Category with ID {newCategoryId} does not exist.");
+
+            if (!string.IsNullOrWhiteSpace(request.Slug) && request.Slug != oldSlug &&
+                await _productRepo.CheckProductExistsBySlugAsync(request.Slug))
+                throw new InvalidOperationException($"A product with slug '{request.Slug}' already exists.");
 
             if (!string.IsNullOrWhiteSpace(request.Name)) product.Name = request.Name;
             if (!string.IsNullOrWhiteSpace(request.Slug)) product.Slug = request.Slug;
@@ -213,6 +225,14 @@ namespace WebApp_API.Services
             if (request.CategoryId.HasValue) product.CategoryId = request.CategoryId.Value;
             product.UpdatedAt = DateTime.UtcNow;
 
+            if (request.SelectedOptionValueIds is not null && request.SelectedOptionValueIds.Count > 0)
+            {
+                var valid = await _productOptionValueRepo.GetValidOptionValueIdsForCategoryAsync(newCategoryId);
+                var invalid = request.SelectedOptionValueIds.Except(valid).ToList();
+                if (invalid.Count > 0)
+                    throw new ArgumentException($"Option value ID(s) {string.Join(", ", invalid)} are not valid for this category.");
+            }
+
             _productRepo.Update(product);
             await _productRepo.SaveChangesAsync();
 
@@ -221,8 +241,8 @@ namespace WebApp_API.Services
 
             await _productRepo.SaveChangesAsync();
 
-            _cache.Remove($"product:id:{id}");
-            _cache.Remove($"product:slug:{oldSlug}");
+            // Invalidate stale cache for all product entries.
+            InvalidateProductCache();
 
             return true;
         }
@@ -235,11 +255,39 @@ namespace WebApp_API.Services
             _productRepo.Remove(product);
             await _productRepo.SaveChangesAsync();
 
-            _cache.Remove($"product:id:{id}");
-            _cache.Remove($"product:slug:{product.Slug}");
+            // Invalidate stale cache for all product entries.
+            InvalidateProductCache();
 
             return true;
         }
+
+        private MemoryCacheEntryOptions GetCacheEntryOptions()
+        {
+            var options = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+            };
+
+            lock (_cacheLock)
+            {
+                options.AddExpirationToken(new CancellationChangeToken(_productCacheTokenSource.Token));
+            }
+
+            return options;
+        }
+
+        private void InvalidateProductCache()
+        {
+            lock (_cacheLock)
+            {
+                _productCacheTokenSource.Cancel();
+                _productCacheTokenSource.Dispose();
+                _productCacheTokenSource = new CancellationTokenSource();
+            }
+        }
+
+        private static string GetProductIdCacheKey(int id) => $"product:id:{id}";
+        private static string GetProductSlugCacheKey(string slug) => $"product:slug:{slug}";
 
         // ────────────────────────────────────────────────── Mapping helpers ──────────────────────────────────────────────────
         private async Task<ProductDTOs.ProductDetailResponse> MapToDetailAsync(Product product)

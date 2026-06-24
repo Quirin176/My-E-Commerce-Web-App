@@ -42,6 +42,7 @@ export default function AttributeDeleteModal({ config, onClose }: { config: Dele
                         >
                             {loading ? "Deleting..." : "Delete"}
                         </button>
+                        
                         <button
                             onClick={onClose}
                             className="flex-1 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition"

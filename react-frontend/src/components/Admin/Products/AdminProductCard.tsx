@@ -4,7 +4,7 @@ import type { Product } from "../../../types/models/products/Product";
 interface AdminProductCardProps {
   product: Product;
   onEdit: (product: Product) => void;
-  onDelete: (id: number | string) => void;
+  onDelete: (id: number | string, name: string) => void;
 }
 
 export default function AdminProductCard({
@@ -23,7 +23,12 @@ export default function AdminProductCard({
         />
         <div className="flex flex-col gap-2">
           <div className="flex flex-row gap-2 items-center">
-            <h3 className="font-bold text-lg">{product.name}</h3>
+            <h3
+              className="font-bold text-lg hover:underline cursor-pointer"
+              onClick={(e) => { e.stopPropagation(); onEdit(product); }}
+            >
+              {product.name}
+            </h3>
             <p className="text-sm">{product.category?.name}</p>
           </div>
           <p className="text-sm">{product.slug}</p>
@@ -39,7 +44,7 @@ export default function AdminProductCard({
           <button
             title="Edit Product"
             // disabled={isLoading}
-            className="p-2 border rounded cursor-pointer text-blue-600 bg-white hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-2 border rounded cursor-pointer text-blue-600 hover:bg-(--bg-muted) disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={(e) => { e.stopPropagation(); onEdit(product); }}
           >
             <Edit2 size={18} />
@@ -48,8 +53,8 @@ export default function AdminProductCard({
           <button
             title="Delete Product"
             // disabled={isLoading}
-            className="p-2 border rounded cursor-pointer text-red-600 bg-white hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={(e) => { e.stopPropagation(); onDelete(product.id); }}
+            className="p-2 border rounded cursor-pointer text-red-600 hover:bg-(--bg-muted) disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={(e) => { e.stopPropagation(); onDelete(product.id, product.name); }}
           >
             <Trash2 size={18} />
           </button>

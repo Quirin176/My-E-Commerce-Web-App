@@ -81,12 +81,13 @@ export default function AdminProducts() {
     }
   };
 
-  const handleDelete = (async (id: number | string) => {
-    if (!window.confirm("Delete this product?")) return;
+  const handleDelete = (async (id: number | string, name: string) => {
+    if (!window.confirm(`Delete the product "${name}"?`)) return;
 
     try {
       await adminProductsApi.deleteProduct(id);
       toast.success("Deleted");
+      refetch();
     } catch {
       toast.error("Delete failed");
     }
@@ -174,12 +175,12 @@ export default function AdminProducts() {
             {products.map((product) => (
               <div
                 key={product.id}
-                className="border rounded-lg px-8 py-2 bg-(--bg-surface) shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                className="border rounded-lg px-8 py-2 bg-(--bg-surface) hover:bg-(--bg-muted) transition"
               >
                 <AdminProductCard
                   product={product}
                   onEdit={() => navigate(`/admin/products/${product.id}/edit`)}
-                  onDelete={() => handleDelete(product.id)}
+                  onDelete={(id, name) => handleDelete(id, name)}
                 />
               </div>
             ))}

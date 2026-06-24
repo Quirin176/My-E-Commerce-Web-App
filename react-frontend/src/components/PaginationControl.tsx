@@ -45,7 +45,7 @@ export default function PaginationControl({
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition"
         >
           <ChevronLeft size={20} />
         </button>
@@ -70,7 +70,7 @@ export default function PaginationControl({
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="p-2 border border-(--text-primary) rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          className="p-2 border border-(--text-primary) rounded-lg hover:bg-gray-50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition"
         >
           <ChevronRight size={20} />
         </button>
@@ -114,8 +114,8 @@ function PageButton({
   return (
     <button
       onClick={() => onPageChange(page)}
-      className={`px-3 py-2 rounded-lg font-semibold transition ${currentPage === page
-        ? "bg-blue-600 text-white" : "border border-gray-300 hover:bg-gray-50"}`}
+      className={`px-3 py-2 rounded-lg font-semibold transition cursor-pointer
+        ${currentPage === page ? "bg-blue-600 text-white" : "border border-gray-300 hover:bg-gray-50"}`}
     >
       {page}
     </button>

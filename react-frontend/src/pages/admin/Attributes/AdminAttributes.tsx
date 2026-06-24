@@ -16,13 +16,13 @@ import AttributeValuesSection from "./AttributeValuesSection";
 export default function AdminAttributes() {
     const { categories } = useCategories();;
     const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-    const [loadedOption, setLoadedOption] = useState<ProductOption[]>([]);
+    const [loadedOptions, setLoadedOptions] = useState<ProductOption[]>([]);
     const [selectedOptionId, setSelectedOptionId] = useState<number>(0);
 
     const [modalConfig, setModalConfig] = useState<ModalConfig | null>(null);
     const [deleteConfig, setDeleteConfig] = useState<DeleteConfig | null>(null);
 
-    const selectedOption = loadedOption.find(o => o.optionId === selectedOptionId);
+    const selectedOption = loadedOptions.find(o => o.optionId === selectedOptionId);
 
     useEffect(() => {
         if (!selectedCategory) return;
@@ -31,7 +31,7 @@ export default function AdminAttributes() {
         const fetchOptions = async () => {
             const res = await productoptionApi.getOptionsByCategoryId(selectedCategory.id);
 
-            setLoadedOption(res);
+            setLoadedOptions(res);
         };
 
         fetchOptions();
@@ -42,7 +42,7 @@ export default function AdminAttributes() {
 
         const res = await productoptionApi.getOptionsByCategoryId(selectedCategory.id);
 
-        setLoadedOption(res);
+        setLoadedOptions(res);
     };
 
     // ── Modal openers ──
@@ -167,7 +167,7 @@ export default function AdminAttributes() {
             ) : (
                 <div className="grid grid-cols-2 gap-4">
                     <AttributesSection
-                        loadedOption={loadedOption}
+                        loadedOptions={loadedOptions}
                         selectedOptionId={selectedOptionId}
                         onSelectOption={setSelectedOptionId}
                         onAddValue={openAddValue}
