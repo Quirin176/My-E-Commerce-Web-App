@@ -1,7 +1,7 @@
 using WebApp_API.Entities;
 using WebApp_API.Specifications;
 
-namespace WebApp_API.Repositories
+namespace WebApp_API.Modules.Users.Repositories
 {
     public interface IUserRepository
     {

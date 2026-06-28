@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WebApp_API.DTOs
+namespace WebApp_API.Modules.Users.DTOs
 {
     public class AuthDTOs
     {

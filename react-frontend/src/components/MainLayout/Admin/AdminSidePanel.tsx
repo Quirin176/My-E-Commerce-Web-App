@@ -16,11 +16,11 @@ export default function AdminSidePanel() {
     const { logout } = useAuth();
     
     return (
-        <div className="group text-white bg-(--brand-primary) fixed flex flex-col transition-all duration-300 h-full overflow-hidden z-40">
+        <div className="group text-white bg-(--brand-primary) fixed flex flex-col transition-all duration-300 h-full w-60 overflow-hidden z-40">
             
             {/* LOGO AND SITE NAME */}
-            <Link to="/admin/dashboard" className="flex items-center gap-2 text-white text-2xl font-bold h-16 px-4 py-2">
-                <img src={reactLogo} alt="logo" className="h-full aspect-square" />
+            <Link to="/admin/dashboard" className="flex items-center gap-2 text-white text-2xl font-bold h-20 px-4 py-2">
+                <img src={reactLogo} alt="logo" className="max-h-18 aspect-square" />
                 {siteConfig.webName}
             </Link>
 

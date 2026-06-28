@@ -4,12 +4,33 @@ using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+
 using WebApp_API.Hubs;
 using WebApp_API.Data;
-using WebApp_API.Repositories;
-using WebApp_API.Services;
+using WebApp_API.Modules.AdminDashboard.Repositories;
+using WebApp_API.Modules.Categories.Repositories;
+using WebApp_API.Modules.Chats.Repositories;
+using WebApp_API.Modules.GeminiAgents.Repositories;
+using WebApp_API.Modules.Messages.Repositories;
+using WebApp_API.Modules.Orders.Repositories;
+using WebApp_API.Modules.Products.Repositories;
+using WebApp_API.Modules.ProductImages.Repositories;
+using WebApp_API.Modules.ProductOptions.Repositories;
+using WebApp_API.Modules.ProductOptionValues.Repositories;
+using WebApp_API.Modules.ProductVariants.Repositories;
+using WebApp_API.Modules.ProductVariantOptionValues.Repositories;
+using WebApp_API.Modules.Users.Repositories;
+
+using WebApp_API.Modules.Products.Validators;
+using WebApp_API.Modules.Products.Mappers;
+
+using WebApp_API.Modules.Users.Services;
+using WebApp_API.Modules.GeminiAgents.Services;
+using WebApp_API.Modules.Messages.Services;
+
 using WebApp_API.Infrastructure.Email;
 using WebApp_API.Infrastructure.Extensions;
+
 using QuestPDF.Infrastructure;
 using MediatR;
 
@@ -91,29 +112,8 @@ builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Emai
 
 builder.Services.AddScoped<IEmailService, EmailService>();
 
-builder.Services.AddOutputCache(options =>
-{
-    options.AddPolicy("Products", policy =>
-    policy.Expire(TimeSpan.FromMinutes(5))            .SetVaryByQuery("categoryId", "amount")
-            .Tag("products"));
+builder.Services.AddApplicationOutputCache();
 
-    options.AddPolicy("ProductsSearch", policy =>
-    policy.Expire(TimeSpan.FromMinutes(5))
-            .SetVaryByQuery("queryPhrase", "page", "pageSize", "minPrice", "maxPrice", "sortOrder")            .Tag("products"));
-
-    options.AddPolicy("ProductsPaginated", policy =>
-    policy.Expire(TimeSpan.FromMinutes(5))
-            .SetVaryByQuery("category", "page", "pageSize", "minPrice", "maxPrice", "selectedOptions", "sortOrder", "search")
-            .Tag("products"));
-
-    options.AddPolicy("Categories", policy =>
-    policy.Expire(TimeSpan.FromMinutes(30))
-            .Tag("categories"));
-
-    options.AddPolicy("Admin_Dashboard", policy =>
-    policy.Expire(TimeSpan.FromMinutes(5))
-            .Tag("admin_dashboard"));
-});
 builder.Services.AddMemoryCache();
 
 builder.Services.AddMediatR(cfg =>
@@ -122,45 +122,31 @@ builder.Services.AddMediatR(cfg =>
 });
 
 // Add custom DI (Dependency Injection)
+builder.Services.AddScoped<IAdminDashboardReadRepository, AdminDashboardReadRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-
-builder.Services.AddScoped<IProductOptionRepository, ProductOptionRepository>();
-builder.Services.AddScoped<IProductOptionService, ProductOptionService>();
-
-builder.Services.AddScoped<IProductOptionValueRepository, ProductOptionValueRepository>();
-builder.Services.AddScoped<IProductOptionValueService, ProductOptionValueService>();
-
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
+builder.Services.AddScoped<IGeminiAgentRepository, GeminiAgentRepository>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped<IProductService, ProductService>();
-
 builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();
-builder.Services.AddScoped<IProductImageService, ProductImageService>();
-
-builder.Services.AddScoped<IProductVariantOptionValueRepository, ProductVariantOptionValueRepository>();
-
+builder.Services.AddScoped<IProductOptionRepository, ProductOptionRepository>();
+builder.Services.AddScoped<IProductOptionValueRepository, ProductOptionValueRepository>();
 builder.Services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
-builder.Services.AddScoped<IProductVariantService, ProductVariantService>();
-
+builder.Services.AddScoped<IProductVariantOptionValueRepository, ProductVariantOptionValueRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+builder.Services.AddScoped<ProductMapper>();
+builder.Services.AddScoped<ProductValidator>();
+
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
-
-builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-
-builder.Services.AddScoped<IAdminDashboardReadRepository, AdminDashboardReadRepository>();
-// builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
-
-builder.Services.AddScoped<IChatRepository, ChatRepository>();
-builder.Services.AddScoped<IMessageRepository, MessageRepository>();
-
-builder.Services.AddScoped<IGeminiAgentRepository, GeminiAgentRepository>();
+builder.Services.AddScoped<MessageService>();
 builder.Services.AddHttpClient<IGeminiAgentService, GeminiAgentService>(client =>
 {
     client.Timeout = TimeSpan.FromSeconds(30);
 });
-
-builder.Services.AddScoped<MessageService>();
 
 builder.Services.AddSignalR();
 

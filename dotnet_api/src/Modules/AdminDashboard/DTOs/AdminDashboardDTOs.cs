@@ -1,7 +1,7 @@
+using WebApp_API.Modules.Orders.DTOs;
+using WebApp_API.Modules.OrderItems.DTOs;
 
-using WebApp_API.Entities;
-
-namespace WebApp_API.DTOs
+namespace WebApp_API.Modules.AdminDashboard.DTOs
 {
     public class LineChartPoint
     {
@@ -15,9 +15,9 @@ namespace WebApp_API.DTOs
         public int TotalUsers { get; set; }
         public int TotalOrders { get; set; }
         public decimal TotalRevenue { get; set; }
-        public List<OrderDTOs.RecentOrderDto>? RecentOrders { get; set; }
-        public List<OrderItemDTOs.TopProductDto>? TopSellingProducts { get; set; }
-        public List<Product>? TopNewestProducts { get; set; }
+        public List<RecentOrderDto>? RecentOrders { get; set; }
+        public List<TopProductDto>? TopSellingProducts { get; set; }
+        public List<Entities.Product>? TopNewestProducts { get; set; }
         public List<LineChartPoint>? LineChartPoints { get; set; }
     }
 }

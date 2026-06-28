@@ -1,4 +1,4 @@
-namespace WebApp_API.DTOs
+namespace WebApp_API.Modules.Products.DTOs
 {
     public class ProductListDTOs
     {

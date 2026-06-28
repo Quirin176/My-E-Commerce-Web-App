@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCategories } from "../../../hooks/products/useCategories";
@@ -7,6 +7,7 @@ import type { ProductOption } from "../../../types/models/products/Product";
 
 export interface DynamicFiltersProps {
     onCategoryChange: (slug: string) => void;
+    selectedCategory?: string | null;
     selectedOptions: (string | number)[];
     setSelectedOptions: (option: (string | number)[]) => void;
     minPrice: string | number;
@@ -20,6 +21,7 @@ export interface DynamicFiltersProps {
 
 export default function DynamicFilters({
     onCategoryChange,
+    selectedCategory,
     selectedOptions,
     setSelectedOptions,
     minPrice,
@@ -38,8 +40,15 @@ export default function DynamicFilters({
     const [openDropdowns, setOpenDropdowns] = useState<Record<string | number, boolean>>({});
 
     const handleCategoryChange = async (slug: string) => {
+        // notify parent about the selected category
         onCategoryChange(slug);
 
+        // then load option data for the category
+        await loadOptionsForCategory(slug);
+    };
+
+    // load option data without notifying parent (used on mount / when returning to page)
+    const loadOptionsForCategory = async (slug: string | null | undefined) => {
         if (!slug) {
             setLoadedOptions([]);
             return;
@@ -58,6 +67,11 @@ export default function DynamicFilters({
             setLoadingFilters(false);
         }
     };
+
+    // initialize/load options when `selectedCategory` prop changes (e.g. returning from edit page)
+    useEffect(() => {
+        loadOptionsForCategory(selectedCategory);
+    }, [selectedCategory]);
 
     // Toggle dropdown for specific category
     const toggleDropdown = (categoryId: string | number) => {
@@ -95,6 +109,7 @@ export default function DynamicFilters({
                 {/* Category Select Box */}
                 <select
                     disabled={loadingFilters}
+                    value={selectedCategory ?? ""}
                     onChange={(e) => handleCategoryChange(e.target.value ? e.target.value : "")}
                     className="text-xs font-bold border rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 >

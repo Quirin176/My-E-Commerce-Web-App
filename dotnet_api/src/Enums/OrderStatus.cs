@@ -1,10 +1,11 @@
-namespace WebApp_API.Enums;
-
-public enum OrderStatus
+namespace WebApp_API.Enums
 {
-    Pending,
-    Processing,
-    Shipped,
-    Delivered,
-    Cancelled
+    public enum OrderStatus
+    {
+        Pending,
+        Processing,
+        Shipped,
+        Delivered,
+        Cancelled
+    }
 }

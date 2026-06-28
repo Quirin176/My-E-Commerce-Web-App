@@ -3,7 +3,7 @@ import { AlertCircle, Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react"
 import { useNavigate } from "react-router-dom";
 
 import type { VariantRow, SkuContext } from "../../../types/models/products/variantTypes";
-import type { ProductOption } from "../../../types/models/products/ProductOption";
+import type { ProductOption } from "../../../types/models/products/Product";
 import { generateRows } from "../../../utils/variantGenerators";
 import { adminProductsApi } from "../../../api/admin/adminProductsApi";
 
@@ -71,8 +71,10 @@ export default function ProductVariantsTab({
         });
     }, [
         autoGenerate,
-        selectedOptionValueIds.join(","),
+        selectedOptionValueIds,
         filters,
+        setVariants,
+        skuContext,
         skuContext.categoryName,
         skuContext.productName,
     ]);
@@ -111,10 +113,12 @@ export default function ProductVariantsTab({
 
     if (!productId) {
         return (
-            <div className="space-y-4">
-                <label className="text-2xl font-bold text-black">Product Variants</label>
+            <div className="flex flex-col gap-4">
+                <label className="text-2xl font-bold">Product Variants</label>
+
                 <div className="flex items-center gap-3 p-4 bg-amber-50 border-2 border-amber-300 rounded-xl text-amber-800">
                     <AlertCircle size={20} className="shrink-0" />
+
                     <div>
                         <p className="font-semibold text-sm">Product not saved yet</p>
                         <p className="text-xs mt-0.5">
@@ -130,16 +134,17 @@ export default function ProductVariantsTab({
     // ── Render ────────────────────────────────────────────────────────────────
 
     return (
-        <div className="space-y-4">
+        <div className="text-(--text-primary) space-y-4">
+
             {/* Header row */}
             <div className="flex items-center justify-between">
-                <label className="text-2xl font-bold text-black">
+                <h2 className="text-2xl font-bold">
                     Product Variants
-                    <span className="ml-2 text-base font-normal text-gray-500">
+                    <span className="ml-2 text-base font-normal">
                         ({variants.length})
                     </span>
-                </label>
-                
+                </h2>
+
                 {variants.length === 0 &&
                     <ToggleSwitch
                         label="Auto-generate?"
@@ -158,25 +163,25 @@ export default function ProductVariantsTab({
                 )}
 
                 {variants.map((row) => (
-                    <div key={row.key} className="bg-white">
+                    <div key={row.key}>
                         {/* ── Collapsed header ── */}
                         <div
-                            className="flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-gray-50 transition select-none"
+                            className="flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-(--bg-muted) transition select-none"
                             onClick={() => toggleOpen(row.key)}
                         >
                             {/* Expand icon */}
                             <button
                                 type="button"
-                                className="text-gray-400 shrink-0"
+                                className="shrink-0"
                                 tabIndex={-1}
                             >
                                 {row.open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                             </button>
 
                             {/* Label */}
-                            <span className="flex-1 font-semibold text-sm text-gray-800">
+                            <span className="flex-1 font-semibold text-sm">
                                 {row.variantName || (
-                                    <span className="text-gray-400 italic">Unnamed variant</span>
+                                    <span className="italic">Unnamed variant</span>
                                 )}
                             </span>
 
@@ -193,13 +198,13 @@ export default function ProductVariantsTab({
 
                             {/* SKU badge */}
                             {row.sku && (
-                                <span className="hidden sm:inline text-xs font-mono bg-gray-100 text-gray-500 px-2 py-0.5 rounded border border-gray-200 shrink-0">
+                                <span className="hidden sm:inline text-xs font-mono bg-(--bg-muted) px-2 py-0.5 rounded border border-gray-200 shrink-0">
                                     {row.sku}
                                 </span>
                             )}
 
                             {/* Quick stats */}
-                            <div className="flex items-center gap-4 text-xs text-gray-500 shrink-0">
+                            <div className="flex items-center gap-4 text-xs shrink-0">
                                 {row.price > 0 && (
                                     <span className="font-bold text-blue-700">
                                         {Number(row.price).toLocaleString("vi-VN")} ₫
@@ -214,9 +219,7 @@ export default function ProductVariantsTab({
                                                 : "bg-green-100 text-green-700"
                                             }`}
                                     >
-                                        {Number(row.stock) === 0
-                                            ? "Out of stock"
-                                            : `${row.stock} in stock`}
+                                        {Number(row.stock) === 0 ? "Out of stock" : `${row.stock} in stock`}
                                     </span>
                                 )}
                             </div>
@@ -237,7 +240,7 @@ export default function ProductVariantsTab({
 
                         {/* ── Expanded form ── */}
                         {row.open && (
-                            <div className="px-5 pb-5 pt-2 bg-gray-50 border-t border-gray-200">
+                            <div className="px-5 pb-5 pt-2 border-t border-gray-200">
                                 <ProductVariantForm
                                     mode={row.serverId ? "edit" : mode === "edit" ? "edit" : "create"}
                                     productId={productId}
@@ -266,7 +269,8 @@ export default function ProductVariantsTab({
                 <button
                     type="button"
                     onClick={() => navigate("/admin/products")}
-                    className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-semibold text-sm"
+                    className="px-6 py-3 bg-(--brand-primary) text-white hover:brightness-75 rounded-lg font-semibold
+                    transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     Done / Skip
                 </button>

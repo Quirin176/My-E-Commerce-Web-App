@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WebApp_API.Enums;
 
 namespace WebApp_API.Entities
 {
@@ -19,6 +20,11 @@ namespace WebApp_API.Entities
 
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+
+        public ProductStatus Status { get; set; } = ProductStatus.Draft;
+
+        public bool IsDeleted { get; set; }
+        public DateTime? DeletedAt { get; set; }
 
         public ICollection<ProductVariant> Variants { get; set; } = new List<ProductVariant>();
         public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();

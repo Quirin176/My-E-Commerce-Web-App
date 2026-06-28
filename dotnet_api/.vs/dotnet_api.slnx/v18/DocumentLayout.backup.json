@@ -3,20 +3,12 @@
   "WorkspaceRootPath": "D:\\WORK\\My-E-Commerce-Web-App\\dotnet_api\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\WORK\\My-E-Commerce-Web-App\\dotnet_api\\src\\Modules\\Product\\Services\\ProductService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\Modules\\Product\\Services\\ProductService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\WORK\\My-E-Commerce-Web-App\\dotnet_api\\src\\Modules\\ProductVariantOptionValue\\Services\\ProductVariantOptionValueService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\Modules\\ProductVariantOptionValue\\Services\\ProductVariantOptionValueService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\WORK\\My-E-Commerce-Web-App\\dotnet_api\\src\\Modules\\Product\\Services\\IProductService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\Modules\\Product\\Services\\IProductService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\WORK\\My-E-Commerce-Web-App\\dotnet_api\\src\\Modules\\Product\\Repositories\\ProductRepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\Modules\\Product\\Repositories\\ProductRepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\WORK\\My-E-Commerce-Web-App\\dotnet_api\\src\\Modules\\Product\\Repositories\\IProductRepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\Modules\\Product\\Repositories\\IProductRepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\WORK\\My-E-Commerce-Web-App\\dotnet_api\\src\\Modules\\ProductVariantOptionValue\\Services\\IProductVariantOptionValueService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\Modules\\ProductVariantOptionValue\\Services\\IProductVariantOptionValueService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,58 +18,44 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 3,
           "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "ProductService.cs",
-              "DocumentMoniker": "D:\\WORK\\My-E-Commerce-Web-App\\dotnet_api\\src\\Modules\\Product\\Services\\ProductService.cs",
-              "RelativeDocumentMoniker": "src\\Modules\\Product\\Services\\ProductService.cs",
-              "ToolTip": "D:\\WORK\\My-E-Commerce-Web-App\\dotnet_api\\src\\Modules\\Product\\Services\\ProductService.cs",
-              "RelativeToolTip": "src\\Modules\\Product\\Services\\ProductService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAA0AAAAAAAAAA==",
+              "Title": "ProductVariantOptionValueService.cs",
+              "DocumentMoniker": "D:\\WORK\\My-E-Commerce-Web-App\\dotnet_api\\src\\Modules\\ProductVariantOptionValue\\Services\\ProductVariantOptionValueService.cs",
+              "RelativeDocumentMoniker": "src\\Modules\\ProductVariantOptionValue\\Services\\ProductVariantOptionValueService.cs",
+              "ToolTip": "D:\\WORK\\My-E-Commerce-Web-App\\dotnet_api\\src\\Modules\\ProductVariantOptionValue\\Services\\ProductVariantOptionValueService.cs",
+              "RelativeToolTip": "src\\Modules\\ProductVariantOptionValue\\Services\\ProductVariantOptionValueService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-17T10:35:49.273Z",
+              "WhenOpened": "2026-06-27T13:00:14.842Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "IProductService.cs",
-              "DocumentMoniker": "D:\\WORK\\My-E-Commerce-Web-App\\dotnet_api\\src\\Modules\\Product\\Services\\IProductService.cs",
-              "RelativeDocumentMoniker": "src\\Modules\\Product\\Services\\IProductService.cs",
-              "ToolTip": "D:\\WORK\\My-E-Commerce-Web-App\\dotnet_api\\src\\Modules\\Product\\Services\\IProductService.cs",
-              "RelativeToolTip": "src\\Modules\\Product\\Services\\IProductService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAFAAAAAAAAAA==",
+              "Title": "IProductVariantOptionValueService.cs",
+              "DocumentMoniker": "D:\\WORK\\My-E-Commerce-Web-App\\dotnet_api\\src\\Modules\\ProductVariantOptionValue\\Services\\IProductVariantOptionValueService.cs",
+              "RelativeDocumentMoniker": "src\\Modules\\ProductVariantOptionValue\\Services\\IProductVariantOptionValueService.cs",
+              "ToolTip": "D:\\WORK\\My-E-Commerce-Web-App\\dotnet_api\\src\\Modules\\ProductVariantOptionValue\\Services\\IProductVariantOptionValueService.cs",
+              "RelativeToolTip": "src\\Modules\\ProductVariantOptionValue\\Services\\IProductVariantOptionValueService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-17T10:35:48.143Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "ProductRepository.cs",
-              "DocumentMoniker": "D:\\WORK\\My-E-Commerce-Web-App\\dotnet_api\\src\\Modules\\Product\\Repositories\\ProductRepository.cs",
-              "RelativeDocumentMoniker": "src\\Modules\\Product\\Repositories\\ProductRepository.cs",
-              "ToolTip": "D:\\WORK\\My-E-Commerce-Web-App\\dotnet_api\\src\\Modules\\Product\\Repositories\\ProductRepository.cs",
-              "RelativeToolTip": "src\\Modules\\Product\\Repositories\\ProductRepository.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAwAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-17T10:35:44.993Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "IProductRepository.cs",
-              "DocumentMoniker": "D:\\WORK\\My-E-Commerce-Web-App\\dotnet_api\\src\\Modules\\Product\\Repositories\\IProductRepository.cs",
-              "RelativeDocumentMoniker": "src\\Modules\\Product\\Repositories\\IProductRepository.cs",
-              "ToolTip": "D:\\WORK\\My-E-Commerce-Web-App\\dotnet_api\\src\\Modules\\Product\\Repositories\\IProductRepository.cs",
-              "RelativeToolTip": "src\\Modules\\Product\\Repositories\\IProductRepository.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAVAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-17T10:35:36.821Z",
+              "WhenOpened": "2026-06-27T13:00:10.987Z",
               "EditorCaption": ""
             }
           ]

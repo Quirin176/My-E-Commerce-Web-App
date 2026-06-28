@@ -75,6 +75,36 @@ export const productApi = {
     return res.data;
   },
 
+  // Get paginated products with search and sorting
+  async getSoftDeletedProductsPaginated(
+    page = 1,
+    pageSize = 10,
+    search?: string,
+    sortBy = "id",
+    sortOrder = "desc",
+    filters?: {
+      category?: string | null;
+      minPrice?: number;
+      maxPrice?: number;
+      selectedOptions?: (string | number)[];
+    }
+  ) {
+    const params = new URLSearchParams();
+    params.append("page", String(page));
+    params.append("pageSize", String(pageSize));
+    if (search) params.append("search", search);
+    params.append("sortBy", sortBy);
+    params.append("sortOrder", sortOrder);
+    if (filters) {
+      if (filters.category) params.append("category", filters.category);
+      if (filters.minPrice !== undefined) params.append("minPrice", String(filters.minPrice));
+      if (filters.maxPrice !== undefined) params.append("maxPrice", String(filters.maxPrice));
+      if (filters.selectedOptions && filters.selectedOptions.length > 0) params.append("selectedOptions", filters.selectedOptions.join(","));
+    }
+    const res = await apiClient.get<PaginatedResponse<Product>>(`/products/softdeleted/paginated?${params.toString()}`);
+    return res.data;
+  },
+
   // Main search with filters and pagination
   async search(query: string, page = 1, pageSize = 10, filters: SearchFilters) {
     try {
@@ -111,5 +141,4 @@ export const productApi = {
       return [];
     }
   }
-
 };

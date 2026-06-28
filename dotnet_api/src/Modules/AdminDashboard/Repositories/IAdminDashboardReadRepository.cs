@@ -1,16 +1,17 @@
-using WebApp_API.DTOs;
-using WebApp_API.Entities;
+using WebApp_API.Modules.AdminDashboard.DTOs;
+using WebApp_API.Modules.Orders.DTOs;
+using WebApp_API.Modules.OrderItems.DTOs;
 
-namespace WebApp_API.Repositories
+namespace WebApp_API.Modules.AdminDashboard.Repositories
 {
     public interface IAdminDashboardReadRepository
     {
         int CountUsers();
-        Task<List<OrderItemDTOs.TopProductDto>> GetTopSellingProducts(int top);
-        Task<List<Product>> GetTopNewestProducts(int top);
+        Task<List<TopProductDto>> GetTopSellingProducts(int top);
+        Task<List<Entities.Product>> GetTopNewestProducts(int top);
         int CountOrders();
         decimal GetTotalRevenue();
-        Task<List<OrderDTOs.RecentOrderDto>> GetRecentOrders(int count);
+        Task<List<RecentOrderDto>> GetRecentOrders(int count);
         Task<List<LineChartPoint>> GetOrderChartDataAsync(int days);
     }
 }

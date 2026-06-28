@@ -1,6 +1,6 @@
 using WebApp_API.Entities;
 
-namespace WebApp_API.Services
+namespace WebApp_API.Modules.Users.Services
 {
     public interface IJwtService
     {

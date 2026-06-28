@@ -12,12 +12,12 @@ export default function AdminLayout() {
       <AdminSidePanel />
 
       {/* Right Section */}
-      <div className="flex flex-col flex-1 ml-60 transition-all duration-300 bg-(--bg-surface)">
-        {/* Top Header */}
+      <div className="flex flex-col flex-1 pl-60 transition-all duration-300 bg-(--bg-surface)">
+
         <AdminHeader />
 
         {/* Main Content */}
-        <main className="flex-1 bg-(--bg-surface)">
+        <main className="flex-1 flex flex-col pt-18 overflow-hidden">
           <Outlet />
         </main>
 

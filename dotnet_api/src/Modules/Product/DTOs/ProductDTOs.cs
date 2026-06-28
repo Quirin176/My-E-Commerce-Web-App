@@ -1,4 +1,7 @@
-namespace WebApp_API.DTOs
+using WebApp_API.Modules.ProductImages.DTOs;
+using WebApp_API.Modules.ProductVariants.DTOs;
+
+namespace WebApp_API.Modules.Products.DTOs
 {
     public class ProductDTOs
     {
@@ -27,6 +30,20 @@ namespace WebApp_API.DTOs
             public List<int> SelectedOptionValueIds { get; set; } = new();
         }
 
+        public sealed class BulkDeleteProductsRequest
+        {
+            public List<int> ProductIds { get; set; } = [];
+        }
+
+        public sealed class BulkDeleteProductsResponse
+        {
+            public int RequestedCount { get; set; }
+
+            public int DeletedCount { get; set; }
+
+            public List<int> NotFoundIds { get; set; } = [];
+        }
+        
         // ────────────────────────────────────────────────── Responses ──────────────────────────────────────────────────
         // Full product detail (Product's detail page, admin product edit)
         public class ProductDetailResponse
@@ -40,9 +57,9 @@ namespace WebApp_API.DTOs
             public string? ThumbnailUrl { get; set; }
             public int CategoryId { get; set; }
             public CategoryInfo? Category { get; set; }
-            public List<ProductImageDTOs.ImageUrlDto> Images { get; set; } = new();
+            public List<ImageUrlDto> Images { get; set; } = new();
             public List<ProductOptionGroupResponse> Options { get; set; } = new();
-            public List<ProductVariantDTOs.ProductVariantResponse> Variants { get; set; } = new();
+            public List<ProductVariantResponse> Variants { get; set; } = new();
         }
 
         // ────────────────────────────────────────────────── Nested types ──────────────────────────────────────────────────

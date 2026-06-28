@@ -21,18 +21,54 @@ export default function AdminProducts() {
   const navigate = useNavigate();
 
   // ──────────────────── URL-driven filter state ────────────────────
-  const { page, sortOrder, minPrice, maxPrice, selectedOptions, updateUrl } = useProductUrlFilters();
+  const { page, sortOrder, minPrice, maxPrice, selectedOptions, updateUrl, category } = useProductUrlFilters();
 
   // ──────────────────── Local UI state ────────────────────
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  // Category is derived from URL filters so UI reflects URL on mount/back
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [selectedProductIds, setSelectedProductIds] = useState<(number | string)[]>([]);
 
-  // ──────────────────── Product data fetching ────────────────────
   const { products, totalCount, loading, error, refetch } = useProducts(
-    { categorySlug: selectedCategory ?? undefined, pageSize: PAGE_SIZE },
+    { categorySlug: category ?? undefined, pageSize: PAGE_SIZE },
     { searchTerm, minPrice, maxPrice, sortOrder, selectedOptions, currentPage: page, }
   );
+
+  const visibleProductIds = products.map((product) => product.id);
+  const allVisibleSelected = products.length > 0 && visibleProductIds.every((productId) => selectedProductIds.includes(productId));
+
+  const toggleProductSelection = (id: number | string) => {
+    setSelectedProductIds((prev) =>
+      prev.includes(id) ? prev.filter((productId) => productId !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectPage = () => {
+    setSelectedProductIds((prev) =>
+      allVisibleSelected
+        ? prev.filter((productId) => !visibleProductIds.includes(productId))
+        : Array.from(new Set([...prev, ...visibleProductIds]))
+    );
+  };
+
+  const clearSelection = () => setSelectedProductIds([]);
+
+  const handleBulkDelete = async () => {
+    if (selectedProductIds.length === 0) return;
+
+    if (!window.confirm(`Delete ${selectedProductIds.length} selected product${selectedProductIds.length === 1 ? "" : "s"}?`)) {
+      return;
+    }
+
+    try {
+      await adminProductsApi.deleteSoftMultipleProducts(selectedProductIds);
+      toast.success("Selected products deleted");
+      clearSelection();
+      refetch();
+    } catch {
+      toast.error("Delete failed for one or more products");
+    }
+  };
 
   // ──────────────────── Pagination ────────────────────
   const { totalPages, goToPage } = usePagination({
@@ -44,7 +80,6 @@ export default function AdminProducts() {
 
   // ──────────────────── Filter handlers ────────────────────
   const handleCategoryChange = (slug: string) => {
-    setSelectedCategory(slug || null);
     updateUrl({ category: slug, selectedOptions: [], page: 1, search: undefined });
   };
 
@@ -85,7 +120,7 @@ export default function AdminProducts() {
     if (!window.confirm(`Delete the product "${name}"?`)) return;
 
     try {
-      await adminProductsApi.deleteProduct(id);
+      await adminProductsApi.deleteHardOneProduct(id);
       toast.success("Deleted");
       refetch();
     } catch {
@@ -98,9 +133,21 @@ export default function AdminProducts() {
 
       {/* ========== HEADER ========== */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <p>
-          {totalCount > 0 ? `${totalCount} total products` : "No products found"}
-        </p>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <p>
+            {totalCount > 0 ? `${totalCount} total products` : "No products found"}
+          </p>
+
+          <label className="inline-flex items-center gap-2 text-sm text-(--text-primary)">
+            <input
+              type="checkbox"
+              checked={allVisibleSelected}
+              onChange={toggleSelectPage}
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            Select page
+          </label>
+        </div>
 
         {/* ========== SEARCH BAR ========== */}
         <div className="flex-1 flex justify-center">
@@ -131,10 +178,36 @@ export default function AdminProducts() {
         </div>
       )}
 
+      {selectedProductIds.length > 0 && (
+        <div className="mb-4 flex flex-col sm:flex-row justify-between items-center gap-3 p-4 bg-(--bg-surface) rounded-lg border border-(--border-muted)">
+          <p className="text-sm text-(--text-primary)">
+            {selectedProductIds.length} product{selectedProductIds.length === 1 ? "" : "s"} selected
+          </p>
+
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={handleBulkDelete}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+            >
+              Delete selected
+            </button>
+            <button
+              type="button"
+              disabled
+              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg cursor-not-allowed"
+            >
+              Set status
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Dynamic filters */}
       <div className="bg-(--bg-surface) rounded-lg">
         <AdminDynamicFilters
           onCategoryChange={handleCategoryChange}
+          selectedCategory={category}
           selectedOptions={selectedOptions}
           setSelectedOptions={(opts: (string | number)[]) => updateUrl({ selectedOptions: opts, page: 1 })}
           minPrice={minPrice}
@@ -175,10 +248,12 @@ export default function AdminProducts() {
             {products.map((product) => (
               <div
                 key={product.id}
-                className="border rounded-lg px-8 py-2 bg-(--bg-surface) hover:bg-(--bg-muted) transition"
+                className="border rounded-lg px-4 py-2 bg-(--bg-surface) hover:bg-(--bg-muted) transition"
               >
                 <AdminProductCard
                   product={product}
+                  selected={selectedProductIds.includes(product.id)}
+                  onSelect={toggleProductSelection}
                   onEdit={() => navigate(`/admin/products/${product.id}/edit`)}
                   onDelete={(id, name) => handleDelete(id, name)}
                 />

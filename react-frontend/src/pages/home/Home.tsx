@@ -5,7 +5,7 @@ import { useCategories } from "../../hooks/products/useCategories";
 import { useProductFiltersBySlug } from "../../hooks/products/useProductFiltersBySlug";
 
 import CategoryPanel from "../../components/home/CategoryPanel.tsx";
-import CategoryFiltersPanel from "../../components/home/CategoryFiltersPanel.tsx";
+import FiltersPanelVertical from "../../components/home/FiltersPanelVertical";
 import CenterPanel from "../../components/home/CenterPanel.tsx";
 import CategoryTabs from "../../components/home/categoryTabs/CategoryTabs.tsx";
 import { productApi } from "../../api/products/productApi";
@@ -66,9 +66,9 @@ export default function Home() {
         {/* CENTER SIDE: DYNAMIC FILTER PANEL OR MAIN PANEL */}
         <div className="flex-1 min-h-64 overflow-y-auto rounded-2xl border-2 text-(--text-primary) border-(--border) bg-(--bg-surface)">
           {selectedCategory ? (
-            <CategoryFiltersPanel
+            <FiltersPanelVertical
               selectedCategory={selectedCategory}
-              filters={filters}
+              options={filters}
               loading={filtersLoading}
               onLeave={handleLeave}
               onFilterClick={handleFilterClick}

@@ -25,7 +25,9 @@ export default function AdminHeader() {
 
     return (
         <header
-            className="h-16 flex items-center px-8 bg-(--brand-primary) z-50"
+            className="fixed top-0 left-60 pl-8 pr-68 py-2 w-full h-18 z-50
+            flex flex-col sm:flex-row items-center gap-2 sm:justify-between
+            shadow-lg bg-linear-to-br from-(--brand-primary) to-(--brand-secondary)"
         >
             <h1 className="text-2xl text-white font-bold">{getSegment()}</h1>
 

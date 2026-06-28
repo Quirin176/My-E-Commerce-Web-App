@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useCategories } from "../../hooks/products/useCategories";
 import { useProductFiltersBySlug } from "../../hooks/products/useProductFiltersBySlug";
 
-import CategoryFiltersPanel from "../home/CategoryFiltersPanel";
+import CategoryFiltersPanel from "../home/FiltersPanelHorizontal";
 import CategoryPanel from "../home/CategoryPanel";
 
 export default function CategoriesDropdown() {

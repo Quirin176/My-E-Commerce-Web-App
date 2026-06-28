@@ -1,7 +1,8 @@
 import { getCategoryIcon } from "../../utils/getCategoryIcon";
+import type { Category } from "../../types/models/products/Category";
 
 interface Props {
-  categories: any[];
+  categories: Category[];
   selectedCategory: string | null;
   onHover: (slug: string) => void;
   onClick: (slug: string) => void;
@@ -17,22 +18,22 @@ export default function CategoryPanel({
   return (
     <div className="overflow-y-auto rounded-2xl">
       <div className="flex flex-col bg-(--bg-surface)">
-        {categories.map((item) => (
+        {categories.map((category) => (
           <button
-            key={item.id}
-            onMouseEnter={() => onHover(item.slug)}
-            onClick={() => onClick(item.slug)}
+            key={category.id}
+            onMouseEnter={() => onHover(category.slug)}
+            onClick={() => onClick(category.slug)}
             className={`flex items-center gap-3 px-4 py-2 rounded-lg transition cursor-pointer
-              ${selectedCategory === item.slug ? "text-(--text-secondary) bg-(--brand-primary)" : "text-(--text-primary) bg-(--bg-surface)"}`}
+              ${selectedCategory === category.slug ? "text-(--text-secondary) bg-(--brand-primary)" : "text-(--text-primary) bg-(--bg-surface)"}`}
           >
             <div
               className={`w-8 h-8 flex items-center justify-center rounded-md border-2
-              ${selectedCategory === item.slug ? "text-(--text-secondary) bg-(--brand-primary)" : "text-(--text-primary) bg-(--bg-surface)"}`}
+              ${selectedCategory === category.slug ? "text-(--text-secondary) bg-(--brand-primary)" : "text-(--text-primary) bg-(--bg-surface)"}`}
             >
-              {getCategoryIcon(item.slug, 20)}
+              {getCategoryIcon(category.slug, 20)}
             </div>
 
-            <span className="font-semibold">{item.name}</span>
+            <span className="font-semibold">{category.name}</span>
           </button>
         ))}
       </div>

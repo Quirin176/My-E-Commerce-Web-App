@@ -1,8 +1,8 @@
 using System.Security.Cryptography;
 using System.Text;
-using WebApp_API.DTOs;
+using WebApp_API.Modules.Products.DTOs;
 
-namespace WebApp_API.Specifications
+namespace WebApp_API.Modules.Products.Specifications
 {
     // Product Filter By Category, Min Price, Max Price, OptionValues, Sort Order Specifications
     public class ProductFilterSpec

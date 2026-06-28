@@ -1,6 +1,6 @@
-using WebApp_API.DTOs;
+using WebApp_API.Modules.Users.DTOs;
 
-namespace WebApp_API.Services
+namespace WebApp_API.Modules.Users.Services
 {
     public interface IAuthService
     {

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import type { ProductOption } from "../../types/models/products/ProductOption";
+import type { ProductOption } from "../../types/models/products/Product";
 
 export interface DynamicFiltersProps {
   loadedOptions: ProductOption[] | null | undefined;
@@ -66,7 +66,7 @@ export default function DynamicFilters({
           <>
             {options.map(option => {
               const selectedInCategory = selectedOptions.filter(id =>
-                option.optionValues.some(v => v.id === id)
+                option.optionValues.some(v => v.optionValueId === id)
               );
 
               return (
@@ -97,13 +97,13 @@ export default function DynamicFilters({
                       <div className="p-2 max-h-48 overflow-y-auto">
                         {option.optionValues.map(value => (
                           <label
-                            key={value.id}
+                            key={value.optionValueId}
                             className="flex items-center gap-2 px-2 py-1.5 rounded transition cursor-pointer hover:bg-(--brand-primary) hover:text-(--text-secondary)"
                           >
                             <input
                               type="checkbox"
-                              checked={selectedOptions.map(String).includes(String(value.id))}
-                              onChange={() => toggleOption(value.id)}
+                              checked={selectedOptions.map(String).includes(String(value.optionValueId))}
+                              onChange={() => toggleOption(value.optionValueId)}
                               className="w-3 h-3"
                             />
                             <span className="text-xs">{value.value}</span>
@@ -159,7 +159,7 @@ export default function DynamicFilters({
             {selectedOptions.map(id => {
               const option = options
                 .flatMap(c => c.optionValues || [])
-                .find(v => String(v.id) === String(id));
+                .find(v => String(v.optionValueId) === String(id));
               return option ? (
                 <span
                   key={id}

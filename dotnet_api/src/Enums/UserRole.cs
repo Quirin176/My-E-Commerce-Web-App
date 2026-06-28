@@ -1,7 +1,8 @@
-namespace WebApp_API.Enums;
-
-public enum UserRole
+namespace WebApp_API.Enums
 {
-    Admin,
-    Customer
+    public enum UserRole
+    {
+        Admin,
+        Customer
+    }
 }

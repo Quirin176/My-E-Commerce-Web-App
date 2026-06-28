@@ -36,6 +36,17 @@ export const categoryApi = {
     }
   },
 
+  // POST: api/categories - Create a category
+  async createCategory(data: CreateCategoryRequest) {
+    try {
+      const res = await apiClient.post("/categories", data);
+      return res.data;
+    } catch (error) {
+      console.error("Error loading filters:", error);
+      return [];
+    }
+  },
+
   // GET: api/productoptions/category/slug/:slug - Get all options and all their optionvalues for a category by slug
   async getAllChildDataByCategorySlug(slug: string) {
     try {
@@ -51,17 +62,6 @@ export const categoryApi = {
   async getAllChildDataByCategoryId(id: number) {
     try {
       const res = await apiClient.get(`/productoptions/category/id/${id}`);
-      return res.data;
-    } catch (error) {
-      console.error("Error loading filters:", error);
-      return [];
-    }
-  },
-
-  // POST: api/categories - Create a category
-  async createCategory(data: CreateCategoryRequest) {
-    try {
-      const res = await apiClient.post("/categories", data);
       return res.data;
     } catch (error) {
       console.error("Error loading filters:", error);

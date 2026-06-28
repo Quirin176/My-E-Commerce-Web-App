@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using WebApp_API.Data;
-using WebApp_API.DTOs;
-using WebApp_API.Entities;
+using WebApp_API.Modules.AdminDashboard.DTOs;
+using WebApp_API.Modules.Orders.DTOs;
+using WebApp_API.Modules.OrderItems.DTOs;
 
-namespace WebApp_API.Repositories
+namespace WebApp_API.Modules.AdminDashboard.Repositories
 {
     public class AdminDashboardReadRepository : IAdminDashboardReadRepository
     {
@@ -15,10 +16,10 @@ namespace WebApp_API.Repositories
             return _db.Users.Count();
         }
 
-        public async Task<List<OrderItemDTOs.TopProductDto>> GetTopSellingProducts(int top)
+        public async Task<List<TopProductDto>> GetTopSellingProducts(int top)
         {
             return _db.OrderItems.GroupBy(oi => oi.ProductId)
-                                 .Select(g => new OrderItemDTOs.TopProductDto
+                                 .Select(g => new TopProductDto
                                  {
                                      ProductId = g.Key,
                                      ProductName = g.First().ProductName,
@@ -30,7 +31,7 @@ namespace WebApp_API.Repositories
                                  .ToList();
         }
 
-        public async Task<List<Product>> GetTopNewestProducts(int top)
+        public async Task<List<Entities.Product>> GetTopNewestProducts(int top)
         {
             return await _db.Products.AsNoTracking()
                                      .OrderByDescending(p => p.CreatedAt)
@@ -42,12 +43,12 @@ namespace WebApp_API.Repositories
 
         public decimal GetTotalRevenue() => _db.Orders.Sum(o => o.TotalAmount);
 
-        public async Task<List<OrderDTOs.RecentOrderDto>> GetRecentOrders(int count)
+        public async Task<List<RecentOrderDto>> GetRecentOrders(int count)
         {
             return _db.Orders.AsNoTracking()
                              .OrderByDescending(o => o.CreatedAt)
                              .Take(count)
-                             .Select(o => new OrderDTOs.RecentOrderDto
+                             .Select(o => new RecentOrderDto
                              {
                                  Id = o.Id,
                                  CustomerName = o.CustomerName,

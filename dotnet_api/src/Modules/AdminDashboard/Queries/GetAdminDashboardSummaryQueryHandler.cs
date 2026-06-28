@@ -1,32 +1,23 @@
 using MediatR;
-using Microsoft.Extensions.Caching.Memory;
-using WebApp_API.DTOs;
-using WebApp_API.Repositories;
+using WebApp_API.Modules.AdminDashboard.DTOs;
+using WebApp_API.Modules.AdminDashboard.Repositories;
 
-namespace WebApp_API.Features.AdminDashboard.Queries
+namespace WebApp_API.Modules.AdminDashboard.Queries.GetAdminDashboardSummary
 {
     public class GetAdminDashboardSummaryQueryHandler
         : IRequestHandler<GetAdminDashboardSummaryQuery, AdminDashboardDTOs>
     {
         private readonly IAdminDashboardReadRepository _repo;
-        private readonly IMemoryCache _cache;
 
-        public GetAdminDashboardSummaryQueryHandler(
-            IAdminDashboardReadRepository repo, IMemoryCache cache)
+        public GetAdminDashboardSummaryQueryHandler(IAdminDashboardReadRepository repo)
         {
             _repo = repo;
-            _cache = cache;
         }
 
         public async Task<AdminDashboardDTOs> Handle(
             GetAdminDashboardSummaryQuery request,
             CancellationToken cancellationToken)
         {
-            // const string cacheKey = "admindashboard";
-
-            // if (_cache.TryGetValue(cacheKey, out AdminDashboardDTOs? cached))
-            //     return cached!;
-
             var data = new AdminDashboardDTOs
             {
                 TotalUsers = _repo.CountUsers(),
@@ -37,8 +28,6 @@ namespace WebApp_API.Features.AdminDashboard.Queries
                 TopNewestProducts = await _repo.GetTopNewestProducts(request.topNewestProductsAmount),
                 LineChartPoints = await _repo.GetOrderChartDataAsync(120)
             };
-
-            // _cache.Set(cacheKey, data, TimeSpan.FromMinutes(5));
 
             return data;
         }

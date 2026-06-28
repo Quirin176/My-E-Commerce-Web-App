@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
 using MediatR;
-using WebApp_API.Features.AdminDashboard.Queries;
+using WebApp_API.Modules.AdminDashboard.Queries.GetAdminDashboardSummary;
 
-namespace WebApp_API.Controllers
+namespace WebApp_API.Modules.AdminDashboard.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -18,7 +17,6 @@ namespace WebApp_API.Controllers
         }
 
         // GET: /api/admindashboard - Get all dashboard data
-        // [OutputCache(PolicyName = "Admin_Dashboard")]
         [HttpGet]
         public async Task<IActionResult> GetDashboardData([FromQuery] int topRecentOrdersAmount, int topSellingProductsAmount, int topNewestProductsAmount)
         {

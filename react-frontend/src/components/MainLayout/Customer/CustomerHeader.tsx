@@ -27,9 +27,12 @@ export default function CustomerHeader() {
   };
 
   return (
-    <header className="fixed top-0 left-0 w-full h-18 z-50
-    flex flex-col sm:flex-row items-center gap-2 sm:justify-between
-    shadow-lg px-4 py-2 bg-linear-to-br from-(--brand-primary) to-(--brand-secondary)">
+    <header
+      className="fixed top-0 left-0 w-full h-18 z-50
+      flex flex-col sm:flex-row items-center gap-2 sm:justify-between
+      shadow-lg px-4 py-2 bg-linear-to-br from-(--brand-primary) to-(--brand-secondary)"
+    >
+
       {/* LOGO AND SITE NAME */}
       <div className="flex items-center justify-between w-full sm:w-auto gap-4">
         <Link to="/" className="flex items-center gap-2 text-white text-2xl font-bold">
@@ -73,7 +76,7 @@ export default function CustomerHeader() {
             <UserDropDown />
           </div>)}
       </div>
-      
+
     </header>
   );
 };

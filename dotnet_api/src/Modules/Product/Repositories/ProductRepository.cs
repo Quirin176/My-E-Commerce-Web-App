@@ -1,10 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using WebApp_API.Data;
-using WebApp_API.DTOs;
 using WebApp_API.Entities;
-using WebApp_API.Specifications;
+using WebApp_API.Modules.Products.Specifications;
 
-namespace WebApp_API.Repositories
+namespace WebApp_API.Modules.Products.Repositories
 {
     public class ProductRepository : IProductRepository
     {
@@ -12,7 +11,7 @@ namespace WebApp_API.Repositories
         public ProductRepository(AppDbContext db) => _db = db;
 
         // ────────────────────────────────────────────────── Single product lookups ──────────────────────────────────────────────────
-        public Task<Product?> GetByIdAsync(int id)
+        public Task<Entities.Product?> GetByIdAsync(int id)
         {
             return _db.Products.AsNoTracking()
                         .Include(p => p.Category)
@@ -28,7 +27,7 @@ namespace WebApp_API.Repositories
                         .FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        public Task<Product?> GetBySlugAsync(string slug)
+        public Task<Entities.Product?> GetBySlugAsync(string slug)
         {
             return _db.Products.AsNoTracking()
                         .Include(p => p.Category)
@@ -45,7 +44,15 @@ namespace WebApp_API.Repositories
         }
 
         // ────────────────────────────────────────────────── List queries ──────────────────────────────────────────────────
-        public async Task<List<Product>> GetCategoryNewestAsync(int categoryId, int amount)
+        public async Task<List<Entities.Product>> GetByIdsAsync(IEnumerable<int> productIds)
+        {
+            var ids = productIds.ToList();
+
+            return await _db.Products.Where(p => ids.Contains(p.Id))
+                                                    .ToListAsync();
+        }
+
+        public async Task<List<Entities.Product>> GetCategoryNewestAsync(int categoryId, int amount)
         {
             if (amount <= 0) return [];
 
@@ -56,7 +63,7 @@ namespace WebApp_API.Repositories
                                      .ToListAsync();
         }
 
-        public async Task<List<Product>> GetTopSellingProducts(int categoryId, int amount)
+        public async Task<List<Entities.Product>> GetTopSellingProducts(int categoryId, int amount)
         {
             var topProductIds = await _db.OrderItems.Where(oi => oi.Product.CategoryId == categoryId)
                                                     .GroupBy(oi => oi.ProductId)
@@ -75,23 +82,9 @@ namespace WebApp_API.Repositories
             return products;
         }
 
-        public async Task<(List<Product> Items, int TotalCount)> GetPaginatedAsync(ProductFilterSpec spec)
+        public async Task<(List<Entities.Product> Items, int TotalCount)> GetPaginatedAsync(ProductFilterSpec spec)
         {
-            var query = _db.Products.AsNoTracking();
-
-            if (!string.IsNullOrWhiteSpace(spec.Search))
-            {
-                var term = spec.Search.Trim();
-                query = query.Where(p => EF.Functions.Like(p.Name, $"%{term}%") ||
-                                            EF.Functions.Like(p.Slug, $"%{term}%"));
-            }
-
-            if (spec.Category != null) query = query.Where(p => p.Category != null &&
-                                                                p.Category.Slug == spec.Category);
-
-            query = ApplyPriceFilter(query, spec.MinPrice, spec.MaxPrice);
-            query = await ApplyOptionFilter(query, spec.SelectedOptionValueIds);
-            query = ApplySortOrder(query, spec.SortOrder);
+            var query = await BuildFilteredQueryAsync(spec, includeDeleted: false);
 
             // Pagination
             var totalCount = await query.CountAsync();
@@ -104,7 +97,22 @@ namespace WebApp_API.Repositories
             return (items, totalCount);
         }
 
-        public async Task<(List<Product> Items, int TotalCount)> SearchAsync(ProductSearchSpec spec)
+        public async Task<(List<Entities.Product> Items, int TotalCount)> GetSoftDeletedPaginatedAsync(ProductFilterSpec spec)
+        {
+            var query = await BuildFilteredQueryAsync(spec, includeDeleted: true);
+
+            // Pagination
+            var totalCount = await query.CountAsync();
+
+            var items = await query.Include(p => p.Category)
+                                    .Skip((spec.Page - 1) * spec.PageSize)
+                                    .Take(spec.PageSize)
+                                    .ToListAsync();
+
+            return (items, totalCount);
+        }
+
+        public async Task<(List<Entities.Product> Items, int TotalCount)> SearchAsync(ProductSearchSpec spec)
         {
             // Search matches query from name, description, and category name
             var term = spec.Query.Trim();
@@ -142,14 +150,14 @@ namespace WebApp_API.Repositories
             _db.Products.AnyAsync(p => p.Slug == slug);
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
-        public async Task<Product> AddAsync(Product product)
+        public async Task<Entities.Product> AddAsync(Entities.Product product)
         {
             await _db.Products.AddAsync(product);
             return product;
         }
 
-        public void Update(Product product) => _db.Products.Update(product);    // Update the entire product data
-        public void Remove(Product product) => _db.Products.Remove(product);    // Remove the product
+        public void Update(Entities.Product product) => _db.Products.Update(product);    // Update the entire product data
+        public void Remove(Entities.Product product) => _db.Products.Remove(product);    // Remove the product
 
         // ────────────────────────────────────────────────── Related data ──────────────────────────────────────────────────
         public async Task<List<(int OptionId, string OptionName, int ValueId, string Value)>> GetOptionsRawAsync(int productId)
@@ -169,33 +177,40 @@ namespace WebApp_API.Repositories
                        .ToList();
         }
 
-        // Returns a list of option groups: List of (OptionId + its List of OptionValueIds)
-        public async Task<List<(int OptionId, List<int> OptionValueIds)>> GetOptionGroupsForValuesAsync(List<int> optionValueIds)
+        public async Task<List<(int ProductId, int OptionId, string OptionName, int ValueId, string Value)>> GetOptionsRawForProductsAsync(IEnumerable<int> productIds)
         {
-            return (await _db.ProductOptionValues.Where(ov => optionValueIds.Contains(ov.Id))   // Get all the option values matching the provided Ids
-                                                 .GroupBy(ov => ov.ProductOptionId)             // Group them by their OptionId
-                                                 .Select(g => new { OptionId = g.Key, OptionValueIds = g.Select(ov => ov.Id).ToList() })    // Get the OptionId and list of OptionValueIds for each group
-                                                 .ToListAsync())    // Return OptionId + List of OptionValueIds for each group
-                    .Select(x => (x.OptionId, x.OptionValueIds))    // Convert to List of (OptionId, List of OptionValueIds)
-                    .ToList();                                      // Return List of (OptionId, List of OptionValueIds)
+            var ids = productIds.Where(id => id > 0).Distinct().ToList();
+            if (ids.Count == 0)
+                return new List<(int ProductId, int OptionId, string OptionName, int ValueId, string Value)>();
+
+            var data = await _db.ProductFilters
+                .Where(pf => ids.Contains(pf.ProductId))
+                .Select(pf => new
+                {
+                    pf.ProductId,
+                    pf.OptionValue.ProductOption.Id,
+                    pf.OptionValue.ProductOption.Name,
+                    ValueId = pf.OptionValue.Id,
+                    pf.OptionValue.Value
+                })
+                .ToListAsync();
+
+            return data.Select(d => (d.ProductId, d.Id, d.Name, d.ValueId, d.Value))
+                       .ToList();
         }
 
-        public async Task<List<int>> GetProductIdsByOptionValuesAsync(List<int> optionValueIds)
+        public async Task SetOptionValuesAsync(Entities.Product product, IEnumerable<int> optionValueIds)
         {
-            return await _db.ProductFilters.Where(pf => optionValueIds.Contains(pf.OptionValueId))
-                                           .Select(pf => pf.ProductId)
-                                           .Distinct()
-                                           .ToListAsync();
-        }
-
-        public async Task SetOptionValuesAsync(int productId, IEnumerable<int> optionValueIds)
-        {
-            var existing = await _db.ProductFilters.Where(pf => pf.ProductId == productId).ToListAsync();
-            _db.ProductFilters.RemoveRange(existing);
-
-            var filters = optionValueIds.Select(id => new ProductFilter
+            if (product.Id > 0)
             {
-                ProductId = productId,
+                var existing = await _db.ProductFilters.Where(pf => pf.ProductId == product.Id).ToListAsync();
+                _db.ProductFilters.RemoveRange(existing);
+            }
+
+            var values = optionValueIds.Distinct();
+            var filters = values.Select(id => new ProductFilter
+            {
+                Product = product,
                 OptionValueId = id
             });
 
@@ -205,7 +220,35 @@ namespace WebApp_API.Repositories
         public Task SaveChangesAsync() => _db.SaveChangesAsync();
 
         // ────────────────────────────────────────────────── Private helpers ──────────────────────────────────────────────────
-        private static IQueryable<Product> ApplyPriceFilter(IQueryable<Product> query, decimal min, decimal max)
+        private async Task<IQueryable<Entities.Product>> BuildFilteredQueryAsync(ProductFilterSpec spec, bool includeDeleted)
+        {
+            var query = _db.Products.AsNoTracking();
+
+            query = query.Where(p => p.IsDeleted == includeDeleted);
+
+            if (!string.IsNullOrWhiteSpace(spec.Search))
+            {
+                var term = spec.Search.Trim();
+                query = query.Where(p =>
+                    EF.Functions.Like(p.Name, $"%{term}%") ||
+                    EF.Functions.Like(p.Slug, $"%{term}%"));
+            }
+
+            if (spec.Category != null)
+            {
+                query = query.Where(p =>
+                    p.Category != null &&
+                    p.Category.Slug == spec.Category);
+            }
+
+            query = ApplyPriceFilter(query, spec.MinPrice, spec.MaxPrice);
+            query = await ApplyOptionFilter(query, spec.SelectedOptionValueIds);
+            query = ApplySortOrder(query, spec.SortOrder);
+
+            return query;
+        }
+
+        private static IQueryable<Entities.Product> ApplyPriceFilter(IQueryable<Entities.Product> query, decimal min, decimal max)
         {
             if (min > 0) query = query.Where(p => p.BasePrice >= min);
             if (max < decimal.MaxValue) query = query.Where(p => p.BasePrice <= max);
@@ -213,38 +256,39 @@ namespace WebApp_API.Repositories
         }
 
         // OR within the same option, AND between different options
-        private async Task<IQueryable<Product>> ApplyOptionFilter(IQueryable<Product> query, List<int> optionValueIds)
+        private async Task<IQueryable<Entities.Product>> ApplyOptionFilter(IQueryable<Entities.Product> query, List<int> optionValueIds)
         {
-            // Validate
             if (optionValueIds.Count == 0) return query;
 
-            // Get List of (OptionId, List of OptionValueIds)
-            var optionGroups = await GetOptionGroupsForValuesAsync(optionValueIds);
+            var optionGroupCount = await _db.ProductOptionValues
+                .Where(ov => optionValueIds.Contains(ov.Id))
+                .Select(ov => ov.ProductOptionId)
+                .Distinct()
+                .CountAsync();
 
-            var productIds = await query.Select(p => p.Id).ToListAsync();   // Recently filtered product IDs
+            if (optionGroupCount == 0)
+                return query.Where(p => false);
 
-            foreach (var group in optionGroups)
-            {
-                var matching = await GetProductIdsByOptionValuesAsync(group.OptionValueIds);    // Get products that match any of the OptionValueIds in a same OptionId - OR logic
-                productIds = productIds.Intersect(matching).ToList();                           // Get products that match all groups so far - AND logic
-            }
+            var matchingProductIds = await _db.ProductFilters
+                .Where(pf => optionValueIds.Contains(pf.OptionValueId))
+                .Join(
+                    _db.ProductOptionValues,
+                    pf => pf.OptionValueId,
+                    ov => ov.Id,
+                    (pf, ov) => new { pf.ProductId, ov.ProductOptionId })
+                .Distinct()
+                .GroupBy(x => x.ProductId)
+                .Where(g => g.Count() == optionGroupCount)
+                .Select(g => g.Key)
+                .ToListAsync();
 
-            return query.Where(p => productIds.Contains(p.Id));
+            if (matchingProductIds.Count == 0)
+                return query.Where(p => false);
 
-            // var optionGroups = await GetOptionGroupsForValuesAsync(optionValueIds);
-
-            // foreach (var group in optionGroups)
-            // {
-            //     var ids = group.OptionValueIds;
-
-            //     // Use Any for OR logic in a same Option group and Where for AND logic between groups
-            //     query = query.Where(p => p.ProductFilters.Any(f => ids.Contains(f.OptionValueId)));
-            // }
-
-            // return query;
+            return query.Where(p => matchingProductIds.Contains(p.Id));
         }
 
-        private static IQueryable<Product> ApplySortOrder(IQueryable<Product> query, string sortOrder)
+        private static IQueryable<Entities.Product> ApplySortOrder(IQueryable<Entities.Product> query, string sortOrder)
         {
             return sortOrder switch
             {

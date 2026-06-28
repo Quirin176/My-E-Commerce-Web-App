@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { Plus, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { adminProductsApi, type ImagePayload, type ProductVariantPayload, } from "../../../api/admin/adminProductsApi";
-import type { ProductOption } from "../../../types/models/products/ProductOption";
+import type { ProductOption } from "../../../types/models/products/Product";
+import type { ProductOptionValue } from "../../../types/models/products/Product";
 import type { VariantRow } from "../../../types/models/products/variantTypes";
 
 interface ProductVariantFormProps {
@@ -29,9 +30,8 @@ export default function ProductVariantForm({
   const [imageInput, setImageInput] = useState("");
   const [imageUrls, setImageUrls] = useState<ImagePayload[]>(row.images ?? []);
   const [localOptionValueIds, setLocalOptionValueIds] = useState<number[]>(
-    (row.optionValueIds ?? []).length > 0
-      ? row.optionValueIds
-      : (row as any).optionValues?.map((ov: any) => ov.optionValueId ?? ov.id) ?? []
+    (row.optionValueIds ?? []).length > 0 ? row.optionValueIds :
+      (row as any).optionValues?.map((ov: ProductOptionValue) => ov.optionValueId ?? ov.optionValueId) ?? []
   );
   const [submitting, setSubmitting] = useState(false);
 
@@ -44,22 +44,19 @@ export default function ProductVariantForm({
     setStock(row.stock);
     setImageUrls(row.images ?? []);
     setLocalOptionValueIds(row.optionValueIds ?? []);
-  }, [row.key]);
+  }, [row.key, row.variantName, row.sku, row.price, row.originalPrice, row.stock, row.images, row.optionValueIds]);
 
   // Server-loaded variants may have `optionValues` (objects) instead of `optionValueIds` (numbers)
-  const resolvedOptionValueIds: number[] = (row.optionValueIds ?? []).length > 0
-    ? row.optionValueIds
-    : (row as any).optionValues?.map((ov: any) => ov.optionValueId ?? ov.id) ?? [];
+  const resolvedOptionValueIds: number[] = (row.optionValueIds ?? []).length > 0 ? row.optionValueIds :
+    (row as any).optionValues?.map((ov: ProductOptionValue) => ov.optionValueId ?? ov.optionValueId) ?? [];
 
   // ── Resolve option value labels from filters for read-only display ──────────
   const attributeTags: { optionName: string; value: string }[] =
-    resolvedOptionValueIds.length > 0 && filters.length > 0
-      ? filters.flatMap((opt) =>
-        opt.optionValues
-          .filter((v) => resolvedOptionValueIds.includes(v.id))
+    resolvedOptionValueIds.length > 0 && filters.length > 0 ?
+      filters.flatMap((opt) =>
+        opt.optionValues.filter((v) => resolvedOptionValueIds.includes(v.optionValueId))
           .map((v) => ({ optionName: opt.optionName, value: v.value }))
-      )
-      : (row as any).optionValues?.map((ov: any) => ({
+      ) : (row as any).optionValues?.map((ov: any) => ({
         optionName: ov.optionName,
         value: ov.value,
       })) ?? [];
@@ -151,7 +148,7 @@ export default function ProductVariantForm({
         stock: Number(stock),
         optionValueIds: row.optionValueIds,
       });
-    } catch (err) {
+    } catch {
       toast.error("Failed to save variant");
     } finally {
       setSubmitting(false);
@@ -160,14 +157,14 @@ export default function ProductVariantForm({
 
   // ── Styles ─────────────────────────────────────────────────────────────────
   const inputCls =
-    "w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm outline-none focus:border-blue-500 transition bg-white";
+    "w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm outline-none focus:border-blue-500 transition";
 
   return (
     <div className="space-y-4">
       {/* Name + SKU */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1">
+          <label className="block text-xs font-semibold mb-1">
             Variant Name <span className="text-red-500">*</span>
           </label>
           <input
@@ -178,7 +175,7 @@ export default function ProductVariantForm({
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1">
+          <label className="block text-xs font-semibold mb-1">
             SKU <span className="text-red-500">*</span>
           </label>
           <input
@@ -193,7 +190,7 @@ export default function ProductVariantForm({
       {/* Prices + Stock */}
       <div className="grid grid-cols-3 gap-3">
         <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1">
+          <label className="block text-xs font-semibold mb-1">
             Original Price
           </label>
           <input
@@ -206,7 +203,7 @@ export default function ProductVariantForm({
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1">
+          <label className="block text-xs font-semibold mb-1">
             Sale Price <span className="text-red-500">*</span>
           </label>
           <input
@@ -219,7 +216,7 @@ export default function ProductVariantForm({
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1">
+          <label className="block text-xs font-semibold mb-1">
             Stock
           </label>
           <input
@@ -235,7 +232,7 @@ export default function ProductVariantForm({
 
       {/* Image URL input */}
       <div>
-        <label className="block text-xs font-semibold text-gray-600 mb-1">
+        <label className="block text-xs font-semibold mb-1">
           Add Image URL
         </label>
         <div className="flex gap-2">
@@ -291,7 +288,7 @@ export default function ProductVariantForm({
       {/* Read-only attribute combination display */}
       {attributeTags.length > 0 && (
         <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-2">
+          <label className="block text-xs font-semibold mb-2">
             Attributes
           </label>
           <div className="flex flex-wrap gap-2">

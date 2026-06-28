@@ -23,7 +23,8 @@ export default function ProductInfoTab({
     onCategoryChange,
 }: ProductInfoTabProps) {
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
+
             <h2 className="text-2xl font-bold">
                 {mode === "edit" ? "Edit Product" : "Add New Product"}
             </h2>
@@ -37,7 +38,7 @@ export default function ProductInfoTab({
                         value={form.formData.name}
                         onChange={(e) => form.autoGenerateSlug(e.target.value)}
                         placeholder="Enter product name"
-                        className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none
+                        className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-(--brand-primary) outline-none
                             ${form.formErrors.name ? "border-red-500" : "border-(--border)"}`}
                     />
                     {form.formErrors.name && (
@@ -57,7 +58,7 @@ export default function ProductInfoTab({
                         placeholder="product-slug"
                         disabled
                         readOnly
-                        className={`w-full px-4 py-2 border-2 rounded-lg outline-none cursor-not-allowed bg-(--bg-muted)
+                        className={`w-full px-4 py-2 border-2 rounded-lg outline-none cursor-not-allowed text-(--text-primary) bg-(--bg-muted)
                             ${form.formErrors.slug ? "border-red-500" : "border-(--border)"}`}
                     />
                 </div>
@@ -72,7 +73,7 @@ export default function ProductInfoTab({
                         value={form.formData.basePrice}
                         onChange={(e) => form.updateField("basePrice", e.target.value)}
                         placeholder="Enter product price"
-                        className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none
+                        className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-(--brand-primary) outline-none
                             ${form.formErrors.price ? "border-red-500" : "border-(--border)"}`}
                     />
                     {form.formErrors.price && (
@@ -93,12 +94,12 @@ export default function ProductInfoTab({
                             filters.loadFilters(categoryId);
                             onCategoryChange(categoryId);
                         }}
-                        className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none
+                        className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-(--brand-primary) outline-none
                             ${form.formErrors.categoryId ? "border-red-500" : "border-(--border)"}`}
                     >
                         <option value="">Select a category</option>
                         {categories.map((cat) => (
-                            <option key={cat.id} value={cat.id}>
+                            <option key={cat.id} className="bg-(--bg-muted)" value={cat.id}>
                                 {cat.name}
                             </option>
                         ))}
@@ -112,7 +113,7 @@ export default function ProductInfoTab({
 
                 <div className="lg:col-span-2">
                     <div className="flex flex-col md:flex-row items-center gap-4 p-3 border-2 border-(--border) rounded-lg">
-                        <div className="relative w-20 h-20 shrink-0 bg-white border-2 border-(--border) rounded-md overflow-hidden">
+                        <div className="relative w-20 h-20 shrink-0 border-2 border-(--border) rounded-md overflow-hidden">
                             {form.formData.thumbnailUrl && (
                                 <img
                                     src={form.formData.thumbnailUrl}
@@ -130,7 +131,7 @@ export default function ProductInfoTab({
                                 value={form.formData.thumbnailUrl}
                                 onChange={(e) => form.updateField("thumbnailUrl", e.target.value)}
                                 placeholder="https://image-link.com/photo.jpg"
-                                className="w-full px-3 py-2 border-2 border-(--border) rounded-md text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                className="w-full px-3 py-2 border-2 border-(--border) rounded-md text-sm focus:ring-2 focus:ring-(--brand-primary) outline-none"
                             />
                         </div>
                     </div>
@@ -145,7 +146,7 @@ export default function ProductInfoTab({
                         value={form.formData.shortDescription}
                         onChange={(e) => form.updateField("shortDescription", e.target.value)}
                         placeholder="Brief product description"
-                        className="w-full h-60 px-4 py-2 border-2 border-(--border) rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                        className="w-full h-60 px-4 py-2 border-2 border-(--border) rounded-lg focus:ring-2 focus:ring-(--brand-primary) outline-none"
                     />
                 </div>
                 <div>
@@ -154,7 +155,7 @@ export default function ProductInfoTab({
                         value={form.formData.description}
                         onChange={(e) => form.updateField("description", e.target.value)}
                         placeholder="Detailed product description"
-                        className="w-full h-60 px-4 py-2 border-2 border-(--border) rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                        className="w-full h-60 px-4 py-2 border-2 border-(--border) rounded-lg focus:ring-2 focus:ring-(--brand-primary) outline-none"
                     />
                 </div>
             </div>
@@ -163,7 +164,8 @@ export default function ProductInfoTab({
                 <button
                     onClick={onSubmit}
                     disabled={submitting}
-                    className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-3 bg-(--brand-primary) text-white hover:brightness-75 rounded-lg font-semibold
+                    transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <span className="flex flex-row gap-4">
                         {submitting ? "Saving..." : "Configure Attributes"}

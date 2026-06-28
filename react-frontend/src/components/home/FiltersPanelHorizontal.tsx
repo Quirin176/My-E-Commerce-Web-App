@@ -1,0 +1,66 @@
+import type { ProductOption } from "../../types/models/products/Product";
+import type { ProductOptionValue } from "../../types/models/products/Product";
+
+interface Props {
+  selectedCategory: string;
+  options: ProductOption[];
+  loading: boolean;
+  onLeave: () => void;
+  onFilterClick: (category: string, optionId: string | number) => void;
+  onViewAll: () => void;
+}
+
+export default function FiltersPanelHorizontal({
+  selectedCategory,
+  options,
+  loading,
+  onLeave,
+  onFilterClick,
+  onViewAll
+}: Props) {
+
+  return (
+    <div onMouseLeave={onLeave}>
+      <div className="p-4 rounded-2xl">
+        {loading ? (
+          <div className="text-center py-12">Loading...</div>
+        ) : options?.length > 0 ? (
+          <div className="space-y-3">
+
+            {options.map((option) => (
+              <div
+                key={option.optionId}
+                className="text-(--text-primary)"
+              >
+                <h4 className="font-bold text-sm pb-1">{option.optionName}</h4>
+
+                <div className="flex flex-wrap gap-2">
+                  {option.optionValues.map((v: ProductOptionValue) => (
+                    <button
+                      key={v.optionValueId}
+                      onClick={() => onFilterClick(selectedCategory, v.optionValueId)}
+                      className="px-3 py-1 border rounded-lg text-sm cursor-pointer"
+                    >
+                      {v.value}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            <button
+              onClick={onViewAll}
+              className="w-full py-2 text-white bg-(--brand-primary) rounded-lg cursor-pointer"
+            >
+              View All
+            </button>
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            No filters available
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

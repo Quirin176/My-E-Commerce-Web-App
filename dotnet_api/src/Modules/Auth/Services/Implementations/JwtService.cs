@@ -4,7 +4,7 @@ using System.Security.Claims;
 using System.Text;
 using WebApp_API.Entities;
 
-namespace WebApp_API.Services
+namespace WebApp_API.Modules.Users.Services
 {
     public class JwtService : IJwtService
     {

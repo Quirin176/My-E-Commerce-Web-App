@@ -9,6 +9,8 @@
     --brand-secondary: #10b981;
     --text-primary: black;
     --text-secondary: white;
+    --text-muted: #6b7280;
+    --text-disabled: #9ca3af;
     --border: gray;
     --price: red;
     --shadow: 0 1px 3px rgba(0, 0, 0, .08);
@@ -23,6 +25,8 @@
     --brand-secondary: #2563eb;
     --text-primary: white;
     --text-secondary: black;
+    --text-muted: #9ca3af;
+    --text-disabled: #6b7280;
     --border: gray;
     --price: red;
     --shadow: 0 1px 3px rgba(0, 0, 0, .4);

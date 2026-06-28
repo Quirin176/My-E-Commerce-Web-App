@@ -3,12 +3,9 @@
     "",
     "\\src",
     "\\src\\Modules",
-    "\\src\\Modules\\Order",
-    "\\src\\Modules\\Order\\DTOs",
     "\\src\\Modules\\Product",
-    "\\src\\Modules\\Product\\Repositories",
-    "\\src\\Modules\\Product\\Services"
+    "\\src\\Modules\\ProductVariantOptionValue\\Services"
   ],
-  "SelectedNode": "\\src\\Modules\\Product\\Services\\ProductService.cs",
+  "SelectedNode": "\\src\\Modules\\Product",
   "PreviewInSolutionExplorer": false
 }

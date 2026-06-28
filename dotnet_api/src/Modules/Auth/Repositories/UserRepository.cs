@@ -1,9 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using WebApp_API.Data;
-using WebApp_API.Entities;
 using WebApp_API.Specifications;
 
-namespace WebApp_API.Repositories
+namespace WebApp_API.Modules.Users.Repositories
 {
     public class UserRepository : IUserRepository
     {
@@ -11,24 +10,24 @@ namespace WebApp_API.Repositories
         public UserRepository(AppDbContext db) => _db = db;
 
         // ────────────────────────────────────────────────── Single product lookups ──────────────────────────────────────────────────
-        public Task<User?> GetByIdAsync(int id) =>
+        public Task<Entities.User?> GetByIdAsync(int id) =>
         _db.Users.FindAsync(id).AsTask();
 
-        public Task<User?> GetByEmailAsync(string email) =>
+        public Task<Entities.User?> GetByEmailAsync(string email) =>
         _db.Users.FirstOrDefaultAsync(x => x.Email == email);
 
-        public Task<User?> GetByPhoneAsync(string phone) =>
+        public Task<Entities.User?> GetByPhoneAsync(string phone) =>
         _db.Users.FirstOrDefaultAsync(x => x.Phone == phone);
 
-        public Task<List<User>> GetAllUsersAsync() =>
+        public Task<List<Entities.User>> GetAllUsersAsync() =>
         _db.Users.ToListAsync();
 
-        public Task<List<User>> GetUsersByRoleAsync(string role) =>
+        public Task<List<Entities.User>> GetUsersByRoleAsync(string role) =>
         _db.Users.Where(u => u.Role == role).ToListAsync();
 
-        public async Task<(List<User> Users, int TotalCount)> GetUsersByFiltersAsync(UserFiltersSpec spec)
+        public async Task<(List<Entities.User> Users, int TotalCount)> GetUsersByFiltersAsync(UserFiltersSpec spec)
         {
-            IQueryable<User> query = _db.Users;
+            IQueryable<Entities.User> query = _db.Users;
 
             // Filtered By User's Role
             if (!string.IsNullOrWhiteSpace(spec.Role))
@@ -75,13 +74,13 @@ namespace WebApp_API.Repositories
         // }
 
         // ────────────────────────────────────────────────── Write operations ──────────────────────────────────────────────────
-        public async Task CreateAsync(User user)
+        public async Task CreateAsync(Entities.User user)
         {
             await _db.Users.AddAsync(user);
             await _db.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(User user)
+        public async Task UpdateAsync(Entities.User user)
         {
             _db.Users.Update(user);
             await _db.SaveChangesAsync();

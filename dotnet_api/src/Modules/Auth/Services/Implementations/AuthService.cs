@@ -1,8 +1,8 @@
-using WebApp_API.DTOs;
+using WebApp_API.Modules.Users.DTOs;
 using WebApp_API.Entities;
-using WebApp_API.Repositories;
+using WebApp_API.Modules.Users.Repositories;
 
-namespace WebApp_API.Services
+namespace WebApp_API.Modules.Users.Services
 {
     public class AuthService : IAuthService
     {

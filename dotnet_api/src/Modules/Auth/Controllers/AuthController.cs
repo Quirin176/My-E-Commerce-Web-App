@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using WebApp_API.DTOs;
-using WebApp_API.Services;
+using WebApp_API.Modules.Users.DTOs;
+using WebApp_API.Modules.Users.Services;
 
-namespace WebApp_API.Controllers
+namespace WebApp_API.Modules.Users.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]     // API Endpoint: api/auth
